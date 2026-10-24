@@ -1,0 +1,677 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Table of Contents
+   A summary card for a long article, built from its headings (h2 numbered, h3 nested): an ink
+   marker slides to the section you are reading, a ring fills with your progress, the time
+   left counts down, and "Back to top" shows up once you are in. Sticky beside the article;
+   on small screens it folds into a bar that names the current section and opens on tap.
+   In WordPress, set data-target=".entry-content".
+   Everything is tuned with the --kz-toc-* variables. */
+.kodza-toc {
+  --kz-toc-bg: #ffffff;
+  --kz-toc-fg: #0a0a0a;
+  --kz-toc-muted: rgba(10, 10, 10, 0.6);
+  --kz-toc-faint: rgba(10, 10, 10, 0.4);
+  --kz-toc-line: rgba(10, 10, 10, 0.08);
+  --kz-toc-ink: #0a0a0a;
+  --kz-toc-top: 32px;
+  --kz-toc-offset: 32px;
+  --kz-toc-duration: 0.5s;
+  --kz-toc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-toc-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  position: sticky;
+  top: var(--kz-toc-top);
+  border-radius: 16px;
+  background: var(--kz-toc-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-toc-line);
+  color: var(--kz-toc-fg);
+}
+
+/* The head: progress ring, title (or the current section, folded), percentage */
+.kodza-toc__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px 18px;
+  border: 0;
+  border-radius: 16px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kodza-toc__head:focus-visible,
+.kodza-toc__link:focus-visible,
+.kodza-toc__top:focus-visible {
+  outline: 2px solid var(--kz-toc-fg);
+  outline-offset: 2px;
+}
+
+.kodza-toc__ring svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  transform: rotate(-90deg);
+}
+
+.kodza-toc__ring circle {
+  fill: none;
+  stroke-width: 2.4;
+}
+
+.kodza-toc__ring-track {
+  stroke: var(--kz-toc-line);
+}
+
+.kodza-toc__ring-fill {
+  stroke: var(--kz-toc-ink);
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--kz-toc-read, 0));
+  stroke-linecap: round;
+}
+
+.kodza-toc__label {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.kodza-toc__title,
+.kodza-toc__current {
+  grid-area: 1 / 1;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: opacity 0.3s ease, transform 0.4s var(--kz-toc-ease);
+}
+
+/* Folded, the head names the section you are in */
+.kodza-toc__current {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.kodza-toc.is-folded .kodza-toc__title {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.kodza-toc.is-folded .kodza-toc__current:not(:empty) {
+  opacity: 1;
+  transform: none;
+}
+
+.kodza-toc.is-folded .kodza-toc__label:has(.kodza-toc__current:empty) .kodza-toc__title {
+  opacity: 1;
+  transform: none;
+}
+
+.kodza-toc__percent {
+  font-family: var(--kz-toc-mono);
+  font-size: 12px;
+  color: var(--kz-toc-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-toc__chevron {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--kz-toc-muted);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: rotate(180deg);
+  transition: transform var(--kz-toc-duration) var(--kz-toc-ease);
+}
+
+.kodza-toc.is-folded .kodza-toc__chevron {
+  transform: none;
+}
+
+/* The body folds away by its row height: nothing jumps */
+.kodza-toc__body {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows var(--kz-toc-duration) var(--kz-toc-ease);
+}
+
+.kodza-toc.is-folded .kodza-toc__body {
+  grid-template-rows: 0fr;
+}
+
+.kodza-toc__inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* The list: a track, the part already read, and the marker on the current section */
+.kodza-toc__list {
+  position: relative;
+  display: grid;
+  margin: 0 18px;
+  padding: 4px 0 12px 14px;
+  border-top: 1px solid var(--kz-toc-line);
+  list-style: none;
+}
+
+.kodza-toc__list::before,
+.kodza-toc__fill,
+.kodza-toc__marker {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 0;
+  width: 1px;
+  height: calc(100% - 24px);
+}
+
+.kodza-toc__list::before {
+  background: var(--kz-toc-line);
+}
+
+.kodza-toc__fill {
+  background: var(--kz-toc-faint);
+  transform: scaleY(var(--kz-toc-read, 0));
+  transform-origin: top;
+}
+
+.kodza-toc__marker {
+  top: 0;
+  left: -0.5px;
+  width: 2px;
+  height: 1px;
+  border-radius: 2px;
+  background: var(--kz-toc-ink);
+  opacity: var(--kz-toc-on, 0);
+  transform: translateY(var(--kz-toc-y, 0)) scaleY(var(--kz-toc-h, 0));
+  transform-origin: top;
+}
+
+.kodza-toc.is-live .kodza-toc__marker {
+  transition: transform var(--kz-toc-duration) var(--kz-toc-ease), opacity 0.3s ease;
+}
+
+.kodza-toc__link {
+  display: flex;
+  gap: 10px;
+  padding: 7px 0;
+  border-radius: 6px;
+  color: var(--kz-toc-muted);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: color 0.3s ease, transform 0.4s var(--kz-toc-ease);
+}
+
+.kodza-toc__link:hover {
+  color: var(--kz-toc-fg);
+}
+
+.kodza-toc__link[aria-current="true"] {
+  color: var(--kz-toc-fg);
+  transform: translateX(3px);
+}
+
+.kodza-toc__num {
+  flex-shrink: 0;
+  width: 2ch;
+  padding-top: 1px;
+  font-family: var(--kz-toc-mono);
+  font-size: 11px;
+}
+
+.kodza-toc__item--sub .kodza-toc__link {
+  padding-left: calc(2ch + 10px);
+  font-weight: 400;
+}
+
+/* The foot: the time left, and a way back up once you are in */
+.kodza-toc__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 18px;
+  padding: 12px 0 16px;
+  border-top: 1px solid var(--kz-toc-line);
+  font-family: var(--kz-toc-mono);
+  font-size: 12px;
+  color: var(--kz-toc-muted);
+}
+
+.kodza-toc__top {
+  padding: 4px 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--kz-toc-fg);
+  font: inherit;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(4px);
+  visibility: hidden;
+  transition: opacity 0.3s ease, transform 0.4s var(--kz-toc-ease), visibility 0s linear 0.4s;
+}
+
+.kodza-toc.is-in .kodza-toc__top {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+/* Small screens: a bar at the top of the screen, folded until tapped */
+@media (max-width: 900px) {
+  .kodza-toc {
+    top: 12px;
+    z-index: 20;
+    box-shadow: inset 0 0 0 1px var(--kz-toc-line), 0 10px 30px -12px rgba(10, 10, 10, 0.2);
+  }
+
+  .kodza-toc__inner {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-toc.is-live .kodza-toc__marker,
+  .kodza-toc__link,
+  .kodza-toc__title,
+  .kodza-toc__current,
+  .kodza-toc__chevron,
+  .kodza-toc__body,
+  .kodza-toc__top {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-toc {
+  --kz-toc-bg: #161616;
+  --kz-toc-fg: #f2f2f0;
+  --kz-toc-muted: rgba(242, 242, 240, 0.6);
+  --kz-toc-faint: rgba(242, 242, 240, 0.4);
+  --kz-toc-line: rgba(255, 255, 255, 0.1);
+  --kz-toc-ink: #f2f2f0;
+}
+*/
+
+/* kodza-guard fb7d00515fa6 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-toc__head):not(#_),
+:where(.kodza-toc__link):not(#_),
+:where(.kodza-toc__top):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-toc:not(#_) {
+  border: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-toc__head:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-toc__ring:not(#_),
+.kodza-toc__ring-track:not(#_),
+.kodza-toc__ring-fill:not(#_),
+.kodza-toc__label:not(#_),
+.kodza-toc__title:not(#_),
+.kodza-toc__current:not(#_),
+.kodza-toc__percent:not(#_),
+.kodza-toc__body:not(#_),
+.kodza-toc__inner:not(#_),
+.kodza-toc__fill:not(#_),
+.kodza-toc__marker:not(#_),
+.kodza-toc__num:not(#_),
+.kodza-toc__foot:not(#_),
+.kodza-toc__left:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-toc__chevron:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-toc__list:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-toc__item:not(#_),
+.kodza-toc__ring svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-toc__link:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-toc__top:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-toc:not(#_):where(:not([hidden])),
+.kodza-toc__chevron:not(#_):where(:not([hidden])),
+.kodza-toc__item:not(#_):where(:not([hidden])),
+.kodza-toc__top:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-toc:not(#_):where([hidden]),
+.kodza-toc__chevron:not(#_):where([hidden]),
+.kodza-toc__item:not(#_):where([hidden]),
+.kodza-toc__top:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-toc__list:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-toc:not(#_) {
+  position: sticky;
+  border-radius: 16px;
+  background: var(--kz-toc-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-toc-line);
+  color: var(--kz-toc-fg);
+}
+
+.kodza-toc__head:not(#_) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px 18px;
+  border: 0;
+  border-radius: 16px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kodza-toc__head:focus-visible:not(#_),
+.kodza-toc__top:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-toc-fg);
+  outline-offset: 2px;
+}
+
+.kodza-toc__link:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-toc-fg);
+  outline-offset: 2px;
+}
+
+.kodza-toc__ring svg:not(#_) {
+  display: block;
+}
+
+.kodza-toc__chevron:not(#_) {
+  transition: transform var(--kz-toc-duration) var(--kz-toc-ease);
+}
+
+.kodza-toc__list:not(#_) {
+  position: relative;
+  display: grid;
+  margin: 0 18px;
+  padding: 4px 0 12px 14px;
+  border-top: 1px solid var(--kz-toc-line);
+  list-style: none;
+}
+
+.kodza-toc__link:not(#_) {
+  display: flex;
+  padding: 7px 0;
+  border-radius: 6px;
+  color: var(--kz-toc-muted);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: color 0.3s ease, transform 0.4s var(--kz-toc-ease);
+}
+
+.kodza-toc__link:hover:not(#_) {
+  color: var(--kz-toc-fg);
+}
+
+.kodza-toc__link[aria-current="true"]:not(#_) {
+  color: var(--kz-toc-fg);
+}
+
+.kodza-toc__item--sub .kodza-toc__link:not(#_) {
+  padding-left: calc(2ch + 10px);
+  font-weight: 400;
+}
+
+.kodza-toc__top:not(#_) {
+  padding: 4px 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--kz-toc-fg);
+  font: inherit;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(4px);
+  visibility: hidden;
+  transition: opacity 0.3s ease, transform 0.4s var(--kz-toc-ease), visibility 0s linear 0.4s;
+}
+
+.kodza-toc.is-in .kodza-toc__top:not(#_) {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+@media (max-width: 900px) {
+  .kodza-toc:not(#_) {
+    box-shadow: inset 0 0 0 1px var(--kz-toc-line), 0 10px 30px -12px rgba(10, 10, 10, 0.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-toc__link:not(#_),
+  .kodza-toc__chevron:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-toc__top:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

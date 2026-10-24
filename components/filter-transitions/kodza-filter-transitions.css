@@ -1,0 +1,520 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Filter Transitions
+   A filterable grid: an ink pill slides to the chosen filter (its label turning white right at
+   the pill's edges), the cards that go step back, the ones that stay glide to their new place,
+   the new ones come in one after the other, and the grid eases to its new height. The count
+   rolls. Give each item a data-category, each pill a data-filter ("all" shows everything).
+   Everything is tuned with the --kz-filter-* variables. */
+
+/* Fills its column at zero weight: a theme that sizes its content blocks (Blocksy puts the page
+   gutter in each block's width) keeps the last word */
+:where(.kodza-filter) {
+  width: 100%;
+}
+
+.kodza-filter {
+  --kz-filter-bg: #ffffff;
+  --kz-filter-fg: #0a0a0a;
+  --kz-filter-muted: rgba(10, 10, 10, 0.62);
+  --kz-filter-line: rgba(10, 10, 10, 0.1);
+  --kz-filter-ink: #0a0a0a;
+  --kz-filter-on-ink: #ffffff;
+  --kz-filter-columns: 4;
+  --kz-filter-gap: 16px;
+  --kz-filter-radius: 16px;
+  --kz-filter-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  color: var(--kz-filter-fg);
+}
+
+.kodza-filter__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* The pills: one ink pill cut to the chosen one, and a white copy of the labels cut the same */
+.kodza-filter__pills {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+  padding: 4px;
+  overflow-x: auto;
+  border-radius: 999px;
+  background: var(--kz-filter-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-filter-line);
+  scrollbar-width: none;
+}
+
+.kodza-filter__indicator,
+.kodza-filter__mirror {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  clip-path: inset(4px var(--kz-ind-r, 100%) 4px var(--kz-ind-l, 0) round 999px);
+  pointer-events: none;
+}
+
+.kodza-filter__indicator {
+  background: var(--kz-filter-ink);
+}
+
+.kodza-filter__mirror {
+  display: flex;
+  padding: 4px;
+  color: var(--kz-filter-on-ink);
+}
+
+.kodza-filter.is-live .kodza-filter__indicator,
+.kodza-filter.is-live .kodza-filter__mirror {
+  transition: clip-path 0.5s var(--kz-filter-ease);
+}
+
+.kodza-filter__pill,
+.kodza-filter__ghost {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 16px;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.kodza-filter__pill {
+  position: relative;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--kz-filter-muted);
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.kodza-filter__pill:hover,
+.kodza-filter__pill[aria-pressed="true"] {
+  color: var(--kz-filter-fg);
+}
+
+.kodza-filter__pill:focus-visible {
+  outline: 2px solid var(--kz-filter-fg);
+  outline-offset: -2px;
+}
+
+.kodza-filter__count {
+  margin: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  color: var(--kz-filter-muted);
+}
+
+.kodza-filter__num {
+  display: inline-grid;
+  overflow: hidden;
+  color: var(--kz-filter-fg);
+  vertical-align: bottom;
+}
+
+.kodza-filter__num > span {
+  grid-area: 1 / 1;
+}
+
+/* The grid */
+.kodza-filter__grid {
+  display: grid;
+  grid-template-columns: repeat(var(--kz-filter-columns), minmax(0, 1fr));
+  gap: var(--kz-filter-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-filter__item[hidden] {
+  display: none;
+}
+
+.kodza-filter__card {
+  display: grid;
+  gap: 12px;
+  border-radius: var(--kz-filter-radius);
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-filter__card:focus-visible {
+  outline: 2px solid var(--kz-filter-fg);
+  outline-offset: 4px;
+}
+
+.kodza-filter__media {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--kz-filter-radius);
+  aspect-ratio: 4 / 3;
+}
+
+.kodza-filter__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s var(--kz-filter-ease);
+}
+
+.kodza-filter__card:hover .kodza-filter__media img {
+  transform: scale(1.05);
+}
+
+.kodza-filter__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.kodza-filter__name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.kodza-filter__tag {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  color: var(--kz-filter-muted);
+}
+
+@media (max-width: 760px) {
+  .kodza-filter {
+    --kz-filter-columns: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-filter.is-live .kodza-filter__indicator,
+  .kodza-filter.is-live .kodza-filter__mirror,
+  .kodza-filter__pill,
+  .kodza-filter__media img {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-filter {
+  --kz-filter-bg: #161616;
+  --kz-filter-fg: #f2f2f0;
+  --kz-filter-muted: rgba(242, 242, 240, 0.62);
+  --kz-filter-line: rgba(255, 255, 255, 0.12);
+  --kz-filter-ink: #f2f2f0;
+  --kz-filter-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard 301031a43c58 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-filter__pill):not(#_),
+:where(.kodza-filter__card):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-filter__item):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-filter__item):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-filter:not(#_),
+.kodza-filter__bar:not(#_),
+.kodza-filter__pills:not(#_),
+.kodza-filter__indicator:not(#_),
+.kodza-filter__mirror:not(#_),
+.kodza-filter__ghost:not(#_),
+.kodza-filter__num:not(#_),
+.kodza-filter__media:not(#_),
+.kodza-filter__meta:not(#_),
+.kodza-filter__name:not(#_),
+.kodza-filter__tag:not(#_),
+.kodza-filter__num span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-filter__pill:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-filter__count:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-filter__grid:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-filter__item:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-filter__card:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-filter__media img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-filter__count:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-filter__count:not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-filter__pill:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 16px;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.kodza-filter__pill:not(#_) {
+  position: relative;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--kz-filter-muted);
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.kodza-filter__pill:hover:not(#_),
+.kodza-filter__pill[aria-pressed="true"]:not(#_) {
+  color: var(--kz-filter-fg);
+}
+
+.kodza-filter__pill:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-filter-fg);
+  outline-offset: -2px;
+}
+
+.kodza-filter__count:not(#_) {
+  margin: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  color: var(--kz-filter-muted);
+}
+
+.kodza-filter__grid:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-filter__item[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-filter__card:not(#_) {
+  display: grid;
+  border-radius: var(--kz-filter-radius);
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-filter__card:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-filter-fg);
+  outline-offset: 4px;
+}
+
+.kodza-filter__media img:not(#_) {
+  display: block;
+  transition: transform 0.7s var(--kz-filter-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-filter__pill:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-filter__media img:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

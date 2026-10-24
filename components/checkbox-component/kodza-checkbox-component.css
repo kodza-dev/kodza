@@ -1,0 +1,551 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Checkbox
+   Real checkboxes, redrawn: on check, ink grows from the centre of the box and the tick draws
+   itself; on uncheck, the tick rubs out first. A "select all" box (data-all) shows a dash when
+   only some are checked. With --cards, each option is a card that firms up when checked.
+   Everything is tuned with the --kz-check-* variables. */
+.kodza-checkbox {
+  --kz-check-bg: #ffffff;
+  --kz-check-fg: #0a0a0a;
+  --kz-check-muted: rgba(10, 10, 10, 0.6);
+  --kz-check-line: rgba(10, 10, 10, 0.2);
+  --kz-check-soft: rgba(10, 10, 10, 0.06);
+  --kz-check-ink: #0a0a0a;
+  --kz-check-on-ink: #ffffff;
+  --kz-check-size: 20px;
+  --kz-check-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-check-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--kz-check-fg);
+}
+
+.kodza-checkbox__legend {
+  margin-bottom: 10px;
+  padding: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  color: var(--kz-check-muted);
+}
+
+.kodza-checkbox__item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 10px;
+  margin: 0 -10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-checkbox__item:hover {
+  background: var(--kz-check-soft);
+}
+
+/* The real checkbox stays, invisible, on top of the drawn one */
+.kodza-checkbox__input {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: var(--kz-check-size);
+  height: var(--kz-check-size);
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.kodza-checkbox__box {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--kz-check-size);
+  height: var(--kz-check-size);
+  border-radius: 6px;
+  background: var(--kz-check-bg);
+  box-shadow: inset 0 0 0 1.5px var(--kz-check-line);
+  transition: box-shadow 0.2s ease, transform 0.25s var(--kz-check-ease);
+}
+
+.kodza-checkbox__item:hover .kodza-checkbox__box {
+  box-shadow: inset 0 0 0 1.5px var(--kz-check-muted);
+}
+
+.kodza-checkbox__item:active .kodza-checkbox__box {
+  transform: scale(0.88);
+}
+
+/* The ink: grows from the centre */
+.kodza-checkbox__box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--kz-check-ink);
+  transform: scale(0);
+  transition: transform 0.2s ease-in 0.08s;
+}
+
+.kodza-checkbox__box svg {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: var(--kz-check-on-ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-checkbox__tick,
+.kodza-checkbox__dash {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.12s ease-in;
+}
+
+.kodza-checkbox__input:checked + .kodza-checkbox__box,
+.kodza-checkbox__input:indeterminate + .kodza-checkbox__box {
+  box-shadow: none;
+}
+
+.kodza-checkbox__input:checked + .kodza-checkbox__box::before,
+.kodza-checkbox__input:indeterminate + .kodza-checkbox__box::before {
+  transform: none;
+  transition: transform 0.35s var(--kz-check-spring);
+}
+
+.kodza-checkbox__input:checked:not(:indeterminate) + .kodza-checkbox__box .kodza-checkbox__tick,
+.kodza-checkbox__input:indeterminate + .kodza-checkbox__box .kodza-checkbox__dash {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.35s var(--kz-check-ease) 0.12s;
+}
+
+.kodza-checkbox__input:focus-visible + .kodza-checkbox__box {
+  outline: 2px solid var(--kz-check-fg);
+  outline-offset: 2px;
+}
+
+.kodza-checkbox__text {
+  display: grid;
+  gap: 2px;
+  padding-top: 1px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.kodza-checkbox__text small {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--kz-check-muted);
+}
+
+.kodza-checkbox__item--all {
+  margin-bottom: 4px;
+  padding-bottom: 12px;
+  border-radius: 10px 10px 0 0;
+  box-shadow: inset 0 -1px 0 var(--kz-check-soft);
+}
+
+/* Disabled */
+.kodza-checkbox__item:has(.kodza-checkbox__input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.kodza-checkbox__item:has(.kodza-checkbox__input:disabled):hover {
+  background: none;
+}
+
+/* --cards: each option is a card */
+.kodza-checkbox--cards {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.kodza-checkbox--cards .kodza-checkbox__legend {
+  float: left;
+  width: 100%;
+}
+
+.kodza-checkbox--cards .kodza-checkbox__item {
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--kz-check-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-check-line);
+  transition: box-shadow 0.25s ease, transform 0.25s var(--kz-check-ease);
+}
+
+.kodza-checkbox--cards .kodza-checkbox__item:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-check-muted);
+}
+
+.kodza-checkbox--cards .kodza-checkbox__item:has(.kodza-checkbox__input:checked) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-check-ink);
+}
+
+.kodza-checkbox--cards .kodza-checkbox__item:active {
+  transform: scale(0.98);
+}
+
+.kodza-checkbox--cards .kodza-checkbox__input {
+  top: 16px;
+  left: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-checkbox__item,
+  .kodza-checkbox__box,
+  .kodza-checkbox__box::before,
+  .kodza-checkbox__tick,
+  .kodza-checkbox__dash {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-checkbox {
+  --kz-check-bg: #161616;
+  --kz-check-fg: #f2f2f0;
+  --kz-check-muted: rgba(242, 242, 240, 0.62);
+  --kz-check-line: rgba(255, 255, 255, 0.24);
+  --kz-check-soft: rgba(255, 255, 255, 0.07);
+  --kz-check-ink: #f2f2f0;
+  --kz-check-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard bee6c83977c6 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-checkbox__legend):not(#_) {
+  float: revert;
+}
+
+:where(.kodza-checkbox__item):not(#_) {
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-checkbox:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-checkbox__legend:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+}
+
+.kodza-checkbox__item:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-checkbox__input:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-checkbox__box:not(#_),
+.kodza-checkbox__tick:not(#_),
+.kodza-checkbox__dash:not(#_),
+.kodza-checkbox__text:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-checkbox__box svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-checkbox__text small:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-checkbox__legend:not(#_):where(:not([hidden])),
+.kodza-checkbox__input:not(#_):where(:not([hidden])),
+.kodza-checkbox__box svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-checkbox__text small:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-checkbox__legend:not(#_):where([hidden]),
+.kodza-checkbox__input:not(#_):where([hidden]),
+.kodza-checkbox__box svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-checkbox__text small:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-checkbox__box:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-checkbox:not(#_) {
+  display: grid;
+  padding: 0;
+  border: 0;
+  color: var(--kz-check-fg);
+}
+
+.kodza-checkbox__legend:not(#_) {
+  margin-bottom: 10px;
+  padding: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  color: var(--kz-check-muted);
+}
+
+.kodza-checkbox__item:not(#_) {
+  position: relative;
+  display: flex;
+  padding: 8px 10px;
+  margin: 0 -10px;
+  border-radius: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-checkbox__item:hover:not(#_) {
+  background: var(--kz-check-soft);
+}
+
+.kodza-checkbox__input:not(#_) {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: var(--kz-check-size);
+  height: var(--kz-check-size);
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.kodza-checkbox__box svg:not(#_) {
+  position: relative;
+}
+
+.kodza-checkbox__text small:not(#_) {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--kz-check-muted);
+}
+
+.kodza-checkbox__item--all:not(#_) {
+  margin-bottom: 4px;
+  padding-bottom: 12px;
+  border-radius: 10px 10px 0 0;
+  box-shadow: inset 0 -1px 0 var(--kz-check-soft);
+}
+
+.kodza-checkbox__item:has(.kodza-checkbox__input:disabled):hover:not(#_) {
+  background: none;
+}
+
+.kodza-checkbox--cards .kodza-checkbox__legend:not(#_) {
+  float: left;
+}
+
+.kodza-checkbox--cards .kodza-checkbox__item:not(#_) {
+  margin: 0;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--kz-check-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-check-line);
+  transition: box-shadow 0.25s ease, transform 0.25s var(--kz-check-ease);
+}
+
+.kodza-checkbox--cards .kodza-checkbox__item:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-check-muted);
+}
+
+.kodza-checkbox--cards .kodza-checkbox__item:has(.kodza-checkbox__input:checked):not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-check-ink);
+}
+
+.kodza-checkbox--cards .kodza-checkbox__input:not(#_) {
+  top: 16px;
+  left: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-checkbox__item:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

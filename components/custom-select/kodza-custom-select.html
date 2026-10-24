@@ -1,0 +1,46 @@
+<label class="kodza-select">
+  <span class="kodza-select__label">Deploy day</span>
+  <select class="kodza-select__native" name="day">
+    <option value="mon">Monday</option>
+    <option value="tue" selected>Tuesday</option>
+    <option value="wed">Wednesday</option>
+    <option value="thu">Thursday</option>
+    <option value="fri" disabled>Friday (not on our watch)</option>
+  </select>
+</label>
+
+<label class="kodza-select">
+  <span class="kodza-select__label">Stack</span>
+  <select class="kodza-select__native" name="stack">
+    <option value="" selected disabled hidden></option>
+    <option value="astro">Astro</option>
+    <option value="vite">Vite</option>
+    <option value="hugo">Hugo</option>
+    <option value="html">Plain HTML, like a legend</option>
+  </select>
+</label>
+
+<label class="kodza-select">
+  <span class="kodza-select__label">Font</span>
+  <select class="kodza-select__native" name="font">
+    <optgroup label="Sans">
+      <option value="geist" selected>Geist</option>
+      <option value="inter">Inter</option>
+      <option value="system">System UI</option>
+    </optgroup>
+    <optgroup label="Mono">
+      <option value="geist-mono">Geist Mono</option>
+      <option value="jetbrains">JetBrains Mono</option>
+    </optgroup>
+  </select>
+</label>
+
+<label class="kodza-select kodza-select--inline">
+  <span class="kodza-select__label">Sort</span>
+  <select class="kodza-select__native" name="sort">
+    <option value="new" selected>Newest first</option>
+    <option value="old">Oldest first</option>
+    <option value="az">A to Z</option>
+    <option value="stars">Most copied</option>
+  </select>
+</label>

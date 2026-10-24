@@ -1,0 +1,767 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Pricing Plans
+   Three plans in one block, the featured one inked and lifted out of it, and a monthly /
+   yearly switch. When the period changes, only the digits that change roll to their new
+   value, one after the other, and the billing line follows.
+   Everything is tuned with the --kz-price-* variables. */
+.kodza-pricing {
+  --kz-price-bg: #ffffff;
+  --kz-price-fg: #0a0a0a;
+  --kz-price-muted: rgba(10, 10, 10, 0.62);
+  --kz-price-border: rgba(10, 10, 10, 0.1);
+  --kz-price-soft: #f2f2f0;
+  --kz-price-featured-bg: #0a0a0a;
+  --kz-price-featured-fg: #ffffff;
+  --kz-price-featured-muted: rgba(255, 255, 255, 0.62);
+  --kz-price-featured-border: rgba(255, 255, 255, 0.14);
+  --kz-price-radius: 16px;
+  --kz-price-pad: 28px;
+  --kz-price-lift: 12px;
+  --kz-price-duration: 0.6s;
+  --kz-price-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-price-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  display: grid;
+  gap: calc(24px + var(--kz-price-lift));
+  color: var(--kz-price-fg);
+}
+
+.kodza-pricing__head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* Monthly / yearly switch, with a sliding pill */
+.kodza-pricing__toggle {
+  position: relative;
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--kz-price-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-price-border);
+}
+
+/* The pill covers the whole switch and is cut down to the chosen button: only clip-path moves */
+.kodza-pricing__indicator {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--kz-price-fg);
+  clip-path: inset(4px var(--kz-ind-r, 50%) 4px var(--kz-ind-l, 4px) round 999px);
+  transition: clip-path 0.5s var(--kz-price-ease);
+}
+
+.kodza-pricing__toggle button {
+  position: relative;
+  height: 34px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.35s ease;
+}
+
+.kodza-pricing__toggle button[aria-pressed="true"] {
+  color: var(--kz-price-bg);
+}
+
+.kodza-pricing__toggle button:focus-visible {
+  outline: 2px solid var(--kz-price-fg);
+  outline-offset: 2px;
+}
+
+.kodza-pricing__note {
+  margin: 0;
+  font-family: var(--kz-price-mono);
+  font-size: 12px;
+  color: var(--kz-price-muted);
+}
+
+/* One block, split by hairlines */
+.kodza-pricing__plans {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-radius: var(--kz-price-radius);
+  background: var(--kz-price-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-price-border);
+}
+
+.kodza-pricing__plan {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: var(--kz-price-pad);
+}
+
+.kodza-pricing__plan + .kodza-pricing__plan {
+  border-left: 1px solid var(--kz-price-border);
+}
+
+/* The featured plan is inked and lifted out of the block, its content still level with the others */
+.kodza-pricing__plan--featured {
+  --kz-price-muted: var(--kz-price-featured-muted);
+  --kz-price-border: var(--kz-price-featured-border);
+  margin: calc(var(--kz-price-lift) * -1) 0;
+  padding-block: calc(var(--kz-price-pad) + var(--kz-price-lift));
+  border-radius: var(--kz-price-radius);
+  background: var(--kz-price-featured-bg);
+  color: var(--kz-price-featured-fg);
+}
+
+.kodza-pricing__plans .kodza-pricing__plan--featured,
+.kodza-pricing__plan--featured + .kodza-pricing__plan {
+  border-left-color: transparent;
+}
+
+.kodza-pricing__name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.kodza-pricing__badge {
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--kz-price-border);
+  font-family: var(--kz-price-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.kodza-pricing__pitch {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-price-muted);
+}
+
+.kodza-pricing__price {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.kodza-pricing__amount {
+  display: inline-flex;
+  font-size: 56px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-pricing__currency {
+  align-self: flex-start;
+  margin: 0.14em 0.1em 0 0;
+  font-size: 0.42em;
+  letter-spacing: 0;
+  color: var(--kz-price-muted);
+}
+
+/* Each digit sits in its own little window: a change rolls through it */
+.kodza-pricing__char {
+  display: inline-grid;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.kodza-pricing__char > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-pricing__per {
+  display: grid;
+  padding-bottom: 4px;
+  font-family: var(--kz-price-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--kz-price-muted);
+}
+
+.kodza-pricing__billing {
+  white-space: nowrap;
+}
+
+.kodza-pricing__cta {
+  display: grid;
+  place-items: center;
+  height: 48px;
+  margin-top: 24px;
+  border-radius: 999px;
+  background: var(--kz-price-soft);
+  color: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.kodza-pricing__cta:hover {
+  background: var(--kz-price-fg);
+  color: var(--kz-price-bg);
+}
+
+.kodza-pricing__plan--featured .kodza-pricing__cta {
+  background: var(--kz-price-featured-fg);
+  color: var(--kz-price-featured-bg);
+}
+
+.kodza-pricing__plan--featured .kodza-pricing__cta:hover {
+  background: var(--kz-price-featured-muted);
+}
+
+.kodza-pricing__cta:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.kodza-pricing__plan--featured .kodza-pricing__cta:focus-visible {
+  outline-color: var(--kz-price-featured-fg);
+}
+
+.kodza-pricing__features {
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.kodza-pricing__features li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--kz-price-border);
+}
+
+.kodza-pricing__features li::before {
+  content: "";
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  background: var(--kz-price-muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-pricing__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .kodza-pricing__plans {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-pricing__plan + .kodza-pricing__plan {
+    border-top: 1px solid var(--kz-price-border);
+    border-left: 0;
+  }
+
+  .kodza-pricing__plan--featured {
+    margin: 0;
+    padding-block: var(--kz-price-pad);
+  }
+
+  .kodza-pricing__plans .kodza-pricing__plan--featured,
+  .kodza-pricing__plan--featured + .kodza-pricing__plan {
+    border-top-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-pricing__indicator,
+  .kodza-pricing__toggle button,
+  .kodza-pricing__cta {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-pricing {
+  --kz-price-bg: #161616;
+  --kz-price-fg: #f2f2f0;
+  --kz-price-muted: rgba(242, 242, 240, 0.62);
+  --kz-price-border: rgba(255, 255, 255, 0.12);
+  --kz-price-soft: rgba(255, 255, 255, 0.08);
+  --kz-price-featured-bg: #ffffff;
+  --kz-price-featured-fg: #0a0a0a;
+  --kz-price-featured-muted: rgba(10, 10, 10, 0.62);
+  --kz-price-featured-border: rgba(10, 10, 10, 0.1);
+}
+*/
+
+/* kodza-guard 7e652401798f — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-pricing__plan):not(#_) {
+  margin: revert;
+  border-radius: revert;
+  border-top-width: revert;
+  border-left-width: revert;
+  border-top-style: revert;
+  border-left-style: revert;
+  border-top-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  color: revert;
+}
+
+:where(.kodza-pricing__cta):not(#_),
+:where(.kodza-pricing__toggle button:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-pricing:not(#_),
+.kodza-pricing__head:not(#_),
+.kodza-pricing__toggle:not(#_),
+.kodza-pricing__indicator:not(#_),
+.kodza-pricing__plans:not(#_),
+.kodza-pricing__price:not(#_),
+.kodza-pricing__amount:not(#_),
+.kodza-pricing__currency:not(#_),
+.kodza-pricing__char:not(#_),
+.kodza-pricing__sr:not(#_),
+.kodza-pricing__per:not(#_),
+.kodza-pricing__billing:not(#_),
+.kodza-pricing__badge:not(#_),
+.kodza-pricing__char span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-pricing__note:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pricing__plan:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pricing__name:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pricing__pitch:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pricing__cta:not(#_) {
+  border: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pricing__features:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pricing__toggle button:where(:not([class*="kodza-"])):not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-pricing__features li:where(:not([class*="kodza-"]):not(.kodza-pricing__features [class*="kodza-"] *)):not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pricing__note:not(#_):where(:not([hidden])),
+.kodza-pricing__pitch:not(#_):where(:not([hidden])),
+.kodza-pricing__features:not(#_):where(:not([hidden])),
+.kodza-pricing__toggle button:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-pricing__note:not(#_):where([hidden]),
+.kodza-pricing__pitch:not(#_):where([hidden]),
+.kodza-pricing__features:not(#_):where([hidden]),
+.kodza-pricing__toggle button:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-pricing__toggle button:not(#_) {
+  position: relative;
+  height: 34px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.35s ease;
+}
+
+.kodza-pricing__toggle button[aria-pressed="true"]:not(#_) {
+  color: var(--kz-price-bg);
+}
+
+.kodza-pricing__toggle button:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-price-fg);
+  outline-offset: 2px;
+}
+
+.kodza-pricing__note:not(#_) {
+  margin: 0;
+  font-family: var(--kz-price-mono);
+  font-size: 12px;
+  color: var(--kz-price-muted);
+}
+
+.kodza-pricing__plan:not(#_) {
+  display: flex;
+  padding: var(--kz-price-pad);
+}
+
+.kodza-pricing__plan + .kodza-pricing__plan:not(#_) {
+  border-left: 1px solid var(--kz-price-border);
+}
+
+.kodza-pricing__plan--featured:not(#_) {
+  margin: calc(var(--kz-price-lift) * -1) 0;
+  padding-block: calc(var(--kz-price-pad) + var(--kz-price-lift));
+  border-radius: var(--kz-price-radius);
+  background: var(--kz-price-featured-bg);
+  color: var(--kz-price-featured-fg);
+}
+
+.kodza-pricing__plans .kodza-pricing__plan--featured:not(#_),
+.kodza-pricing__plan--featured + .kodza-pricing__plan:not(#_) {
+  border-left-color: transparent;
+}
+
+.kodza-pricing__name:not(#_) {
+  display: flex;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.kodza-pricing__pitch:not(#_) {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-price-muted);
+}
+
+.kodza-pricing__cta:not(#_) {
+  display: grid;
+  margin-top: 24px;
+  border-radius: 999px;
+  background: var(--kz-price-soft);
+  color: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.kodza-pricing__cta:hover:not(#_) {
+  background: var(--kz-price-fg);
+  color: var(--kz-price-bg);
+}
+
+.kodza-pricing__plan--featured .kodza-pricing__cta:not(#_) {
+  background: var(--kz-price-featured-fg);
+  color: var(--kz-price-featured-bg);
+}
+
+.kodza-pricing__plan--featured .kodza-pricing__cta:hover:not(#_) {
+  background: var(--kz-price-featured-muted);
+}
+
+.kodza-pricing__cta:focus-visible:not(#_) {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.kodza-pricing__plan--featured .kodza-pricing__cta:focus-visible:not(#_) {
+  outline-color: var(--kz-price-featured-fg);
+}
+
+.kodza-pricing__features:not(#_) {
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.kodza-pricing__features li:not(#_) {
+  display: flex;
+  padding: 10px 0;
+  border-top: 1px solid var(--kz-price-border);
+}
+
+@media (max-width: 760px) {
+  .kodza-pricing__plan + .kodza-pricing__plan:not(#_) {
+    border-top: 1px solid var(--kz-price-border);
+    border-left: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .kodza-pricing__plan--featured:not(#_) {
+    margin: 0;
+    padding-block: var(--kz-price-pad);
+  }
+}
+
+@media (max-width: 760px) {
+  .kodza-pricing__plans .kodza-pricing__plan--featured:not(#_),
+  .kodza-pricing__plan--featured + .kodza-pricing__plan:not(#_) {
+    border-top-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-pricing__toggle button:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-pricing__cta:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

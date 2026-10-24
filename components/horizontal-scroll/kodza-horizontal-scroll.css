@@ -1,0 +1,489 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Horizontal Scroll
+   A section that pins itself while its track of cards slides sideways as you scroll down:
+   each picture drifts a little inside its frame, the counter rolls to the card in front,
+   and a thin bar follows. Tabbing to a card off screen scrolls the page to it. On touch
+   screens it is a plain sideways swipe with snap points, no pinning.
+   Everything is tuned with the --kz-hscroll-* variables. */
+.kodza-hscroll {
+  --kz-hscroll-fg: #0a0a0a;
+  --kz-hscroll-muted: rgba(10, 10, 10, 0.62);
+  --kz-hscroll-line: rgba(10, 10, 10, 0.12);
+  --kz-hscroll-card: 46vh;
+  --kz-hscroll-gap: 16px;
+  --kz-hscroll-gutter: max(24px, calc((100vw - 1080px) / 2));
+  --kz-hscroll-radius: 16px;
+  --kz-hscroll-drift: 8%;
+
+  position: relative;
+  height: var(--kz-hscroll-height, auto);
+  color: var(--kz-hscroll-fg);
+}
+
+.kodza-hscroll__sticky {
+  position: sticky;
+  top: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  gap: 32px;
+  height: 100vh;
+  padding: 10vh 0 8vh;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.kodza-hscroll__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 var(--kz-hscroll-gutter);
+}
+
+.kodza-hscroll__title {
+  margin: 0;
+  font-size: clamp(32px, 4.4vw, 62px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.kodza-hscroll__count {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-hscroll__num {
+  display: inline-grid;
+  overflow: hidden;
+}
+
+.kodza-hscroll__num > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-hscroll__total {
+  color: var(--kz-hscroll-muted);
+}
+
+/* The track only moves with transform */
+.kodza-hscroll__viewport {
+  min-height: 0;
+}
+
+.kodza-hscroll__track {
+  display: flex;
+  gap: var(--kz-hscroll-gap);
+  width: max-content;
+  height: 100%;
+  margin: 0;
+  padding: 0 var(--kz-hscroll-gutter);
+  list-style: none;
+  transform: translate3d(calc(var(--kz-hscroll-x, 0) * -1px), 0, 0);
+  will-change: transform;
+}
+
+.kodza-hscroll__item {
+  height: 100%;
+}
+
+.kodza-hscroll__card {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 14px;
+  height: 100%;
+  border-radius: var(--kz-hscroll-radius);
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-hscroll__card:focus-visible {
+  outline: 2px solid var(--kz-hscroll-fg);
+  outline-offset: 4px;
+}
+
+.kodza-hscroll__media {
+  display: block;
+  width: var(--kz-hscroll-card);
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--kz-hscroll-radius);
+}
+
+/* The picture drifts inside its frame, against the movement of the track */
+.kodza-hscroll__media img {
+  display: block;
+  width: calc(100% + var(--kz-hscroll-drift) * 2);
+  max-width: none;
+  height: 100%;
+  margin-left: calc(var(--kz-hscroll-drift) * -1);
+  object-fit: cover;
+  transform: translate3d(calc(var(--kz-drift, 0) * var(--kz-hscroll-drift)), 0, 0) scale(1);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-hscroll__card:hover .kodza-hscroll__media img {
+  transform: translate3d(calc(var(--kz-drift, 0) * var(--kz-hscroll-drift)), 0, 0) scale(1.04);
+}
+
+.kodza-hscroll__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kodza-hscroll__name {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.kodza-hscroll__tag {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  color: var(--kz-hscroll-muted);
+}
+
+.kodza-hscroll__progress {
+  height: 1px;
+  margin: 0 var(--kz-hscroll-gutter);
+  background: var(--kz-hscroll-line);
+}
+
+.kodza-hscroll__progress span {
+  display: block;
+  height: 100%;
+  background: var(--kz-hscroll-fg);
+  transform: scaleX(var(--kz-hscroll-progress, 0));
+  transform-origin: left;
+}
+
+/* Touch screens: a plain sideways swipe with snap points */
+.kodza-hscroll.is-swipe {
+  height: auto;
+}
+
+.kodza-hscroll.is-swipe .kodza-hscroll__sticky {
+  position: relative;
+  height: auto;
+  padding: 0;
+  overflow: visible;
+}
+
+.kodza-hscroll.is-swipe .kodza-hscroll__viewport {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--kz-hscroll-gutter);
+  scrollbar-width: none;
+}
+
+.kodza-hscroll.is-swipe .kodza-hscroll__track {
+  height: auto;
+  transform: none;
+}
+
+.kodza-hscroll.is-swipe .kodza-hscroll__item {
+  scroll-snap-align: start;
+}
+
+.kodza-hscroll.is-swipe .kodza-hscroll__media {
+  width: min(78vw, 360px);
+  aspect-ratio: 4 / 5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hscroll__media img {
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-hscroll {
+  --kz-hscroll-fg: #f2f2f0;
+  --kz-hscroll-muted: rgba(242, 242, 240, 0.62);
+  --kz-hscroll-line: rgba(255, 255, 255, 0.16);
+}
+*/
+
+/* kodza-guard 9756c33fbba8 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-hscroll__card):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-hscroll:not(#_),
+.kodza-hscroll__head:not(#_),
+.kodza-hscroll__num:not(#_),
+.kodza-hscroll__total:not(#_),
+.kodza-hscroll__viewport:not(#_),
+.kodza-hscroll__media:not(#_),
+.kodza-hscroll__meta:not(#_),
+.kodza-hscroll__name:not(#_),
+.kodza-hscroll__tag:not(#_),
+.kodza-hscroll__progress:not(#_),
+.kodza-hscroll__num span:where(:not([class*="kodza-"])):not(#_),
+.kodza-hscroll__progress span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-hscroll__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hscroll__count:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hscroll__track:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hscroll__item:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hscroll__card:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hscroll__media img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hscroll__title:not(#_):where(:not([hidden])),
+.kodza-hscroll__item:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-hscroll__title:not(#_):where([hidden]),
+.kodza-hscroll__item:not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-hscroll__title:not(#_) {
+  margin: 0;
+  font-size: clamp(32px, 4.4vw, 62px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.kodza-hscroll__count:not(#_) {
+  display: flex;
+  margin: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+}
+
+.kodza-hscroll__track:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0 var(--kz-hscroll-gutter);
+  list-style: none;
+}
+
+.kodza-hscroll__card:not(#_) {
+  display: grid;
+  border-radius: var(--kz-hscroll-radius);
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-hscroll__card:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-hscroll-fg);
+  outline-offset: 4px;
+}
+
+.kodza-hscroll__media img:not(#_) {
+  display: block;
+  max-width: none;
+  margin-left: calc(var(--kz-hscroll-drift) * -1);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hscroll__media img:not(#_) {
+    transition: none !important;
+  }
+}

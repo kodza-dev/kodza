@@ -1,0 +1,837 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Color Picker
+   A real colour input, dressed up: the field shows a swatch and the hex code, and a
+   panel opens with a saturation / brightness square, a hue slider, a hex field, presets, the
+   browser's eyedropper (where it exists) and a copy button. Pick a preset and the colour
+   travels there: both handles glide and the square turns with them. The real input stays in step.
+   The panel itself stays monochrome. Same box as Select.
+   Everything is tuned with the --kz-color-* variables. */
+.kodza-color {
+  --kz-color-bg: #ffffff;
+  --kz-color-fg: #0a0a0a;
+  --kz-color-muted: rgba(10, 10, 10, 0.6);
+  --kz-color-line: rgba(10, 10, 10, 0.14);
+  --kz-color-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-color-soft: rgba(10, 10, 10, 0.06);
+  --kz-color-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  --kz-color-height: 56px;
+  --kz-color-radius: 12px;
+  --kz-color-pad: 16px;
+  --kz-color-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-color-value: #ff5c35;
+  --kz-color-hue: #ff3300;
+
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  /* The closed panel keeps its size, ready to unroll, but never lengthens the page */
+  contain: layout;
+  /* A number, not auto, so it can wait for the panel to roll up before dropping back */
+  z-index: 0;
+  transition: z-index 0s linear 0.4s;
+  color: var(--kz-color-fg);
+}
+
+/* Open, the field rises above what follows it (its panel included) */
+.kodza-color.is-open {
+  z-index: 20;
+  transition-delay: 0s;
+}
+
+.kodza-color__label {
+  position: absolute;
+  top: 10px;
+  left: 52px;
+  z-index: 1;
+  color: var(--kz-color-muted);
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.kodza-color:not(.is-ready) .kodza-color__label {
+  left: var(--kz-color-pad);
+}
+
+/* Without JS: the native colour input, in the box */
+.kodza-color__native {
+  display: block;
+  width: 100%;
+  height: var(--kz-color-height);
+  padding: 26px var(--kz-color-pad) 8px;
+  border: 0;
+  border-radius: var(--kz-color-radius);
+  background: var(--kz-color-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-color-line);
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.kodza-color.is-ready .kodza-color__native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+.kodza-color__trigger {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  width: 100%;
+  height: var(--kz-color-height);
+  padding: 0 var(--kz-color-pad) 9px 52px;
+  border: 0;
+  border-radius: var(--kz-color-radius);
+  background: var(--kz-color-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-color-line);
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease;
+}
+
+.kodza-color__trigger:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-color-line-hover);
+}
+
+.kodza-color__trigger:focus-visible,
+.kodza-color.is-open .kodza-color__trigger {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--kz-color-fg), 0 0 0 4px var(--kz-color-soft);
+}
+
+/* The swatch blends into the new colour */
+.kodza-color__swatch {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--kz-color-value);
+  box-shadow: inset 0 0 0 1px var(--kz-color-line);
+  transition: background-color 0.35s ease;
+}
+
+.kodza-color__hex {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* The panel */
+.kodza-color__pop {
+  position: absolute;
+  top: calc(var(--kz-color-height) + 8px);
+  left: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  width: 260px;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--kz-color-bg);
+  box-shadow: 0 0 0 1px var(--kz-color-line), var(--kz-color-shadow);
+  box-sizing: border-box;
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(0 0 100% 0 round 16px);
+  transform: translateY(-4px);
+  transition:
+    clip-path 0.4s var(--kz-color-ease),
+    opacity 0.2s ease,
+    transform 0.4s var(--kz-color-ease),
+    visibility 0s linear 0.4s;
+}
+
+.kodza-color.is-open .kodza-color__pop {
+  visibility: visible;
+  opacity: 1;
+  clip-path: inset(-40px -40px -60px -40px round 16px);
+  transform: none;
+  transition-delay: 0s;
+}
+
+/* Not enough room below: it unrolls upwards, from the top of the field */
+.kodza-color.is-above .kodza-color__pop {
+  top: auto;
+  bottom: calc(var(--kz-color-height) + 8px);
+  clip-path: inset(100% 0 0 0 round 16px);
+  transform: translateY(4px);
+}
+
+.kodza-color.is-above.is-open .kodza-color__pop {
+  clip-path: inset(-60px -40px -40px -40px round 16px);
+  transform: none;
+}
+
+/* Saturation (left to right) and brightness (bottom to top) over the hue */
+.kodza-color__area {
+  position: relative;
+  height: 150px;
+  border-radius: 10px;
+  background:
+    linear-gradient(to top, #000, transparent),
+    linear-gradient(to right, #fff, var(--kz-color-hue));
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.kodza-color__area:focus-visible,
+.kodza-color__hue:focus-visible {
+  outline: 2px solid var(--kz-color-fg);
+  outline-offset: 2px;
+}
+
+.kodza-color__handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+  background: var(--kz-color-value);
+  box-shadow: 0 0 0 2.5px #ffffff, 0 1px 6px rgba(10, 10, 10, 0.4);
+  pointer-events: none;
+  /* translate, not transform: scale then grows the handle in place instead of
+     stretching its offset (it would drift away from the pointer while dragging) */
+  translate: var(--kz-x, 0) var(--kz-y, 0);
+  transition: scale 0.2s var(--kz-color-ease);
+}
+
+.kodza-color.is-dragging .kodza-color__handle {
+  scale: 1.25;
+}
+
+/* The hue: a real range input, restyled */
+.kodza-color__hue {
+  width: 100%;
+  height: 14px;
+  margin: 0;
+  border-radius: 999px;
+  background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+  cursor: pointer;
+  appearance: none;
+}
+
+.kodza-color__hue::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--kz-color-hue);
+  box-shadow: 0 0 0 2.5px #ffffff, 0 1px 6px rgba(10, 10, 10, 0.4);
+  appearance: none;
+}
+
+.kodza-color__hue::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-color-hue);
+  box-shadow: 0 0 0 2.5px #ffffff, 0 1px 6px rgba(10, 10, 10, 0.4);
+}
+
+.kodza-color__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kodza-color__input {
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--kz-color-soft);
+  color: inherit;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  text-transform: uppercase;
+  outline: none;
+}
+
+.kodza-color__input:focus-visible {
+  box-shadow: inset 0 0 0 1.5px var(--kz-color-fg);
+}
+
+.kodza-color__tool {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--kz-color-soft);
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-color__tool:hover {
+  background: var(--kz-color-line);
+}
+
+.kodza-color__tool:focus-visible,
+.kodza-color__preset:focus-visible {
+  outline: 2px solid var(--kz-color-fg);
+  outline-offset: 2px;
+}
+
+.kodza-color__tool svg {
+  grid-area: 1 / 1;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: opacity 0.2s ease, transform 0.3s var(--kz-color-ease);
+}
+
+/* Copied: the copy icon gives way to a tick */
+.kodza-color__tool .kodza-color__done {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.kodza-color__tool.is-done .kodza-color__done {
+  opacity: 1;
+  transform: none;
+}
+
+.kodza-color__tool.is-done .kodza-color__idle {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+/* minmax(0, 1fr): an empty button has a minimum width of its own, and eight of them would
+   push the row (and everything above it) past the panel's edge */
+.kodza-color__presets {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.kodza-color__preset {
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px var(--kz-color-line);
+  cursor: pointer;
+  transition: transform 0.2s var(--kz-color-ease);
+}
+
+.kodza-color__preset:hover {
+  transform: scale(1.12);
+}
+
+.kodza-color__preset[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 1px var(--kz-color-line), 0 0 0 2px var(--kz-color-bg), 0 0 0 3.5px var(--kz-color-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-color__trigger,
+  .kodza-color__swatch,
+  .kodza-color__handle,
+  .kodza-color__pop,
+  .kodza-color__tool svg,
+  .kodza-color__preset {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-color {
+  --kz-color-bg: #161616;
+  --kz-color-fg: #f2f2f0;
+  --kz-color-muted: rgba(242, 242, 240, 0.62);
+  --kz-color-line: rgba(255, 255, 255, 0.14);
+  --kz-color-line-hover: rgba(255, 255, 255, 0.3);
+  --kz-color-soft: rgba(255, 255, 255, 0.08);
+  --kz-color-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+}
+*/
+
+/* kodza-guard 492ca97a2e7e — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-color__native):not(#_) {
+  position: revert;
+}
+
+:where(.kodza-color__trigger):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-color__area):not(#_),
+:where(.kodza-color__hue):not(#_),
+:where(.kodza-color__tool):not(#_),
+:where(.kodza-color__preset):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-color__input):not(#_) {
+  box-shadow: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-color:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-color__label:not(#_),
+.kodza-color__swatch:not(#_),
+.kodza-color__hex:not(#_),
+.kodza-color__handle:not(#_),
+.kodza-color__row:not(#_),
+.kodza-color__presets:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-color__native:not(#_) {
+  margin: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-color__trigger:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-color__area:not(#_) {
+  box-sizing: revert;
+  box-shadow: revert;
+}
+
+.kodza-color__hue:not(#_) {
+  border: revert;
+  padding: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-color__input:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-color__tool:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-color__idle:not(#_),
+.kodza-color__done:not(#_),
+.kodza-color__tool svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-color__preset:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-color__hue:not(#_):where(:not([hidden])),
+.kodza-color__input:not(#_):where(:not([hidden])),
+.kodza-color__idle:not(#_):where(:not([hidden])),
+.kodza-color__done:not(#_):where(:not([hidden])),
+.kodza-color__preset:not(#_):where(:not([hidden])),
+.kodza-color__tool svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-color__hue:not(#_):where([hidden]),
+.kodza-color__input:not(#_):where([hidden]),
+.kodza-color__idle:not(#_):where([hidden]),
+.kodza-color__done:not(#_):where([hidden]),
+.kodza-color__preset:not(#_):where([hidden]),
+.kodza-color__tool svg:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-color:not(#_) {
+  position: relative;
+  display: block;
+  transition: z-index 0s linear 0.4s;
+  color: var(--kz-color-fg);
+}
+
+.kodza-color:not(#_) {
+  width: min(100%, 280px);
+}
+
+.kodza-color.is-open:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-color__native:not(#_) {
+  display: block;
+  width: 100%;
+  height: var(--kz-color-height);
+  padding: 26px var(--kz-color-pad) 8px;
+  border: 0;
+  border-radius: var(--kz-color-radius);
+  background: var(--kz-color-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-color-line);
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.kodza-color.is-ready .kodza-color__native:not(#_) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+.kodza-color__trigger:not(#_) {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  width: 100%;
+  height: var(--kz-color-height);
+  padding: 0 var(--kz-color-pad) 9px 52px;
+  border: 0;
+  border-radius: var(--kz-color-radius);
+  background: var(--kz-color-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-color-line);
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease;
+}
+
+.kodza-color__trigger:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-color-line-hover);
+}
+
+.kodza-color__trigger:focus-visible:not(#_),
+.kodza-color.is-open .kodza-color__trigger:not(#_) {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--kz-color-fg), 0 0 0 4px var(--kz-color-soft);
+}
+
+.kodza-color__area:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-color-fg);
+  outline-offset: 2px;
+}
+
+.kodza-color__hue:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-color-fg);
+  outline-offset: 2px;
+}
+
+.kodza-color__hue:not(#_) {
+  width: 100%;
+  height: 14px;
+  margin: 0;
+  border-radius: 999px;
+  background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+  cursor: pointer;
+  appearance: none;
+}
+
+.kodza-color__hue:not(#_)::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--kz-color-hue);
+  box-shadow: 0 0 0 2.5px #ffffff, 0 1px 6px rgba(10, 10, 10, 0.4);
+  appearance: none;
+}
+
+.kodza-color__input:not(#_) {
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--kz-color-soft);
+  color: inherit;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  text-transform: uppercase;
+  outline: none;
+}
+
+.kodza-color__input:focus-visible:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-color-fg);
+}
+
+.kodza-color__tool:not(#_) {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--kz-color-soft);
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-color__tool:hover:not(#_) {
+  background: var(--kz-color-line);
+}
+
+.kodza-color__tool:focus-visible:not(#_),
+.kodza-color__preset:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-color-fg);
+  outline-offset: 2px;
+}
+
+.kodza-color__tool svg:not(#_) {
+  transition: opacity 0.2s ease, transform 0.3s var(--kz-color-ease);
+}
+
+.kodza-color__preset:not(#_) {
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px var(--kz-color-line);
+  cursor: pointer;
+  transition: transform 0.2s var(--kz-color-ease);
+}
+
+.kodza-color__preset:hover:not(#_) {
+  transform: scale(1.12);
+}
+
+.kodza-color__preset[aria-pressed="true"]:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-color-line), 0 0 0 2px var(--kz-color-bg), 0 0 0 3.5px var(--kz-color-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-color__trigger:not(#_),
+  .kodza-color__preset:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-color__tool svg:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

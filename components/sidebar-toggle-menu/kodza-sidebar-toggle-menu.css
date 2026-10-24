@@ -1,0 +1,558 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Sidebar Menu
+   A side panel for the main navigation: it slides in from the right over a dimmed page,
+   then its big links rise one by one from behind a mask. A real dialog element: the focus stays
+   inside, Escape and a click on the page close it, and the focus goes back to the button.
+   Everything is tuned with the --kz-sidebar-* variables. */
+.kodza-sidebar {
+  --kz-sidebar-bg: #ffffff;
+  --kz-sidebar-fg: #0a0a0a;
+  --kz-sidebar-muted: rgba(10, 10, 10, 0.5);
+  --kz-sidebar-border: rgba(10, 10, 10, 0.1);
+  --kz-sidebar-ink: #0a0a0a;
+  --kz-sidebar-on-ink: #ffffff;
+  --kz-sidebar-backdrop: rgba(10, 10, 10, 0.32);
+  --kz-sidebar-width: 496px;
+  --kz-sidebar-size: clamp(34px, 5vw, 48px);
+  --kz-sidebar-duration: 0.7s;
+  --kz-sidebar-ease: cubic-bezier(0.76, 0, 0.24, 1);
+  --kz-sidebar-rise: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: inline-block;
+  color: var(--kz-sidebar-fg);
+}
+
+.kodza-sidebar__toggle,
+.kodza-sidebar__close {
+  height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.kodza-sidebar__toggle {
+  background: var(--kz-sidebar-ink);
+  color: var(--kz-sidebar-on-ink);
+}
+
+.kodza-sidebar__close {
+  justify-self: end;
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-sidebar-border);
+  color: var(--kz-sidebar-fg);
+  transition: box-shadow 0.25s ease;
+}
+
+.kodza-sidebar__close:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-sidebar-muted);
+}
+
+.kodza-sidebar__toggle:focus-visible,
+.kodza-sidebar__close:focus-visible,
+.kodza-sidebar__link:focus-visible,
+.kodza-sidebar__socials a:focus-visible {
+  outline: 2px solid var(--kz-sidebar-fg);
+  outline-offset: 3px;
+}
+
+/* The panel: a dialog pinned to the right edge, sliding in. Its padding counts in its size, so a
+   phone gets the whole screen and nothing more */
+.kodza-sidebar__panel {
+  position: fixed;
+  inset: 0 0 0 auto;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  box-sizing: border-box;
+  width: min(var(--kz-sidebar-width), 100%);
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 20px 28px 28px;
+  border: 0;
+  background: var(--kz-sidebar-bg);
+  color: var(--kz-sidebar-fg);
+  font: inherit;
+  transform: translateX(100%);
+  transition: transform var(--kz-sidebar-duration) var(--kz-sidebar-ease);
+}
+
+.kodza-sidebar__panel:not([open]) {
+  display: none;
+}
+
+.kodza-sidebar__panel::backdrop {
+  background: transparent;
+  transition: background-color var(--kz-sidebar-duration) ease;
+}
+
+.kodza-sidebar__panel.is-open {
+  transform: none;
+}
+
+.kodza-sidebar__panel.is-open::backdrop {
+  background: var(--kz-sidebar-backdrop);
+}
+
+.kodza-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* Each link rises from behind its own mask, after the panel has arrived */
+.kodza-sidebar__link {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  overflow: hidden;
+  border-radius: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-sidebar__index,
+.kodza-sidebar__text {
+  display: block;
+  transform: translateY(110%);
+  transition: transform 0.4s ease-in;
+}
+
+.kodza-sidebar__panel.is-open .kodza-sidebar__index,
+.kodza-sidebar__panel.is-open .kodza-sidebar__text {
+  transform: none;
+  transition:
+    transform 0.9s var(--kz-sidebar-rise) calc(var(--kz-sidebar-duration) * 0.55 + var(--i, 0) * 70ms),
+    opacity 0.3s ease;
+}
+
+.kodza-sidebar__index {
+  width: 2ch;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  color: var(--kz-sidebar-muted);
+}
+
+.kodza-sidebar__text {
+  font-size: var(--kz-sidebar-size);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  transition-property: transform, opacity;
+}
+
+/* Hovering a link fades the others */
+.kodza-sidebar__nav:has(.kodza-sidebar__link:hover) .kodza-sidebar__text {
+  opacity: 0.35;
+}
+
+.kodza-sidebar__nav .kodza-sidebar__link:hover .kodza-sidebar__text {
+  opacity: 1;
+}
+
+.kodza-sidebar__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--kz-sidebar-border);
+  font-size: 14px;
+  color: var(--kz-sidebar-muted);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.kodza-sidebar__panel.is-open .kodza-sidebar__footer {
+  opacity: 1;
+  transition: opacity 0.6s ease calc(var(--kz-sidebar-duration) * 0.9);
+}
+
+.kodza-sidebar__note {
+  margin: 0;
+}
+
+.kodza-sidebar__socials {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+}
+
+.kodza-sidebar__socials a {
+  border-radius: 4px;
+  color: var(--kz-sidebar-fg);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.kodza-sidebar__socials a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-sidebar__panel,
+  .kodza-sidebar__panel::backdrop,
+  .kodza-sidebar__index,
+  .kodza-sidebar__text,
+  .kodza-sidebar__footer,
+  .kodza-sidebar__close {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-sidebar {
+  --kz-sidebar-bg: #161616;
+  --kz-sidebar-fg: #f2f2f0;
+  --kz-sidebar-muted: rgba(242, 242, 240, 0.52);
+  --kz-sidebar-border: rgba(255, 255, 255, 0.12);
+  --kz-sidebar-ink: #f2f2f0;
+  --kz-sidebar-on-ink: #0a0a0a;
+  --kz-sidebar-backdrop: rgba(0, 0, 0, 0.6);
+}
+*/
+
+/* kodza-guard 60431a63059b — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-sidebar__toggle):not(#_),
+:where(.kodza-sidebar__close):not(#_),
+:where(.kodza-sidebar__link):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-sidebar__socials a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  text-underline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-sidebar:not(#_),
+.kodza-sidebar__index:not(#_),
+.kodza-sidebar__text:not(#_),
+.kodza-sidebar__footer:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-sidebar__toggle:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-sidebar__panel:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-sidebar__close:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-sidebar__nav:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-sidebar__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-sidebar__note:not(#_),
+.kodza-sidebar__socials:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-sidebar__socials a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-sidebar__toggle:not(#_):where(:not([hidden])),
+.kodza-sidebar__close:not(#_):where(:not([hidden])),
+.kodza-sidebar__note:not(#_):where(:not([hidden])),
+.kodza-sidebar__socials a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-sidebar__toggle:not(#_):where([hidden]),
+.kodza-sidebar__close:not(#_):where([hidden]),
+.kodza-sidebar__note:not(#_):where([hidden]),
+.kodza-sidebar__socials a:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-sidebar__toggle:not(#_),
+.kodza-sidebar__close:not(#_) {
+  height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.kodza-sidebar__toggle:not(#_) {
+  background: var(--kz-sidebar-ink);
+  color: var(--kz-sidebar-on-ink);
+}
+
+.kodza-sidebar__close:not(#_) {
+  justify-self: end;
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-sidebar-border);
+  color: var(--kz-sidebar-fg);
+  transition: box-shadow 0.25s ease;
+}
+
+.kodza-sidebar__close:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-sidebar-muted);
+}
+
+.kodza-sidebar__toggle:focus-visible:not(#_),
+.kodza-sidebar__close:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-sidebar-fg);
+  outline-offset: 3px;
+}
+
+.kodza-sidebar__link:focus-visible:not(#_),
+.kodza-sidebar__socials a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-sidebar-fg);
+  outline-offset: 3px;
+}
+
+.kodza-sidebar__panel:not(#_) {
+  position: fixed;
+  display: grid;
+  box-sizing: border-box;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 20px 28px 28px;
+  border: 0;
+  background: var(--kz-sidebar-bg);
+  color: var(--kz-sidebar-fg);
+  font: inherit;
+  transition: transform var(--kz-sidebar-duration) var(--kz-sidebar-ease);
+}
+
+.kodza-sidebar__panel:not([open]):not(#_) {
+  display: none;
+}
+
+.kodza-sidebar__nav:not(#_) {
+  display: flex;
+}
+
+.kodza-sidebar__link:not(#_) {
+  display: flex;
+  border-radius: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-sidebar__note:not(#_) {
+  margin: 0;
+}
+
+.kodza-sidebar__socials:not(#_) {
+  display: flex;
+  margin: 0;
+}
+
+.kodza-sidebar__socials a:not(#_) {
+  border-radius: 4px;
+  color: var(--kz-sidebar-fg);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.kodza-sidebar__socials a:hover:not(#_) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-sidebar__panel:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-sidebar__close:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

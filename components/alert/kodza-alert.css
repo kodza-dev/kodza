@@ -1,0 +1,623 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Alert
+   A message that sits in the page: a note (default), --success, --warning or --error.
+   Monochrome: the kind is said by the icon's shape, and an error is inverted, ink on ink.
+   The icon draws itself when the alert shows up; dismissed, it folds away and what follows
+   slides up instead of jumping. An error can unfold its details (a log, a stack trace).
+   Remove [hidden] to show one again, it unfolds the same way.
+   Everything is tuned with the --kz-alert-* variables. */
+.kodza-alert {
+  --kz-alert-bg: #ffffff;
+  --kz-alert-fg: #0a0a0a;
+  --kz-alert-muted: rgba(10, 10, 10, 0.64);
+  --kz-alert-line: rgba(10, 10, 10, 0.1);
+  --kz-alert-soft: rgba(10, 10, 10, 0.05);
+  --kz-alert-error-bg: #0a0a0a;
+  --kz-alert-error-fg: #ffffff;
+  --kz-alert-error-muted: rgba(255, 255, 255, 0.68);
+  --kz-alert-error-soft: rgba(255, 255, 255, 0.08);
+  --kz-alert-radius: 14px;
+  --kz-alert-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --kz-alert-tone: var(--kz-alert-fg);
+  --kz-alert-tone-muted: var(--kz-alert-muted);
+  --kz-alert-tone-soft: var(--kz-alert-soft);
+
+  display: grid;
+  box-sizing: border-box;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  padding: 16px 14px 16px 18px;
+  border-radius: var(--kz-alert-radius);
+  background: var(--kz-alert-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-alert-line);
+  color: var(--kz-alert-tone);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.kodza-alert[hidden] {
+  display: none;
+}
+
+.kodza-alert--error {
+  --kz-alert-tone: var(--kz-alert-error-fg);
+  --kz-alert-tone-muted: var(--kz-alert-error-muted);
+  --kz-alert-tone-soft: var(--kz-alert-error-soft);
+
+  background: var(--kz-alert-error-bg);
+  box-shadow: none;
+}
+
+/* The icon draws itself (circle or shape first, then its mark) */
+.kodza-alert__icon {
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-alert__icon > * {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.kodza-alert.is-drawing .kodza-alert__icon > * {
+  animation: kodza-alert-draw 0.6s cubic-bezier(0.65, 0, 0.35, 1) 0.4s backwards;
+}
+
+.kodza-alert.is-drawing .kodza-alert__icon > :nth-child(2) {
+  animation-duration: 0.35s;
+  animation-delay: 0.85s;
+}
+
+@keyframes kodza-alert-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+.kodza-alert__body {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  min-width: 0;
+}
+
+.kodza-alert__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.kodza-alert__text {
+  margin: 0;
+  color: var(--kz-alert-tone-muted);
+  text-wrap: pretty;
+}
+
+.kodza-alert code,
+.kodza-alert pre {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.9em;
+}
+
+.kodza-alert__text code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--kz-alert-tone-soft);
+  color: var(--kz-alert-tone);
+}
+
+.kodza-alert__close {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -3px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--kz-alert-tone-muted);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.kodza-alert__close:hover {
+  background: var(--kz-alert-tone-soft);
+  color: var(--kz-alert-tone);
+}
+
+.kodza-alert__close svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.kodza-alert__close:focus-visible,
+.kodza-alert__more:focus-visible {
+  outline: 2px solid var(--kz-alert-tone);
+  outline-offset: 2px;
+}
+
+/* Show log / Hide log: one cell, the words roll */
+.kodza-alert__more {
+  display: inline-grid;
+  margin: 8px 0 0;
+  padding: 0 0 1px;
+  overflow: hidden;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: none;
+  color: var(--kz-alert-tone);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.kodza-alert__more > span {
+  grid-area: 1 / 1;
+  transition: transform 0.45s var(--kz-alert-ease), opacity 0.25s ease;
+}
+
+.kodza-alert__more > span:nth-child(2),
+.kodza-alert__more[aria-expanded="true"] > span:first-child {
+  opacity: 0;
+  transform: translateY(-110%);
+}
+
+.kodza-alert__more > span:nth-child(2) {
+  transform: translateY(110%);
+}
+
+.kodza-alert__more[aria-expanded="true"] > span:nth-child(2) {
+  opacity: 1;
+  transform: none;
+}
+
+.kodza-alert__details {
+  justify-self: stretch;
+  overflow: hidden;
+}
+
+.kodza-alert__details pre {
+  margin: 12px 0 2px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  border-radius: 10px;
+  background: var(--kz-alert-tone-soft);
+  color: var(--kz-alert-tone);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-alert.is-drawing .kodza-alert__icon > * {
+    animation: none;
+  }
+
+  .kodza-alert__close,
+  .kodza-alert__more > span {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-alert {
+  --kz-alert-bg: #161616;
+  --kz-alert-fg: #f2f2f0;
+  --kz-alert-muted: rgba(242, 242, 240, 0.64);
+  --kz-alert-line: rgba(255, 255, 255, 0.12);
+  --kz-alert-soft: rgba(255, 255, 255, 0.07);
+  --kz-alert-error-bg: #f2f2f0;
+  --kz-alert-error-fg: #0a0a0a;
+  --kz-alert-error-muted: rgba(10, 10, 10, 0.64);
+  --kz-alert-error-soft: rgba(10, 10, 10, 0.07);
+}
+*/
+
+/* kodza-guard 45fc17df604e — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-alert__close):not(#_),
+:where(.kodza-alert__more):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-alert__icon:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-alert__body:not(#_),
+.kodza-alert__details:not(#_),
+.kodza-alert__more span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-alert__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-alert__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-alert__close:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-alert__more:not(#_) {
+  border-radius: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-alert__close svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-alert__text code:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-alert__details pre:where(:not([class*="kodza-"]):not(.kodza-alert__details [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+}
+
+.kodza-alert__details code:where(:not([class*="kodza-"]):not(.kodza-alert__details [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-alert__icon:not(#_):where(:not([hidden])),
+.kodza-alert__title:not(#_):where(:not([hidden])),
+.kodza-alert__text:not(#_):where(:not([hidden])),
+.kodza-alert__close svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-alert__text code:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-alert__details pre:where(:not([class*="kodza-"]):not(.kodza-alert__details [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-alert__details code:where(:not([class*="kodza-"]):not(.kodza-alert__details [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-alert__icon:not(#_):where([hidden]),
+.kodza-alert__title:not(#_):where([hidden]),
+.kodza-alert__text:not(#_):where([hidden]),
+.kodza-alert__close svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-alert__text code:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-alert__details pre:where(:not([class*="kodza-"]):not(.kodza-alert__details [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-alert__details code:where(:not([class*="kodza-"]):not(.kodza-alert__details [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-alert__icon:not(#_) {
+  margin-top: 1px;
+}
+
+.kodza-alert__title:not(#_) {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.kodza-alert__text:not(#_) {
+  margin: 0;
+  color: var(--kz-alert-tone-muted);
+}
+
+.kodza-alert code:not(#_),
+.kodza-alert pre:not(#_) {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.9em;
+}
+
+.kodza-alert__text code:not(#_) {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--kz-alert-tone-soft);
+  color: var(--kz-alert-tone);
+}
+
+.kodza-alert__close:not(#_) {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -3px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--kz-alert-tone-muted);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.kodza-alert__close:hover:not(#_) {
+  background: var(--kz-alert-tone-soft);
+  color: var(--kz-alert-tone);
+}
+
+.kodza-alert__close:focus-visible:not(#_),
+.kodza-alert__more:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-alert-tone);
+  outline-offset: 2px;
+}
+
+.kodza-alert__more:not(#_) {
+  display: inline-grid;
+  margin: 8px 0 0;
+  padding: 0 0 1px;
+  overflow: hidden;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: none;
+  color: var(--kz-alert-tone);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.kodza-alert__details pre:not(#_) {
+  margin: 12px 0 2px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--kz-alert-tone-soft);
+  color: var(--kz-alert-tone);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-alert__close:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

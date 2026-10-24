@@ -1,0 +1,693 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Stepper
+   A flow in a few steps: the line fills up to the current step, a check draws itself on each
+   finished one, and the content slides in from the side you are heading to. Finished steps
+   can be clicked to go back. The last panel (.kodza-stepper__done) is shown once it is all done.
+   Everything is tuned with the --kz-stepper-* variables. */
+.kodza-stepper {
+  --kz-stepper-bg: #ffffff;
+  --kz-stepper-fg: #0a0a0a;
+  --kz-stepper-muted: rgba(10, 10, 10, 0.6);
+  --kz-stepper-border: rgba(10, 10, 10, 0.1);
+  --kz-stepper-line: rgba(10, 10, 10, 0.12);
+  --kz-stepper-ink: #0a0a0a;
+  --kz-stepper-on-ink: #ffffff;
+  --kz-stepper-dot: 28px;
+  --kz-stepper-duration: 0.6s;
+  --kz-stepper-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  gap: 28px;
+  width: 100%;
+  max-width: 520px;
+  padding: 28px;
+  border-radius: 16px;
+  background: var(--kz-stepper-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-stepper-border);
+  color: var(--kz-stepper-fg);
+  box-sizing: border-box;
+}
+
+/* The steps, and the line that joins their centres */
+.kodza-stepper__steps {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--kz-stepper-n, 4), minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-stepper__steps::before,
+.kodza-stepper__steps::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--kz-stepper-dot) / 2 - 1px);
+  left: calc(50% / var(--kz-stepper-n, 4));
+  right: calc(50% / var(--kz-stepper-n, 4));
+  height: 2px;
+  border-radius: 2px;
+  background: var(--kz-stepper-line);
+}
+
+/* The filled part only scales */
+.kodza-stepper__steps::after {
+  background: var(--kz-stepper-ink);
+  transform: scaleX(var(--kz-stepper-progress, 0));
+  transform-origin: left;
+  transition: transform var(--kz-stepper-duration) var(--kz-stepper-ease);
+}
+
+.kodza-stepper__step {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.kodza-stepper__dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--kz-stepper-dot);
+  height: var(--kz-stepper-dot);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-stepper-bg);
+  box-shadow: inset 0 0 0 1.5px var(--kz-stepper-line);
+  color: var(--kz-stepper-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition: background-color 0.35s ease, box-shadow 0.35s ease, color 0.35s ease;
+}
+
+.kodza-stepper__dot:disabled {
+  cursor: default;
+}
+
+.kodza-stepper__dot:not(:disabled) {
+  cursor: pointer;
+}
+
+.kodza-stepper__dot:focus-visible {
+  outline: 2px solid var(--kz-stepper-fg);
+  outline-offset: 3px;
+}
+
+.kodza-stepper__step.is-current .kodza-stepper__dot,
+.kodza-stepper__step.is-done .kodza-stepper__dot {
+  background: var(--kz-stepper-ink);
+  box-shadow: none;
+  color: var(--kz-stepper-on-ink);
+}
+
+.kodza-stepper__num,
+.kodza-stepper__check {
+  grid-area: 1 / 1;
+}
+
+.kodza-stepper__num {
+  transition: opacity 0.2s ease, transform 0.35s var(--kz-stepper-ease);
+}
+
+.kodza-stepper__check {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.4s var(--kz-stepper-ease);
+}
+
+/* A finished step: the number leaves, the check draws itself */
+.kodza-stepper__step.is-done .kodza-stepper__num {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.kodza-stepper__step.is-done .kodza-stepper__check {
+  stroke-dashoffset: 0;
+  transition-delay: 0.15s;
+}
+
+.kodza-stepper__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--kz-stepper-muted);
+  transition: color 0.35s ease;
+}
+
+.kodza-stepper__step.is-current .kodza-stepper__label,
+.kodza-stepper__step.is-done .kodza-stepper__label {
+  color: var(--kz-stepper-fg);
+}
+
+/* The content: the panels are stacked, so the card keeps the height of the tallest one and
+   nothing under it moves. The old panel leaves on one side while the new one comes in from
+   the side you are heading to. */
+.kodza-stepper__panels {
+  display: grid;
+}
+
+.kodza-stepper__panel {
+  grid-area: 1 / 1;
+}
+
+.kodza-stepper.is-ready .kodza-stepper__panel[hidden] {
+  display: block;
+}
+
+.kodza-stepper.is-ready .kodza-stepper__panel {
+  visibility: hidden;
+  opacity: 0;
+  transform: translateX(calc(var(--kz-stepper-leave, -1) * 20px));
+  transition:
+    opacity 0.22s ease,
+    transform 0.32s ease-in,
+    visibility 0s linear 0.32s;
+}
+
+.kodza-stepper.is-ready .kodza-stepper__panel.is-active {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.45s ease 0.16s,
+    transform var(--kz-stepper-duration) var(--kz-stepper-ease) 0.16s,
+    visibility 0s;
+}
+
+/* Where the new panel starts from, set for an instant before it comes in */
+.kodza-stepper.is-ready .kodza-stepper__panel.is-from {
+  transform: translateX(calc(var(--kz-stepper-leave, -1) * -28px));
+  transition: none;
+}
+
+.kodza-stepper__title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.kodza-stepper__text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-stepper-muted);
+  text-wrap: pretty;
+}
+
+/* The button label rolls to its new word; the button keeps the width of the longest one */
+.kodza-stepper__roll {
+  display: inline-grid;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.kodza-stepper__roll > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-stepper__actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kodza-stepper__back,
+.kodza-stepper__next {
+  height: 40px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity 0.25s ease, box-shadow 0.25s ease;
+}
+
+.kodza-stepper__back {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-stepper-border);
+  color: var(--kz-stepper-fg);
+}
+
+.kodza-stepper__back:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-stepper-muted);
+}
+
+.kodza-stepper__back:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kodza-stepper__next {
+  background: var(--kz-stepper-ink);
+  color: var(--kz-stepper-on-ink);
+}
+
+.kodza-stepper__back:focus-visible,
+.kodza-stepper__next:focus-visible {
+  outline: 2px solid var(--kz-stepper-fg);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-stepper__steps::after,
+  .kodza-stepper__dot,
+  .kodza-stepper__num,
+  .kodza-stepper__check,
+  .kodza-stepper__label {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .kodza-stepper.is-ready .kodza-stepper__panel,
+  .kodza-stepper.is-ready .kodza-stepper__panel.is-active {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-stepper {
+  --kz-stepper-bg: #161616;
+  --kz-stepper-fg: #f2f2f0;
+  --kz-stepper-muted: rgba(242, 242, 240, 0.58);
+  --kz-stepper-border: rgba(255, 255, 255, 0.12);
+  --kz-stepper-line: rgba(255, 255, 255, 0.16);
+  --kz-stepper-ink: #f2f2f0;
+  --kz-stepper-on-ink: #161616;
+}
+*/
+
+/* kodza-guard 076085fda97d — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-stepper__dot):not(#_),
+:where(.kodza-stepper__back):not(#_),
+:where(.kodza-stepper__next):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-stepper__steps:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-stepper__step:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-stepper__dot:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-stepper__num:not(#_),
+.kodza-stepper__label:not(#_),
+.kodza-stepper__panels:not(#_),
+.kodza-stepper__panel:not(#_),
+.kodza-stepper__actions:not(#_),
+.kodza-stepper__roll:not(#_),
+.kodza-stepper__roll span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-stepper__check:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-stepper__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-stepper__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-stepper__back:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-stepper__next:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-stepper__check:not(#_):where(:not([hidden])),
+.kodza-stepper__title:not(#_):where(:not([hidden])),
+.kodza-stepper__text:not(#_):where(:not([hidden])),
+.kodza-stepper__back:not(#_):where(:not([hidden])),
+.kodza-stepper__next:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-stepper__check:not(#_):where([hidden]),
+.kodza-stepper__title:not(#_):where([hidden]),
+.kodza-stepper__text:not(#_):where([hidden]),
+.kodza-stepper__back:not(#_):where([hidden]),
+.kodza-stepper__next:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-stepper__steps:not(#_)::before,
+.kodza-stepper__steps:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-stepper:not(#_) {
+  width: min(100%, 520px);
+}
+
+.kodza-stepper__steps:not(#_) {
+  position: relative;
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-stepper__step:not(#_) {
+  position: relative;
+  display: grid;
+}
+
+.kodza-stepper__dot:not(#_) {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--kz-stepper-dot);
+  height: var(--kz-stepper-dot);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-stepper-bg);
+  box-shadow: inset 0 0 0 1.5px var(--kz-stepper-line);
+  color: var(--kz-stepper-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition: background-color 0.35s ease, box-shadow 0.35s ease, color 0.35s ease;
+}
+
+.kodza-stepper__dot:disabled:not(#_) {
+  cursor: default;
+}
+
+.kodza-stepper__dot:not(:disabled):not(#_) {
+  cursor: pointer;
+}
+
+.kodza-stepper__dot:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-stepper-fg);
+  outline-offset: 3px;
+}
+
+.kodza-stepper__step.is-current .kodza-stepper__dot:not(#_),
+.kodza-stepper__step.is-done .kodza-stepper__dot:not(#_) {
+  background: var(--kz-stepper-ink);
+  box-shadow: none;
+  color: var(--kz-stepper-on-ink);
+}
+
+.kodza-stepper__check:not(#_) {
+  transition: stroke-dashoffset 0.4s var(--kz-stepper-ease);
+}
+
+.kodza-stepper__step.is-done .kodza-stepper__check:not(#_) {
+  transition-delay: 0.15s;
+}
+
+.kodza-stepper__title:not(#_) {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.kodza-stepper__text:not(#_) {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-stepper-muted);
+}
+
+.kodza-stepper__back:not(#_),
+.kodza-stepper__next:not(#_) {
+  height: 40px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity 0.25s ease, box-shadow 0.25s ease;
+}
+
+.kodza-stepper__back:not(#_) {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-stepper-border);
+  color: var(--kz-stepper-fg);
+}
+
+.kodza-stepper__back:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-stepper-muted);
+}
+
+.kodza-stepper__back:disabled:not(#_) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kodza-stepper__next:not(#_) {
+  background: var(--kz-stepper-ink);
+  color: var(--kz-stepper-on-ink);
+}
+
+.kodza-stepper__back:focus-visible:not(#_),
+.kodza-stepper__next:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-stepper-fg);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-stepper__dot:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-stepper__check:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

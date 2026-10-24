@@ -1,0 +1,375 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Tabs
+   Tabs with a pill that slides to the chosen one (or a line, with --line), and a panel that
+   comes in from the side of the tab you picked. Arrow keys, Home and End move between tabs.
+   More tabs than room (a phone): the row scrolls sideways and follows the chosen tab.
+   Everything is tuned with the --kz-tabs-* variables. */
+.kodza-tabs {
+  --kz-tabs-bg: #ffffff;
+  --kz-tabs-fg: #0a0a0a;
+  --kz-tabs-muted: rgba(10, 10, 10, 0.58);
+  --kz-tabs-border: rgba(10, 10, 10, 0.1);
+  --kz-tabs-ink: #0a0a0a;
+  --kz-tabs-on-ink: #ffffff;
+  --kz-tabs-width: 520px;
+  --kz-tabs-duration: 0.5s;
+  --kz-tabs-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  width: 100%;
+  max-width: var(--kz-tabs-width);
+  color: var(--kz-tabs-fg);
+}
+
+.kodza-tabs__list {
+  position: relative;
+  display: inline-flex;
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--kz-tabs-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-tabs-border);
+}
+
+/* More tabs than room: the row scrolls sideways (the script adds is-scroll) */
+.kodza-tabs__list.is-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.kodza-tabs__list.is-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* The pill covers the whole row (scrolled part included) and is cut down to the chosen tab:
+   only clip-path moves */
+.kodza-tabs__indicator {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--kz-tabs-track, 100%);
+  border-radius: 999px;
+  background: var(--kz-tabs-ink);
+  clip-path: inset(4px var(--kz-ind-r, 100%) 4px var(--kz-ind-l, 0) round 999px);
+}
+
+.kodza-tabs.is-live .kodza-tabs__indicator {
+  transition: clip-path var(--kz-tabs-duration) var(--kz-tabs-ease);
+}
+
+.kodza-tabs__tab {
+  position: relative;
+  height: 36px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--kz-tabs-muted);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.kodza-tabs__tab:hover {
+  color: var(--kz-tabs-fg);
+}
+
+.kodza-tabs__tab[aria-selected="true"] {
+  color: var(--kz-tabs-fg);
+}
+
+/* A white copy of the labels, cut to the pill: the text turns white exactly at its edges */
+.kodza-tabs__mirror {
+  position: absolute;
+  inset: 0 auto 0 0;
+  box-sizing: border-box;
+  width: var(--kz-tabs-track, 100%);
+  display: flex;
+  padding: 4px;
+  border-radius: 999px;
+  color: var(--kz-tabs-on-ink);
+  clip-path: inset(4px var(--kz-ind-r, 100%) 4px var(--kz-ind-l, 0) round 999px);
+  pointer-events: none;
+}
+
+.kodza-tabs.is-live .kodza-tabs__mirror {
+  transition: clip-path var(--kz-tabs-duration) var(--kz-tabs-ease);
+}
+
+.kodza-tabs__ghost {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 18px;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.kodza-tabs__tab:focus-visible {
+  outline: 2px solid var(--kz-tabs-fg);
+  outline-offset: 2px;
+}
+
+/* --line: no pill, a line under the chosen tab */
+.kodza-tabs--line .kodza-tabs__list {
+  display: flex;
+  gap: 4px;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: inset 0 -1px 0 var(--kz-tabs-border);
+}
+
+.kodza-tabs--line .kodza-tabs__indicator {
+  top: auto;
+  height: 2px;
+  border-radius: 0;
+  clip-path: inset(0 var(--kz-ind-r, 100%) 0 var(--kz-ind-l, 0));
+}
+
+.kodza-tabs--line .kodza-tabs__tab {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 6px 6px 0 0;
+}
+
+.kodza-tabs--line .kodza-tabs__tab[aria-selected="true"] {
+  color: var(--kz-tabs-fg);
+}
+
+/* The panels are stacked: the block keeps the height of the tallest one, so nothing under it
+   moves. The old panel leaves on one side while the new one comes in from the side of the
+   tab you picked. The column never grows past the tabs: a long line inside a panel (a code
+   block) scrolls on its own instead of widening the page. */
+.kodza-tabs__panels {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding-top: 20px;
+}
+
+.kodza-tabs__panel {
+  grid-area: 1 / 1;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-tabs-muted);
+  text-wrap: pretty;
+}
+
+.kodza-tabs__panel p {
+  margin: 0;
+}
+
+.kodza-tabs.is-ready .kodza-tabs__panel[hidden] {
+  display: block;
+}
+
+.kodza-tabs.is-ready .kodza-tabs__panel {
+  visibility: hidden;
+  opacity: 0;
+  /* A waiting panel sits a little to the side, never further than the page leaves there (a 10px
+     phone gutter): it never widens the page */
+  transform: translateX(calc(var(--kz-tabs-leave, -1) * min(14px, (100vw - 100%) / 2)));
+  transition:
+    opacity 0.2s ease,
+    transform 0.3s ease-in,
+    visibility 0s linear 0.3s;
+}
+
+.kodza-tabs.is-ready .kodza-tabs__panel.is-active {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.4s ease 0.14s,
+    transform var(--kz-tabs-duration) var(--kz-tabs-ease) 0.14s,
+    visibility 0s;
+}
+
+.kodza-tabs.is-ready .kodza-tabs__panel.is-from {
+  transform: translateX(calc(var(--kz-tabs-leave, -1) * -1 * min(22px, (100vw - 100%) / 2)));
+  transition: none;
+}
+
+.kodza-tabs__panel:focus-visible {
+  border-radius: 6px;
+  outline: 2px solid var(--kz-tabs-fg);
+  outline-offset: 4px;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-tabs.is-live .kodza-tabs__indicator,
+  .kodza-tabs.is-live .kodza-tabs__mirror,
+  .kodza-tabs__tab,
+  .kodza-tabs.is-ready .kodza-tabs__panel,
+  .kodza-tabs.is-ready .kodza-tabs__panel.is-active {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-tabs {
+  --kz-tabs-bg: #161616;
+  --kz-tabs-fg: #f2f2f0;
+  --kz-tabs-muted: rgba(242, 242, 240, 0.62);
+  --kz-tabs-border: rgba(255, 255, 255, 0.12);
+  --kz-tabs-ink: #f2f2f0;
+  --kz-tabs-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard ead16657f02f — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-tabs__tab):not(#_),
+:where(.kodza-tabs__panel):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-tabs:not(#_),
+.kodza-tabs__indicator:not(#_),
+.kodza-tabs__ghost:not(#_),
+.kodza-tabs__panels:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-tabs__tab:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-tabs__panel:not(#_) {
+  box-sizing: revert;
+  box-shadow: revert;
+}
+
+.kodza-tabs__panel p:where(:not([class*="kodza-"]):not(.kodza-tabs__panel [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-tabs__tab:not(#_):where(:not([hidden])),
+.kodza-tabs__panel p:where(:not([class*="kodza-"]):not(.kodza-tabs__panel [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-tabs__tab:not(#_):where([hidden]),
+.kodza-tabs__panel p:where(:not([class*="kodza-"]):not(.kodza-tabs__panel [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-tabs:not(#_) {
+  width: min(100%, var(--kz-tabs-width));
+}
+
+.kodza-tabs__tab:not(#_) {
+  position: relative;
+  height: 36px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--kz-tabs-muted);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.kodza-tabs__tab:hover:not(#_) {
+  color: var(--kz-tabs-fg);
+}
+
+.kodza-tabs__tab[aria-selected="true"]:not(#_) {
+  color: var(--kz-tabs-fg);
+}
+
+.kodza-tabs__tab:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-tabs-fg);
+  outline-offset: 2px;
+}
+
+.kodza-tabs--line .kodza-tabs__tab:not(#_) {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 6px 6px 0 0;
+}
+
+.kodza-tabs--line .kodza-tabs__tab[aria-selected="true"]:not(#_) {
+  color: var(--kz-tabs-fg);
+}
+
+.kodza-tabs__panel p:not(#_) {
+  margin: 0;
+}
+
+.kodza-tabs__panel:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-tabs-fg);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-tabs__tab:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

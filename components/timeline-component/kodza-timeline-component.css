@@ -1,0 +1,477 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Timeline
+   Dated steps along a rail that fills as you scroll: the ink glides after the reading point,
+   each dot fills from its centre when the ink reaches it and its title comes to full ink, and
+   each step arrives piece by piece (year, title, text, tag) the first time it is seen. The
+   last step reached keeps a ring: it is the one you are on. Without the script, the rail is
+   simply drawn. Everything is tuned with the --kz-timeline-* variables. */
+.kodza-timeline {
+  --kz-timeline-fg: #0a0a0a;
+  --kz-timeline-muted: rgba(10, 10, 10, 0.62);
+  --kz-timeline-line: rgba(10, 10, 10, 0.14);
+  --kz-timeline-soft: rgba(10, 10, 10, 0.06);
+  --kz-timeline-bg: #f2f2f0;
+  --kz-timeline-ink: #0a0a0a;
+  --kz-timeline-on-ink: #ffffff;
+  --kz-timeline-date: 72px;
+  --kz-timeline-gap: 56px;
+  --kz-timeline-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-timeline-progress: 0;
+
+  position: relative;
+  display: grid;
+  gap: var(--kz-timeline-gap);
+  margin: 0;
+  padding: 0;
+  color: var(--kz-timeline-fg);
+  list-style: none;
+}
+
+/* The rail, and its ink (scaled from the top by the script) */
+.kodza-timeline::before,
+.kodza-timeline__fill {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: calc(var(--kz-timeline-date) + 23px);
+  width: 2px;
+  border-radius: 1px;
+  background: var(--kz-timeline-line);
+}
+
+.kodza-timeline__fill {
+  background: var(--kz-timeline-ink);
+  transform: scaleY(var(--kz-timeline-progress));
+  transform-origin: 50% 0;
+}
+
+.kodza-timeline__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--kz-timeline-date) 48px minmax(0, 1fr);
+  align-items: start;
+}
+
+/* The dot: a ring, and an inner round that grows to fill it when the ink reaches it */
+.kodza-timeline__item::before,
+.kodza-timeline__item::after {
+  content: "";
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: center;
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  box-sizing: border-box;
+  border-radius: 50%;
+}
+
+.kodza-timeline__item::before {
+  border: 2px solid var(--kz-timeline-line);
+  background: var(--kz-timeline-bg);
+  transition: border-color 0.4s ease, box-shadow 0.6s var(--kz-timeline-ease);
+}
+
+.kodza-timeline__item::after {
+  background: var(--kz-timeline-ink);
+  transform: scale(0);
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kodza-timeline__item.is-passed::before {
+  border-color: var(--kz-timeline-ink);
+}
+
+.kodza-timeline__item.is-passed::after {
+  transform: scale(1);
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* The step you are on: a soft ring opens around its dot */
+.kodza-timeline__item.is-current::before {
+  box-shadow: 0 0 0 7px var(--kz-timeline-soft);
+}
+
+.kodza-timeline__date {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: end;
+  color: var(--kz-timeline-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 20px;
+  transition: color 0.3s ease;
+}
+
+.kodza-timeline__item.is-passed .kodza-timeline__date {
+  color: var(--kz-timeline-fg);
+}
+
+.kodza-timeline__body {
+  grid-column: 3;
+  grid-row: 1;
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+
+.kodza-timeline__title {
+  margin: 0;
+  color: var(--kz-timeline-muted);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.kodza-timeline__text {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--kz-timeline-muted);
+  font-size: 15px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.kodza-timeline__tag {
+  margin-top: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--kz-timeline-soft);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.kodza-timeline__item.is-passed .kodza-timeline__title {
+  color: var(--kz-timeline-fg);
+}
+
+.kodza-timeline__item.is-current .kodza-timeline__tag {
+  background: var(--kz-timeline-ink);
+  color: var(--kz-timeline-on-ink);
+}
+
+/* Each step arrives piece by piece the first time it is seen: the year slides in, then the
+   title, the text and the tag rise in turn (only once the script is there) */
+.kodza-timeline__date,
+.kodza-timeline__body > * {
+  transition: opacity 0.7s ease, transform 1s var(--kz-timeline-ease), color 0.5s ease, background-color 0.4s ease;
+}
+
+.kodza-timeline.is-ready .kodza-timeline__item:not(.is-seen) .kodza-timeline__date {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.kodza-timeline.is-ready .kodza-timeline__item:not(.is-seen) .kodza-timeline__body > * {
+  opacity: 0;
+  transform: translateY(22px);
+}
+
+.kodza-timeline__item.is-seen .kodza-timeline__body > :nth-child(1) { transition-delay: 0.06s, 0.06s, 0s, 0s; }
+.kodza-timeline__item.is-seen .kodza-timeline__body > :nth-child(2) { transition-delay: 0.14s, 0.14s, 0s, 0s; }
+.kodza-timeline__item.is-seen .kodza-timeline__body > :nth-child(3) { transition-delay: 0.22s, 0.22s, 0s, 0s; }
+
+@media (max-width: 560px) {
+  .kodza-timeline {
+    --kz-timeline-date: 0px;
+  }
+
+  .kodza-timeline::before,
+  .kodza-timeline__fill {
+    left: 11px;
+  }
+
+  .kodza-timeline__item {
+    grid-template-columns: 24px minmax(0, 1fr);
+    column-gap: 16px;
+  }
+
+  .kodza-timeline__item::before,
+  .kodza-timeline__item::after {
+    grid-column: 1;
+  }
+
+  .kodza-timeline__date {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .kodza-timeline__body {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-timeline__item::before,
+  .kodza-timeline__item::after,
+  .kodza-timeline__body > *,
+  .kodza-timeline__date {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-timeline {
+  --kz-timeline-fg: #f2f2f0;
+  --kz-timeline-muted: rgba(242, 242, 240, 0.62);
+  --kz-timeline-line: rgba(255, 255, 255, 0.16);
+  --kz-timeline-soft: rgba(255, 255, 255, 0.09);
+  --kz-timeline-bg: #0a0a0a;
+  --kz-timeline-ink: #f2f2f0;
+  --kz-timeline-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard 7aac7c96abba — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-timeline:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-timeline__fill:not(#_),
+.kodza-timeline__body:not(#_),
+.kodza-timeline__tag:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-timeline__item:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-timeline__date:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-timeline__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-timeline__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-timeline__date:not(#_):where(:not([hidden])),
+.kodza-timeline__title:not(#_):where(:not([hidden])),
+.kodza-timeline__text:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-timeline__date:not(#_):where([hidden]),
+.kodza-timeline__title:not(#_):where([hidden]),
+.kodza-timeline__text:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-timeline:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-timeline:not(#_) {
+  position: relative;
+  display: grid;
+  padding: 0;
+  color: var(--kz-timeline-fg);
+  list-style: none;
+}
+
+.kodza-timeline__item:not(#_) {
+  position: relative;
+  display: grid;
+}
+
+.kodza-timeline__date:not(#_) {
+  color: var(--kz-timeline-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 20px;
+  transition: color 0.3s ease;
+}
+
+.kodza-timeline__item.is-passed .kodza-timeline__date:not(#_) {
+  color: var(--kz-timeline-fg);
+}
+
+.kodza-timeline__title:not(#_) {
+  margin: 0;
+  color: var(--kz-timeline-muted);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.kodza-timeline__text:not(#_) {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--kz-timeline-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.kodza-timeline__item.is-passed .kodza-timeline__title:not(#_) {
+  color: var(--kz-timeline-fg);
+}
+
+.kodza-timeline__date:not(#_),
+.kodza-timeline__body > *:where(h3, p):not(#_) {
+  transition: opacity 0.7s ease, transform 1s var(--kz-timeline-ease), color 0.5s ease, background-color 0.4s ease;
+}
+
+.kodza-timeline__item.is-seen .kodza-timeline__body > :nth-child(1):where(h3, p):not(#_) {
+  transition-delay: 0.06s, 0.06s, 0s, 0s;
+}
+
+.kodza-timeline__item.is-seen .kodza-timeline__body > :nth-child(2):where(h3, p):not(#_) {
+  transition-delay: 0.14s, 0.14s, 0s, 0s;
+}
+
+.kodza-timeline__item.is-seen .kodza-timeline__body > :nth-child(3):where(h3, p):not(#_) {
+  transition-delay: 0.22s, 0.22s, 0s, 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-timeline__body > *:where(h3, p):not(#_),
+  .kodza-timeline__date:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

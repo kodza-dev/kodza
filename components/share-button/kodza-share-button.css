@@ -1,0 +1,623 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Share Button
+   Press Share and the options slide out from behind the button, the last one pushing the pill
+   open, while the arrow of the icon takes off and a cross draws itself in its place. One tint
+   and one label glide from option to option; "Copy link" turns into a check and the label rolls
+   to "Link copied". The links fill in the page's URL and title ({url} and {title} in each href,
+   data-url and data-title on the root to pick others), X and LinkedIn open in a small window.
+   Everything is tuned with the --kz-share-* variables. */
+.kodza-share {
+  --kz-share-bg: #0a0a0a;
+  --kz-share-fg: #ffffff;
+  --kz-share-border: transparent;
+  --kz-share-tint: rgba(255, 255, 255, 0.14); /* the hover, under one option */
+  --kz-share-tip-bg: #0a0a0a;
+  --kz-share-tip-fg: #ffffff;
+  --kz-share-height: 52px;
+  --kz-share-option: 44px;
+  --kz-share-duration: 0.6s; /* opening and closing */
+  --kz-share-unfold: cubic-bezier(0.65, 0, 0.35, 1);
+  --kz-share-ease: cubic-bezier(0.22, 1, 0.36, 1); /* the tint, the label, the small moves */
+
+  position: relative;
+  /* A number, not auto, so it can wait for the label to go before dropping back */
+  z-index: 0;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: var(--kz-share-height);
+  padding: calc((var(--kz-share-height) - var(--kz-share-option)) / 2);
+  border-radius: 999px;
+  background: var(--kz-share-bg);
+  box-shadow: inset 0 0 0 1.5px var(--kz-share-border);
+  color: var(--kz-share-fg);
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+  transition: z-index 0s linear 0.2s;
+}
+
+.kodza-share.is-open {
+  z-index: 20;
+  transition-delay: 0s;
+}
+
+/* Share: the icon and its word. Open, it closes down to a round cross (the script eases the
+   width, the word slips away to the left) */
+.kodza-share__toggle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: var(--kz-share-option);
+  margin: 0;
+  padding: 0 18px 0 12px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kodza-share.is-open .kodza-share__toggle {
+  width: var(--kz-share-option);
+}
+
+/* Icon only: a round button */
+.kodza-share--icon .kodza-share__toggle {
+  width: var(--kz-share-option);
+  padding: 0 13px;
+}
+
+.kodza-share__toggle:focus-visible,
+.kodza-share__option:focus-visible {
+  outline: 2px solid var(--kz-share-fg);
+  outline-offset: -4px;
+}
+
+.kodza-share__toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* The word slips away to the left as the button closes over it */
+.kodza-share__label {
+  flex: none;
+}
+
+.kodza-share__label > span {
+  display: block;
+  transition:
+    opacity 0.3s ease 0.2s,
+    transform var(--kz-share-duration) var(--kz-share-ease);
+}
+
+/* (gone before the options come out) */
+.kodza-share.is-open .kodza-share__label > span {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition:
+    opacity 0.15s ease,
+    transform var(--kz-share-duration) var(--kz-share-ease);
+}
+
+/* The icon: the arrow takes off out of its tray, a cross draws itself in its place */
+.kodza-share__glyph,
+.kodza-share__option svg {
+  display: block;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  overflow: hidden;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Drawn and undrawn with the dash: hidden, the dash sits well inside its gap (a dash ending
+   right at the tip of the line would leave the dot of its round cap) */
+.kodza-share__tray,
+.kodza-share__cross,
+.kodza-share__check {
+  stroke-dasharray: 1 2;
+}
+
+/* Open, the cross sits in the middle of its round button */
+.kodza-share__glyph {
+  transition: transform var(--kz-share-duration) var(--kz-share-unfold);
+}
+
+.kodza-share.is-open .kodza-share__glyph {
+  transform: translateX(1px);
+}
+
+.kodza-share--icon .kodza-share__glyph,
+.kodza-share--icon.is-open .kodza-share__glyph {
+  transform: none;
+}
+
+.kodza-share__tray {
+  transition: stroke-dashoffset 0.32s var(--kz-share-ease) 0.14s;
+}
+
+.kodza-share__arrow {
+  transition: transform 0.42s var(--kz-share-ease) 0.12s;
+}
+
+.kodza-share__cross {
+  stroke-dashoffset: 1.5;
+  transition: stroke-dashoffset 0.16s ease;
+}
+
+.kodza-share.is-open .kodza-share__tray {
+  stroke-dashoffset: -1.5;
+  transition: stroke-dashoffset 0.22s cubic-bezier(0.55, 0, 1, 0.45);
+}
+
+.kodza-share.is-open .kodza-share__arrow {
+  transform: translateY(-17px);
+  transition: transform 0.22s cubic-bezier(0.55, 0, 1, 0.45);
+}
+
+.kodza-share.is-open .kodza-share__cross {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.26s var(--kz-share-ease) 0.16s;
+}
+
+.kodza-share.is-open .kodza-share__cross + .kodza-share__cross {
+  transition-delay: 0.24s;
+}
+
+/* The options: all waiting behind the button, each slides out to its place, so the last one
+   rides the edge of the pill as it opens */
+.kodza-share__options {
+  display: flex;
+  width: 0;
+  overflow: hidden;
+  /* Its right end rounded on the same circle as the end of the pill: an option one frame ahead
+     of the width never pokes out of it */
+  clip-path: inset(0 0 0 calc(var(--kz-share-option) * -1) round 0 calc(var(--kz-share-option) / 2) calc(var(--kz-share-option) / 2) 0);
+  visibility: hidden;
+  transition: visibility 0s linear var(--kz-share-duration);
+}
+
+.kodza-share.is-open .kodza-share__options {
+  width: auto;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.kodza-share__option {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--kz-share-option);
+  height: var(--kz-share-option);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transform: translateX(calc((var(--kz-share-i, 0) + 1) * var(--kz-share-option) * -1));
+}
+
+.kodza-share.is-ready .kodza-share__option {
+  transition: transform var(--kz-share-duration) var(--kz-share-unfold);
+}
+
+.kodza-share.is-open .kodza-share__option {
+  transform: none;
+}
+
+/* On the move, each option is a disc of the button's colour: they slide out from under one
+   another like a fanned deck, the last one on top */
+.kodza-share.is-moving .kodza-share__option {
+  background: var(--kz-share-bg);
+}
+
+/* Their icons come in as they leave the button, and fade on their way back into it */
+.kodza-share__option svg {
+  opacity: 0;
+  transition: opacity 0.2s ease 0.12s;
+}
+
+.kodza-share.is-open .kodza-share__option svg {
+  opacity: 1;
+  transition: opacity 0.3s ease 0.08s;
+}
+
+/* The logos are solid: a touch smaller, to weigh as much as the line icons */
+.kodza-share__option .kodza-share__brand {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  stroke: none;
+}
+
+/* Copied: the chain gives way to a check */
+.kodza-share__link {
+  transform-origin: 12px 12px;
+  transition:
+    opacity 0.2s ease 0.1s,
+    transform 0.35s var(--kz-share-ease) 0.1s;
+}
+
+.kodza-share__check {
+  stroke-dashoffset: 1.5;
+  transition: stroke-dashoffset 0.2s ease;
+}
+
+.kodza-share__option.is-copied .kodza-share__link {
+  opacity: 0;
+  transform: rotate(-45deg) scale(0.6);
+  transition-delay: 0s;
+}
+
+.kodza-share__option.is-copied .kodza-share__check {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.32s var(--kz-share-ease) 0.12s;
+}
+
+/* One tint for the whole button, cut out by clip-path around the option under the pointer (the
+   script sends its left edge and width), so it glides from one to the next */
+.kodza-share__tint {
+  position: absolute;
+  inset: calc((var(--kz-share-height) - var(--kz-share-option)) / 2);
+  z-index: -1;
+  border-radius: 999px;
+  background: var(--kz-share-tint);
+  opacity: var(--kz-share-tint-on, 0);
+  clip-path: inset(0 calc(100% - var(--kz-share-tint-l, 0px) - var(--kz-share-tint-w, 0px)) 0 var(--kz-share-tint-l, 0px) round 999px);
+  pointer-events: none;
+}
+
+.kodza-share.is-ready .kodza-share__tint {
+  transition: opacity 0.2s ease;
+}
+
+.kodza-share.is-ready.is-gliding .kodza-share__tint {
+  transition:
+    clip-path 0.3s var(--kz-share-ease),
+    opacity 0.2s ease;
+}
+
+/* While the button opens or closes, the script keeps the tint and the label on what they sit
+   on, frame by frame */
+.kodza-share.is-ready.is-gliding.is-moving .kodza-share__tint {
+  transition: opacity 0.2s ease;
+}
+
+.kodza-share.is-moving .kodza-share__tip.is-on {
+  transition: opacity 0.15s ease;
+}
+
+/* The name of the option, above it, the same bubble as Tooltip: it glides from option to option
+   and its words roll */
+.kodza-share__tip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 0;
+  display: block;
+  padding: 7px 10px;
+  border-radius: 9px;
+  background: var(--kz-share-tip-bg);
+  color: var(--kz-share-tip-fg);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateX(var(--kz-share-tip-x, 0px)) translateX(-50%) translateY(4px) scale(0.94);
+  transform-origin: 50% 100%;
+  transition:
+    opacity 0.15s ease,
+    transform 0.2s var(--kz-share-ease),
+    visibility 0s linear 0.2s;
+}
+
+.kodza-share__tip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  border: 5px solid transparent;
+  border-top-color: var(--kz-share-tip-bg);
+  transform: translateX(-50%);
+}
+
+.kodza-share__tip.is-on {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(var(--kz-share-tip-x, 0px)) translateX(-50%);
+  transition:
+    opacity 0.15s ease,
+    transform 0.25s var(--kz-share-ease),
+    visibility 0s;
+}
+
+.kodza-share__tip.is-on.is-gliding {
+  transition: transform 0.28s var(--kz-share-ease);
+}
+
+/* The words: the leaving ones step out of the flow, so the bubble takes the size of the new */
+.kodza-share__words {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.kodza-share__words > span {
+  display: block;
+}
+
+.kodza-share__words > .is-leaving {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.kodza-share__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-share__glyph,
+  .kodza-share.is-ready .kodza-share__option,
+  .kodza-share__option svg,
+  .kodza-share.is-ready .kodza-share__tint,
+  .kodza-share__label > span,
+  .kodza-share__tray,
+  .kodza-share__arrow,
+  .kodza-share__cross,
+  .kodza-share__link,
+  .kodza-share__check,
+  .kodza-share__tip {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* kodza-guard 3bc12d72cf7b — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-share__toggle):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-share__option):not(#_) {
+  outline: revert;
+  transition: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-share__tint:not(#_),
+.kodza-share__tray:not(#_),
+.kodza-share__arrow:not(#_),
+.kodza-share__cross:not(#_),
+.kodza-share__label:not(#_),
+.kodza-share__options:not(#_),
+.kodza-share__link:not(#_),
+.kodza-share__check:not(#_),
+.kodza-share__status:not(#_),
+.kodza-share__tip:not(#_),
+.kodza-share__words:not(#_),
+.kodza-share__label span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-share__toggle:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-share__glyph:not(#_),
+.kodza-share__brand:not(#_),
+.kodza-share__option svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-share__option:not(#_) {
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-share__tip:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-share__toggle:not(#_) {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: var(--kz-share-option);
+  margin: 0;
+  padding: 0 18px 0 12px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kodza-share.is-open .kodza-share__toggle:not(#_) {
+  width: var(--kz-share-option);
+}
+
+.kodza-share--icon .kodza-share__toggle:not(#_) {
+  width: var(--kz-share-option);
+  padding: 0 13px;
+}
+
+.kodza-share__toggle:focus-visible:not(#_),
+.kodza-share__option:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-share-fg);
+  outline-offset: -4px;
+}
+
+.kodza-share__toggle:disabled:not(#_) {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.kodza-share__glyph:not(#_),
+.kodza-share__option svg:not(#_) {
+  display: block;
+}
+
+.kodza-share__glyph:not(#_) {
+  transition: transform var(--kz-share-duration) var(--kz-share-unfold);
+}
+
+.kodza-share__option:not(#_) {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--kz-share-option);
+  height: var(--kz-share-option);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transform: translateX(calc((var(--kz-share-i, 0) + 1) * var(--kz-share-option) * -1));
+}
+
+.kodza-share.is-ready .kodza-share__option:not(#_) {
+  transition: transform var(--kz-share-duration) var(--kz-share-unfold);
+}
+
+.kodza-share.is-open .kodza-share__option:not(#_) {
+  transform: none;
+}
+
+.kodza-share.is-moving .kodza-share__option:not(#_) {
+  background: var(--kz-share-bg);
+}
+
+.kodza-share__option svg:not(#_) {
+  transition: opacity 0.2s ease 0.12s;
+}
+
+.kodza-share.is-open .kodza-share__option svg:not(#_) {
+  transition: opacity 0.3s ease 0.08s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-share__glyph:not(#_),
+  .kodza-share__option svg:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-share.is-ready .kodza-share__option:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

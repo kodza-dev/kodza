@@ -1,0 +1,567 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Page Lift
+   A page transition between two real pages (cross-document View Transitions). On a click the
+   page you leave recedes and darkens, the next one rises over it with a rounded top edge that
+   flattens as it lands; the site header stays where it is. Then the arrival plays: the label,
+   the title rising line by line from its mask, the image uncovering as it tightens, the rest in
+   a cascade (mark them with data-enter="label", "title", "image", or just data-enter). Going
+   back plays the lift in reverse: the page goes down as it came. Without the API (Firefox) or
+   with reduced motion, navigation stays plain. Tuned with the --kz-page-lift-* variables, on
+   .kodza-page-lift (or on html, for the pages without the section). */
+.kodza-page-lift {
+  --kz-page-lift-duration: 0.8s; /* the lift, both ways */
+  --kz-page-lift-ease: cubic-bezier(0.76, 0, 0.24, 1);
+  --kz-page-lift-depth: 0.92; /* how far the page you leave recedes */
+  --kz-page-lift-veil: 0.55; /* and how dark it gets */
+  --kz-page-lift-rise: 16%; /* the next page starts this far down, under its own top edge */
+  --kz-page-lift-radius: 20px; /* its top corners, flat once it lands */
+  --kz-page-lift-backdrop: #0a0a0a; /* behind the page that recedes */
+  --kz-page-lift-enter-delay: 0.36s; /* the arrival starts while the page is still rising */
+  --kz-page-lift-enter-ease: cubic-bezier(0.2, 0.8, 0.1, 1);
+  --kz-page-lift-reveal-ease: cubic-bezier(0.65, 0, 0.35, 1); /* the image uncovering: gentle start, no flash */
+  --kz-page-lift-bg: #f2f2f0;
+  --kz-page-lift-fg: #0a0a0a;
+  --kz-page-lift-muted: rgba(10, 10, 10, 0.62);
+  --kz-page-lift-line: rgba(10, 10, 10, 0.12);
+  --kz-page-lift-image-radius: 16px;
+  --kz-page-lift-side: 24px;
+
+  box-sizing: border-box;
+  padding: 64px var(--kz-page-lift-side) 72px;
+  background: var(--kz-page-lift-bg);
+  color: var(--kz-page-lift-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+/* ---------- The lift: both pages, drawn by the browser between two documents ---------- */
+@view-transition {
+  navigation: auto;
+}
+
+/* The script marks the page (kodza-page-lift-on); without it, a page with the section still lifts */
+:is(html.kodza-page-lift-on, html:has(.kodza-page-lift):not(.kodza-page-engine))::view-transition {
+  background: var(--kz-page-lift-backdrop, #0a0a0a);
+}
+
+:is(html.kodza-page-lift-on, html:has(.kodza-page-lift):not(.kodza-page-engine))::view-transition-group(root) {
+  animation: none;
+}
+
+:is(html.kodza-page-lift-on, html:has(.kodza-page-lift):not(.kodza-page-engine))::view-transition-old(root),
+:is(html.kodza-page-lift-on, html:has(.kodza-page-lift):not(.kodza-page-engine))::view-transition-new(root) {
+  mix-blend-mode: normal;
+  animation-duration: var(--kz-page-lift-duration, 0.8s);
+  animation-timing-function: var(--kz-page-lift-ease, cubic-bezier(0.76, 0, 0.24, 1));
+  animation-delay: calc(var(--kz-page-lift-at, 0) * var(--kz-page-lift-duration, 0.8s) * -1); /* an interrupted lift goes on from where it was */
+  animation-fill-mode: both;
+}
+
+:is(html.kodza-page-lift-on, html:has(.kodza-page-lift):not(.kodza-page-engine))::view-transition-old(root) {
+  animation-name: kodza-page-lift-recede;
+}
+
+:is(html.kodza-page-lift-on, html:has(.kodza-page-lift):not(.kodza-page-engine))::view-transition-new(root) {
+  animation-name: kodza-page-lift-rise;
+}
+
+/* Back: the same lift played backwards, so the page goes down exactly as it came up */
+:is(html.kodza-page-lift-on, html:has(.kodza-page-lift):not(.kodza-page-engine)).kodza-page-lift-back::view-transition-old(root) {
+  z-index: 1;
+  animation-name: kodza-page-lift-rise;
+  animation-direction: reverse;
+}
+
+:is(html.kodza-page-lift-on, html:has(.kodza-page-lift):not(.kodza-page-engine)).kodza-page-lift-back::view-transition-new(root) {
+  animation-name: kodza-page-lift-recede;
+  animation-direction: reverse;
+}
+
+/* The header stays: the script names it on both pages, the new one is shown from the start */
+:is(html.kodza-page-lift-on, html:has(.kodza-page-lift):not(.kodza-page-engine))::view-transition-group(*.kodza-page-lift-stay) {
+  animation: none;
+}
+
+:is(html.kodza-page-lift-on, html:has(.kodza-page-lift):not(.kodza-page-engine))::view-transition-old(*.kodza-page-lift-stay) {
+  animation: none;
+  opacity: 0;
+}
+
+/* It fills its group: Firefox keeps the proportions of its first capture, so a header that
+   widens while the page changes (a pill growing back to full width) would grow taller with it */
+:is(html.kodza-page-lift-on, html:has(.kodza-page-lift):not(.kodza-page-engine))::view-transition-new(*.kodza-page-lift-stay) {
+  height: 100%;
+  mix-blend-mode: normal;
+  animation: none;
+}
+
+@keyframes kodza-page-lift-recede {
+  to {
+    transform: translateY(-3%) scale(var(--kz-page-lift-depth, 0.92));
+    filter: brightness(calc(1 - var(--kz-page-lift-veil, 0.55)));
+  }
+}
+
+/* It starts one radius tall: from an empty box, Chrome's compositor flattens the corners for
+   the whole lift */
+@keyframes kodza-page-lift-rise {
+  from {
+    transform: translateY(var(--kz-page-lift-rise, 16%));
+    clip-path: inset(calc(100% - var(--kz-page-lift-radius, 20px)) 0 0 0 round var(--kz-page-lift-radius, 20px) var(--kz-page-lift-radius, 20px) 0 0);
+  }
+
+  to {
+    transform: none;
+    clip-path: inset(0 0 0 0 round 0 0 0 0);
+  }
+}
+
+/* ---------- The arrival: hidden from the first paint, until the script plays it ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  html.kodza-page-lift-enter .kodza-page-lift [data-enter] {
+    opacity: 0;
+    animation: kodza-page-lift-failsafe 0.5s 2.5s both; /* no script: the page shows anyway */
+  }
+}
+
+@keyframes kodza-page-lift-failsafe {
+  to {
+    opacity: 1;
+  }
+}
+
+/* The title, cut into words by the script: each one rises from behind its own edge */
+.kodza-page-lift__mask {
+  display: inline-block;
+  vertical-align: top;
+  margin-bottom: -0.16em;
+  padding-bottom: 0.16em; /* room for the descenders, inside the mask */
+}
+
+.kodza-page-lift.is-entering .kodza-page-lift__mask {
+  clip-path: inset(-0.3em -0.2em 0 -0.2em); /* open above, for the accents */
+}
+
+.kodza-page-lift__word {
+  display: inline-block;
+}
+
+/* ---------- The section: a case study opening ---------- */
+.kodza-page-lift__label,
+.kodza-page-lift__facts dt,
+.kodza-page-lift__media figcaption {
+  margin: 0;
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-page-lift-muted);
+}
+
+.kodza-page-lift__label {
+  margin-bottom: 24px;
+}
+
+.kodza-page-lift__split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 32px 64px;
+}
+
+.kodza-page-lift__title {
+  margin: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: clamp(44px, 6.6vw, 96px);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+  text-wrap: balance;
+}
+
+.kodza-page-lift__intro {
+  display: grid;
+  gap: 32px;
+  padding-bottom: 6px;
+}
+
+.kodza-page-lift__lead {
+  max-width: 30em;
+  margin: 0;
+  color: var(--kz-page-lift-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.kodza-page-lift__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-page-lift__facts > div {
+  padding-top: 12px;
+  border-top: 1px solid var(--kz-page-lift-line);
+}
+
+.kodza-page-lift__facts dd {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.kodza-page-lift__media {
+  margin: 56px 0 0;
+}
+
+.kodza-page-lift__frame {
+  overflow: hidden;
+  aspect-ratio: 21 / 9;
+  border-radius: var(--kz-page-lift-image-radius);
+  background: var(--kz-page-lift-line);
+}
+
+.kodza-page-lift__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  object-fit: cover;
+}
+
+.kodza-page-lift__media figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+@media (max-width: 860px) {
+  .kodza-page-lift {
+    padding-top: 48px;
+  }
+
+  .kodza-page-lift__split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-page-lift__media {
+    margin-top: 40px;
+  }
+
+  .kodza-page-lift__frame {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 480px) {
+  .kodza-page-lift__media figcaption span + span {
+    display: none;
+  }
+}
+
+/* Reduced motion: plain navigation, the page straight away */
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+/* kodza-guard 7c4c0f6aa407 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-page-lift__label:not(#_),
+.kodza-page-lift__title:not(#_),
+.kodza-page-lift__facts dt:where(:not([class*="kodza-"]):not(.kodza-page-lift__facts [class*="kodza-"] *)):not(#_),
+.kodza-page-lift__media figcaption:where(:not([class*="kodza-"]):not(.kodza-page-lift__media [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-page-lift__split:not(#_),
+.kodza-page-lift__mask:not(#_),
+.kodza-page-lift__word:not(#_),
+.kodza-page-lift__intro:not(#_),
+.kodza-page-lift__frame:not(#_),
+.kodza-page-lift__facts div:where(:not([class*="kodza-"]):not(.kodza-page-lift__facts [class*="kodza-"] *)):not(#_),
+.kodza-page-lift__media span:where(:not([class*="kodza-"]):not(.kodza-page-lift__media [class*="kodza-"] *)):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-page-lift__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-page-lift__facts:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-page-lift__media:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-page-lift__image:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-page-lift__facts dd:where(:not([class*="kodza-"]):not(.kodza-page-lift__facts [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-page-lift__label:not(#_):where(:not([hidden])),
+.kodza-page-lift__title:not(#_):where(:not([hidden])),
+.kodza-page-lift__lead:not(#_):where(:not([hidden])),
+.kodza-page-lift__media:not(#_):where(:not([hidden])),
+.kodza-page-lift__facts dt:where(:not([class*="kodza-"]):not(.kodza-page-lift__facts [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-page-lift__facts dd:where(:not([class*="kodza-"]):not(.kodza-page-lift__facts [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-page-lift__label:not(#_):where([hidden]),
+.kodza-page-lift__title:not(#_):where([hidden]),
+.kodza-page-lift__lead:not(#_):where([hidden]),
+.kodza-page-lift__media:not(#_):where([hidden]),
+.kodza-page-lift__facts dt:where(:not([class*="kodza-"]):not(.kodza-page-lift__facts [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-page-lift__facts dd:where(:not([class*="kodza-"]):not(.kodza-page-lift__facts [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-page-lift__label:not(#_),
+.kodza-page-lift__facts dt:not(#_),
+.kodza-page-lift__media figcaption:not(#_) {
+  margin: 0;
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-page-lift-muted);
+}
+
+.kodza-page-lift__label:not(#_) {
+  margin-bottom: 24px;
+}
+
+.kodza-page-lift__title:not(#_) {
+  margin: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: clamp(44px, 6.6vw, 96px);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+}
+
+.kodza-page-lift__lead:not(#_) {
+  max-width: 30em;
+  margin: 0;
+  color: var(--kz-page-lift-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+}
+
+.kodza-page-lift__facts:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-page-lift__facts dd:not(#_) {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.kodza-page-lift__media:not(#_) {
+  margin: 56px 0 0;
+}
+
+.kodza-page-lift__image:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-page-lift__media figcaption:not(#_) {
+  display: flex;
+  margin-top: 12px;
+}
+
+@media (max-width: 860px) {
+  .kodza-page-lift__media:not(#_) {
+    margin-top: 40px;
+  }
+}

@@ -1,0 +1,606 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Skeleton
+   The bones are taken from the content itself: each line of text becomes a bar of its real
+   length, each image or avatar a block of its real shape, so nothing moves when it loads. One
+   shine runs across all the bones at once. Remove data-loading and the bones open in reading
+   order: each bar pulls away to the right and uncovers its line, the image settles from a
+   slight zoom, the avatar pops; an image that has not arrived yet keeps its bone until it
+   has. Mark the parts with data-bone (text) or data-bone="block" (image, avatar, any
+   box); keep placeholder words in them while loading, they give the bones their shape.
+   Ready-made layouts: --card and --list. Everything is tuned with the --kz-skel-* variables. */
+.kodza-skeleton {
+  --kz-skel-bg: #ffffff;
+  --kz-skel-fg: #0a0a0a;
+  --kz-skel-muted: rgba(10, 10, 10, 0.62);
+  --kz-skel-border: rgba(10, 10, 10, 0.1);
+  --kz-skel-bone: #ededeb;
+  --kz-skel-shine: rgba(255, 255, 255, 0.85);
+  --kz-skel-speed: 1.6s;
+  --kz-skel-radius: 16px;
+  --kz-skel-pad: 28px;
+
+  position: relative;
+  box-sizing: border-box;
+  color: var(--kz-skel-fg);
+}
+
+/* The parts hide while loading (the bones are drawn over them) */
+.kodza-skeleton[data-loading] [data-bone],
+.kodza-skeleton [data-bone].is-waiting {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* The bones: one layer over the content, bars placed by the script */
+.kodza-skeleton__bones {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.kodza-skeleton__bone {
+  position: absolute;
+  border-radius: 6px;
+  background-color: var(--kz-skel-bone);
+  background-image: linear-gradient(90deg, transparent, var(--kz-skel-shine), transparent);
+  background-repeat: no-repeat;
+  background-size: var(--kz-skel-band, 240px) 100%;
+  background-position: calc(var(--kz-skel-band, 240px) * -1 - var(--kz-skel-x, 0px)) 0;
+  animation: kodza-skeleton-shine var(--kz-skel-speed) cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* A line of text: a bar a little thinner than the words */
+.kodza-skeleton__bone.is-line {
+  transform: scaleY(0.62);
+}
+
+/* Every bone uses the same clock and the card's coordinates: one shine crosses them all */
+@keyframes kodza-skeleton-shine {
+  0% {
+    background-position: calc(var(--kz-skel-band, 240px) * -1 - var(--kz-skel-x, 0px)) 0;
+  }
+  70%,
+  100% {
+    background-position: calc(var(--kz-skel-w, 600px) - var(--kz-skel-x, 0px)) 0;
+  }
+}
+
+/* Card */
+.kodza-skeleton--card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--kz-skel-radius);
+  background: var(--kz-skel-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-skel-border);
+}
+
+.kodza-skeleton__media {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.kodza-skeleton__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kodza-skeleton__body {
+  display: grid;
+  gap: 10px;
+  padding: var(--kz-skel-pad);
+}
+
+.kodza-skeleton__meta {
+  margin: 0;
+  justify-self: start;
+  color: var(--kz-skel-muted);
+  font-size: 13px;
+}
+
+.kodza-skeleton__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.kodza-skeleton__text {
+  margin: 0;
+  color: var(--kz-skel-muted);
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.kodza-skeleton__by {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.kodza-skeleton__avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--kz-skel-fg);
+  color: var(--kz-skel-bg);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* List */
+.kodza-skeleton--list {
+  margin: 0;
+  padding: 8px var(--kz-skel-pad);
+  border-radius: var(--kz-skel-radius);
+  background: var(--kz-skel-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-skel-border);
+  list-style: none;
+}
+
+.kodza-skeleton__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 0;
+}
+
+.kodza-skeleton__row + .kodza-skeleton__row {
+  border-top: 1px solid var(--kz-skel-border);
+}
+
+.kodza-skeleton__row .kodza-skeleton__avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 13px;
+}
+
+.kodza-skeleton__lines {
+  display: grid;
+  flex: 1;
+  justify-items: start;
+  gap: 2px;
+  min-width: 0;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.kodza-skeleton__lines strong {
+  font-weight: 600;
+}
+
+.kodza-skeleton__lines span {
+  color: var(--kz-skel-muted);
+  font-size: 14px;
+}
+
+.kodza-skeleton__time {
+  align-self: flex-start;
+  margin-top: 2px;
+  color: var(--kz-skel-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-skeleton__bone {
+    animation: none;
+  }
+
+  .kodza-skeleton[data-loading] [data-bone] {
+    transition: none;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-skeleton {
+  --kz-skel-bg: #161616;
+  --kz-skel-fg: #f2f2f0;
+  --kz-skel-muted: rgba(242, 242, 240, 0.62);
+  --kz-skel-border: rgba(255, 255, 255, 0.12);
+  --kz-skel-bone: #232323;
+  --kz-skel-shine: rgba(255, 255, 255, 0.07);
+}
+*/
+
+/* kodza-guard a09135730199 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-skeleton):not(#_) {
+  padding: revert;
+  list-style: revert;
+}
+
+:where(.kodza-skeleton__meta):not(#_),
+:where(.kodza-skeleton__title):not(#_),
+:where(.kodza-skeleton__text):not(#_),
+:where(.kodza-skeleton__by):not(#_),
+:where(.kodza-skeleton__media img:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-skeleton__lines strong:where(:not([class*="kodza-"]))):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-skeleton__row):not(#_) {
+  transition: revert;
+  border-top-width: revert;
+  border-top-style: revert;
+  border-top-color: revert;
+}
+
+:where(.kodza-skeleton):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-skeleton):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-skeleton:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-skeleton__media:not(#_),
+.kodza-skeleton__body:not(#_),
+.kodza-skeleton__avatar:not(#_),
+.kodza-skeleton__bones:not(#_),
+.kodza-skeleton__bone:not(#_),
+.kodza-skeleton__lines:not(#_),
+.kodza-skeleton__time:not(#_),
+.kodza-skeleton__by span:where(:not([class*="kodza-"])):not(#_),
+.kodza-skeleton__lines span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-skeleton__meta:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-skeleton__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-skeleton__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-skeleton__by:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-skeleton__row:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-skeleton__media img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-skeleton__lines strong:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-skeleton__meta:not(#_):where(:not([hidden])),
+.kodza-skeleton__title:not(#_):where(:not([hidden])),
+.kodza-skeleton__text:not(#_):where(:not([hidden])),
+.kodza-skeleton__lines strong:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-skeleton__meta:not(#_):where([hidden]),
+.kodza-skeleton__title:not(#_):where([hidden]),
+.kodza-skeleton__text:not(#_):where([hidden]),
+.kodza-skeleton__lines strong:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-skeleton:not(#_) {
+  position: relative;
+  box-sizing: border-box;
+  color: var(--kz-skel-fg);
+}
+
+.kodza-skeleton[data-loading] [data-bone]:where(img, p, h3, li, strong):not(#_),
+.kodza-skeleton [data-bone].is-waiting:where(img, p, h3, li, strong):not(#_) {
+  transition: opacity 0.2s ease;
+}
+
+.kodza-skeleton--card:not(#_) {
+  display: flex;
+  border-radius: var(--kz-skel-radius);
+  background: var(--kz-skel-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-skel-border);
+}
+
+.kodza-skeleton__media img:not(#_) {
+  display: block;
+}
+
+.kodza-skeleton__meta:not(#_) {
+  margin: 0;
+  color: var(--kz-skel-muted);
+  font-size: 13px;
+}
+
+.kodza-skeleton__title:not(#_) {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.kodza-skeleton__text:not(#_) {
+  margin: 0;
+  color: var(--kz-skel-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.kodza-skeleton__by:not(#_) {
+  display: flex;
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.kodza-skeleton--list:not(#_) {
+  padding: 8px var(--kz-skel-pad);
+  border-radius: var(--kz-skel-radius);
+  background: var(--kz-skel-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-skel-border);
+  list-style: none;
+}
+
+.kodza-skeleton__row:not(#_) {
+  display: flex;
+  padding: 16px 0;
+}
+
+.kodza-skeleton__row + .kodza-skeleton__row:not(#_) {
+  border-top: 1px solid var(--kz-skel-border);
+}
+
+.kodza-skeleton__lines strong:not(#_) {
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-skeleton[data-loading] [data-bone]:where(img, p, h3, li, strong):not(#_) {
+    transition: none;
+  }
+}

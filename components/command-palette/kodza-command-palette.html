@@ -1,0 +1,36 @@
+<div class="kodza-command">
+  <button class="kodza-command__trigger" type="button" aria-haspopup="dialog">
+    <svg class="kodza-command__icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10.5 10.5 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <span class="kodza-command__placeholder">Search components</span>
+    <kbd class="kodza-command__kbd kodza-command__shortcut">⌘K</kbd>
+  </button>
+  <dialog class="kodza-command__dialog" aria-label="Command palette">
+    <div class="kodza-command__search">
+      <svg class="kodza-command__icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10.5 10.5 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input class="kodza-command__input" type="text" placeholder="Type a command or search…" aria-label="Search commands" autocomplete="off" spellcheck="false">
+      <kbd class="kodza-command__kbd">esc</kbd>
+    </div>
+    <div class="kodza-command__body">
+      <div class="kodza-command__list" role="listbox" aria-label="Results">
+        <div class="kodza-command__group" role="group" aria-label="Components">
+          <p class="kodza-command__heading" aria-hidden="true">Components</p>
+          <div class="kodza-command__option" role="option"><span class="kodza-command__text">Fill Button</span></div>
+          <div class="kodza-command__option" role="option"><span class="kodza-command__text">Scramble Link</span></div>
+          <div class="kodza-command__option" role="option"><span class="kodza-command__text">Pricing Plans</span></div>
+          <div class="kodza-command__option" role="option"><span class="kodza-command__text">Sticky Cards</span></div>
+        </div>
+        <div class="kodza-command__group" role="group" aria-label="Actions">
+          <p class="kodza-command__heading" aria-hidden="true">Actions</p>
+          <div class="kodza-command__option" role="option"><span class="kodza-command__text">Copy the code</span><kbd class="kodza-command__kbd">⌘C</kbd></div>
+          <div class="kodza-command__option" role="option"><span class="kodza-command__text">Toggle dark mode</span></div>
+          <div class="kodza-command__option" role="option"><span class="kodza-command__text">Deploy on a Friday</span><kbd class="kodza-command__kbd">brave</kbd></div>
+        </div>
+      </div>
+      <p class="kodza-command__empty" hidden>Nothing found. Not even a bug.</p>
+    </div>
+    <div class="kodza-command__footer" aria-hidden="true">
+      <span><kbd class="kodza-command__kbd">↑</kbd><kbd class="kodza-command__kbd">↓</kbd> to move</span>
+      <span><kbd class="kodza-command__kbd">↵</kbd> to pick</span>
+    </div>
+  </dialog>
+</div>

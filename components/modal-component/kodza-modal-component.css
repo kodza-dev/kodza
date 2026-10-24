@@ -1,0 +1,878 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Dialog
+   A real dialog element that grows out of the button that opened it and goes back into it when it
+   closes, over a blurred, dimmed page. The focus stays inside, Escape and a click on the page
+   close it, and the page behind does not scroll. --alert is the destructive confirmation:
+   role="alertdialog", and the button only wakes up once the name is typed (data-confirm).
+   Everything is tuned with the --kz-dialog-* variables. */
+.kodza-dialog {
+  --kz-dialog-bg: #ffffff;
+  --kz-dialog-fg: #0a0a0a;
+  --kz-dialog-muted: rgba(10, 10, 10, 0.6);
+  --kz-dialog-line: rgba(10, 10, 10, 0.12);
+  --kz-dialog-soft: rgba(10, 10, 10, 0.05);
+  --kz-dialog-ink: #0a0a0a;
+  --kz-dialog-on-ink: #ffffff;
+  --kz-dialog-backdrop: rgba(10, 10, 10, 0.3);
+  --kz-dialog-shadow: 0 30px 70px -20px rgba(10, 10, 10, 0.45);
+  --kz-dialog-width: 440px;
+  --kz-dialog-radius: 20px;
+  --kz-dialog-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: inline-block;
+  color: var(--kz-dialog-fg);
+}
+
+.kodza-dialog__trigger,
+.kodza-dialog__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-dialog-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-dialog-line);
+  color: var(--kz-dialog-fg);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease, background-color 0.25s ease, opacity 0.25s ease, transform 0.2s var(--kz-dialog-ease);
+}
+
+.kodza-dialog__trigger:hover,
+.kodza-dialog__button:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-dialog-muted);
+}
+
+.kodza-dialog__trigger:active,
+.kodza-dialog__button:active {
+  transform: scale(0.97);
+}
+
+.kodza-dialog__trigger--danger,
+.kodza-dialog__button--ink {
+  background: var(--kz-dialog-ink);
+  box-shadow: none;
+  color: var(--kz-dialog-on-ink);
+}
+
+.kodza-dialog__trigger--danger:hover,
+.kodza-dialog__button--ink:hover {
+  box-shadow: none;
+  opacity: 0.86;
+}
+
+.kodza-dialog__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+  transform: none;
+}
+
+.kodza-dialog__trigger:focus-visible,
+.kodza-dialog__button:focus-visible,
+.kodza-dialog__close:focus-visible {
+  outline: 2px solid var(--kz-dialog-fg);
+  outline-offset: 3px;
+}
+
+/* The panel */
+.kodza-dialog__panel {
+  width: min(var(--kz-dialog-width), calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100% - 48px);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  /* A field reached by Tab stops above the pinned actions, not under them */
+  scroll-padding-bottom: 96px;
+  border: 0;
+  border-radius: var(--kz-dialog-radius);
+  background: var(--kz-dialog-bg);
+  box-shadow: 0 0 0 1px var(--kz-dialog-line), var(--kz-dialog-shadow);
+  color: var(--kz-dialog-fg);
+  font: inherit;
+}
+
+.kodza-dialog__panel::backdrop {
+  background: transparent;
+  -webkit-backdrop-filter: blur(0);
+  backdrop-filter: blur(0);
+  transition: background-color 0.35s ease, backdrop-filter 0.35s ease;
+}
+
+.kodza-dialog__panel.is-open::backdrop {
+  background: var(--kz-dialog-backdrop);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.kodza-dialog__form {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 0;
+  padding: 28px 28px 0;
+}
+
+.kodza-dialog__head {
+  display: grid;
+  gap: 8px;
+  padding-right: 32px;
+}
+
+.kodza-dialog__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: var(--kz-dialog-soft);
+}
+
+.kodza-dialog__icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-dialog__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.kodza-dialog__text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-dialog-muted);
+  text-wrap: pretty;
+}
+
+/* The content arrives a beat after the panel, line by line (the buttons, not the pinned foot:
+   its background stays opaque over the text running underneath) */
+.kodza-dialog__panel.is-open .kodza-dialog__head > *,
+.kodza-dialog__panel.is-open .kodza-dialog__body,
+.kodza-dialog__panel.is-open .kodza-dialog__foot > * {
+  animation: kodza-dialog-in 0.5s var(--kz-dialog-ease) both;
+}
+
+.kodza-dialog__panel.is-open .kodza-dialog__head > :nth-child(2) {
+  animation-delay: 40ms;
+}
+
+.kodza-dialog__panel.is-open .kodza-dialog__head > :nth-child(3) {
+  animation-delay: 80ms;
+}
+
+.kodza-dialog__panel.is-open .kodza-dialog__body {
+  animation-delay: 110ms;
+}
+
+.kodza-dialog__panel.is-open .kodza-dialog__foot > * {
+  animation-delay: 150ms;
+}
+
+@keyframes kodza-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.kodza-dialog__body {
+  display: grid;
+  gap: 12px;
+}
+
+.kodza-dialog__field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--kz-dialog-muted);
+}
+
+.kodza-dialog__field b {
+  color: var(--kz-dialog-fg);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-weight: 500;
+}
+
+.kodza-dialog__field input {
+  box-sizing: border-box;
+  height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--kz-dialog-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-dialog-line);
+  color: var(--kz-dialog-fg);
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.kodza-dialog__field input:focus {
+  box-shadow: inset 0 0 0 1.5px var(--kz-dialog-fg), 0 0 0 4px var(--kz-dialog-soft);
+}
+
+/* On a short screen the text scrolls and the actions stay pinned at the bottom, a line above
+   them once the text runs underneath (is-clipped, set by the script) */
+.kodza-dialog__foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: -16px -28px 0;
+  padding: 16px 28px 28px;
+  background: var(--kz-dialog-bg);
+  box-shadow: 0 -1px 0 transparent;
+  transition: box-shadow 0.2s ease;
+}
+
+.kodza-dialog__panel.is-clipped .kodza-dialog__foot {
+  box-shadow: 0 -1px 0 var(--kz-dialog-line);
+}
+
+.kodza-dialog__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--kz-dialog-muted);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.kodza-dialog__close:hover {
+  background: var(--kz-dialog-soft);
+  color: var(--kz-dialog-fg);
+}
+
+.kodza-dialog__close svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+/* A shake when the alert is dismissed by a click on the page: it insists */
+.kodza-dialog__panel.is-shaking {
+  animation: kodza-dialog-shake 0.4s cubic-bezier(0.36, 0, 0.66, -0.56);
+}
+
+@keyframes kodza-dialog-shake {
+  25% {
+    transform: scale(1.02);
+  }
+
+  60% {
+    transform: scale(0.99);
+  }
+}
+
+@media (max-width: 520px) {
+  .kodza-dialog__panel {
+    scroll-padding-bottom: 148px;
+  }
+
+  .kodza-dialog__foot {
+    flex-direction: column-reverse;
+  }
+
+  .kodza-dialog__foot .kodza-dialog__button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-dialog__panel::backdrop,
+  .kodza-dialog__trigger,
+  .kodza-dialog__button {
+    transition-duration: 0.01ms !important;
+  }
+
+  .kodza-dialog__panel.is-open .kodza-dialog__head > *,
+  .kodza-dialog__panel.is-open .kodza-dialog__body,
+  .kodza-dialog__panel.is-open .kodza-dialog__foot > *,
+  .kodza-dialog__panel.is-shaking {
+    animation: none;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-dialog {
+  --kz-dialog-bg: #161616;
+  --kz-dialog-fg: #f2f2f0;
+  --kz-dialog-muted: rgba(242, 242, 240, 0.62);
+  --kz-dialog-line: rgba(255, 255, 255, 0.14);
+  --kz-dialog-soft: rgba(255, 255, 255, 0.07);
+  --kz-dialog-ink: #f2f2f0;
+  --kz-dialog-on-ink: #0a0a0a;
+  --kz-dialog-backdrop: rgba(0, 0, 0, 0.55);
+  --kz-dialog-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.9);
+}
+*/
+
+/* kodza-guard 4b85738beb29 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-dialog__trigger):not(#_),
+:where(.kodza-dialog__button):not(#_),
+:where(.kodza-dialog__close):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-dialog:not(#_),
+.kodza-dialog__form:not(#_),
+.kodza-dialog__body:not(#_),
+.kodza-dialog__icon:not(#_),
+.kodza-dialog__field span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-dialog__trigger:not(#_),
+.kodza-dialog__button:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-dialog__panel:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dialog__head:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  padding-top: revert;
+  padding-bottom: revert;
+  padding-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dialog__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dialog__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dialog__field:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dialog__foot:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dialog__close:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-dialog__confirm:not(#_),
+.kodza-dialog__field input:where(:not([class*="kodza-"])):not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-dialog__close svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-dialog__icon svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dialog__field b:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-size: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dialog__panel:not(#_):where(:not([hidden])),
+.kodza-dialog__title:not(#_):where(:not([hidden])),
+.kodza-dialog__text:not(#_):where(:not([hidden])),
+.kodza-dialog__confirm:not(#_):where(:not([hidden])),
+.kodza-dialog__field input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-dialog__close svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-dialog__icon svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-dialog__field b:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-dialog__panel:not(#_):where([hidden]),
+.kodza-dialog__title:not(#_):where([hidden]),
+.kodza-dialog__text:not(#_):where([hidden]),
+.kodza-dialog__confirm:not(#_):where([hidden]),
+.kodza-dialog__field input:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-dialog__close svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-dialog__icon svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-dialog__field b:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-dialog__trigger:not(#_),
+.kodza-dialog__button:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-dialog-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-dialog-line);
+  color: var(--kz-dialog-fg);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease, background-color 0.25s ease, opacity 0.25s ease, transform 0.2s var(--kz-dialog-ease);
+}
+
+.kodza-dialog__trigger:hover:not(#_),
+.kodza-dialog__button:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-dialog-muted);
+}
+
+.kodza-dialog__trigger:active:not(#_),
+.kodza-dialog__button:active:not(#_) {
+  transform: scale(0.97);
+}
+
+.kodza-dialog__trigger--danger:not(#_),
+.kodza-dialog__button--ink:not(#_) {
+  background: var(--kz-dialog-ink);
+  box-shadow: none;
+  color: var(--kz-dialog-on-ink);
+}
+
+.kodza-dialog__trigger--danger:hover:not(#_),
+.kodza-dialog__button--ink:hover:not(#_) {
+  box-shadow: none;
+  opacity: 0.86;
+}
+
+.kodza-dialog__button:disabled:not(#_) {
+  cursor: not-allowed;
+  opacity: 0.35;
+  transform: none;
+}
+
+.kodza-dialog__trigger:focus-visible:not(#_),
+.kodza-dialog__button:focus-visible:not(#_),
+.kodza-dialog__close:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-dialog-fg);
+  outline-offset: 3px;
+}
+
+.kodza-dialog__panel:not(#_) {
+  max-width: none;
+  max-height: calc(100% - 48px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-dialog-radius);
+  background: var(--kz-dialog-bg);
+  box-shadow: 0 0 0 1px var(--kz-dialog-line), var(--kz-dialog-shadow);
+  color: var(--kz-dialog-fg);
+  font: inherit;
+}
+
+.kodza-dialog__head:not(#_) {
+  display: grid;
+  padding-right: 32px;
+}
+
+.kodza-dialog__title:not(#_) {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.kodza-dialog__text:not(#_) {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-dialog-muted);
+}
+
+.kodza-dialog__panel.is-open .kodza-dialog__foot > *:not(#_) {
+  animation: kodza-dialog-in 0.5s var(--kz-dialog-ease) both;
+}
+
+.kodza-dialog__panel.is-open .kodza-dialog__foot > *:not(#_) {
+  animation-delay: 150ms;
+}
+
+.kodza-dialog__field:not(#_) {
+  display: grid;
+  font-size: 13px;
+  color: var(--kz-dialog-muted);
+}
+
+.kodza-dialog__field b:not(#_) {
+  color: var(--kz-dialog-fg);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-weight: 500;
+}
+
+.kodza-dialog__field input:not(#_) {
+  box-sizing: border-box;
+  height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--kz-dialog-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-dialog-line);
+  color: var(--kz-dialog-fg);
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.kodza-dialog__field input:focus:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-dialog-fg), 0 0 0 4px var(--kz-dialog-soft);
+}
+
+.kodza-dialog__foot:not(#_) {
+  position: sticky;
+  display: flex;
+  margin: -16px -28px 0;
+  padding: 16px 28px 28px;
+  background: var(--kz-dialog-bg);
+  box-shadow: 0 -1px 0 transparent;
+  transition: box-shadow 0.2s ease;
+}
+
+.kodza-dialog__panel.is-clipped .kodza-dialog__foot:not(#_) {
+  box-shadow: 0 -1px 0 var(--kz-dialog-line);
+}
+
+.kodza-dialog__close:not(#_) {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--kz-dialog-muted);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.kodza-dialog__close:hover:not(#_) {
+  background: var(--kz-dialog-soft);
+  color: var(--kz-dialog-fg);
+}
+
+@media (max-width: 520px) {
+  .kodza-dialog__foot .kodza-dialog__button:not(#_) {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-dialog__trigger:not(#_),
+  .kodza-dialog__button:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-dialog__panel.is-open .kodza-dialog__foot > *:not(#_) {
+    animation: none;
+  }
+}

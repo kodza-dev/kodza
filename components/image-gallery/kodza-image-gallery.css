@@ -1,0 +1,755 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Image Gallery
+   An editorial grid. Clicking an image grows it into a fullscreen viewer
+   in one continuous motion, and closing sends it back to its exact spot.
+   Everything is tuned with the --kz-gal-* variables. */
+.kodza-gallery {
+  --kz-gal-gap: clamp(14px, 2vw, 28px);
+  --kz-gal-radius: 4px;
+  --kz-gal-ink: #0a0a0a;
+  --kz-gal-muted: rgba(10, 10, 10, 0.6);
+  --kz-gal-placeholder: rgba(10, 10, 10, 0.06);
+  --kz-gal-viewer-bg: #0a0a0a;
+  --kz-gal-viewer-fg: #ffffff;
+  --kz-gal-duration: 900ms;
+  --kz-gal-ease: cubic-bezier(0.76, 0, 0.24, 1);
+
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+  gap: calc(var(--kz-gal-gap) * 2) var(--kz-gal-gap);
+  color: var(--kz-gal-ink);
+}
+
+.kodza-gallery__item {
+  grid-column: var(--start, auto) / span var(--span, 4);
+  margin: var(--shift, 0) 0 0;
+}
+
+.kodza-gallery__open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-gal-radius);
+  background: var(--kz-gal-placeholder);
+  aspect-ratio: var(--ratio, 4 / 5);
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.kodza-gallery__open:focus-visible {
+  outline: 2px solid var(--kz-gal-ink);
+  outline-offset: 4px;
+}
+
+.kodza-gallery__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.001);
+  transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-gallery__open:hover .kodza-gallery__img {
+  transform: scale(1.045);
+}
+
+.kodza-gallery__caption {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.kodza-gallery__index {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  color: var(--kz-gal-muted);
+}
+
+.kodza-gallery__title {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.kodza-gallery__meta {
+  margin-left: auto;
+  color: var(--kz-gal-muted);
+}
+
+/* ---------- Viewer (created by the script, shown in the top layer) ---------- */
+.kodza-gallery__viewer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--kz-gal-viewer-fg);
+  overflow: hidden;
+}
+
+.kodza-gallery__viewer::backdrop {
+  background: transparent;
+}
+
+.kodza-gallery__backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--kz-gal-viewer-bg);
+}
+
+.kodza-gallery__frame {
+  position: absolute;
+  overflow: hidden;
+  border-radius: var(--kz-gal-radius);
+  will-change: left, top, width, height, clip-path;
+}
+
+.kodza-gallery__frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kodza-gallery__bar,
+.kodza-gallery__info,
+.kodza-gallery__nav {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+}
+
+.kodza-gallery__bar {
+  top: 0;
+  right: 0;
+  left: 0;
+  justify-content: space-between;
+  padding: 20px max(20px, 4vw);
+}
+
+.kodza-gallery__count {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.kodza-gallery__count b {
+  font-weight: 500;
+  color: var(--kz-gal-viewer-fg);
+}
+
+.kodza-gallery__close,
+.kodza-gallery__nav button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.kodza-gallery__close {
+  height: 38px;
+  padding: 0 14px 0 16px;
+}
+
+.kodza-gallery__close:hover,
+.kodza-gallery__nav button:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.kodza-gallery__close:focus-visible,
+.kodza-gallery__nav button:focus-visible {
+  outline: 2px solid var(--kz-gal-viewer-fg);
+  outline-offset: 3px;
+}
+
+.kodza-gallery__close svg,
+.kodza-gallery__nav svg {
+  width: 14px;
+  height: 14px;
+}
+
+.kodza-gallery__info {
+  bottom: 0;
+  left: 0;
+  display: block;
+  padding: 0 max(20px, 4vw) 28px;
+  max-width: 60%;
+}
+
+/* Each line rises from behind a mask */
+.kodza-gallery__line {
+  display: block;
+  overflow: hidden;
+}
+
+.kodza-gallery__line > span {
+  display: block;
+}
+
+.kodza-gallery__info-title {
+  margin: 0;
+  font-size: clamp(22px, 2.6vw, 34px);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.kodza-gallery__info-meta {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.kodza-gallery__nav {
+  right: 0;
+  bottom: 0;
+  gap: 8px;
+  padding: 0 max(20px, 4vw) 28px;
+}
+
+.kodza-gallery__nav button {
+  width: 46px;
+  height: 46px;
+}
+
+@media (max-width: 720px) {
+  .kodza-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kodza-gallery__item {
+    grid-column: span 1;
+    margin-top: 0;
+  }
+
+  .kodza-gallery__item:nth-child(3n + 1) {
+    grid-column: span 2;
+  }
+
+  .kodza-gallery__info {
+    max-width: none;
+    padding-bottom: 92px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-gallery__img {
+    transition: none;
+  }
+}
+
+/* kodza-guard 65b77bfa17ac — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-gallery__open):not(#_),
+:where(.kodza-gallery__close):not(#_),
+:where(.kodza-gallery__nav button:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-gallery:not(#_),
+.kodza-gallery__index:not(#_),
+.kodza-gallery__title:not(#_),
+.kodza-gallery__meta:not(#_),
+.kodza-gallery__backdrop:not(#_),
+.kodza-gallery__stage:not(#_),
+.kodza-gallery__bar:not(#_),
+.kodza-gallery__count:not(#_),
+.kodza-gallery__info:not(#_),
+.kodza-gallery__nav:not(#_),
+.kodza-gallery__info-title span:where(:not([class*="kodza-"])):not(#_),
+.kodza-gallery__info-meta span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-gallery__item:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-gallery__open:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-gallery__img:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-gallery__caption:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-gallery__viewer:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-gallery__close:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-gallery__info-title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-gallery__info-meta:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-gallery__count b:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-gallery__close svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-gallery__nav svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-gallery__nav button:where(:not([class*="kodza-"])):not(#_) {
+  margin: revert;
+  padding: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-gallery__item:not(#_):where(:not([hidden])),
+.kodza-gallery__viewer:not(#_):where(:not([hidden])),
+.kodza-gallery__count b:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-gallery__close svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-gallery__nav svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-gallery__item:not(#_):where([hidden]),
+.kodza-gallery__viewer:not(#_):where([hidden]),
+.kodza-gallery__count b:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-gallery__close svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-gallery__nav svg:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-gallery__item:not(#_) {
+  margin: var(--shift, 0) 0 0;
+}
+
+.kodza-gallery__open:not(#_) {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-gal-radius);
+  background: var(--kz-gal-placeholder);
+  aspect-ratio: var(--ratio, 4 / 5);
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.kodza-gallery__open:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-gal-ink);
+  outline-offset: 4px;
+}
+
+.kodza-gallery__img:not(#_) {
+  display: block;
+  transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-gallery__caption:not(#_) {
+  display: flex;
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.kodza-gallery__viewer:not(#_) {
+  position: fixed;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--kz-gal-viewer-fg);
+}
+
+.kodza-gallery__frame img:not(#_) {
+  display: block;
+}
+
+.kodza-gallery__count b:not(#_) {
+  font-weight: 500;
+  color: var(--kz-gal-viewer-fg);
+}
+
+.kodza-gallery__close:not(#_),
+.kodza-gallery__nav button:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.kodza-gallery__close:not(#_) {
+  height: 38px;
+  padding: 0 14px 0 16px;
+}
+
+.kodza-gallery__close:hover:not(#_),
+.kodza-gallery__nav button:hover:not(#_) {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.kodza-gallery__close:focus-visible:not(#_),
+.kodza-gallery__nav button:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-gal-viewer-fg);
+  outline-offset: 3px;
+}
+
+.kodza-gallery__line:not(#_) {
+  display: block;
+}
+
+.kodza-gallery__info-title:not(#_) {
+  margin: 0;
+  font-size: clamp(22px, 2.6vw, 34px);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.kodza-gallery__info-meta:not(#_) {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.kodza-gallery__nav button:not(#_) {
+  width: 46px;
+  height: 46px;
+}
+
+@media (max-width: 720px) {
+  .kodza-gallery__item:not(#_) {
+    margin-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-gallery__img:not(#_) {
+    transition: none;
+  }
+}

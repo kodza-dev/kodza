@@ -1,0 +1,419 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Switch
+   A real checkbox (role="switch"), redrawn: the ink fills the track from the thumb's side as
+   it slides, the thumb stretches while you press it (like a finger squashing it) and springs
+   into place. With --labels, "On" and "Off" roll inside the track. Laid out as settings rows;
+   --inline puts one in a toolbar, label then switch on one line (the small text becomes a count).
+   Everything is tuned with the --kz-switch-* variables. */
+.kodza-switch {
+  --kz-switch-bg: #ffffff;
+  --kz-switch-fg: #0a0a0a;
+  --kz-switch-muted: rgba(10, 10, 10, 0.6);
+  --kz-switch-off: rgba(10, 10, 10, 0.14);
+  --kz-switch-ink: #0a0a0a;
+  --kz-switch-thumb: #ffffff;
+  --kz-switch-width: 44px;
+  --kz-switch-height: 26px;
+  --kz-switch-gap: 3px;
+  --kz-switch-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-switch-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  display: grid;
+  width: 100%;
+  max-width: 440px;
+  color: var(--kz-switch-fg);
+}
+
+.kodza-switch__row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px 0;
+  cursor: pointer;
+}
+
+.kodza-switch__row + .kodza-switch__row {
+  border-top: 1px solid var(--kz-switch-off);
+}
+
+.kodza-switch__text {
+  display: grid;
+  gap: 2px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.kodza-switch__text small {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--kz-switch-muted);
+}
+
+/* The real checkbox stays, invisible, over the track */
+.kodza-switch__input {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: var(--kz-switch-width);
+  height: var(--kz-switch-height);
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+  transform: translateY(-50%);
+}
+
+.kodza-switch__track {
+  position: relative;
+  flex: none;
+  width: var(--kz-switch-width);
+  height: var(--kz-switch-height);
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--kz-switch-off);
+  isolation: isolate;
+}
+
+/* The ink fills from the left, following the thumb */
+.kodza-switch__track::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--kz-switch-ink);
+  clip-path: inset(0 calc(100% - var(--kz-switch-height)) 0 0 round 999px);
+  opacity: 0;
+  transition: clip-path 0.4s var(--kz-switch-ease), opacity 0.2s ease 0.15s;
+}
+
+.kodza-switch__input:checked + .kodza-switch__track::before {
+  clip-path: inset(0 0 0 0 round 999px);
+  opacity: 1;
+  transition: clip-path 0.45s var(--kz-switch-ease), opacity 0.1s ease;
+}
+
+.kodza-switch__thumb {
+  position: absolute;
+  top: var(--kz-switch-gap);
+  left: var(--kz-switch-gap);
+  width: calc(var(--kz-switch-height) - var(--kz-switch-gap) * 2);
+  height: calc(var(--kz-switch-height) - var(--kz-switch-gap) * 2);
+  border-radius: 999px;
+  background: var(--kz-switch-thumb);
+  box-shadow: 0 1px 3px rgba(10, 10, 10, 0.25);
+  transform-origin: left center;
+  transition: transform 0.45s var(--kz-switch-spring), scale 0.25s var(--kz-switch-ease);
+}
+
+.kodza-switch__input:checked + .kodza-switch__track .kodza-switch__thumb {
+  transform: translateX(calc(var(--kz-switch-width) - var(--kz-switch-height)));
+  transform-origin: right center;
+}
+
+/* Pressed: the thumb stretches towards where it is going */
+.kodza-switch__row:active .kodza-switch__thumb {
+  scale: 1.3 1;
+}
+
+.kodza-switch__input:focus-visible + .kodza-switch__track {
+  outline: 2px solid var(--kz-switch-fg);
+  outline-offset: 3px;
+}
+
+/* --labels: a wider track where "On" and "Off" roll */
+.kodza-switch--labels {
+  --kz-switch-width: 64px;
+  --kz-switch-height: 30px;
+}
+
+.kodza-switch__words {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.kodza-switch__words span {
+  grid-area: 1 / 1;
+  align-self: center;
+  transition: transform 0.4s var(--kz-switch-ease);
+}
+
+.kodza-switch__words span:first-child {
+  justify-self: start;
+  padding-left: 10px;
+  color: var(--kz-switch-thumb);
+  transform: translateY(-160%);
+}
+
+.kodza-switch__words span:last-child {
+  justify-self: end;
+  padding-right: 9px;
+  color: var(--kz-switch-muted);
+}
+
+.kodza-switch__input:checked + .kodza-switch__track .kodza-switch__words span:first-child {
+  transform: none;
+  transition-delay: 0.1s;
+}
+
+.kodza-switch__input:checked + .kodza-switch__track .kodza-switch__words span:last-child {
+  transform: translateY(160%);
+}
+
+/* --inline: one switch in a toolbar or a filter bar, sized to its words */
+.kodza-switch--inline {
+  display: inline-grid;
+  width: auto;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.kodza-switch--inline .kodza-switch__row {
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0;
+}
+
+.kodza-switch--inline .kodza-switch__text {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.kodza-switch--inline .kodza-switch__text small {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+
+/* Disabled */
+.kodza-switch__row:has(.kodza-switch__input:disabled) {
+  cursor: not-allowed;
+}
+
+.kodza-switch__row:has(.kodza-switch__input:disabled) .kodza-switch__track,
+.kodza-switch__row:has(.kodza-switch__input:disabled) .kodza-switch__text {
+  opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-switch__track::before,
+  .kodza-switch__thumb,
+  .kodza-switch__words span {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-switch {
+  --kz-switch-bg: #161616;
+  --kz-switch-fg: #f2f2f0;
+  --kz-switch-muted: rgba(242, 242, 240, 0.62);
+  --kz-switch-off: rgba(255, 255, 255, 0.16);
+  --kz-switch-ink: #f2f2f0;
+  --kz-switch-thumb: #0a0a0a;
+}
+*/
+
+/* kodza-guard 7928509c471a — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-switch__row):not(#_) {
+  border-top-width: revert;
+  border-top-style: revert;
+  border-top-color: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-switch:not(#_),
+.kodza-switch__text:not(#_),
+.kodza-switch__track:not(#_),
+.kodza-switch__thumb:not(#_),
+.kodza-switch__words:not(#_),
+.kodza-switch__words span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-switch__row:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-switch__input:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-switch__text small:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-switch__input:not(#_):where(:not([hidden])),
+.kodza-switch__text small:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-switch__input:not(#_):where([hidden]),
+.kodza-switch__text small:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-switch__track:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-switch:not(#_) {
+  width: min(100%, 440px);
+}
+
+.kodza-switch__row:not(#_) {
+  position: relative;
+  display: flex;
+  padding: 14px 0;
+}
+
+.kodza-switch__row + .kodza-switch__row:not(#_) {
+  border-top: 1px solid var(--kz-switch-off);
+}
+
+.kodza-switch__text small:not(#_) {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--kz-switch-muted);
+}
+
+.kodza-switch__input:not(#_) {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: var(--kz-switch-width);
+  height: var(--kz-switch-height);
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+  transform: translateY(-50%);
+}
+
+.kodza-switch--inline:not(#_) {
+  width: auto;
+}
+
+.kodza-switch--inline .kodza-switch__row:not(#_) {
+  padding: 0;
+}
+
+.kodza-switch--inline .kodza-switch__text small:not(#_) {
+  font-size: 12.5px;
+  line-height: 1.25;
+}

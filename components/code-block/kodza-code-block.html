@@ -1,0 +1,24 @@
+<figure class="kodza-code">
+  <figcaption class="kodza-code__head">
+    <span class="kodza-code__file">fill-button.js</span>
+    <button class="kodza-code__copy" type="button"><span class="kodza-code__words"><span>Copy</span><span>Copied</span></span></button>
+  </figcaption>
+  <pre class="kodza-code__pre" data-lang="js" data-highlight="4-6"><code>// The ink comes in from where the pointer did
+document.querySelectorAll('.kodza-fill-button').forEach((button) =&gt; {
+  button.addEventListener('pointerenter', (event) =&gt; {
+    const box = button.getBoundingClientRect();
+    const x = event.clientX - box.left;
+    button.style.setProperty('--x', `${x}px`);
+  });
+});</code></pre>
+</figure>
+
+<figure class="kodza-code kodza-code--terminal">
+  <figcaption class="kodza-code__head">
+    <span class="kodza-code__file">Terminal</span>
+    <button class="kodza-code__copy" type="button"><span class="kodza-code__words"><span>Copy</span><span>Copied</span></span></button>
+  </figcaption>
+  <pre class="kodza-code__pre" data-lang="shell"><code>$ npx degit kodza/button-fill my-button
+&gt; cloned kodza/button-fill#main to my-button
+$ open my-button/index.html</code></pre>
+</figure>

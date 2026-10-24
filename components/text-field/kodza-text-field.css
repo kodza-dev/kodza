@@ -1,0 +1,611 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Text Field
+   A text field whose label sits inside it, then folds up above the text as soon as you type or
+   focus it. A button clears it, a check draws itself once the value is valid, and the hint
+   gives way to the error message (from data-error) when it is not, without anything moving.
+   A prefix (kodza.dev/) slides in with the label. The clear button stays out of the Tab order
+   (from the keyboard, select all and delete), so Tab always leaves the field. Errors are monochrome by default: an icon and
+   a message, never colour alone (set --kz-field-error to use a red).
+   Everything is tuned with the --kz-field-* variables. */
+.kodza-field {
+  --kz-field-bg: #ffffff;
+  --kz-field-fg: #0a0a0a;
+  --kz-field-muted: rgba(10, 10, 10, 0.6);
+  --kz-field-line: rgba(10, 10, 10, 0.14);
+  --kz-field-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-field-focus: #0a0a0a;
+  --kz-field-error: #0a0a0a;
+  --kz-field-disabled: rgba(10, 10, 10, 0.04);
+  --kz-field-height: 56px;
+  --kz-field-radius: 12px;
+  --kz-field-pad: 16px;
+  --kz-field-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  max-width: 420px;
+  color: var(--kz-field-fg);
+}
+
+/* The box: the whole thing is the label, so a click anywhere focuses the input */
+.kodza-field__box {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  box-sizing: border-box;
+  height: var(--kz-field-height);
+  padding: 0 var(--kz-field-pad) 9px;
+  border-radius: var(--kz-field-radius);
+  background: var(--kz-field-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-field-line);
+  cursor: text;
+  transition: box-shadow 0.25s ease;
+}
+
+.kodza-field__box:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-field-line-hover);
+}
+
+.kodza-field__box:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-field-focus), 0 0 0 4px var(--kz-field-disabled);
+}
+
+.kodza-field__input {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  outline: none;
+}
+
+/* The label: inside the box at rest, folded up above the text once focused or filled */
+.kodza-field__label {
+  position: absolute;
+  top: 50%;
+  left: var(--kz-field-pad);
+  color: var(--kz-field-muted);
+  font-size: 15px;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transform-origin: left top;
+  transition: transform 0.35s var(--kz-field-ease), color 0.25s ease;
+}
+
+.kodza-field__box:focus-within .kodza-field__label,
+.kodza-field__input:not(:placeholder-shown) ~ .kodza-field__label {
+  color: var(--kz-field-muted);
+  transform: translateY(-18px) scale(0.8);
+}
+
+/* A prefix waits with the label, then comes in */
+.kodza-field__prefix {
+  flex: none;
+  color: var(--kz-field-muted);
+  font-size: 15px;
+  line-height: 22px;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.25s ease, transform 0.35s var(--kz-field-ease);
+}
+
+.kodza-field__box:focus-within .kodza-field__prefix,
+.kodza-field__box:has(.kodza-field__input:not(:placeholder-shown)) .kodza-field__prefix {
+  opacity: 1;
+  transform: none;
+}
+
+/* The check: drawn once the value is valid */
+.kodza-field__check {
+  position: absolute;
+  top: 50%;
+  right: var(--kz-field-pad);
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--kz-field-fg);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transform: translateY(-50%);
+  transition: stroke-dashoffset 0.4s var(--kz-field-ease);
+}
+
+.kodza-field__input[aria-invalid="false"]:not(:placeholder-shown) ~ .kodza-field__check {
+  stroke-dashoffset: 0;
+  transition-delay: 0.1s;
+}
+
+/* The clear button: in when there is something to clear (and no check to show) */
+.kodza-field__clear {
+  position: absolute;
+  top: calc(var(--kz-field-height) / 2 - 14px);
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-field-disabled);
+  color: var(--kz-field-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.6);
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.3s var(--kz-field-ease), visibility 0s linear 0.3s, color 0.2s ease;
+}
+
+.kodza-field__clear svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.kodza-field__clear:hover {
+  color: var(--kz-field-fg);
+}
+
+.kodza-field:has(.kodza-field__box:focus-within .kodza-field__input:not(:placeholder-shown)) .kodza-field__clear,
+.kodza-field:has(.kodza-field__input:not(:placeholder-shown)):focus-within .kodza-field__clear {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+/* While the clear button shows, the check steps aside */
+.kodza-field:focus-within .kodza-field__check {
+  opacity: 0;
+}
+
+.kodza-field__clear:focus-visible {
+  outline: 2px solid var(--kz-field-focus);
+  outline-offset: 2px;
+}
+
+/* The note: the hint and the error share one line, and swap */
+.kodza-field__note {
+  display: grid;
+  margin: 0;
+  padding: 0 2px;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.kodza-field__hint,
+.kodza-field__error {
+  grid-area: 1 / 1;
+  transition: opacity 0.25s ease, transform 0.4s var(--kz-field-ease);
+}
+
+.kodza-field__hint {
+  color: var(--kz-field-muted);
+}
+
+.kodza-field__error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--kz-field-error);
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.kodza-field__error::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Invalid (judged when the visitor leaves the field, then live while they fix it): a firmer
+   outline, and the error replaces the hint */
+.kodza-field:has(.kodza-field__input[aria-invalid="true"]) .kodza-field__box {
+  box-shadow: inset 0 0 0 1.5px var(--kz-field-error);
+}
+
+.kodza-field:has(.kodza-field__input[aria-invalid="true"]) .kodza-field__hint {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.kodza-field:has(.kodza-field__input[aria-invalid="true"]) .kodza-field__error {
+  opacity: 1;
+  transform: none;
+}
+
+/* Disabled */
+.kodza-field__box:has(.kodza-field__input:disabled) {
+  background: var(--kz-field-disabled);
+  box-shadow: none;
+  color: var(--kz-field-muted);
+  cursor: not-allowed;
+}
+
+.kodza-field__input:disabled {
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-field__box,
+  .kodza-field__label,
+  .kodza-field__prefix,
+  .kodza-field__check,
+  .kodza-field__clear,
+  .kodza-field__hint,
+  .kodza-field__error {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-field {
+  --kz-field-bg: #161616;
+  --kz-field-fg: #f2f2f0;
+  --kz-field-muted: rgba(242, 242, 240, 0.62);
+  --kz-field-line: rgba(255, 255, 255, 0.14);
+  --kz-field-line-hover: rgba(255, 255, 255, 0.3);
+  --kz-field-focus: #f2f2f0;
+  --kz-field-error: #f2f2f0;
+  --kz-field-disabled: rgba(255, 255, 255, 0.06);
+}
+*/
+
+/* kodza-guard 475f7819cae7 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-field__box):not(#_) {
+  color: revert;
+}
+
+:where(.kodza-field__clear):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-field:not(#_),
+.kodza-field__label:not(#_),
+.kodza-field__hint:not(#_),
+.kodza-field__error:not(#_),
+.kodza-field__prefix:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-field__box:not(#_) {
+  border: revert;
+  margin: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-field__input:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-field__check:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-field__clear:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-field__note:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-field__clear svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-field__input:not(#_):where(:not([hidden])),
+.kodza-field__check:not(#_):where(:not([hidden])),
+.kodza-field__clear svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-field__input:not(#_):where([hidden]),
+.kodza-field__check:not(#_):where([hidden]),
+.kodza-field__clear svg:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-field__error:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-field:not(#_) {
+  width: min(100%, 420px);
+}
+
+.kodza-field__box:not(#_) {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  padding: 0 var(--kz-field-pad) 9px;
+  border-radius: var(--kz-field-radius);
+  background: var(--kz-field-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-field-line);
+  transition: box-shadow 0.25s ease;
+}
+
+.kodza-field__box:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-field-line-hover);
+}
+
+.kodza-field__box:focus-within:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-field-focus), 0 0 0 4px var(--kz-field-disabled);
+}
+
+.kodza-field__input:not(#_) {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  outline: none;
+}
+
+.kodza-field__check:not(#_) {
+  position: absolute;
+  transition: stroke-dashoffset 0.4s var(--kz-field-ease);
+}
+
+.kodza-field__input[aria-invalid="false"]:not(:placeholder-shown) ~ .kodza-field__check:not(#_) {
+  transition-delay: 0.1s;
+}
+
+.kodza-field__clear:not(#_) {
+  position: absolute;
+  top: calc(var(--kz-field-height) / 2 - 14px);
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-field-disabled);
+  color: var(--kz-field-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.6);
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.3s var(--kz-field-ease), visibility 0s linear 0.3s, color 0.2s ease;
+}
+
+.kodza-field__clear:hover:not(#_) {
+  color: var(--kz-field-fg);
+}
+
+.kodza-field:has(.kodza-field__box:focus-within .kodza-field__input:not(:placeholder-shown)) .kodza-field__clear:not(#_),
+.kodza-field:has(.kodza-field__input:not(:placeholder-shown)):focus-within .kodza-field__clear:not(#_) {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.kodza-field__clear:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-field-focus);
+  outline-offset: 2px;
+}
+
+.kodza-field__note:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0 2px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.kodza-field:has(.kodza-field__input[aria-invalid="true"]) .kodza-field__box:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-field-error);
+}
+
+.kodza-field__box:has(.kodza-field__input:disabled):not(#_) {
+  background: var(--kz-field-disabled);
+  box-shadow: none;
+  color: var(--kz-field-muted);
+}
+
+.kodza-field__input:disabled:not(#_) {
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-field__box:not(#_),
+  .kodza-field__check:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-field__clear:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

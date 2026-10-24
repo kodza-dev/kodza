@@ -1,0 +1,341 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Spinner
+   A loading status sized on its text (1em) and drawn in currentColor, so it sits in a button, a
+   line or a toast as it is. Four drawings: a ring whose arc breathes as it turns, twelve bars
+   (steps, like an OS), three dots, and a terminal braille cell. Add .is-done and the drawing
+   gives way to a tick that draws itself, while the words roll to the second line; the width
+   never moves (both lines share one cell). The text is optional; keep the status readable with
+   a short one. Everything is tuned with the --kz-spinner-* variables. */
+.kodza-spinner {
+  --kz-spinner-size: 1.15em;
+  --kz-spinner-stroke: 2.2;
+  --kz-spinner-track: 0.16;
+  --kz-spinner-tempo: 1;
+  --kz-spinner-gap: 0.6em;
+  --kz-spinner-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-spinner-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--kz-spinner-gap);
+  vertical-align: middle;
+  line-height: 1.25;
+}
+
+.kodza-spinner--terminal {
+  font-family: var(--kz-spinner-mono);
+  font-size: 0.92em;
+  letter-spacing: -0.01em;
+}
+
+/* The drawing and the tick share one box */
+.kodza-spinner__icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--kz-spinner-size);
+  height: var(--kz-spinner-size);
+}
+
+.kodza-spinner__icon > * {
+  grid-area: 1 / 1;
+  transition: opacity 0.25s ease, transform 0.45s var(--kz-spinner-ease);
+}
+
+.kodza-spinner__icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--kz-spinner-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Ring: a track, and an arc that stretches and shrinks while it turns */
+.kodza-spinner__ring {
+  animation: kodza-spinner-turn calc(1.6s * var(--kz-spinner-tempo)) linear infinite;
+}
+
+.kodza-spinner__ring circle:first-child {
+  opacity: var(--kz-spinner-track);
+}
+
+.kodza-spinner__ring circle:last-child {
+  stroke-dasharray: 1 100;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  animation: kodza-spinner-arc calc(1.6s * var(--kz-spinner-tempo)) cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes kodza-spinner-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes kodza-spinner-arc {
+  0% {
+    stroke-dasharray: 1 100;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 58 100;
+    stroke-dashoffset: -14;
+  }
+  100% {
+    stroke-dasharray: 1 100;
+    stroke-dashoffset: -99;
+  }
+}
+
+/* Bars: twelve spokes fading behind the brightest one, turned a notch at a time */
+.kodza-spinner__bars {
+  animation: kodza-spinner-turn calc(1s * var(--kz-spinner-tempo)) steps(12) infinite;
+}
+
+.kodza-spinner__bars line { opacity: 0.16; }
+.kodza-spinner__bars line:nth-child(1) { opacity: 1; }
+.kodza-spinner__bars line:nth-child(12) { opacity: 0.86; }
+.kodza-spinner__bars line:nth-child(11) { opacity: 0.72; }
+.kodza-spinner__bars line:nth-child(10) { opacity: 0.6; }
+.kodza-spinner__bars line:nth-child(9) { opacity: 0.48; }
+.kodza-spinner__bars line:nth-child(8) { opacity: 0.38; }
+.kodza-spinner__bars line:nth-child(7) { opacity: 0.3; }
+.kodza-spinner__bars line:nth-child(6) { opacity: 0.24; }
+.kodza-spinner__bars line:nth-child(5) { opacity: 0.2; }
+
+/* Dots: a small wave */
+.kodza-spinner__dots {
+  display: flex;
+  align-items: center;
+  gap: 0.13em;
+}
+
+.kodza-spinner__dots > span {
+  width: 0.22em;
+  height: 0.22em;
+  border-radius: 50%;
+  background: currentColor;
+  animation: kodza-spinner-dot calc(1.1s * var(--kz-spinner-tempo)) cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.kodza-spinner__dots > span:nth-child(2) { animation-delay: calc(0.14s * var(--kz-spinner-tempo)); }
+.kodza-spinner__dots > span:nth-child(3) { animation-delay: calc(0.28s * var(--kz-spinner-tempo)); }
+
+@keyframes kodza-spinner-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.32;
+    transform: none;
+  }
+  28% {
+    opacity: 1;
+    transform: translateY(-0.26em);
+  }
+}
+
+/* Braille: a 2 × 3 cell where three lit dots chase each other around, like a CLI spinner */
+.kodza-spinner__braille {
+  display: grid;
+  grid-template-columns: repeat(2, 0.17em);
+  grid-template-rows: repeat(3, 0.17em);
+  gap: 0.11em 0.15em;
+}
+
+.kodza-spinner__braille > span {
+  border-radius: 50%;
+  background: currentColor;
+  animation: kodza-spinner-braille calc(0.9s * var(--kz-spinner-tempo)) step-end infinite;
+}
+
+/* Around the cell: top left, top right, middle right, bottom right, bottom left, middle left */
+.kodza-spinner__braille > span:nth-child(1) { grid-area: 1 / 1; animation-delay: calc(-0.9s * var(--kz-spinner-tempo)); }
+.kodza-spinner__braille > span:nth-child(2) { grid-area: 1 / 2; animation-delay: calc(-0.75s * var(--kz-spinner-tempo)); }
+.kodza-spinner__braille > span:nth-child(3) { grid-area: 2 / 2; animation-delay: calc(-0.6s * var(--kz-spinner-tempo)); }
+.kodza-spinner__braille > span:nth-child(4) { grid-area: 3 / 2; animation-delay: calc(-0.45s * var(--kz-spinner-tempo)); }
+.kodza-spinner__braille > span:nth-child(5) { grid-area: 3 / 1; animation-delay: calc(-0.3s * var(--kz-spinner-tempo)); }
+.kodza-spinner__braille > span:nth-child(6) { grid-area: 2 / 1; animation-delay: calc(-0.15s * var(--kz-spinner-tempo)); }
+
+@keyframes kodza-spinner-braille {
+  0% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.18;
+  }
+}
+
+/* Done: the drawing steps back, the circle closes and the tick draws itself */
+.kodza-spinner__done {
+  opacity: 0;
+}
+
+.kodza-spinner__done circle,
+.kodza-spinner__done path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.2s ease;
+}
+
+.kodza-spinner__done circle {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.kodza-spinner.is-done .kodza-spinner__icon > :not(.kodza-spinner__done) {
+  opacity: 0;
+  transform: scale(0.55);
+}
+
+.kodza-spinner.is-done .kodza-spinner__icon > :not(.kodza-spinner__done),
+.kodza-spinner.is-done .kodza-spinner__icon > :not(.kodza-spinner__done) * {
+  animation-play-state: paused;
+}
+
+.kodza-spinner.is-done .kodza-spinner__done {
+  opacity: 1;
+}
+
+.kodza-spinner.is-done .kodza-spinner__done circle {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-spinner.is-done .kodza-spinner__done path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.35s var(--kz-spinner-ease) 0.4s;
+}
+
+/* The words: both lines in one cell (the width of the longer), the first rolls up and out */
+.kodza-spinner__text {
+  display: inline-grid;
+  overflow: hidden;
+  padding-block: 0.12em;
+  margin-block: -0.12em;
+}
+
+.kodza-spinner__text > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+  transition: transform 0.5s var(--kz-spinner-ease), opacity 0.3s ease, visibility 0s;
+}
+
+.kodza-spinner__text > span:first-child {
+  opacity: 0.64;
+}
+
+.kodza-spinner__text > span:nth-child(2) {
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(105%);
+  transition: transform 0.5s var(--kz-spinner-ease), opacity 0.3s ease, visibility 0s linear 0.5s;
+}
+
+.kodza-spinner.is-done .kodza-spinner__text > span:first-child {
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-105%);
+  transition: transform 0.5s var(--kz-spinner-ease), opacity 0.3s ease, visibility 0s linear 0.5s;
+}
+
+.kodza-spinner.is-done .kodza-spinner__text > span:nth-child(2) {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition: transform 0.5s var(--kz-spinner-ease) 0.12s, opacity 0.3s ease 0.12s, visibility 0s;
+}
+
+/* Reduced motion: still drawings (a ring with its arc, bars in their fade), and no tweens */
+@media (prefers-reduced-motion: reduce) {
+  .kodza-spinner__icon *,
+  .kodza-spinner__icon > * {
+    animation: none !important;
+  }
+
+  .kodza-spinner__ring circle:last-child {
+    stroke-dasharray: 30 100;
+  }
+
+  .kodza-spinner__icon > *,
+  .kodza-spinner__done circle,
+  .kodza-spinner__done path,
+  .kodza-spinner__text > span {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* kodza-guard 6c133b90c4aa — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-spinner:not(#_),
+.kodza-spinner__icon:not(#_),
+.kodza-spinner__text:not(#_),
+.kodza-spinner__dots:not(#_),
+.kodza-spinner__braille:not(#_),
+.kodza-spinner__text span:where(:not([class*="kodza-"])):not(#_),
+.kodza-spinner__dots span:where(:not([class*="kodza-"])):not(#_),
+.kodza-spinner__braille span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-spinner__ring:not(#_),
+.kodza-spinner__done:not(#_),
+.kodza-spinner__bars:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-spinner__icon > *:where(svg):not(#_) {
+  transition: opacity 0.25s ease, transform 0.45s var(--kz-spinner-ease);
+}
+
+.kodza-spinner__icon svg:not(#_) {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-spinner__icon > *:where(svg):not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

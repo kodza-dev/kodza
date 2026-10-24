@@ -1,0 +1,743 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Cookie Consent
+   An honest cookie card in the corner: "Reject all" weighs exactly as much as "Accept all", and
+   "Choose" unfolds the categories (the card eases to its new height, the word rolls to "Save").
+   The choice is kept (localStorage, under data-key), sent as "kodza:consent", and the card
+   goes away; any element with data-kodza-cookies brings it back. It waits in the HTML with the
+   hidden attribute and only shows when no choice has been made yet.
+   Everything is tuned with the --kz-cookies-* variables. */
+.kodza-cookies {
+  --kz-cookies-bg: #ffffff;
+  --kz-cookies-fg: #0a0a0a;
+  --kz-cookies-muted: rgba(10, 10, 10, 0.6);
+  --kz-cookies-line: rgba(10, 10, 10, 0.12);
+  --kz-cookies-soft: rgba(10, 10, 10, 0.06);
+  --kz-cookies-ink: #0a0a0a;
+  --kz-cookies-on-ink: #ffffff;
+  --kz-cookies-shadow: 0 24px 60px -24px rgba(10, 10, 10, 0.4);
+  --kz-cookies-width: 400px;
+  --kz-cookies-edge: 20px;
+  --kz-cookies-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: fixed;
+  bottom: var(--kz-cookies-edge);
+  left: var(--kz-cookies-edge);
+  z-index: 70;
+  display: grid;
+  width: min(var(--kz-cookies-width), calc(100vw - var(--kz-cookies-edge) * 2));
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--kz-cookies-bg);
+  box-shadow: 0 0 0 1px var(--kz-cookies-line), var(--kz-cookies-shadow);
+  color: var(--kz-cookies-fg);
+  box-sizing: border-box;
+  transform: translateY(calc(100% + var(--kz-cookies-edge) * 2));
+  transition: transform 0.6s var(--kz-cookies-ease);
+}
+
+.kodza-cookies[hidden] {
+  display: none;
+}
+
+.kodza-cookies.is-shown {
+  transform: none;
+}
+
+.kodza-cookies.is-leaving {
+  transform: translateY(calc(100% + var(--kz-cookies-edge) * 2));
+  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-cookies__title {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.kodza-cookies__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--kz-cookies-muted);
+  text-wrap: pretty;
+}
+
+/* The categories unfold by their row height: nothing jumps */
+.kodza-cookies__details {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s var(--kz-cookies-ease);
+}
+
+.kodza-cookies.is-open .kodza-cookies__details {
+  grid-template-rows: 1fr;
+}
+
+.kodza-cookies__list {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+  visibility: hidden;
+  transition: visibility 0s linear 0.5s;
+}
+
+.kodza-cookies.is-open .kodza-cookies__list {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.kodza-cookies__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--kz-cookies-line);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.25s ease, transform 0.4s var(--kz-cookies-ease);
+}
+
+.kodza-cookies__row:first-child {
+  margin-top: 16px;
+}
+
+.kodza-cookies.is-open .kodza-cookies__row {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(0.1s + var(--i, 0) * 60ms);
+}
+
+.kodza-cookies__name {
+  display: grid;
+  gap: 2px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.kodza-cookies__name small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--kz-cookies-muted);
+}
+
+.kodza-cookies__always {
+  flex: none;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  color: var(--kz-cookies-muted);
+}
+
+/* A small switch: a real checkbox, redrawn */
+.kodza-cookies__switch {
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 22px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--kz-cookies-line);
+  cursor: pointer;
+  appearance: none;
+  transition: background-color 0.25s ease;
+}
+
+.kodza-cookies__switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--kz-cookies-bg);
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.3);
+  transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.kodza-cookies__switch:checked {
+  background: var(--kz-cookies-ink);
+}
+
+.kodza-cookies__switch:checked::after {
+  transform: translateX(14px);
+}
+
+.kodza-cookies__switch:focus-visible,
+.kodza-cookies__button:focus-visible,
+.kodza-cookies__more:focus-visible {
+  outline: 2px solid var(--kz-cookies-fg);
+  outline-offset: 2px;
+}
+
+.kodza-cookies__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.kodza-cookies__buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* Reject and accept: the same size, the same weight */
+.kodza-cookies__button {
+  height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-cookies-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-cookies-line);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+.kodza-cookies__button:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-cookies-muted);
+}
+
+.kodza-cookies__button--ink {
+  background: var(--kz-cookies-ink);
+  box-shadow: none;
+  color: var(--kz-cookies-on-ink);
+}
+
+.kodza-cookies__button--ink:hover {
+  box-shadow: none;
+  opacity: 0.86;
+}
+
+.kodza-cookies__button:active {
+  transform: scale(0.97);
+}
+
+.kodza-cookies__more {
+  padding: 4px 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--kz-cookies-fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.kodza-cookies__more-words {
+  display: inline-grid;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.kodza-cookies__more-words > span {
+  grid-area: 1 / 1;
+}
+
+@media (max-width: 480px) {
+  .kodza-cookies {
+    --kz-cookies-edge: 8px;
+  }
+
+  .kodza-cookies__actions {
+    flex-wrap: wrap;
+  }
+
+  .kodza-cookies__buttons {
+    width: 100%;
+  }
+
+  .kodza-cookies__button {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-cookies,
+  .kodza-cookies.is-leaving,
+  .kodza-cookies__details,
+  .kodza-cookies__row,
+  .kodza-cookies__switch,
+  .kodza-cookies__switch::after,
+  .kodza-cookies__button {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-cookies {
+  --kz-cookies-bg: #1b1b1b;
+  --kz-cookies-fg: #f2f2f0;
+  --kz-cookies-muted: rgba(242, 242, 240, 0.62);
+  --kz-cookies-line: rgba(255, 255, 255, 0.14);
+  --kz-cookies-soft: rgba(255, 255, 255, 0.07);
+  --kz-cookies-ink: #f2f2f0;
+  --kz-cookies-on-ink: #0a0a0a;
+  --kz-cookies-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.9);
+}
+*/
+
+/* kodza-guard 411db4bb4afe — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-cookies__row):not(#_) {
+  margin-top: revert;
+}
+
+:where(.kodza-cookies__switch):not(#_),
+:where(.kodza-cookies__more):not(#_),
+:where(.kodza-cookies__button):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-cookies__main:not(#_),
+.kodza-cookies__details:not(#_),
+.kodza-cookies__name:not(#_),
+.kodza-cookies__always:not(#_),
+.kodza-cookies__actions:not(#_),
+.kodza-cookies__more-words:not(#_),
+.kodza-cookies__buttons:not(#_),
+.kodza-cookies__more-words span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-cookies__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cookies__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cookies__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cookies__row:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cookies__switch:not(#_) {
+  border: revert;
+  padding: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-cookies__more:not(#_) {
+  margin: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-cookies__button:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-cookies__name small:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cookies__title:not(#_):where(:not([hidden])),
+.kodza-cookies__text:not(#_):where(:not([hidden])),
+.kodza-cookies__list:not(#_):where(:not([hidden])),
+.kodza-cookies__switch:not(#_):where(:not([hidden])),
+.kodza-cookies__more:not(#_):where(:not([hidden])),
+.kodza-cookies__button:not(#_):where(:not([hidden])),
+.kodza-cookies__name small:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-cookies__title:not(#_):where([hidden]),
+.kodza-cookies__text:not(#_):where([hidden]),
+.kodza-cookies__list:not(#_):where([hidden]),
+.kodza-cookies__switch:not(#_):where([hidden]),
+.kodza-cookies__more:not(#_):where([hidden]),
+.kodza-cookies__button:not(#_):where([hidden]),
+.kodza-cookies__name small:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-cookies__switch:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-cookies:not(#_) {
+  width: min(var(--kz-cookies-width), calc(100vw - var(--kz-cookies-edge) * 2));
+}
+
+.kodza-cookies__title:not(#_) {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.kodza-cookies__text:not(#_) {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--kz-cookies-muted);
+}
+
+.kodza-cookies__list:not(#_) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: visibility 0s linear 0.5s;
+}
+
+.kodza-cookies.is-open .kodza-cookies__list:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-cookies__row:not(#_) {
+  display: flex;
+  padding: 12px 0;
+  border-top: 1px solid var(--kz-cookies-line);
+  transition: opacity 0.25s ease, transform 0.4s var(--kz-cookies-ease);
+}
+
+.kodza-cookies__row:first-child:not(#_) {
+  margin-top: 16px;
+}
+
+.kodza-cookies.is-open .kodza-cookies__row:not(#_) {
+  transition-delay: calc(0.1s + var(--i, 0) * 60ms);
+}
+
+.kodza-cookies__name small:not(#_) {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--kz-cookies-muted);
+}
+
+.kodza-cookies__switch:not(#_) {
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 22px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--kz-cookies-line);
+  cursor: pointer;
+  appearance: none;
+  transition: background-color 0.25s ease;
+}
+
+.kodza-cookies__switch:not(#_)::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--kz-cookies-bg);
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.3);
+  transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.kodza-cookies__switch:checked:not(#_) {
+  background: var(--kz-cookies-ink);
+}
+
+.kodza-cookies__switch:checked:not(#_)::after {
+  transform: translateX(14px);
+}
+
+.kodza-cookies__switch:focus-visible:not(#_),
+.kodza-cookies__button:focus-visible:not(#_),
+.kodza-cookies__more:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-cookies-fg);
+  outline-offset: 2px;
+}
+
+.kodza-cookies__button:not(#_) {
+  height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-cookies-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-cookies-line);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+.kodza-cookies__button:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-cookies-muted);
+}
+
+.kodza-cookies__button--ink:not(#_) {
+  background: var(--kz-cookies-ink);
+  box-shadow: none;
+  color: var(--kz-cookies-on-ink);
+}
+
+.kodza-cookies__button--ink:hover:not(#_) {
+  box-shadow: none;
+  opacity: 0.86;
+}
+
+.kodza-cookies__button:active:not(#_) {
+  transform: scale(0.97);
+}
+
+.kodza-cookies__more:not(#_) {
+  padding: 4px 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--kz-cookies-fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .kodza-cookies__button:not(#_) {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-cookies__row:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-cookies__switch:not(#_),
+  .kodza-cookies__switch:not(#_)::after,
+  .kodza-cookies__button:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

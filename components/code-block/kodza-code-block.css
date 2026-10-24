@@ -1,0 +1,434 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Code Block
+   Code to read and copy: a file name, line numbers, lines to look at (data-highlight="4-6"),
+   and a monochrome highlighting that works with weight and light rather than colors (keywords
+   bold, comments dimmed, strings bright). Copy rolls to Copied. --terminal shows a shell: the
+   prompt and the output are left out of what you copy. Languages: js, css, html, shell.
+   A long file scrolls inside the block past --kz-code-max-height (none by default).
+   Everything is tuned with the --kz-code-* variables. */
+.kodza-code {
+  --kz-code-bg: #0f0f0f;
+  --kz-code-fg: rgba(255, 255, 255, 0.84);
+  --kz-code-bright: #ffffff;
+  --kz-code-dim: rgba(255, 255, 255, 0.58);
+  --kz-code-line: rgba(255, 255, 255, 0.09);
+  --kz-code-mark: rgba(255, 255, 255, 0.06);
+  --kz-code-max-height: none;
+  --kz-code-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  margin: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--kz-code-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-code-line);
+  color: var(--kz-code-fg);
+}
+
+.kodza-code__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 44px;
+  padding: 0 8px 0 18px;
+  border-bottom: 1px solid var(--kz-code-line);
+}
+
+/* A long file name keeps to one line and ends with an ellipsis */
+.kodza-code__file {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--kz-code-dim);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Copy → Copied: the words roll */
+.kodza-code__copy {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--kz-code-fg);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.kodza-code__copy:hover {
+  background: var(--kz-code-mark);
+  color: var(--kz-code-bright);
+}
+
+.kodza-code__copy:focus-visible {
+  outline: 2px solid var(--kz-code-bright);
+  outline-offset: 1px;
+}
+
+.kodza-code__words {
+  display: inline-grid;
+  overflow: hidden;
+}
+
+.kodza-code__words > span {
+  grid-area: 1 / 1;
+  text-align: right;
+  transition: transform 0.45s var(--kz-code-ease), opacity 0.25s ease;
+}
+
+.kodza-code__words > span:nth-child(2),
+.kodza-code__copy.is-copied .kodza-code__words > span:first-child {
+  opacity: 0;
+  transform: translateY(-110%);
+}
+
+.kodza-code__words > span:nth-child(2) {
+  transform: translateY(110%);
+}
+
+.kodza-code__copy.is-copied .kodza-code__words > span:nth-child(2) {
+  opacity: 1;
+  transform: none;
+}
+
+/* The code */
+.kodza-code__pre {
+  max-height: var(--kz-code-max-height);
+  margin: 0;
+  padding: 16px 0;
+  overflow: auto;
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  tab-size: 2;
+}
+
+.kodza-code__pre code {
+  display: block;
+  min-width: max-content;
+  font: inherit;
+  counter-reset: kodza-code-line;
+}
+
+.kodza-code__line {
+  display: block;
+  padding: 0 24px 0 0;
+  white-space: pre;
+}
+
+.kodza-code__line::before {
+  content: counter(kodza-code-line);
+  counter-increment: kodza-code-line;
+  display: inline-block;
+  width: 3.4em;
+  padding-right: 1.4em;
+  box-sizing: border-box;
+  color: var(--kz-code-dim);
+  text-align: right;
+  opacity: 0.7;
+  user-select: none;
+}
+
+/* Lines to look at: a soft band and a bar in the gutter */
+.kodza-code__line.is-marked {
+  background: var(--kz-code-mark);
+  box-shadow: inset 2px 0 0 var(--kz-code-bright);
+}
+
+.kodza-code__line.is-marked::before {
+  color: var(--kz-code-bright);
+  opacity: 1;
+}
+
+/* Highlighting in weight and light */
+.kodza-code__k { color: var(--kz-code-bright); font-weight: 600; }
+.kodza-code__s { color: var(--kz-code-bright); }
+.kodza-code__n { color: var(--kz-code-bright); }
+.kodza-code__c { color: var(--kz-code-dim); }
+.kodza-code__p { color: var(--kz-code-dim); }
+.kodza-code__a { color: var(--kz-code-fg); font-weight: 600; }
+
+/* Terminal: a prompt that is not copied, and quieter output */
+.kodza-code--terminal .kodza-code__line::before {
+  content: none;
+}
+
+.kodza-code--terminal .kodza-code__line {
+  padding-left: 20px;
+}
+
+.kodza-code__prompt {
+  color: var(--kz-code-dim);
+  user-select: none;
+}
+
+.kodza-code__out {
+  color: var(--kz-code-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-code__copy,
+  .kodza-code__words > span {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark page, a step lighter:
+.dark-section .kodza-code {
+  --kz-code-bg: #161616;
+  --kz-code-line: rgba(255, 255, 255, 0.12);
+}
+*/
+
+/* kodza-guard f8812ab7dbc8 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-code__copy):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-code:not(#_) {
+  border: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-code__head:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-top-width: revert;
+  border-right-width: revert;
+  border-left-width: revert;
+  border-top-style: revert;
+  border-right-style: revert;
+  border-left-style: revert;
+  border-top-color: revert;
+  border-right-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-code__file:not(#_),
+.kodza-code__words:not(#_),
+.kodza-code__line:not(#_),
+.kodza-code__c:not(#_),
+.kodza-code__p:not(#_),
+.kodza-code__s:not(#_),
+.kodza-code__k:not(#_),
+.kodza-code__prompt:not(#_),
+.kodza-code__out:not(#_),
+.kodza-code__words span:where(:not([class*="kodza-"])):not(#_),
+.kodza-code__line span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-code__copy:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-code__pre:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  color: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+}
+
+.kodza-code__pre code:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-code:not(#_):where(:not([hidden])),
+.kodza-code__pre:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-code:not(#_):where([hidden]),
+.kodza-code__pre:not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-code:not(#_) {
+  border-radius: 14px;
+  background: var(--kz-code-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-code-line);
+  color: var(--kz-code-fg);
+}
+
+.kodza-code__head:not(#_) {
+  display: flex;
+  padding: 0 8px 0 18px;
+  border-bottom: 1px solid var(--kz-code-line);
+}
+
+.kodza-code__copy:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--kz-code-fg);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.kodza-code__copy:hover:not(#_) {
+  background: var(--kz-code-mark);
+  color: var(--kz-code-bright);
+}
+
+.kodza-code__copy:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-code-bright);
+  outline-offset: 1px;
+}
+
+.kodza-code__pre:not(#_) {
+  max-height: var(--kz-code-max-height);
+  margin: 0;
+  padding: 16px 0;
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.kodza-code__pre code:not(#_) {
+  display: block;
+  font: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-code__copy:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

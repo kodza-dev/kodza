@@ -1,0 +1,428 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Copy to Clipboard
+   A command and its copy button. Once copied, the icon turns into a check that draws itself
+   and the label rolls to "Copied", then everything quietly comes back. --prompt makes it a
+   sentence to paste into an AI: bigger, in the text font, wrapping instead of scrolling.
+   Everything is tuned with the --kz-copy-* variables. */
+
+/* Fills its column at zero weight: a theme that sizes its content blocks (Blocksy puts the page
+   gutter in each block's width) keeps the last word */
+:where(.kodza-copy) {
+  width: 100%;
+}
+
+.kodza-copy {
+  --kz-copy-bg: #ffffff;
+  --kz-copy-fg: #0a0a0a;
+  --kz-copy-muted: rgba(10, 10, 10, 0.45);
+  --kz-copy-border: rgba(10, 10, 10, 0.1);
+  --kz-copy-button-bg: #0a0a0a;
+  --kz-copy-button-fg: #ffffff;
+  --kz-copy-radius: 14px;
+  --kz-copy-font: ui-monospace, "SF Mono", "Geist Mono", Menlo, monospace;
+  --kz-copy-size: 14px;
+  --kz-copy-prompt: "$ ";
+  --kz-copy-button-height: 38px;
+  --kz-copy-max-width: 520px;
+  --kz-copy-duration: 0.45s;
+  --kz-copy-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* The command takes what is left and scrolls: it never widens its column (a 1fr grid track,
+     a phone), yet a box that shrinks to fit still gets the whole line */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  max-width: var(--kz-copy-max-width);
+  padding: 8px 8px 8px 18px;
+  border-radius: var(--kz-copy-radius);
+  background: var(--kz-copy-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-copy-border);
+  color: var(--kz-copy-fg);
+  box-sizing: border-box;
+}
+
+/* Long commands scroll sideways instead of breaking */
+.kodza-copy__code {
+  min-width: 0;
+  margin: 0;
+  overflow-x: auto;
+  font-family: var(--kz-copy-font);
+  font-size: var(--kz-copy-size);
+  line-height: 1.5;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.kodza-copy__code::-webkit-scrollbar {
+  display: none;
+}
+
+/* The prompt is drawn, so it is never part of what gets copied */
+.kodza-copy__code::before {
+  content: var(--kz-copy-prompt);
+  color: var(--kz-copy-muted);
+  user-select: none;
+}
+
+.kodza-copy__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  height: var(--kz-copy-button-height);
+  padding: 0 14px 0 12px;
+  border: 0;
+  border-radius: calc(var(--kz-copy-radius) - 6px);
+  background: var(--kz-copy-button-bg);
+  color: var(--kz-copy-button-fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s var(--kz-copy-ease), opacity 0.2s ease;
+}
+
+.kodza-copy__button:hover {
+  opacity: 0.88;
+}
+
+.kodza-copy__button:active {
+  transform: scale(0.95);
+}
+
+.kodza-copy__button:focus-visible {
+  outline: 2px solid var(--kz-copy-button-bg);
+  outline-offset: 3px;
+}
+
+/* Two icons in the same spot: the copy icon steps back, the check draws itself */
+.kodza-copy__icon {
+  display: grid;
+  width: 16px;
+  height: 16px;
+}
+
+.kodza-copy__glyph {
+  grid-area: 1 / 1;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform var(--kz-copy-duration) var(--kz-copy-ease), opacity calc(var(--kz-copy-duration) * 0.6) ease;
+}
+
+.kodza-copy__glyph--done {
+  stroke-width: 1.8;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--kz-copy-duration) var(--kz-copy-ease);
+}
+
+.kodza-copy.is-copied .kodza-copy__glyph--copy {
+  opacity: 0;
+  transform: scale(0.5) rotate(-20deg);
+}
+
+.kodza-copy.is-copied .kodza-copy__glyph--done {
+  stroke-dashoffset: 0;
+  transition-delay: calc(var(--kz-copy-duration) * 0.25);
+}
+
+/* Both words share one cell, so the button keeps the width of the longest */
+.kodza-copy__label {
+  display: grid;
+  overflow: hidden;
+  line-height: 1.3;
+}
+
+.kodza-copy__word {
+  grid-area: 1 / 1;
+  transition: transform var(--kz-copy-duration) var(--kz-copy-ease);
+}
+
+.kodza-copy__word--done {
+  transform: translateY(110%);
+}
+
+.kodza-copy.is-copied .kodza-copy__word {
+  transform: translateY(-110%);
+}
+
+.kodza-copy.is-copied .kodza-copy__word--done {
+  transform: none;
+}
+
+/* --prompt: a sentence for an AI. It wraps (the button drops under it when the line runs
+   out of room) and the prompt is a chevron */
+.kodza-copy--prompt {
+  --kz-copy-size: clamp(17px, 1.6vw, 21px);
+  --kz-copy-prompt: "› ";
+  --kz-copy-button-height: 48px;
+  --kz-copy-radius: 22px;
+  --kz-copy-max-width: 760px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  padding: 10px 10px 10px 24px;
+}
+
+.kodza-copy--prompt .kodza-copy__code {
+  flex: 1 1 260px;
+  overflow: visible;
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  white-space: normal;
+  text-wrap: pretty;
+}
+
+.kodza-copy--prompt .kodza-copy__button {
+  margin-left: auto;
+  padding: 0 20px 0 18px;
+  font-size: 15px;
+}
+
+.kodza-copy__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-copy__button,
+  .kodza-copy__glyph,
+  .kodza-copy__word {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — a dark terminal:
+.dark-section .kodza-copy {
+  --kz-copy-bg: #161616;
+  --kz-copy-fg: #f2f2f0;
+  --kz-copy-muted: rgba(255, 255, 255, 0.4);
+  --kz-copy-border: rgba(255, 255, 255, 0.1);
+  --kz-copy-button-bg: #ffffff;
+  --kz-copy-button-fg: #0a0a0a;
+}
+*/
+
+/* kodza-guard 43c0f79a708e — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-copy__code):not(#_) {
+  font-weight: revert;
+  letter-spacing: revert;
+}
+
+:where(.kodza-copy__button):not(#_) {
+  outline: revert;
+  margin-left: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-copy__code:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-copy__button:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-copy__icon:not(#_),
+.kodza-copy__label:not(#_),
+.kodza-copy__word:not(#_),
+.kodza-copy__status:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-copy__glyph:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-copy__code:not(#_):where(:not([hidden])),
+.kodza-copy__glyph:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-copy__code:not(#_):where([hidden]),
+.kodza-copy__glyph:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-copy__code:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-copy:not(#_) {
+  max-width: var(--kz-copy-max-width);
+}
+
+.kodza-copy__code:not(#_) {
+  margin: 0;
+  font-family: var(--kz-copy-font);
+  font-size: var(--kz-copy-size);
+  line-height: 1.5;
+}
+
+.kodza-copy__button:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  height: var(--kz-copy-button-height);
+  padding: 0 14px 0 12px;
+  border: 0;
+  border-radius: calc(var(--kz-copy-radius) - 6px);
+  background: var(--kz-copy-button-bg);
+  color: var(--kz-copy-button-fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s var(--kz-copy-ease), opacity 0.2s ease;
+}
+
+.kodza-copy__button:hover:not(#_) {
+  opacity: 0.88;
+}
+
+.kodza-copy__button:active:not(#_) {
+  transform: scale(0.95);
+}
+
+.kodza-copy__button:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-copy-button-bg);
+  outline-offset: 3px;
+}
+
+.kodza-copy__glyph:not(#_) {
+  transition: transform var(--kz-copy-duration) var(--kz-copy-ease), opacity calc(var(--kz-copy-duration) * 0.6) ease;
+}
+
+.kodza-copy__glyph--done:not(#_) {
+  transition: stroke-dashoffset var(--kz-copy-duration) var(--kz-copy-ease);
+}
+
+.kodza-copy.is-copied .kodza-copy__glyph--done:not(#_) {
+  transition-delay: calc(var(--kz-copy-duration) * 0.25);
+}
+
+.kodza-copy--prompt .kodza-copy__code:not(#_) {
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.kodza-copy--prompt .kodza-copy__button:not(#_) {
+  margin-left: auto;
+  padding: 0 20px 0 18px;
+  font-size: 15px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-copy__button:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-copy__glyph:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

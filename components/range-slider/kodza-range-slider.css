@@ -1,0 +1,433 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Range Slider
+   Real range inputs over a drawn track: the ink fill follows the handle, a value bubble pops out
+   of the handle while you drag or use the keyboard, and the ticks (data-ticks) darken as the
+   fill passes them. Put two inputs in one track for a range: the handles cannot cross, the
+   first one pushes the other along. data-prefix / data-suffix dress the numbers.
+   Everything is tuned with the --kz-range-* variables. */
+.kodza-range {
+  --kz-range-bg: #ffffff;
+  --kz-range-fg: #0a0a0a;
+  --kz-range-muted: rgba(10, 10, 10, 0.6);
+  --kz-range-rail: rgba(10, 10, 10, 0.12);
+  --kz-range-ink: #0a0a0a;
+  --kz-range-on-ink: #ffffff;
+  --kz-range-thumb: 22px;
+  --kz-range-height: 4px;
+  --kz-range-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  gap: 14px;
+  width: 100%;
+  max-width: 420px;
+  color: var(--kz-range-fg);
+}
+
+.kodza-range__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.kodza-range__label {
+  display: grid;
+  gap: 2px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.kodza-range__label small {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--kz-range-muted);
+}
+
+.kodza-range__output {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The drawn track: the rail, the fill between --kz-from and --kz-to (0 to 1) */
+.kodza-range__track {
+  position: relative;
+  height: var(--kz-range-thumb);
+  margin: 22px calc(var(--kz-range-thumb) / 2) 0;
+}
+
+.kodza-range__track::before,
+.kodza-range__track::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: calc(var(--kz-range-thumb) / -2);
+  left: calc(var(--kz-range-thumb) / -2);
+  height: var(--kz-range-height);
+  border-radius: 999px;
+  background: var(--kz-range-rail);
+  transform: translateY(-50%);
+}
+
+.kodza-range__track::after {
+  right: calc((1 - var(--kz-to, 0)) * 100%);
+  left: calc(var(--kz-from, 0) * 100%);
+  background: var(--kz-range-ink);
+}
+
+.kodza-range:not([data-dual]) .kodza-range__track::after {
+  left: calc(var(--kz-range-thumb) / -2);
+}
+
+/* Keyboard focus: the rail gets a soft halo, the handle a ring */
+.kodza-range__track:has(.kodza-range__input:focus-visible)::before {
+  box-shadow: 0 0 0 3px var(--kz-range-rail);
+}
+
+/* The real inputs: invisible tracks, drawn thumbs */
+.kodza-range__input {
+  position: absolute;
+  inset: 0 calc(var(--kz-range-thumb) / -2);
+  z-index: 1;
+  width: calc(100% + var(--kz-range-thumb));
+  height: 100%;
+  margin: 0;
+  background: none;
+  cursor: pointer;
+  appearance: none;
+}
+
+.kodza-range[data-dual] .kodza-range__input {
+  pointer-events: none;
+}
+
+.kodza-range__input::-webkit-slider-thumb {
+  width: var(--kz-range-thumb);
+  height: var(--kz-range-thumb);
+  border-radius: 50%;
+  background: var(--kz-range-bg);
+  box-shadow: inset 0 0 0 2px var(--kz-range-ink), 0 1px 4px rgba(10, 10, 10, 0.2);
+  pointer-events: auto;
+  cursor: grab;
+  appearance: none;
+  transition: transform 0.25s var(--kz-range-ease);
+}
+
+.kodza-range__input::-moz-range-thumb {
+  width: var(--kz-range-thumb);
+  height: var(--kz-range-thumb);
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-range-bg);
+  box-shadow: inset 0 0 0 2px var(--kz-range-ink), 0 1px 4px rgba(10, 10, 10, 0.2);
+  pointer-events: auto;
+  cursor: grab;
+  transition: transform 0.25s var(--kz-range-ease);
+}
+
+.kodza-range__input:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(1.15);
+}
+
+.kodza-range__input:active::-moz-range-thumb {
+  cursor: grabbing;
+  transform: scale(1.15);
+}
+
+.kodza-range__input:focus-visible {
+  outline: none;
+}
+
+.kodza-range__input:focus-visible::-webkit-slider-thumb {
+  box-shadow: inset 0 0 0 2px var(--kz-range-ink), 0 0 0 4px var(--kz-range-rail);
+}
+
+.kodza-range__input:focus-visible::-moz-range-thumb {
+  box-shadow: inset 0 0 0 2px var(--kz-range-ink), 0 0 0 4px var(--kz-range-rail);
+}
+
+/* The bubble: pops out of the handle while it moves */
+.kodza-range__bubble {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: calc(var(--kz-at, 0) * 100%);
+  z-index: 2;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: var(--kz-range-ink);
+  color: var(--kz-range-on-ink);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 6px) scale(0.6);
+  transform-origin: 50% 100%;
+  transition: opacity 0.2s ease, transform 0.3s var(--kz-range-ease);
+}
+
+.kodza-range__bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  border: 4px solid transparent;
+  border-top-color: var(--kz-range-ink);
+  transform: translateX(-50%);
+}
+
+.kodza-range__bubble.is-on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition: opacity 0.15s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Ticks: one per step, darkening as the fill passes */
+.kodza-range__ticks {
+  display: flex;
+  justify-content: space-between;
+  margin: -6px calc(var(--kz-range-thumb) / 2) 0;
+}
+
+.kodza-range__ticks span {
+  width: 2px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--kz-range-rail);
+  transition: background-color 0.2s ease;
+}
+
+.kodza-range__ticks span.is-on {
+  background: var(--kz-range-ink);
+}
+
+.kodza-range__scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -4px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  color: var(--kz-range-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-range__input::-webkit-slider-thumb,
+  .kodza-range__bubble,
+  .kodza-range__ticks span {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-range {
+  --kz-range-bg: #161616;
+  --kz-range-fg: #f2f2f0;
+  --kz-range-muted: rgba(242, 242, 240, 0.62);
+  --kz-range-rail: rgba(255, 255, 255, 0.16);
+  --kz-range-ink: #f2f2f0;
+  --kz-range-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard 3c09b7a55bdb — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-range__input):not(#_) {
+  outline: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-range:not(#_),
+.kodza-range__head:not(#_),
+.kodza-range__label:not(#_),
+.kodza-range__track:not(#_),
+.kodza-range__bubble:not(#_),
+.kodza-range__scale:not(#_),
+.kodza-range__ticks:not(#_),
+.kodza-range__scale span:where(:not([class*="kodza-"])):not(#_),
+.kodza-range__ticks span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-range__output:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-range__input:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-range__label small:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-range__output:not(#_):where(:not([hidden])),
+.kodza-range__input:not(#_):where(:not([hidden])),
+.kodza-range__label small:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-range__output:not(#_):where([hidden]),
+.kodza-range__input:not(#_):where([hidden]),
+.kodza-range__label small:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-range__track:not(#_)::before,
+.kodza-range__track:not(#_)::after,
+.kodza-range__input:not(#_)::before,
+.kodza-range__bubble:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-range:not(#_) {
+  width: min(100%, 420px);
+}
+
+.kodza-range__label small:not(#_) {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--kz-range-muted);
+}
+
+.kodza-range__output:not(#_) {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+}
+
+.kodza-range__input:not(#_) {
+  position: absolute;
+  inset: 0 calc(var(--kz-range-thumb) / -2);
+  z-index: 1;
+  width: calc(100% + var(--kz-range-thumb));
+  height: 100%;
+  margin: 0;
+  background: none;
+  cursor: pointer;
+  appearance: none;
+}
+
+.kodza-range[data-dual] .kodza-range__input:not(#_) {
+  pointer-events: none;
+}
+
+.kodza-range__input:not(#_)::-webkit-slider-thumb {
+  width: var(--kz-range-thumb);
+  height: var(--kz-range-thumb);
+  border-radius: 50%;
+  background: var(--kz-range-bg);
+  box-shadow: inset 0 0 0 2px var(--kz-range-ink), 0 1px 4px rgba(10, 10, 10, 0.2);
+  pointer-events: auto;
+  cursor: grab;
+  appearance: none;
+  transition: transform 0.25s var(--kz-range-ease);
+}
+
+.kodza-range__input:active:not(#_)::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(1.15);
+}
+
+.kodza-range__input:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-range__input:focus-visible:not(#_)::-webkit-slider-thumb {
+  box-shadow: inset 0 0 0 2px var(--kz-range-ink), 0 0 0 4px var(--kz-range-rail);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-range__input:not(#_)::-webkit-slider-thumb {
+    transition-duration: 0.01ms !important;
+  }
+}

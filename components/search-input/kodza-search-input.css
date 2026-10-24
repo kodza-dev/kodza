@@ -1,0 +1,620 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Search Autocomplete
+   A search field over a real datalist (so the browser's own suggestions work without JS).
+   With the script: suggestions unroll under the field, grouped, the letters you typed are
+   underlined, a highlight slides between them and the list eases to its new height as you
+   type. "/" jumps into the field from anywhere. Plug your own source with
+   root.kodzaSearch = async (query) => [{ label, meta }].
+   Everything is tuned with the --kz-search-* variables. */
+.kodza-search {
+  --kz-search-bg: #ffffff;
+  --kz-search-fg: #0a0a0a;
+  --kz-search-muted: rgba(10, 10, 10, 0.6);
+  --kz-search-line: rgba(10, 10, 10, 0.14);
+  --kz-search-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-search-soft: rgba(10, 10, 10, 0.06);
+  --kz-search-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  --kz-search-height: 48px;
+  --kz-search-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-search-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  /* The closed panel keeps its size, ready to unroll, but never lengthens the page */
+  contain: layout;
+  /* A number, not auto, so it can wait for the panel to roll up before dropping back */
+  z-index: 0;
+  transition: z-index 0s linear 0.35s;
+  color: var(--kz-search-fg);
+}
+
+/* Open, the field rises above what follows it (its panel included) */
+.kodza-search.is-open {
+  z-index: 20;
+  transition-delay: 0s;
+}
+
+.kodza-search__box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--kz-search-height);
+  padding: 0 10px 0 16px;
+  border-radius: 999px;
+  background: var(--kz-search-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-search-line);
+  cursor: text;
+  transition: box-shadow 0.25s ease;
+}
+
+.kodza-search__box:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-search-line-hover);
+}
+
+.kodza-search__box:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-search-fg), 0 0 0 4px var(--kz-search-soft);
+}
+
+.kodza-search__icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--kz-search-muted);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.kodza-search__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+  appearance: none;
+}
+
+.kodza-search__input::placeholder {
+  color: var(--kz-search-muted);
+}
+
+.kodza-search__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* The "/" hint gives way to a clear button once there is something to clear */
+.kodza-search__key,
+.kodza-search__clear {
+  flex: none;
+  display: grid;
+  place-items: center;
+  height: 26px;
+  border-radius: 7px;
+  transition: opacity 0.2s ease, transform 0.3s var(--kz-search-ease);
+}
+
+.kodza-search__key {
+  min-width: 26px;
+  padding: 0 6px;
+  background: var(--kz-search-soft);
+  color: var(--kz-search-muted);
+  font-family: var(--kz-search-mono);
+  font-size: 12px;
+}
+
+.kodza-search__clear {
+  position: absolute;
+  right: 10px;
+  width: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-search-soft);
+  color: var(--kz-search-muted);
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.6);
+  visibility: hidden;
+}
+
+.kodza-search__clear svg {
+  width: 11px;
+  height: 11px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.kodza-search.has-value .kodza-search__key {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.kodza-search.has-value .kodza-search__clear {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+}
+
+.kodza-search__clear:focus-visible {
+  outline: 2px solid var(--kz-search-fg);
+  outline-offset: 1px;
+}
+
+/* The suggestions unroll under the field */
+.kodza-search__panel {
+  position: absolute;
+  top: calc(var(--kz-search-height) + 8px);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--kz-search-bg);
+  box-shadow: 0 0 0 1px var(--kz-search-line), var(--kz-search-shadow);
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(0 0 100% 0 round 16px);
+  transform: translateY(-4px);
+  transition:
+    clip-path 0.35s var(--kz-search-ease),
+    opacity 0.2s ease,
+    transform 0.35s var(--kz-search-ease),
+    visibility 0s linear 0.35s;
+}
+
+.kodza-search.is-open .kodza-search__panel {
+  visibility: visible;
+  opacity: 1;
+  clip-path: inset(-40px -40px -60px -40px round 16px);
+  transform: none;
+  transition-delay: 0s;
+}
+
+/* Not enough room below: they unroll upwards, and grow upwards as you type */
+.kodza-search.is-above .kodza-search__panel {
+  top: auto;
+  bottom: calc(var(--kz-search-height) + 8px);
+  clip-path: inset(100% 0 0 0 round 16px);
+  transform: translateY(4px);
+}
+
+.kodza-search.is-above.is-open .kodza-search__panel {
+  clip-path: inset(-60px -40px -40px -40px round 16px);
+  transform: none;
+}
+
+.kodza-search__list {
+  position: relative;
+  max-height: 320px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+
+.kodza-search__group {
+  padding: 10px 12px 6px;
+  font-family: var(--kz-search-mono);
+  font-size: 11px;
+  color: var(--kz-search-muted);
+}
+
+.kodza-search__highlight {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  left: 6px;
+  height: var(--kz-hl-h, 40px);
+  border-radius: 10px;
+  background: var(--kz-search-soft);
+  opacity: var(--kz-hl-on, 0);
+  transform: translateY(var(--kz-hl-y, 0));
+  pointer-events: none;
+}
+
+.kodza-search.is-open .kodza-search__highlight {
+  transition: transform 0.2s var(--kz-search-ease), opacity 0.15s ease;
+}
+
+.kodza-search__option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.kodza-search__option mark {
+  background: none;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.kodza-search__meta {
+  font-family: var(--kz-search-mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--kz-search-muted);
+}
+
+.kodza-search__empty {
+  padding: 28px 16px 30px;
+  font-size: 14px;
+  color: var(--kz-search-muted);
+  text-align: center;
+}
+
+.kodza-search__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-search__box,
+  .kodza-search__key,
+  .kodza-search__clear,
+  .kodza-search__panel,
+  .kodza-search.is-open .kodza-search__highlight {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-search {
+  --kz-search-bg: #161616;
+  --kz-search-fg: #f2f2f0;
+  --kz-search-muted: rgba(242, 242, 240, 0.62);
+  --kz-search-line: rgba(255, 255, 255, 0.14);
+  --kz-search-line-hover: rgba(255, 255, 255, 0.3);
+  --kz-search-soft: rgba(255, 255, 255, 0.08);
+  --kz-search-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+}
+*/
+
+/* kodza-guard 597743fd4fcb — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-search__clear):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-search:not(#_),
+.kodza-search__options:not(#_),
+.kodza-search__panel:not(#_),
+.kodza-search__live:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-search__box:not(#_) {
+  border: revert;
+  margin: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-search__icon:not(#_),
+.kodza-search__clear svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-search__input:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-search__key:not(#_) {
+  border: revert;
+  margin: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-search__clear:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-search__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-search__options option:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+  color: revert;
+}
+
+.kodza-search__icon:not(#_):where(:not([hidden])),
+.kodza-search__input:not(#_):where(:not([hidden])),
+.kodza-search__list:not(#_):where(:not([hidden])),
+.kodza-search__clear svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-search__icon:not(#_):where([hidden]),
+.kodza-search__input:not(#_):where([hidden]),
+.kodza-search__list:not(#_):where([hidden]),
+.kodza-search__clear svg:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-search:not(#_) {
+  width: min(100%, 440px);
+}
+
+.kodza-search__box:not(#_) {
+  position: relative;
+  display: flex;
+  padding: 0 10px 0 16px;
+  border-radius: 999px;
+  background: var(--kz-search-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-search-line);
+  transition: box-shadow 0.25s ease;
+}
+
+.kodza-search__box:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-search-line-hover);
+}
+
+.kodza-search__box:focus-within:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-search-fg), 0 0 0 4px var(--kz-search-soft);
+}
+
+.kodza-search__input:not(#_) {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+  appearance: none;
+}
+
+.kodza-search__input:not(#_)::placeholder {
+  color: var(--kz-search-muted);
+}
+
+.kodza-search__input:not(#_)::-webkit-search-cancel-button {
+  display: none;
+}
+
+.kodza-search__key:not(#_) {
+  display: grid;
+  border-radius: 7px;
+  transition: opacity 0.2s ease, transform 0.3s var(--kz-search-ease);
+}
+
+.kodza-search__clear:not(#_) {
+  flex: none;
+  display: grid;
+  place-items: center;
+  height: 26px;
+  border-radius: 7px;
+  transition: opacity 0.2s ease, transform 0.3s var(--kz-search-ease);
+}
+
+.kodza-search__key:not(#_) {
+  padding: 0 6px;
+  background: var(--kz-search-soft);
+  color: var(--kz-search-muted);
+  font-family: var(--kz-search-mono);
+  font-size: 12px;
+}
+
+.kodza-search__clear:not(#_) {
+  position: absolute;
+  right: 10px;
+  width: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-search-soft);
+  color: var(--kz-search-muted);
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.6);
+  visibility: hidden;
+}
+
+.kodza-search.has-value .kodza-search__clear:not(#_) {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+}
+
+.kodza-search__clear:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-search-fg);
+  outline-offset: 1px;
+}
+
+.kodza-search__list:not(#_) {
+  position: relative;
+  max-height: 320px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-search__box:not(#_),
+  .kodza-search__key:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-search__clear:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

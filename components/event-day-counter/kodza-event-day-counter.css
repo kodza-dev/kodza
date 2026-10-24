@@ -1,0 +1,258 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Countdown
+   A live countdown to data-date. Counting down, every digit that changes falls: the old one
+   drops out of its window as the new one comes from above. At zero the figures step aside
+   for data-done. Large (days, hours, minutes, seconds) or --inline, in a sentence. Without
+   days, the hours add them up. Screen readers get a sentence, refreshed every minute.
+   Everything is tuned with the --kz-countdown-* variables. */
+.kodza-countdown {
+  --kz-countdown-fg: #0a0a0a;
+  --kz-countdown-muted: rgba(10, 10, 10, 0.62);
+  --kz-countdown-soft: rgba(10, 10, 10, 0.07);
+  --kz-countdown-chip: #ffffff;
+  --kz-countdown-size: clamp(44px, 7vw, 84px);
+  --kz-countdown-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: inline-grid;
+  margin: 0;
+  color: var(--kz-countdown-fg);
+}
+
+.kodza-countdown__units,
+.kodza-countdown__done {
+  grid-area: 1 / 1;
+  transition: transform 0.7s var(--kz-countdown-ease), opacity 0.4s ease, visibility 0s;
+}
+
+.kodza-countdown__units {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.kodza-countdown__unit {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.kodza-countdown__value {
+  display: inline-flex;
+  font-size: var(--kz-countdown-size);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+/* Each digit in its own window, where it falls */
+.kodza-countdown__digit {
+  display: inline-grid;
+  overflow: hidden;
+  padding-block: 0.06em;
+  margin-block: -0.06em;
+}
+
+.kodza-countdown__digit > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-countdown__label {
+  color: var(--kz-countdown-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.kodza-countdown__sep {
+  color: var(--kz-countdown-muted);
+  font-size: calc(var(--kz-countdown-size) * 0.7);
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+/* At zero: the figures step aside, the message rises */
+.kodza-countdown__done {
+  align-self: center;
+  font-size: calc(var(--kz-countdown-size) * 0.42);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  opacity: 0;
+  transform: translateY(40%);
+  visibility: hidden;
+  transition: transform 0.6s var(--kz-countdown-ease), opacity 0.35s ease, visibility 0s linear 0.6s;
+}
+
+/* What leaves stays visible until it has left */
+.kodza-countdown.is-done .kodza-countdown__units {
+  opacity: 0;
+  transform: translateY(-30%);
+  visibility: hidden;
+  transition: transform 0.7s var(--kz-countdown-ease), opacity 0.4s ease, visibility 0s linear 0.7s;
+}
+
+.kodza-countdown.is-done .kodza-countdown__done {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition: transform 0.8s var(--kz-countdown-ease) 0.15s, opacity 0.5s ease 0.15s, visibility 0s;
+}
+
+/* Inline: a chip, the words then the time in a small mono pill, all centred on one line */
+.kodza-countdown--inline {
+  --kz-countdown-size: 13px;
+
+  padding: 5px 5px 5px 16px;
+  border-radius: 999px;
+  background: var(--kz-countdown-soft);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.kodza-countdown--inline .kodza-countdown__units {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.kodza-countdown__clock {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: var(--kz-countdown-chip, #ffffff);
+  box-shadow: inset 0 0 0 1px var(--kz-countdown-soft);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-countdown--inline .kodza-countdown__value {
+  font-family: inherit;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.kodza-countdown__colon {
+  margin: 0 -1px;
+  color: var(--kz-countdown-muted);
+}
+
+.kodza-countdown--inline .kodza-countdown__done {
+  justify-self: center;
+  padding-right: 11px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.kodza-countdown__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .kodza-countdown__units {
+    gap: 8px;
+  }
+
+  .kodza-countdown:not(.kodza-countdown--inline) {
+    --kz-countdown-size: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-countdown__units,
+  .kodza-countdown__done {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-countdown {
+  --kz-countdown-fg: #f2f2f0;
+  --kz-countdown-muted: rgba(242, 242, 240, 0.62);
+  --kz-countdown-soft: rgba(255, 255, 255, 0.08);
+  --kz-countdown-chip: #1c1c1c;
+}
+*/
+
+/* kodza-guard 2a95133c5787 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-countdown):not(#_) {
+  padding: revert;
+  border-radius: revert;
+  background-color: revert;
+  background-image: revert;
+  font-size: revert;
+  font-weight: revert;
+  line-height: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-countdown:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-countdown__units:not(#_),
+.kodza-countdown__unit:not(#_),
+.kodza-countdown__value:not(#_),
+.kodza-countdown__digit:not(#_),
+.kodza-countdown__label:not(#_),
+.kodza-countdown__sep:not(#_),
+.kodza-countdown__done:not(#_),
+.kodza-countdown__sr:not(#_),
+.kodza-countdown__clock:not(#_),
+.kodza-countdown__colon:not(#_),
+.kodza-countdown__digit span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-countdown:where(p):not(#_) {
+  display: inline-grid;
+  color: var(--kz-countdown-fg);
+}
+
+.kodza-countdown--inline:not(#_) {
+  padding: 5px 5px 5px 16px;
+  border-radius: 999px;
+  background: var(--kz-countdown-soft);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+}

@@ -1,0 +1,659 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — File Upload
+   A drop zone over a real file input. Drag files over the page and the zone wakes up; over the
+   zone, its dashed border starts to march, the arrow lifts and the title rolls to "Let go".
+   Each file gets a row that opens up with a thumbnail, its size and a progress bar; the
+   percentage rolls, a tick draws itself when it is done, and a file that is too big says so.
+   Uploading is yours: set root.kodzaUpload = (file, onProgress) => Promise. Without it, files
+   are simply attached to the input for the form.
+   Everything is tuned with the --kz-upload-* variables. */
+.kodza-upload {
+  --kz-upload-bg: #ffffff;
+  --kz-upload-fg: #0a0a0a;
+  --kz-upload-muted: rgba(10, 10, 10, 0.6);
+  --kz-upload-line: rgba(10, 10, 10, 0.24);
+  --kz-upload-soft: rgba(10, 10, 10, 0.05);
+  --kz-upload-ink: #0a0a0a;
+  --kz-upload-on-ink: #ffffff;
+  --kz-upload-radius: 16px;
+  --kz-upload-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  max-width: 460px;
+  color: var(--kz-upload-fg);
+}
+
+/* The zone: the whole thing is the label of the file input */
+.kodza-upload__zone {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 36px 24px 32px;
+  border-radius: var(--kz-upload-radius);
+  background: var(--kz-upload-bg);
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.4s var(--kz-upload-ease);
+}
+
+.kodza-upload__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* The dashed border is an SVG rectangle, so it can march */
+.kodza-upload__border {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.kodza-upload__border rect {
+  x: 1px;
+  y: 1px;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  fill: none;
+  stroke: var(--kz-upload-line);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 6;
+  transition: stroke 0.3s ease;
+}
+
+.kodza-upload__zone:hover .kodza-upload__border rect,
+.kodza-upload.is-dragging .kodza-upload__border rect {
+  stroke: var(--kz-upload-muted);
+}
+
+.kodza-upload.is-over .kodza-upload__border rect {
+  stroke: var(--kz-upload-ink);
+  animation: kodza-upload-march 0.6s linear infinite;
+}
+
+@keyframes kodza-upload-march {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+.kodza-upload.is-over .kodza-upload__zone {
+  background: var(--kz-upload-soft);
+  transform: scale(1.015);
+}
+
+.kodza-upload__zone:has(.kodza-upload__input:focus-visible) {
+  outline: 2px solid var(--kz-upload-fg);
+  outline-offset: 3px;
+}
+
+.kodza-upload__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 6px;
+  border-radius: 12px;
+  background: var(--kz-upload-soft);
+}
+
+.kodza-upload__icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-upload__arrow {
+  transition: transform 0.4s var(--kz-upload-ease);
+}
+
+.kodza-upload__zone:hover .kodza-upload__arrow {
+  transform: translateY(-1.5px);
+}
+
+.kodza-upload.is-over .kodza-upload__arrow {
+  animation: kodza-upload-lift 0.9s var(--kz-upload-ease) infinite alternate;
+}
+
+@keyframes kodza-upload-lift {
+  from {
+    transform: translateY(-1px);
+  }
+
+  to {
+    transform: translateY(-4px);
+  }
+}
+
+.kodza-upload__title {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.kodza-upload__words {
+  display: inline-grid;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.kodza-upload__words > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-upload__title u {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-upload__hint {
+  font-size: 13px;
+  color: var(--kz-upload-muted);
+}
+
+/* The files: each row opens up, then slides in */
+.kodza-upload__list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-upload__item {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s var(--kz-upload-ease);
+}
+
+.kodza-upload__item.is-shown {
+  grid-template-rows: 1fr;
+}
+
+.kodza-upload__row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.45s var(--kz-upload-ease);
+}
+
+.kodza-upload__item.is-shown .kodza-upload__row {
+  padding: 8px 0;
+  opacity: 1;
+  transform: none;
+}
+
+.kodza-upload__item + .kodza-upload__item .kodza-upload__row {
+  border-top: 1px solid var(--kz-upload-soft);
+}
+
+.kodza-upload__thumb {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--kz-upload-soft);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.kodza-upload__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kodza-upload__info {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.kodza-upload__name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kodza-upload__meta {
+  display: flex;
+  gap: 8px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  color: var(--kz-upload-muted);
+}
+
+.kodza-upload__status {
+  display: inline-grid;
+  overflow: hidden;
+}
+
+.kodza-upload__status > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+/* The bar fills, then folds away once done */
+.kodza-upload__bar {
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--kz-upload-soft);
+  transition: opacity 0.4s ease 0.4s;
+}
+
+.kodza-upload__bar span {
+  display: block;
+  height: 100%;
+  background: var(--kz-upload-ink);
+  transform: scaleX(var(--kz-progress, 0));
+  transform-origin: left;
+  transition: transform 0.3s var(--kz-upload-ease);
+}
+
+.kodza-upload__item.is-done .kodza-upload__bar,
+.kodza-upload__item.is-error .kodza-upload__bar,
+.kodza-upload__item.is-ready .kodza-upload__bar {
+  opacity: 0;
+}
+
+.kodza-upload__item.is-error .kodza-upload__meta {
+  color: var(--kz-upload-fg);
+  font-weight: 500;
+}
+
+/* The end of the row: a tick when done, a cross to remove */
+.kodza-upload__end {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kodza-upload__tick {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.45s var(--kz-upload-ease) 0.15s;
+}
+
+.kodza-upload__item.is-done .kodza-upload__tick {
+  stroke-dashoffset: 0;
+}
+
+.kodza-upload__remove {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--kz-upload-muted);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.kodza-upload__remove:hover {
+  background: var(--kz-upload-soft);
+  color: var(--kz-upload-fg);
+}
+
+.kodza-upload__remove:focus-visible {
+  outline: 2px solid var(--kz-upload-fg);
+  outline-offset: 1px;
+}
+
+.kodza-upload__remove svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-upload.is-over .kodza-upload__border rect,
+  .kodza-upload.is-over .kodza-upload__arrow {
+    animation: none;
+  }
+
+  .kodza-upload__zone,
+  .kodza-upload__item,
+  .kodza-upload__row,
+  .kodza-upload__bar,
+  .kodza-upload__bar span,
+  .kodza-upload__tick {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-upload {
+  --kz-upload-bg: #161616;
+  --kz-upload-fg: #f2f2f0;
+  --kz-upload-muted: rgba(242, 242, 240, 0.62);
+  --kz-upload-line: rgba(255, 255, 255, 0.26);
+  --kz-upload-soft: rgba(255, 255, 255, 0.07);
+  --kz-upload-ink: #f2f2f0;
+  --kz-upload-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard 216a801b2b55 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-upload__zone):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-upload:not(#_),
+.kodza-upload__icon:not(#_),
+.kodza-upload__arrow:not(#_),
+.kodza-upload__title:not(#_),
+.kodza-upload__words:not(#_),
+.kodza-upload__hint:not(#_),
+.kodza-upload__words span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-upload__zone:not(#_) {
+  border: revert;
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-upload__input:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-upload__border:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-upload__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-upload__icon svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-upload__words u:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-decoration-line: revert;
+  text-decoration-color: revert;
+  text-decoration-style: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-upload__input:not(#_):where(:not([hidden])),
+.kodza-upload__border:not(#_):where(:not([hidden])),
+.kodza-upload__icon svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-upload__words u:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-upload__input:not(#_):where([hidden]),
+.kodza-upload__border:not(#_):where([hidden]),
+.kodza-upload__icon svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-upload__words u:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-upload:not(#_) {
+  width: min(100%, 460px);
+}
+
+.kodza-upload__zone:not(#_) {
+  position: relative;
+  display: grid;
+  padding: 36px 24px 32px;
+  border-radius: var(--kz-upload-radius);
+  background: var(--kz-upload-bg);
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.4s var(--kz-upload-ease);
+}
+
+.kodza-upload__input:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kodza-upload__border:not(#_) {
+  position: absolute;
+}
+
+.kodza-upload.is-over .kodza-upload__zone:not(#_) {
+  background: var(--kz-upload-soft);
+}
+
+.kodza-upload__zone:has(.kodza-upload__input:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-upload-fg);
+  outline-offset: 3px;
+}
+
+.kodza-upload__title u:not(#_) {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-upload__list:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-upload__zone:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

@@ -1,0 +1,619 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Split Button
+   The main action on the left, an arrow on the right that unrolls the other options in a menu.
+   One tint slides from half to half under the pointer and stays on the arrow while the menu is
+   open. Pick a way of doing it (menuitemradio) and the main label rolls to it, the button easing
+   to its new width.
+   Everything is tuned with the --kz-split-* variables. */
+.kodza-split {
+  --kz-split-bg: #0a0a0a;
+  --kz-split-fg: #ffffff;
+  --kz-split-border: transparent;
+  --kz-split-divider: rgba(255, 255, 255, 0.22);
+  --kz-split-tint: rgba(255, 255, 255, 0.14); /* the hover, under one half */
+  --kz-split-height: 52px;
+  --kz-split-pad-x: 24px;
+  --kz-split-toggle: 50px; /* the arrow's half */
+  --kz-split-menu-bg: #ffffff;
+  --kz-split-menu-fg: #0a0a0a;
+  --kz-split-menu-muted: rgba(10, 10, 10, 0.58);
+  --kz-split-menu-border: rgba(10, 10, 10, 0.1);
+  --kz-split-menu-soft: rgba(10, 10, 10, 0.06);
+  --kz-split-menu-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  --kz-split-menu-width: 240px;
+  --kz-split-duration: 0.35s;
+  --kz-split-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  height: var(--kz-split-height);
+  border-radius: 999px;
+  background: var(--kz-split-bg);
+  box-shadow: inset 0 0 0 1.5px var(--kz-split-border);
+  color: var(--kz-split-fg);
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+  /* A number, not auto, so it can wait for the menu to roll up before dropping back */
+  z-index: 0;
+  transition: z-index 0s linear var(--kz-split-duration);
+}
+
+/* Open, the button rises above what follows it (its menu included) */
+.kodza-split.is-open {
+  z-index: 20;
+  transition-delay: 0s;
+}
+
+/* The second look: a line, no fill */
+.kodza-split--outline {
+  --kz-split-bg: transparent;
+  --kz-split-fg: #0a0a0a;
+  --kz-split-border: rgba(10, 10, 10, 0.9);
+  --kz-split-divider: rgba(10, 10, 10, 0.2);
+  --kz-split-tint: rgba(10, 10, 10, 0.07);
+}
+
+.kodza-split__main,
+.kodza-split__toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kodza-split__main {
+  padding: 0 18px 0 var(--kz-split-pad-x);
+  border-radius: 999px 0 0 999px;
+}
+
+.kodza-split__toggle {
+  justify-content: center;
+  width: var(--kz-split-toggle);
+  padding: 0 4px 0 0;
+  border-radius: 0 999px 999px 0;
+}
+
+/* The line between the two halves */
+.kodza-split__toggle::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  bottom: 15px;
+  left: 0;
+  width: 1px;
+  background: var(--kz-split-divider);
+}
+
+/* Keyboard focus: a ring cut like the tint, round at both ends of its half with 3px of air at
+   the line, not a half-pill whose corners at the divider are square */
+.kodza-split__main:focus-visible,
+.kodza-split__toggle:focus-visible {
+  outline: none;
+}
+
+.kodza-split__main:focus-visible::after,
+.kodza-split__toggle:focus-visible::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 2px solid var(--kz-split-fg);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.kodza-split__main:focus-visible::after {
+  right: 3px;
+}
+
+.kodza-split__toggle:focus-visible::after {
+  left: 3px;
+}
+
+.kodza-split__main:disabled,
+.kodza-split__toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* The label: one word on top of the other, so a new one can roll in */
+.kodza-split__label {
+  display: inline-grid;
+  overflow: hidden;
+  text-align: left;
+  transition: transform 0.18s ease;
+}
+
+.kodza-split__label > span {
+  grid-area: 1 / 1;
+  justify-self: start; /* each word keeps its own width: the button can ease to it */
+}
+
+.kodza-split__chevron {
+  width: 16px;
+  height: 16px;
+  transition: transform var(--kz-split-duration) var(--kz-split-ease);
+}
+
+.kodza-split__toggle[aria-expanded="true"] .kodza-split__chevron {
+  transform: rotate(180deg);
+}
+
+/* Pressed: the half you press gives a little */
+.kodza-split__main:active:not(:disabled) .kodza-split__label {
+  transform: scale(0.97);
+}
+
+/* One tint for both halves, cut out by clip-path around the one under the pointer (the
+   script sends the edges), so it slides from half to half like the family's indicator */
+.kodza-split__tint {
+  position: absolute;
+  inset: 4px;
+  z-index: -1;
+  background: var(--kz-split-tint);
+  opacity: var(--kz-split-tint-on, 0);
+  clip-path: inset(0 var(--kz-split-tint-r, 100%) 0 var(--kz-split-tint-l, 0) round 999px);
+  pointer-events: none;
+}
+
+.kodza-split.is-ready.is-gliding .kodza-split__tint {
+  transition:
+    clip-path 0.3s var(--kz-split-ease),
+    opacity 0.2s ease;
+}
+
+.kodza-split.is-ready:not(.is-gliding) .kodza-split__tint {
+  transition: opacity 0.2s ease;
+}
+
+/* The menu of the navigation family, unrolled from its top edge under the arrow */
+.kodza-split__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: max(100%, var(--kz-split-menu-width));
+  max-width: calc(100vw - 16px);
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--kz-split-menu-bg);
+  box-shadow: 0 0 0 1px var(--kz-split-menu-border), var(--kz-split-menu-shadow);
+  color: var(--kz-split-menu-fg);
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(0 0 100% 0 round 14px);
+  transform: translateY(-4px);
+  transition:
+    clip-path var(--kz-split-duration) var(--kz-split-ease),
+    opacity 0.2s ease,
+    transform var(--kz-split-duration) var(--kz-split-ease),
+    visibility 0s linear var(--kz-split-duration);
+}
+
+.kodza-split.is-open .kodza-split__menu {
+  visibility: visible;
+  opacity: 1;
+  clip-path: inset(-40px -40px -60px -40px round 14px);
+  transform: none;
+  transition-delay: 0s;
+}
+
+/* Not enough room below: it opens upwards; too close to the left edge: it lines up on the left */
+.kodza-split.is-above .kodza-split__menu {
+  top: auto;
+  bottom: calc(100% + 8px);
+  clip-path: inset(100% 0 0 0 round 14px);
+  transform: translateY(4px);
+}
+
+.kodza-split.is-above.is-open .kodza-split__menu {
+  clip-path: inset(-60px -40px -40px -40px round 14px);
+  transform: none;
+}
+
+.kodza-split.is-start .kodza-split__menu {
+  right: auto;
+  left: var(--kz-split-shift, 0px);
+}
+
+/* One highlight for the whole menu, sent to the focused item */
+.kodza-split__highlight {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  left: 6px;
+  height: var(--kz-hl-h, 36px);
+  border-radius: 8px;
+  background: var(--kz-split-menu-soft);
+  opacity: var(--kz-hl-on, 0);
+  transform: translateY(var(--kz-hl-y, 0));
+  pointer-events: none;
+}
+
+.kodza-split.is-open .kodza-split__highlight {
+  transition: transform 0.22s var(--kz-split-ease), opacity 0.15s ease;
+}
+
+.kodza-split__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  height: 36px;
+  margin: 0;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kodza-split__item:focus {
+  outline: none;
+}
+
+.kodza-split__item[aria-disabled="true"] {
+  color: var(--kz-split-menu-muted);
+  cursor: not-allowed;
+}
+
+/* Ways of doing the main action keep room for the check of the current one */
+.kodza-split__item[role="menuitemradio"] {
+  padding-left: 32px;
+}
+
+.kodza-split__item[aria-checked="true"]::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-split__hint {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--kz-split-menu-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kodza-split__separator {
+  height: 1px;
+  margin: 6px -6px;
+  background: var(--kz-split-menu-border);
+}
+
+/* The picked item blinks once, like a desktop menu */
+.kodza-split.is-picking .kodza-split__highlight {
+  animation: kodza-split-blink 0.16s steps(2, jump-none) 2;
+}
+
+@keyframes kodza-split-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-split__menu,
+  .kodza-split.is-open .kodza-split__highlight,
+  .kodza-split.is-ready .kodza-split__tint,
+  .kodza-split__chevron,
+  .kodza-split__label {
+    transition-duration: 0.01ms !important;
+  }
+
+  .kodza-split.is-picking .kodza-split__highlight {
+    animation: none;
+  }
+}
+
+/* kodza-guard 7883a7329a04 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-split__main):not(#_),
+:where(.kodza-split__toggle):not(#_),
+:where(.kodza-split__item):not(#_) {
+  outline: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-split__tint:not(#_),
+.kodza-split__label:not(#_),
+.kodza-split__highlight:not(#_),
+.kodza-split__separator:not(#_),
+.kodza-split__label span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-split__main:not(#_),
+.kodza-split__toggle:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-split__chevron:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-split__menu:not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+.kodza-split__item:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-split__hint:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-split__chevron:not(#_):where(:not([hidden])),
+.kodza-split__hint:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-split__chevron:not(#_):where([hidden]),
+.kodza-split__hint:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-split__toggle:not(#_)::before,
+.kodza-split__main:not(#_)::after,
+.kodza-split__toggle:not(#_)::after,
+.kodza-split__item:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-split__main:not(#_),
+.kodza-split__toggle:not(#_) {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kodza-split__main:not(#_) {
+  padding: 0 18px 0 var(--kz-split-pad-x);
+  border-radius: 999px 0 0 999px;
+}
+
+.kodza-split__toggle:not(#_) {
+  justify-content: center;
+  width: var(--kz-split-toggle);
+  padding: 0 4px 0 0;
+  border-radius: 0 999px 999px 0;
+}
+
+.kodza-split__toggle:not(#_)::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  bottom: 15px;
+  left: 0;
+  width: 1px;
+  background: var(--kz-split-divider);
+}
+
+.kodza-split__main:focus-visible:not(#_),
+.kodza-split__toggle:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-split__main:focus-visible:not(#_)::after,
+.kodza-split__toggle:focus-visible:not(#_)::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 2px solid var(--kz-split-fg);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.kodza-split__main:focus-visible:not(#_)::after {
+  right: 3px;
+}
+
+.kodza-split__toggle:focus-visible:not(#_)::after {
+  left: 3px;
+}
+
+.kodza-split__main:disabled:not(#_),
+.kodza-split__toggle:disabled:not(#_) {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.kodza-split__chevron:not(#_) {
+  transition: transform var(--kz-split-duration) var(--kz-split-ease);
+}
+
+.kodza-split__menu:not(#_) {
+  box-shadow: 0 0 0 1px var(--kz-split-menu-border), var(--kz-split-menu-shadow);
+}
+
+.kodza-split__item:not(#_) {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  height: 36px;
+  margin: 0;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kodza-split__item:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-split__item[aria-disabled="true"]:not(#_) {
+  color: var(--kz-split-menu-muted);
+  cursor: not-allowed;
+}
+
+.kodza-split__item[role="menuitemradio"]:not(#_) {
+  padding-left: 32px;
+}
+
+.kodza-split__item[aria-checked="true"]:not(#_)::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-split__hint:where(kbd):not(#_) {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--kz-split-menu-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-split__chevron:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

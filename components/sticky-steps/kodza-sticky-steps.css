@@ -1,0 +1,550 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Sticky Steps
+   A story told while scrolling: a picture pinned on one side, steps scrolling on the other.
+   When a step reaches the middle of the screen, its picture is drawn over the previous one
+   like a curtain (from below going down, from above going back up), the counter rolls to
+   its number and the bars fill. One image per step, in the same order.
+   Everything is tuned with the --kz-steps-* variables. */
+.kodza-steps {
+  --kz-steps-fg: #0a0a0a;
+  --kz-steps-muted: rgba(10, 10, 10, 0.62);
+  --kz-steps-glass: rgba(255, 255, 255, 0.78);
+  --kz-steps-line: rgba(10, 10, 10, 0.12);
+  --kz-steps-top: 10vh;
+  --kz-steps-height: 80vh;
+  --kz-steps-step: 72vh;
+  --kz-steps-radius: 20px;
+  --kz-steps-duration: 1s;
+  --kz-steps-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --kz-steps-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 64px;
+  color: var(--kz-steps-fg);
+}
+
+/* The pinned picture */
+.kodza-steps__media {
+  position: sticky;
+  top: var(--kz-steps-top);
+  align-self: start;
+  height: var(--kz-steps-height);
+}
+
+.kodza-steps__frame {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--kz-steps-radius);
+  isolation: isolate;
+}
+
+/* Each picture waits outside its curtain; the current one is drawn over the one before */
+.kodza-steps__image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  clip-path: inset(var(--kz-from-top, 100%) 0 var(--kz-from-bottom, 0) 0);
+  transform: scale(1.08);
+}
+
+.kodza-steps__image.is-leaving {
+  z-index: 1;
+  clip-path: inset(0);
+  transform: translateY(calc(var(--kz-steps-dir, 1) * -3%)) scale(1.02);
+  transition: transform var(--kz-steps-duration) var(--kz-steps-ease);
+}
+
+.kodza-steps__image.is-active {
+  z-index: 2;
+  clip-path: inset(0);
+  transform: none;
+}
+
+.kodza-steps.is-live .kodza-steps__image.is-active {
+  transition:
+    clip-path var(--kz-steps-duration) var(--kz-steps-ease),
+    transform calc(var(--kz-steps-duration) * 1.4) var(--kz-steps-out);
+}
+
+/* The counter: a glass pill, its number rolling, one bar per step */
+.kodza-steps__counter {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--kz-steps-glass);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+  color: var(--kz-steps-fg);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-steps__num {
+  display: inline-grid;
+  overflow: hidden;
+}
+
+.kodza-steps__num > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-steps__total {
+  color: var(--kz-steps-muted);
+}
+
+.kodza-steps__bars {
+  display: flex;
+  gap: 3px;
+  margin-left: 8px;
+}
+
+.kodza-steps__bar {
+  width: 14px;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--kz-steps-line);
+}
+
+.kodza-steps__bar::after {
+  content: "";
+  display: block;
+  height: 100%;
+  background: var(--kz-steps-fg);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s var(--kz-steps-out);
+}
+
+.kodza-steps__bar.is-on::after {
+  transform: none;
+}
+
+/* The steps: the one in the middle of the screen is lit */
+.kodza-steps__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-steps__step {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: var(--kz-steps-step);
+  opacity: 0.28;
+  transition: opacity 0.5s ease;
+}
+
+.kodza-steps__step.is-active {
+  opacity: 1;
+}
+
+.kodza-steps__index {
+  margin: 0 0 16px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  color: var(--kz-steps-muted);
+}
+
+.kodza-steps__title {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 56px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.kodza-steps__text {
+  max-width: 24em;
+  margin: 20px 0 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--kz-steps-muted);
+  text-wrap: pretty;
+}
+
+/* Small screens: the picture pinned on top, the steps passing under it */
+@media (max-width: 860px) {
+  .kodza-steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .kodza-steps__media {
+    top: 12px;
+    z-index: 2;
+    height: 44vh;
+  }
+
+  .kodza-steps__step {
+    min-height: 56vh;
+    justify-content: flex-end;
+    padding-bottom: 8vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-steps.is-live .kodza-steps__image.is-active,
+  .kodza-steps__image.is-leaving,
+  .kodza-steps__bar::after,
+  .kodza-steps__step {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-steps {
+  --kz-steps-fg: #f2f2f0;
+  --kz-steps-muted: rgba(242, 242, 240, 0.62);
+  --kz-steps-glass: rgba(22, 22, 22, 0.72);
+  --kz-steps-line: rgba(255, 255, 255, 0.16);
+}
+*/
+
+/* kodza-guard ec2f23d93df8 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-steps__image):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-steps__step):not(#_) {
+  padding-bottom: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-steps:not(#_),
+.kodza-steps__media:not(#_),
+.kodza-steps__frame:not(#_),
+.kodza-steps__num:not(#_),
+.kodza-steps__total:not(#_),
+.kodza-steps__bars:not(#_),
+.kodza-steps__bar:not(#_),
+.kodza-steps__num span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-steps__image:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-steps__counter:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-steps__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-steps__step:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  padding-top: revert;
+  padding-right: revert;
+  padding-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-steps__index:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-steps__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-steps__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-steps__image:not(#_):where(:not([hidden])),
+.kodza-steps__list:not(#_):where(:not([hidden])),
+.kodza-steps__index:not(#_):where(:not([hidden])),
+.kodza-steps__title:not(#_):where(:not([hidden])),
+.kodza-steps__text:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-steps__image:not(#_):where([hidden]),
+.kodza-steps__list:not(#_):where([hidden]),
+.kodza-steps__index:not(#_):where([hidden]),
+.kodza-steps__title:not(#_):where([hidden]),
+.kodza-steps__text:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-steps__bar:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-steps__image:not(#_) {
+  position: absolute;
+}
+
+.kodza-steps__image.is-leaving:not(#_) {
+  transition: transform var(--kz-steps-duration) var(--kz-steps-ease);
+}
+
+.kodza-steps.is-live .kodza-steps__image.is-active:not(#_) {
+  transition: clip-path var(--kz-steps-duration) var(--kz-steps-ease),
+    transform calc(var(--kz-steps-duration) * 1.4) var(--kz-steps-out);
+}
+
+.kodza-steps__counter:not(#_) {
+  position: absolute;
+  display: flex;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--kz-steps-glass);
+  color: var(--kz-steps-fg);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+}
+
+.kodza-steps__list:not(#_) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-steps__step:not(#_) {
+  display: flex;
+  transition: opacity 0.5s ease;
+}
+
+.kodza-steps__index:not(#_) {
+  margin: 0 0 16px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  color: var(--kz-steps-muted);
+}
+
+.kodza-steps__title:not(#_) {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 56px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.kodza-steps__text:not(#_) {
+  max-width: 24em;
+  margin: 20px 0 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--kz-steps-muted);
+}
+
+@media (max-width: 860px) {
+  .kodza-steps__step:not(#_) {
+    padding-bottom: 8vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-steps.is-live .kodza-steps__image.is-active:not(#_),
+  .kodza-steps__image.is-leaving:not(#_),
+  .kodza-steps__step:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,791 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Trapdoor Menu
+   The page tips back on its bottom edge like a trapdoor and shows the menu underneath: the rows
+   draw in, the links rise from their masks as the edge uncovers them, the image follows the link
+   you point at, then the small print. Closing plays it all backwards.
+   Mark the wrapper of your site with data-trapdoor-page, or name it on the menu with
+   data-page="…" (the wrapper of most WordPress themes is found on its own).
+   Everything is tuned with the --kz-trapdoor-* variables. */
+.kodza-trapdoor {
+  --kz-trapdoor-bg: #0a0a0a; /* the menu, under the page */
+  --kz-trapdoor-fg: #f2f2f0;
+  --kz-trapdoor-muted: rgba(242, 242, 240, 0.62);
+  --kz-trapdoor-line: rgba(242, 242, 240, 0.16);
+  --kz-trapdoor-ink: #0a0a0a; /* the Menu button, on the page */
+  --kz-trapdoor-on-ink: #ffffff;
+  --kz-trapdoor-page: auto; /* the page colour while it tips; auto = the first background above it */
+  --kz-trapdoor-top: calc(var(--wp-admin--admin-bar--height, 0px) + 20px); /* match your header, so Close lands right where Menu was (below the WordPress admin bar) */
+  --kz-trapdoor-side: 24px;
+  --kz-trapdoor-size: clamp(28px, min(7.4cqw, calc(16cqh - 46px)), 104px);
+  --kz-trapdoor-angle: 84deg; /* how far the page tips back */
+  --kz-trapdoor-shade: 0.6; /* how dark it gets on the way down */
+  --kz-trapdoor-duration: 1.1s;
+  --kz-trapdoor-ease: cubic-bezier(0.76, 0, 0.24, 1);
+
+  display: inline-block;
+}
+
+.kodza-trapdoor__toggle,
+.kodza-trapdoor__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-trapdoor__toggle {
+  background: var(--kz-trapdoor-ink);
+  color: var(--kz-trapdoor-on-ink);
+}
+
+.kodza-trapdoor__close {
+  background: var(--kz-trapdoor-fg);
+  color: var(--kz-trapdoor-bg);
+}
+
+.kodza-trapdoor__toggle:focus-visible {
+  outline: 2px solid var(--kz-trapdoor-ink);
+  outline-offset: 3px;
+}
+
+.kodza-trapdoor__close:focus-visible,
+.kodza-trapdoor__link:focus-visible,
+.kodza-trapdoor__socials a:focus-visible {
+  outline: 2px solid var(--kz-trapdoor-fg);
+  outline-offset: 4px;
+}
+
+/* Two lines on the button; under the page, the same two lines are crossed */
+.kodza-trapdoor__lines,
+.kodza-trapdoor__cross {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 8px;
+}
+
+.kodza-trapdoor__lines::before,
+.kodza-trapdoor__lines::after,
+.kodza-trapdoor__cross::before,
+.kodza-trapdoor__cross::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+.kodza-trapdoor__lines::before,
+.kodza-trapdoor__cross::before {
+  top: 0;
+}
+
+.kodza-trapdoor__lines::after,
+.kodza-trapdoor__cross::after {
+  top: 6.5px;
+}
+
+.kodza-trapdoor__lines::after {
+  transform-origin: left center;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-trapdoor__toggle:hover .kodza-trapdoor__lines::after {
+  transform: scaleX(0.55);
+}
+
+.kodza-trapdoor__cross::before {
+  transform: translateY(3.25px) rotate(45deg);
+}
+
+.kodza-trapdoor__cross::after {
+  transform: translateY(-3.25px) rotate(-45deg);
+}
+
+/* The menu: fixed over the whole screen. While it is open it sits right under the page */
+.kodza-trapdoor__panel {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  background: var(--kz-trapdoor-bg);
+  color: var(--kz-trapdoor-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: size;
+  -webkit-font-smoothing: antialiased;
+}
+
+.kodza-trapdoor__panel[hidden] {
+  display: none;
+}
+
+.kodza-trapdoor__panel:focus {
+  outline: none;
+}
+
+.kodza-trapdoor__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: var(--kz-trapdoor-top) var(--kz-trapdoor-side) 0;
+}
+
+.kodza-trapdoor__label,
+.kodza-trapdoor__index,
+.kodza-trapdoor__meta,
+.kodza-trapdoor__caption,
+.kodza-trapdoor__info {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-trapdoor-muted);
+}
+
+.kodza-trapdoor__label {
+  margin: 0;
+}
+
+/* Links on the left, the image that follows them on the right, the small print below.
+   The bottom padding keeps clear of the page lying folded at the bottom of the screen */
+.kodza-trapdoor__stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(170px, 23cqw, 320px);
+  grid-template-rows: 1fr auto;
+  gap: clamp(12px, 3cqh, 24px) clamp(32px, 7cqw, 120px);
+  box-sizing: border-box;
+  padding: clamp(12px, 3cqh, 40px) var(--kz-trapdoor-side) calc(var(--kz-trapdoor-fold, 0px) + 20px);
+}
+
+.kodza-trapdoor__nav {
+  position: relative;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.kodza-trapdoor__link {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3ch max-content minmax(0, 1fr);
+  align-items: end;
+  column-gap: clamp(12px, 2cqw, 28px);
+  padding: clamp(5px, 1.1cqh, 9px) 0 clamp(4px, 0.9cqh, 7px);
+  border-radius: 4px;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The row's hairline, drawn from the left as the row arrives */
+.kodza-trapdoor__link::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: var(--kz-trapdoor-line);
+  transform-origin: left center;
+}
+
+.kodza-trapdoor__index {
+  align-self: start;
+  padding-top: 4px;
+  transition: color 0.3s ease;
+}
+
+/* The word rises from behind this mask (room below for descenders, on the right for the nudge) */
+.kodza-trapdoor__mask {
+  display: block;
+  overflow: hidden;
+  padding: 0.08em 0.16em 0.26em 0;
+  margin: -0.08em -0.16em -0.26em 0;
+  font-size: var(--kz-trapdoor-size); /* so these em are the word's */
+}
+
+.kodza-trapdoor__word {
+  display: block;
+  font-size: var(--kz-trapdoor-size);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+  transition: translate 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+}
+
+/* The word keeps its width; the note takes what is left and wraps on a small phone */
+.kodza-trapdoor__meta {
+  padding-bottom: 0.45em;
+  text-align: right;
+  text-wrap: balance;
+}
+
+/* Pointing at a link: the others step back, the image moves next to it */
+.kodza-trapdoor__nav:hover .kodza-trapdoor__link:not(.is-active) .kodza-trapdoor__word,
+.kodza-trapdoor__nav:has(:focus-visible) .kodza-trapdoor__link:not(.is-active) .kodza-trapdoor__word {
+  opacity: 0.4;
+}
+
+.kodza-trapdoor__nav:hover .kodza-trapdoor__link.is-active .kodza-trapdoor__word,
+.kodza-trapdoor__nav:has(:focus-visible) .kodza-trapdoor__link.is-active .kodza-trapdoor__word {
+  translate: 0.1em 0;
+}
+
+.kodza-trapdoor__link.is-active .kodza-trapdoor__index {
+  color: var(--kz-trapdoor-fg);
+}
+
+.kodza-trapdoor__media {
+  position: relative;
+}
+
+.kodza-trapdoor__figure {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(100%, calc((100cqh - 220px) * 0.62));
+  margin: 0;
+  translate: 0 var(--kz-trapdoor-y, 0px);
+  transition: translate 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-trapdoor__figure.is-placing {
+  transition: none;
+}
+
+.kodza-trapdoor__frame {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--kz-trapdoor-line);
+}
+
+.kodza-trapdoor__image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: cover;
+  visibility: hidden;
+}
+
+.kodza-trapdoor__image.is-shown {
+  visibility: visible;
+}
+
+/* One caption per image, stacked; the new one rolls in as the old one rolls out */
+.kodza-trapdoor__caption {
+  display: grid;
+  margin: 12px 0 0;
+  overflow: hidden;
+}
+
+.kodza-trapdoor__caption span {
+  grid-area: 1 / 1;
+  transform: translateY(110%);
+}
+
+.kodza-trapdoor__info {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+}
+
+.kodza-trapdoor__info p {
+  margin: 0;
+}
+
+.kodza-trapdoor__socials {
+  display: flex;
+  gap: 16px;
+}
+
+.kodza-trapdoor__socials a {
+  border-radius: 3px;
+  color: var(--kz-trapdoor-fg);
+  text-decoration: none;
+}
+
+.kodza-trapdoor__socials a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Phones: one column, no image (nothing to point at), no keyboard hint */
+@container (max-width: 720px) {
+  .kodza-trapdoor__stage {
+    --kz-trapdoor-size: clamp(30px, min(11.5cqw, calc(16cqh - 46px)), 60px);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-trapdoor__media {
+    display: none;
+  }
+
+  .kodza-trapdoor__hint {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-trapdoor__lines::after,
+  .kodza-trapdoor__link,
+  .kodza-trapdoor__index,
+  .kodza-trapdoor__word,
+  .kodza-trapdoor__figure {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark site, the menu turns to paper:
+.dark-site .kodza-trapdoor {
+  --kz-trapdoor-bg: #f2f2f0;
+  --kz-trapdoor-fg: #0a0a0a;
+  --kz-trapdoor-muted: rgba(10, 10, 10, 0.62);
+  --kz-trapdoor-line: rgba(10, 10, 10, 0.14);
+  --kz-trapdoor-ink: #f2f2f0;
+  --kz-trapdoor-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard 37d0a76c392f — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-trapdoor__toggle):not(#_),
+:where(.kodza-trapdoor__close):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-trapdoor__panel):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-trapdoor__link):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+}
+
+:where(.kodza-trapdoor__socials a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  text-underline-offset: revert;
+}
+
+:where(.kodza-trapdoor__hint):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-trapdoor__hint):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-trapdoor:not(#_),
+.kodza-trapdoor__lines:not(#_),
+.kodza-trapdoor__bar:not(#_),
+.kodza-trapdoor__cross:not(#_),
+.kodza-trapdoor__index:not(#_),
+.kodza-trapdoor__mask:not(#_),
+.kodza-trapdoor__word:not(#_),
+.kodza-trapdoor__meta:not(#_),
+.kodza-trapdoor__media:not(#_),
+.kodza-trapdoor__figure:not(#_),
+.kodza-trapdoor__frame:not(#_),
+.kodza-trapdoor__info:not(#_),
+.kodza-trapdoor__caption span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-trapdoor__toggle:not(#_),
+.kodza-trapdoor__close:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-trapdoor__panel:not(#_) {
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+.kodza-trapdoor__label:not(#_),
+.kodza-trapdoor__caption:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-trapdoor__nav:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-trapdoor__link:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-trapdoor__image:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-trapdoor__socials:not(#_),
+.kodza-trapdoor__hint:not(#_),
+.kodza-trapdoor__info p:where(:not([class*="kodza-"]):not(.kodza-trapdoor__info [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-trapdoor__socials a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-trapdoor__label:not(#_):where(:not([hidden])),
+.kodza-trapdoor__info p:where(:not([class*="kodza-"]):not(.kodza-trapdoor__info [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-trapdoor__socials a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-trapdoor__label:not(#_):where([hidden]),
+.kodza-trapdoor__info p:where(:not([class*="kodza-"]):not(.kodza-trapdoor__info [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-trapdoor__socials a:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-trapdoor__lines:not(#_)::before,
+.kodza-trapdoor__lines:not(#_)::after,
+.kodza-trapdoor__cross:not(#_)::before,
+.kodza-trapdoor__cross:not(#_)::after,
+.kodza-trapdoor__link:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-trapdoor__toggle:not(#_),
+.kodza-trapdoor__close:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-trapdoor__toggle:not(#_) {
+  background: var(--kz-trapdoor-ink);
+  color: var(--kz-trapdoor-on-ink);
+}
+
+.kodza-trapdoor__close:not(#_) {
+  background: var(--kz-trapdoor-fg);
+  color: var(--kz-trapdoor-bg);
+}
+
+.kodza-trapdoor__toggle:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-trapdoor-ink);
+  outline-offset: 3px;
+}
+
+.kodza-trapdoor__close:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-trapdoor-fg);
+  outline-offset: 4px;
+}
+
+.kodza-trapdoor__link:focus-visible:not(#_),
+.kodza-trapdoor__socials a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-trapdoor-fg);
+  outline-offset: 4px;
+}
+
+.kodza-trapdoor__panel:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-trapdoor__label:not(#_),
+.kodza-trapdoor__caption:not(#_) {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-trapdoor-muted);
+}
+
+.kodza-trapdoor__label:not(#_) {
+  margin: 0;
+}
+
+.kodza-trapdoor__nav:not(#_) {
+  position: relative;
+  display: flex;
+}
+
+.kodza-trapdoor__link:not(#_) {
+  position: relative;
+  display: grid;
+  padding: clamp(5px, 1.1cqh, 9px) 0 clamp(4px, 0.9cqh, 7px);
+  border-radius: 4px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-trapdoor__image:not(#_) {
+  position: absolute;
+  display: block;
+  max-width: 100%;
+}
+
+.kodza-trapdoor__caption:not(#_) {
+  display: grid;
+  margin: 12px 0 0;
+}
+
+.kodza-trapdoor__info p:not(#_) {
+  margin: 0;
+}
+
+.kodza-trapdoor__socials:not(#_) {
+  display: flex;
+}
+
+.kodza-trapdoor__socials a:not(#_) {
+  border-radius: 3px;
+  color: var(--kz-trapdoor-fg);
+  text-decoration: none;
+}
+
+.kodza-trapdoor__socials a:hover:not(#_) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@container (max-width: 720px) {
+  .kodza-trapdoor__hint:not(#_) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-trapdoor__link:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

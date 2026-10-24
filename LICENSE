@@ -1,0 +1,39 @@
+Kodza License
+
+Copyright (c) 2025-2026 Kodza
+
+Kodza components are original works. Their code (the HTML, CSS and JavaScript of
+each component, the React version Kodza provides, and what your AI receives through
+the Kodza MCP server) is free to use.
+
+You may:
+- use them in any number of projects, personal or commercial, including client work;
+- copy, modify and adapt them, and combine them with your own code;
+- ship them as part of a website, an application, a theme, a template or a plugin
+  you build, as long as that product offers more than the components themselves;
+- install and run the Kodza MCP server, and let an AI assistant fetch the
+  components and add them to your project;
+- keep them in your own or your team's snippets;
+- show a component or two in a free article, tutorial or code playground,
+  with a link to Kodza.
+No attribution is required in your projects. A link back is always appreciated.
+
+You may not:
+- sell, sublicense or redistribute the components themselves, alone, in a bundle
+  or as a ported version (React, Vue, Svelte...), Kodza's own React version
+  included, free or paid, modified or not;
+- offer them through another catalogue, registry, marketplace or MCP server;
+- make them the core of a paid course, membership or tutorial series;
+- repackage them with superficial changes, or present them as your own work;
+- use the Kodza name and logo to promote something that is not Kodza.
+
+Not covered by this license: the Kodza website and its design, the demo pages and
+their copy, the preview images and videos, the house images in /media (placeholders:
+swap them for your own before you ship), and the Kodza name and logo.
+All rights reserved.
+
+Copies that break these terms will be reported and taken down.
+
+THE COMPONENTS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY ARISING FROM THE COMPONENTS OR THEIR USE.

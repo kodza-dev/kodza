@@ -1,0 +1,639 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Pattern Background
+   A hero framed by its own pattern. The script measures the content and lines the pattern up on
+   it: four hairlines run along its edges right across the section, a small cross marks each
+   corner like a crop mark, and the content sits on whole cells. The rest of the pattern stays
+   faint and fades out at the edges. Grid by default; --dots, --cross and --diagonal swap the
+   pattern, and --draw traces it all out of the content when the section arrives. No images.
+   Everything is tuned with the --kz-pattern-background-* variables. */
+.kodza-pattern-background {
+  --kz-pattern-background-bg: #f2f2f0;            /* the paper */
+  --kz-pattern-background-ink: #0a0a0a;           /* the pattern, the text, the button */
+  --kz-pattern-background-muted: rgba(10, 10, 10, 0.62);
+  --kz-pattern-background-size: 40px;             /* one cell, in px (dots sit at half of it) */
+  --kz-pattern-background-line: 1px;              /* stroke, and dot radius */
+  --kz-pattern-background-strength: 1;            /* 0.5 is fainter, 2 is twice as present */
+  --kz-pattern-background-air: 24px;              /* the least room between the content and its frame */
+  --kz-pattern-background-mark: 11px;             /* the crosses on the corners of the frame */
+  --kz-pattern-background-fade-x: 14%;            /* how far the left and right edges fade */
+  --kz-pattern-background-fade-y: 24%;            /* same, top and bottom */
+  --kz-pattern-background-draw: 1.6s;             /* --draw: how long the whole trace takes */
+  --kz-pattern-background-ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --kz-pattern-background-height: 600px;
+  --kz-pattern-background-width: 1152px;          /* the text column */
+  --kz-pattern-background-side: clamp(20px, 5vw, 64px);
+
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: var(--kz-pattern-background-height);
+  padding: 120px var(--kz-pattern-background-side) 72px;
+  overflow: hidden;
+  background: var(--kz-pattern-background-bg);
+  color: var(--kz-pattern-background-ink);
+}
+
+/* The pattern: two layers behind the frame, faded on all four edges. Centred on the section until
+   the script has measured the content. The grid puts its rows in ::before and its columns in
+   ::after; the other patterns use ::before alone. */
+.kodza-pattern-background::before,
+.kodza-pattern-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-position: center;
+  background-position: round(50%, 1px) round(50%, 1px);
+  pointer-events: none;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 var(--kz-pattern-background-fade-x), #000 calc(100% - var(--kz-pattern-background-fade-x)), transparent),
+    linear-gradient(to bottom, transparent, #000 var(--kz-pattern-background-fade-y), #000 calc(100% - var(--kz-pattern-background-fade-y)), transparent);
+  mask-image:
+    linear-gradient(to right, transparent, #000 var(--kz-pattern-background-fade-x), #000 calc(100% - var(--kz-pattern-background-fade-x)), transparent),
+    linear-gradient(to bottom, transparent, #000 var(--kz-pattern-background-fade-y), #000 calc(100% - var(--kz-pattern-background-fade-y)), transparent);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/* Grid: rows */
+.kodza-pattern-background::before {
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--kz-pattern-background-ink) calc(var(--kz-pattern-background-strength) * 9%), transparent) 0 var(--kz-pattern-background-line), transparent 0);
+  background-size: 100% var(--kz-pattern-background-size);
+}
+
+/* Grid: columns */
+.kodza-pattern-background::after {
+  background-image: linear-gradient(to right, color-mix(in srgb, var(--kz-pattern-background-ink) calc(var(--kz-pattern-background-strength) * 9%), transparent) 0 var(--kz-pattern-background-line), transparent 0);
+  background-size: var(--kz-pattern-background-size) 100%;
+}
+
+/* --dots: a dot every half cell */
+.kodza-pattern-background--dots::before {
+  background-image: radial-gradient(circle, color-mix(in srgb, var(--kz-pattern-background-ink) calc(var(--kz-pattern-background-strength) * 16%), transparent) var(--kz-pattern-background-line), transparent calc(var(--kz-pattern-background-line) + 0.6px));
+  background-size: calc(var(--kz-pattern-background-size) / 2) calc(var(--kz-pattern-background-size) / 2);
+}
+
+/* --cross: the grid kept only around its crossings, so each one becomes a small plus */
+.kodza-pattern-background--cross::before {
+  background-image:
+    linear-gradient(to bottom, transparent 50%, color-mix(in srgb, var(--kz-pattern-background-ink) calc(var(--kz-pattern-background-strength) * 16%), transparent) 0 calc(50% + var(--kz-pattern-background-line)), transparent 0),
+    linear-gradient(to right, transparent 50%, color-mix(in srgb, var(--kz-pattern-background-ink) calc(var(--kz-pattern-background-strength) * 16%), transparent) 0 calc(50% + var(--kz-pattern-background-line)), transparent 0);
+  background-size: calc(var(--kz-pattern-background-size) * 2) calc(var(--kz-pattern-background-size) * 2);
+  -webkit-mask-image:
+    radial-gradient(circle at calc(50% + var(--kz-pattern-background-line) / 2) calc(50% + var(--kz-pattern-background-line) / 2), #000 5px, transparent 5.5px),
+    linear-gradient(to right, transparent, #000 var(--kz-pattern-background-fade-x), #000 calc(100% - var(--kz-pattern-background-fade-x)), transparent),
+    linear-gradient(to bottom, transparent, #000 var(--kz-pattern-background-fade-y), #000 calc(100% - var(--kz-pattern-background-fade-y)), transparent);
+  mask-image:
+    radial-gradient(circle at calc(50% + var(--kz-pattern-background-line) / 2) calc(50% + var(--kz-pattern-background-line) / 2), #000 5px, transparent 5.5px),
+    linear-gradient(to right, transparent, #000 var(--kz-pattern-background-fade-x), #000 calc(100% - var(--kz-pattern-background-fade-x)), transparent),
+    linear-gradient(to bottom, transparent, #000 var(--kz-pattern-background-fade-y), #000 calc(100% - var(--kz-pattern-background-fade-y)), transparent);
+  -webkit-mask-size: calc(var(--kz-pattern-background-size) * 2) calc(var(--kz-pattern-background-size) * 2), auto, auto;
+  mask-size: calc(var(--kz-pattern-background-size) * 2) calc(var(--kz-pattern-background-size) * 2), auto, auto;
+  -webkit-mask-position: center;
+  -webkit-mask-position: round(50%, 1px) round(50%, 1px);
+  mask-position: center;
+  mask-position: round(50%, 1px) round(50%, 1px);
+  -webkit-mask-repeat: repeat, no-repeat, no-repeat;
+  mask-repeat: repeat, no-repeat, no-repeat;
+}
+
+/* --diagonal: hatching at 45 degrees, about half a cell apart. The step is set across the row
+   (0.7 of a cell, 28px) rather than along the slope, so it is a whole number of pixels and every
+   line lands on the same pixels instead of one crisp, one blurred. */
+.kodza-pattern-background--diagonal::before {
+  background-image: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--kz-pattern-background-ink) calc(var(--kz-pattern-background-strength) * 10%), transparent) 0 var(--kz-pattern-background-line), transparent calc(var(--kz-pattern-background-line) + 0.5px) calc(var(--kz-pattern-background-size) * 0.7 / 1.41421356));
+  background-image: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--kz-pattern-background-ink) calc(var(--kz-pattern-background-strength) * 10%), transparent) 0 var(--kz-pattern-background-line), transparent calc(var(--kz-pattern-background-line) + 0.5px) calc(round(var(--kz-pattern-background-size) * 0.7, 1px) / 1.41421356));
+  background-size: auto;
+}
+
+/* The other patterns live in ::before alone */
+.kodza-pattern-background--dots::after,
+.kodza-pattern-background--cross::after,
+.kodza-pattern-background--diagonal::after {
+  content: none;
+}
+
+/* Lined up: once the script has measured the content, the pattern starts on the corner of the
+   frame, so its lines run along the frame (dots and crosses sit on its crossings). The diagonals
+   keep their own rhythm: only the frame counts for them. */
+.kodza-pattern-background.is-framed {
+  --kz-pattern-background-cx: calc(var(--kz-pattern-background-frame-x) + var(--kz-pattern-background-frame-w) / 2);
+  --kz-pattern-background-cy: calc(var(--kz-pattern-background-frame-y) + var(--kz-pattern-background-frame-h) / 2);
+}
+
+.kodza-pattern-background.is-framed::before,
+.kodza-pattern-background.is-framed::after {
+  background-position: var(--kz-pattern-background-frame-x) var(--kz-pattern-background-frame-y);
+}
+
+.kodza-pattern-background--dots.is-framed::before {
+  background-position: calc(var(--kz-pattern-background-frame-x) - var(--kz-pattern-background-size) / 4 + var(--kz-pattern-background-line) / 2) calc(var(--kz-pattern-background-frame-y) - var(--kz-pattern-background-size) / 4 + var(--kz-pattern-background-line) / 2);
+}
+
+.kodza-pattern-background--cross.is-framed::before {
+  background-position: calc(var(--kz-pattern-background-frame-x) - var(--kz-pattern-background-size)) calc(var(--kz-pattern-background-frame-y) - var(--kz-pattern-background-size));
+  /* Only the crossings move with the frame: the two fades stay on the section */
+  -webkit-mask-position: calc(var(--kz-pattern-background-frame-x) - var(--kz-pattern-background-size)) calc(var(--kz-pattern-background-frame-y) - var(--kz-pattern-background-size)), 0 0, 0 0;
+  mask-position: calc(var(--kz-pattern-background-frame-x) - var(--kz-pattern-background-size)) calc(var(--kz-pattern-background-frame-y) - var(--kz-pattern-background-size)), 0 0, 0 0;
+}
+
+.kodza-pattern-background--diagonal.is-framed::before {
+  background-position: center;
+  background-position: round(50%, 1px) round(50%, 1px);
+}
+
+/* The frame, added by the script: four hairlines a touch stronger than the pattern, along the
+   edges of the frame and right across the section, and a cross on each corner. Solid colours
+   mixed with the paper, so a line never darkens where it crosses another. */
+.kodza-pattern-background__frame {
+  --kz-pattern-background-rule: color-mix(in srgb, var(--kz-pattern-background-ink) calc(var(--kz-pattern-background-strength) * 18%), var(--kz-pattern-background-bg));
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.kodza-pattern-background__frame::before,
+.kodza-pattern-background__frame::after {
+  content: "";
+  position: absolute;
+  box-sizing: border-box;
+}
+
+/* The two rows, from edge to edge: the top and bottom borders of a band as tall as the frame */
+.kodza-pattern-background__frame::before {
+  top: var(--kz-pattern-background-frame-y);
+  right: 0;
+  left: 0;
+  height: calc(var(--kz-pattern-background-frame-h) + var(--kz-pattern-background-line));
+  border-block: var(--kz-pattern-background-line) solid var(--kz-pattern-background-rule);
+  transform-origin: var(--kz-pattern-background-cx) 0;
+}
+
+/* The two columns, from top to bottom */
+.kodza-pattern-background__frame::after {
+  top: 0;
+  bottom: 0;
+  left: var(--kz-pattern-background-frame-x);
+  width: calc(var(--kz-pattern-background-frame-w) + var(--kz-pattern-background-line));
+  border-inline: var(--kz-pattern-background-line) solid var(--kz-pattern-background-rule);
+  transform-origin: 0 var(--kz-pattern-background-cy);
+}
+
+/* The crosses, centred on the corners: top left, top right, bottom left, bottom right. Over the
+   lines they sit on. */
+.kodza-pattern-background__mark {
+  --kz-pattern-background-arm: calc((var(--kz-pattern-background-mark) - var(--kz-pattern-background-line)) / 2);
+  position: absolute;
+  z-index: 1;
+  top: calc(var(--kz-pattern-background-frame-y) - var(--kz-pattern-background-arm));
+  left: calc(var(--kz-pattern-background-frame-x) - var(--kz-pattern-background-arm));
+  width: var(--kz-pattern-background-mark);
+  height: var(--kz-pattern-background-mark);
+}
+
+.kodza-pattern-background__mark:nth-child(even) {
+  left: calc(var(--kz-pattern-background-frame-x) + var(--kz-pattern-background-frame-w) - var(--kz-pattern-background-arm));
+}
+
+.kodza-pattern-background__mark:nth-child(n + 3) {
+  top: calc(var(--kz-pattern-background-frame-y) + var(--kz-pattern-background-frame-h) - var(--kz-pattern-background-arm));
+}
+
+.kodza-pattern-background__mark::before,
+.kodza-pattern-background__mark::after {
+  content: "";
+  position: absolute;
+  background: color-mix(in srgb, var(--kz-pattern-background-ink) calc(var(--kz-pattern-background-strength) * 50%), var(--kz-pattern-background-bg));
+}
+
+.kodza-pattern-background__mark::before {
+  top: var(--kz-pattern-background-arm);
+  left: 0;
+  width: 100%;
+  height: var(--kz-pattern-background-line);
+}
+
+.kodza-pattern-background__mark::after {
+  top: 0;
+  left: var(--kz-pattern-background-arm);
+  width: var(--kz-pattern-background-line);
+  height: 100%;
+}
+
+/* --draw: the trace starts from the content. The four lines grow out of the frame to the edges of
+   the section, the crosses mark the corners as they land, then the pattern spreads out from
+   behind the words. Played by CSS on page load; the script holds a section that starts below the
+   fold until it arrives. */
+.kodza-pattern-background--draw .kodza-pattern-background__frame::before {
+  animation: kodza-pattern-background-across calc(var(--kz-pattern-background-draw) * 0.56) var(--kz-pattern-background-ease) both;
+}
+
+.kodza-pattern-background--draw .kodza-pattern-background__frame::after {
+  animation: kodza-pattern-background-down calc(var(--kz-pattern-background-draw) * 0.56) var(--kz-pattern-background-ease) both;
+}
+
+.kodza-pattern-background--draw .kodza-pattern-background__mark::before {
+  animation: kodza-pattern-background-across calc(var(--kz-pattern-background-draw) * 0.2) var(--kz-pattern-background-ease) calc(var(--kz-pattern-background-draw) * 0.36) both;
+}
+
+.kodza-pattern-background--draw .kodza-pattern-background__mark::after {
+  animation: kodza-pattern-background-down calc(var(--kz-pattern-background-draw) * 0.2) var(--kz-pattern-background-ease) calc(var(--kz-pattern-background-draw) * 0.36) both;
+}
+
+.kodza-pattern-background--draw::before,
+.kodza-pattern-background--draw::after {
+  animation: kodza-pattern-background-spread calc(var(--kz-pattern-background-draw) * 0.56) var(--kz-pattern-background-ease) calc(var(--kz-pattern-background-draw) * 0.44) both;
+}
+
+.kodza-pattern-background--draw.is-waiting::before,
+.kodza-pattern-background--draw.is-waiting::after,
+.kodza-pattern-background--draw.is-waiting .kodza-pattern-background__frame::before,
+.kodza-pattern-background--draw.is-waiting .kodza-pattern-background__frame::after,
+.kodza-pattern-background--draw.is-waiting .kodza-pattern-background__mark::before,
+.kodza-pattern-background--draw.is-waiting .kodza-pattern-background__mark::after {
+  visibility: hidden;
+  animation: none;
+}
+
+@keyframes kodza-pattern-background-across {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes kodza-pattern-background-down {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes kodza-pattern-background-spread {
+  from {
+    clip-path: inset(var(--kz-pattern-background-cy, 50%) calc(100% - var(--kz-pattern-background-cx, 50%)) calc(100% - var(--kz-pattern-background-cy, 50%)) var(--kz-pattern-background-cx, 50%));
+    opacity: 0;
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+/* On a phone the frame cannot always keep its air in whole cells: the script then pads the content
+   inwards (--kz-pattern-background-squeeze), so the words keep their distance from the lines. */
+.kodza-pattern-background__content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--kz-pattern-background-width);
+  margin: 0 auto;
+  padding-inline: var(--kz-pattern-background-squeeze, 0px);
+}
+
+.kodza-pattern-background__eyebrow {
+  margin: 0 0 20px;
+  color: var(--kz-pattern-background-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.kodza-pattern-background__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 28px 64px;
+}
+
+.kodza-pattern-background__title {
+  margin: 0;
+  font-size: clamp(44px, 6.6vw, 88px);
+  font-weight: 600;
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+}
+
+.kodza-pattern-background__line {
+  display: block;
+}
+
+.kodza-pattern-background__lead {
+  max-width: 30em;
+  margin: 0 0 24px;
+  color: var(--kz-pattern-background-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.kodza-pattern-background__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+}
+
+.kodza-pattern-background__button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--kz-pattern-background-ink);
+  color: var(--kz-pattern-background-bg);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.18s ease;
+}
+
+.kodza-pattern-background__button:hover {
+  opacity: 0.86;
+}
+
+/* Opaque, so the pattern does not show through the button */
+.kodza-pattern-background__button--ghost {
+  background: var(--kz-pattern-background-bg);
+  color: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.kodza-pattern-background__button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  .kodza-pattern-background {
+    padding: 96px var(--kz-pattern-background-side) 56px;
+  }
+
+  .kodza-pattern-background__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+}
+
+/* Reduced motion: the frame and the pattern are simply there */
+@media (prefers-reduced-motion: reduce) {
+  .kodza-pattern-background::before,
+  .kodza-pattern-background::after,
+  .kodza-pattern-background__frame::before,
+  .kodza-pattern-background__frame::after,
+  .kodza-pattern-background__mark::before,
+  .kodza-pattern-background__mark::after {
+    animation: none !important;
+  }
+
+  .kodza-pattern-background__button {
+    transition: none;
+  }
+}
+
+/* kodza-guard 4ae98caa2246 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-pattern-background__button):not(#_) {
+  outline: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-pattern-background__frame:not(#_),
+.kodza-pattern-background__mark:not(#_),
+.kodza-pattern-background__grid:not(#_),
+.kodza-pattern-background__line:not(#_),
+.kodza-pattern-background__side:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-pattern-background__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pattern-background__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pattern-background__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pattern-background__actions:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pattern-background__button:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pattern-background__eyebrow:not(#_):where(:not([hidden])),
+.kodza-pattern-background__title:not(#_):where(:not([hidden])),
+.kodza-pattern-background__lead:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-pattern-background__eyebrow:not(#_):where([hidden]),
+.kodza-pattern-background__title:not(#_):where([hidden]),
+.kodza-pattern-background__lead:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-pattern-background:not(#_)::before,
+.kodza-pattern-background:not(#_)::after,
+.kodza-pattern-background__mark:not(#_)::before,
+.kodza-pattern-background__mark:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-pattern-background__eyebrow:not(#_) {
+  margin: 0 0 20px;
+  color: var(--kz-pattern-background-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.kodza-pattern-background__title:not(#_) {
+  margin: 0;
+  font-size: clamp(44px, 6.6vw, 88px);
+  font-weight: 600;
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+}
+
+.kodza-pattern-background__lead:not(#_) {
+  max-width: 30em;
+  margin: 0 0 24px;
+  color: var(--kz-pattern-background-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+}
+
+.kodza-pattern-background__actions:not(#_) {
+  display: flex;
+  margin: 0;
+}
+
+.kodza-pattern-background__button:not(#_) {
+  box-sizing: border-box;
+  display: inline-flex;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--kz-pattern-background-ink);
+  color: var(--kz-pattern-background-bg);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: opacity 0.18s ease;
+}
+
+.kodza-pattern-background__button--ghost:not(#_) {
+  background: var(--kz-pattern-background-bg);
+  color: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.kodza-pattern-background__button:focus-visible:not(#_) {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-pattern-background__button:not(#_) {
+    transition: none;
+  }
+}

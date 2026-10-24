@@ -1,0 +1,40 @@
+<div class="kodza-dialog">
+  <button class="kodza-dialog__trigger" type="button">Edit profile</button>
+  <dialog class="kodza-dialog__panel">
+    <form class="kodza-dialog__form" method="dialog">
+      <header class="kodza-dialog__head">
+        <h2 class="kodza-dialog__title">Edit profile</h2>
+        <p class="kodza-dialog__text">This is how other devs see you. Choose wisely.</p>
+      </header>
+      <div class="kodza-dialog__body">
+        <label class="kodza-dialog__field"><span>Name</span><input type="text" name="name" value="Ada Lovelace" autocomplete="name"></label>
+        <label class="kodza-dialog__field"><span>Bio</span><input type="text" name="bio" value="Wrote the first program. Still no merge conflicts." autocomplete="off"></label>
+      </div>
+      <footer class="kodza-dialog__foot">
+        <button class="kodza-dialog__button" type="submit" value="cancel" formnovalidate>Cancel</button>
+        <button class="kodza-dialog__button kodza-dialog__button--ink" type="submit" value="save">Save changes</button>
+      </footer>
+      <button class="kodza-dialog__close" type="submit" value="cancel" formnovalidate aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </form>
+  </dialog>
+</div>
+
+<div class="kodza-dialog kodza-dialog--alert" data-confirm="kodza-site">
+  <button class="kodza-dialog__trigger kodza-dialog__trigger--danger" type="button">Delete project</button>
+  <dialog class="kodza-dialog__panel">
+    <form class="kodza-dialog__form" method="dialog">
+      <header class="kodza-dialog__head">
+        <span class="kodza-dialog__icon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M10 3 18 17H2z"/><path d="M10 8v4M10 14.5v.2"/></svg></span>
+        <h2 class="kodza-dialog__title">Delete kodza-site?</h2>
+        <p class="kodza-dialog__text">This deletes the project, its 214 deploys and every "final-v3" file. There is no undo, and no backup either. We checked.</p>
+      </header>
+      <div class="kodza-dialog__body">
+        <label class="kodza-dialog__field"><span>Type <b>kodza-site</b> to confirm</span><input class="kodza-dialog__confirm" type="text" name="confirm" autocomplete="off" spellcheck="false"></label>
+      </div>
+      <footer class="kodza-dialog__foot">
+        <button class="kodza-dialog__button" type="submit" value="cancel" formnovalidate>Keep it</button>
+        <button class="kodza-dialog__button kodza-dialog__button--ink kodza-dialog__go" type="submit" value="delete" disabled>Delete forever</button>
+      </footer>
+    </form>
+  </dialog>
+</div>

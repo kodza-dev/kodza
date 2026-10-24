@@ -1,0 +1,455 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Radio
+   Real radio buttons, redrawn, with one dot for the whole group: pick another option and the
+   dot travels to it, stretching on the way like a drop of ink, instead of one fading out and
+   another fading in. With --cards, the options are cards in a row.
+   Everything is tuned with the --kz-radio-* variables. */
+.kodza-radio {
+  --kz-radio-bg: #ffffff;
+  --kz-radio-fg: #0a0a0a;
+  --kz-radio-muted: rgba(10, 10, 10, 0.6);
+  --kz-radio-line: rgba(10, 10, 10, 0.2);
+  --kz-radio-soft: rgba(10, 10, 10, 0.06);
+  --kz-radio-ink: #0a0a0a;
+  --kz-radio-size: 20px;
+  --kz-radio-dot: 8px;
+  --kz-radio-duration: 0.5s;
+  --kz-radio-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--kz-radio-fg);
+}
+
+.kodza-radio__legend {
+  margin-bottom: 10px;
+  padding: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  color: var(--kz-radio-muted);
+}
+
+.kodza-radio__item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 -10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-radio__item:hover {
+  background: var(--kz-radio-soft);
+}
+
+.kodza-radio__input {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: var(--kz-radio-size);
+  height: var(--kz-radio-size);
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.kodza-radio__ring {
+  flex: none;
+  width: var(--kz-radio-size);
+  height: var(--kz-radio-size);
+  border-radius: 50%;
+  background: var(--kz-radio-bg);
+  box-shadow: inset 0 0 0 1.5px var(--kz-radio-line);
+  transition: box-shadow 0.3s ease, transform 0.25s var(--kz-radio-ease);
+}
+
+.kodza-radio__item:hover .kodza-radio__ring {
+  box-shadow: inset 0 0 0 1.5px var(--kz-radio-muted);
+}
+
+.kodza-radio__item:active .kodza-radio__ring {
+  transform: scale(0.88);
+}
+
+.kodza-radio__input:checked + .kodza-radio__ring {
+  box-shadow: inset 0 0 0 1.5px var(--kz-radio-ink);
+}
+
+/* The ring firms up when the dot lands, not when it leaves */
+.kodza-radio.is-ready .kodza-radio__input:checked + .kodza-radio__ring {
+  transition-delay: calc(var(--kz-radio-duration) * 0.6), 0s;
+}
+
+.kodza-radio__input:focus-visible + .kodza-radio__ring {
+  outline: 2px solid var(--kz-radio-fg);
+  outline-offset: 2px;
+}
+
+/* The one dot of the group (added by the script; without it, each ring shows its own) */
+.kodza-radio__dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--kz-radio-dot);
+  height: var(--kz-radio-dot);
+  border-radius: 999px;
+  background: var(--kz-radio-ink);
+  pointer-events: none;
+  transform: translate(var(--kz-dot-x, 0), var(--kz-dot-y, 0));
+}
+
+.kodza-radio:not(.is-ready) .kodza-radio__input:checked + .kodza-radio__ring {
+  box-shadow: inset 0 0 0 1.5px var(--kz-radio-ink), inset 0 0 0 6px var(--kz-radio-bg), inset 0 0 0 10px var(--kz-radio-ink);
+}
+
+.kodza-radio__text {
+  display: grid;
+  gap: 2px;
+  padding-top: 1px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.kodza-radio__text small {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--kz-radio-muted);
+}
+
+.kodza-radio__item:has(.kodza-radio__input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* --cards: the options are cards in a row */
+.kodza-radio--cards {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.kodza-radio--cards .kodza-radio__legend {
+  float: left;
+  width: 100%;
+}
+
+.kodza-radio--cards .kodza-radio__item {
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--kz-radio-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-radio-line);
+  transition: box-shadow 0.25s ease, transform 0.25s var(--kz-radio-ease);
+}
+
+.kodza-radio--cards .kodza-radio__item:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-radio-muted);
+}
+
+.kodza-radio--cards .kodza-radio__item:has(.kodza-radio__input:checked) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-radio-ink);
+}
+
+.kodza-radio--cards .kodza-radio__item:active {
+  transform: scale(0.98);
+}
+
+.kodza-radio--cards .kodza-radio__input {
+  top: 16px;
+  left: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-radio__item,
+  .kodza-radio__ring {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-radio {
+  --kz-radio-bg: #161616;
+  --kz-radio-fg: #f2f2f0;
+  --kz-radio-muted: rgba(242, 242, 240, 0.62);
+  --kz-radio-line: rgba(255, 255, 255, 0.24);
+  --kz-radio-soft: rgba(255, 255, 255, 0.07);
+  --kz-radio-ink: #f2f2f0;
+}
+*/
+
+/* kodza-guard fa4b1521ed35 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-radio__legend):not(#_) {
+  float: revert;
+}
+
+:where(.kodza-radio__item):not(#_) {
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-radio:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-radio__legend:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+}
+
+.kodza-radio__item:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-radio__input:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-radio__ring:not(#_),
+.kodza-radio__text:not(#_),
+.kodza-radio__dot:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-radio__text small:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-radio__legend:not(#_):where(:not([hidden])),
+.kodza-radio__input:not(#_):where(:not([hidden])),
+.kodza-radio__text small:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-radio__legend:not(#_):where([hidden]),
+.kodza-radio__input:not(#_):where([hidden]),
+.kodza-radio__text small:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-radio:not(#_) {
+  position: relative;
+  display: grid;
+  padding: 0;
+  border: 0;
+  color: var(--kz-radio-fg);
+}
+
+.kodza-radio__legend:not(#_) {
+  margin-bottom: 10px;
+  padding: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  color: var(--kz-radio-muted);
+}
+
+.kodza-radio__item:not(#_) {
+  position: relative;
+  display: flex;
+  margin: 0 -10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-radio__item:hover:not(#_) {
+  background: var(--kz-radio-soft);
+}
+
+.kodza-radio__input:not(#_) {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: var(--kz-radio-size);
+  height: var(--kz-radio-size);
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.kodza-radio__text small:not(#_) {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--kz-radio-muted);
+}
+
+.kodza-radio--cards .kodza-radio__legend:not(#_) {
+  float: left;
+}
+
+.kodza-radio--cards .kodza-radio__item:not(#_) {
+  margin: 0;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--kz-radio-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-radio-line);
+  transition: box-shadow 0.25s ease, transform 0.25s var(--kz-radio-ease);
+}
+
+.kodza-radio--cards .kodza-radio__item:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-radio-muted);
+}
+
+.kodza-radio--cards .kodza-radio__item:has(.kodza-radio__input:checked):not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-radio-ink);
+}
+
+.kodza-radio--cards .kodza-radio__input:not(#_) {
+  top: 16px;
+  left: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-radio__item:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,887 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Multi Select
+   A real multiple select, as a field of tags: type to filter, pick with a click or Enter, and
+   the tag pops into the field. Remove it with its cross or Backspace: it shrinks away while the
+   others glide into its place, and the field eases to its new height. The real select stays
+   in step for the form. Same box as Select.
+   Everything is tuned with the --kz-multi-* variables. */
+.kodza-multi {
+  --kz-multi-bg: #ffffff;
+  --kz-multi-fg: #0a0a0a;
+  --kz-multi-muted: rgba(10, 10, 10, 0.6);
+  --kz-multi-line: rgba(10, 10, 10, 0.14);
+  --kz-multi-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-multi-soft: rgba(10, 10, 10, 0.06);
+  --kz-multi-ink: #0a0a0a;
+  --kz-multi-on-ink: #ffffff;
+  --kz-multi-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  --kz-multi-radius: 12px;
+  --kz-multi-pad: 16px;
+  --kz-multi-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  /* The closed list keeps its size, ready to unroll, but never lengthens the page */
+  contain: layout;
+  /* A number, not auto, so it can wait for the list to roll up before dropping back */
+  z-index: 0;
+  transition: z-index 0s linear 0.35s;
+  color: var(--kz-multi-fg);
+}
+
+/* Open, the field rises above what follows it (its list included) */
+.kodza-multi.is-open {
+  z-index: 20;
+  transition-delay: 0s;
+}
+
+.kodza-multi__label {
+  position: absolute;
+  top: 10px;
+  left: var(--kz-multi-pad);
+  z-index: 1;
+  color: var(--kz-multi-muted);
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Without JS: the native multiple select, styled */
+.kodza-multi__native {
+  width: 100%;
+  min-height: 120px;
+  padding: 30px var(--kz-multi-pad) 8px;
+  border: 0;
+  border-radius: var(--kz-multi-radius);
+  background: var(--kz-multi-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-multi-line);
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+}
+
+.kodza-multi.is-ready .kodza-multi__native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+/* The field: tags and the filter input, wrapping */
+.kodza-multi__field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 56px;
+  padding: 28px 44px 8px 12px;
+  border-radius: var(--kz-multi-radius);
+  background: var(--kz-multi-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-multi-line);
+  box-sizing: border-box;
+  cursor: text;
+  transition: box-shadow 0.25s ease;
+}
+
+.kodza-multi__field:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-multi-line-hover);
+}
+
+.kodza-multi__field:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-multi-fg), 0 0 0 4px var(--kz-multi-soft);
+}
+
+.kodza-multi__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 4px 0 10px;
+  border-radius: 999px;
+  background: var(--kz-multi-ink);
+  color: var(--kz-multi-on-ink);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.kodza-multi__tag.is-new {
+  animation: kodza-multi-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes kodza-multi-pop {
+  from {
+    transform: scale(0.6);
+  }
+}
+
+.kodza-multi__remove {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.kodza-multi__remove:hover {
+  background: rgba(255, 255, 255, 0.18);
+  opacity: 1;
+}
+
+.kodza-multi__remove:focus-visible {
+  outline: 2px solid var(--kz-multi-on-ink);
+  outline-offset: -2px;
+}
+
+.kodza-multi__remove svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.kodza-multi__input {
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 88px;
+  height: 28px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.kodza-multi__input::placeholder {
+  color: var(--kz-multi-muted);
+}
+
+.kodza-multi__chevron {
+  position: absolute;
+  top: 20px;
+  right: 16px;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--kz-multi-muted);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+  transition: transform 0.35s var(--kz-multi-ease);
+}
+
+.kodza-multi.is-open .kodza-multi__chevron {
+  transform: rotate(180deg);
+}
+
+/* The list unrolls under the field */
+.kodza-multi__list {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  max-height: 260px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 14px;
+  background: var(--kz-multi-bg);
+  box-shadow: 0 0 0 1px var(--kz-multi-line), var(--kz-multi-shadow);
+  list-style: none;
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(0 0 100% 0 round 14px);
+  transform: translateY(-4px);
+  transition:
+    clip-path 0.35s var(--kz-multi-ease),
+    opacity 0.2s ease,
+    transform 0.35s var(--kz-multi-ease),
+    visibility 0s linear 0.35s;
+}
+
+.kodza-multi.is-open .kodza-multi__list {
+  visibility: visible;
+  opacity: 1;
+  clip-path: inset(-40px -40px -60px -40px round 14px);
+  transform: none;
+  transition-delay: 0s;
+}
+
+/* Not enough room below: it unrolls upwards, from the top of the field */
+.kodza-multi.is-above .kodza-multi__list {
+  top: auto;
+  bottom: calc(100% + 8px);
+  clip-path: inset(100% 0 0 0 round 14px);
+  transform: translateY(4px);
+}
+
+.kodza-multi.is-above.is-open .kodza-multi__list {
+  clip-path: inset(-60px -40px -40px -40px round 14px);
+  transform: none;
+}
+
+.kodza-multi__highlight {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  left: 6px;
+  height: var(--kz-hl-h, 36px);
+  border-radius: 8px;
+  background: var(--kz-multi-soft);
+  opacity: var(--kz-hl-on, 0);
+  transform: translateY(var(--kz-hl-y, 0));
+  pointer-events: none;
+}
+
+.kodza-multi.is-open .kodza-multi__highlight {
+  transition: transform 0.22s var(--kz-multi-ease), opacity 0.15s ease;
+}
+
+.kodza-multi__option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.kodza-multi__option[hidden] {
+  display: none;
+}
+
+.kodza-multi__option[aria-disabled="true"] {
+  color: var(--kz-multi-muted);
+  cursor: not-allowed;
+}
+
+/* A small checkbox per option: ink grows, the tick draws */
+.kodza-multi__box {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 1.5px var(--kz-multi-line-hover);
+}
+
+.kodza-multi__box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--kz-multi-ink);
+  transform: scale(0);
+  transition: transform 0.2s ease-in;
+}
+
+.kodza-multi__box svg {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  fill: none;
+  stroke: var(--kz-multi-on-ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.12s ease-in;
+}
+
+.kodza-multi__option[aria-selected="true"] .kodza-multi__box::before {
+  transform: none;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kodza-multi__option[aria-selected="true"] .kodza-multi__box svg {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.3s var(--kz-multi-ease) 0.1s;
+}
+
+.kodza-multi__option mark {
+  background: none;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.kodza-multi__empty {
+  padding: 18px 10px;
+  font-size: 13px;
+  color: var(--kz-multi-muted);
+  text-align: center;
+}
+
+.kodza-multi__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-multi__tag.is-new {
+    animation: none;
+  }
+
+  .kodza-multi__field,
+  .kodza-multi__chevron,
+  .kodza-multi__list,
+  .kodza-multi.is-open .kodza-multi__highlight,
+  .kodza-multi__box::before,
+  .kodza-multi__box svg {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-multi {
+  --kz-multi-bg: #161616;
+  --kz-multi-fg: #f2f2f0;
+  --kz-multi-muted: rgba(242, 242, 240, 0.62);
+  --kz-multi-line: rgba(255, 255, 255, 0.14);
+  --kz-multi-line-hover: rgba(255, 255, 255, 0.3);
+  --kz-multi-soft: rgba(255, 255, 255, 0.08);
+  --kz-multi-ink: #f2f2f0;
+  --kz-multi-on-ink: #0a0a0a;
+  --kz-multi-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+}
+*/
+
+/* kodza-guard 9252a22a6069 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-multi__native):not(#_) {
+  position: revert;
+}
+
+:where(.kodza-multi__remove):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-multi__highlight):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-multi__option):not(#_) {
+  color: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-multi:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi__label:not(#_),
+.kodza-multi__tag:not(#_),
+.kodza-multi__box:not(#_),
+.kodza-multi__text:not(#_),
+.kodza-multi__live:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-multi__native:not(#_) {
+  margin: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+}
+
+.kodza-multi__remove:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-multi__input:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-multi__chevron:not(#_),
+.kodza-multi__box svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi__list:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi__highlight:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi__option:not(#_) {
+  border: revert;
+  margin: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi__empty:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi__native option:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+  color: revert;
+}
+
+.kodza-multi__remove svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi__native:not(#_):where(:not([hidden])),
+.kodza-multi__input:not(#_):where(:not([hidden])),
+.kodza-multi__chevron:not(#_):where(:not([hidden])),
+.kodza-multi__list:not(#_):where(:not([hidden])),
+.kodza-multi__highlight:not(#_):where(:not([hidden])),
+.kodza-multi__empty:not(#_):where(:not([hidden])),
+.kodza-multi__remove svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-multi__box svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-multi__native:not(#_):where([hidden]),
+.kodza-multi__input:not(#_):where([hidden]),
+.kodza-multi__chevron:not(#_):where([hidden]),
+.kodza-multi__list:not(#_):where([hidden]),
+.kodza-multi__highlight:not(#_):where([hidden]),
+.kodza-multi__empty:not(#_):where([hidden]),
+.kodza-multi__remove svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-multi__box svg:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-multi__box:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-multi:not(#_) {
+  position: relative;
+  display: block;
+  transition: z-index 0s linear 0.35s;
+  color: var(--kz-multi-fg);
+}
+
+.kodza-multi:not(#_) {
+  width: min(100%, 420px);
+}
+
+.kodza-multi.is-open:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-multi__native:not(#_) {
+  width: 100%;
+  min-height: 120px;
+  padding: 30px var(--kz-multi-pad) 8px;
+  border: 0;
+  border-radius: var(--kz-multi-radius);
+  background: var(--kz-multi-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-multi-line);
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+}
+
+.kodza-multi.is-ready .kodza-multi__native:not(#_) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+.kodza-multi__remove:not(#_) {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.kodza-multi__remove:hover:not(#_) {
+  background: rgba(255, 255, 255, 0.18);
+  opacity: 1;
+}
+
+.kodza-multi__remove:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-multi-on-ink);
+  outline-offset: -2px;
+}
+
+.kodza-multi__input:not(#_) {
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 88px;
+  height: 28px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.kodza-multi__input:not(#_)::placeholder {
+  color: var(--kz-multi-muted);
+}
+
+.kodza-multi__chevron:not(#_) {
+  position: absolute;
+  transition: transform 0.35s var(--kz-multi-ease);
+}
+
+.kodza-multi__list:not(#_) {
+  position: absolute;
+  max-height: 260px;
+  margin: 0;
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--kz-multi-bg);
+  box-shadow: 0 0 0 1px var(--kz-multi-line), var(--kz-multi-shadow);
+  list-style: none;
+  transition: clip-path 0.35s var(--kz-multi-ease),
+    opacity 0.2s ease,
+    transform 0.35s var(--kz-multi-ease),
+    visibility 0s linear 0.35s;
+}
+
+.kodza-multi.is-open .kodza-multi__list:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-multi__highlight:not(#_) {
+  position: absolute;
+  border-radius: 8px;
+  background: var(--kz-multi-soft);
+}
+
+.kodza-multi.is-open .kodza-multi__highlight:not(#_) {
+  transition: transform 0.22s var(--kz-multi-ease), opacity 0.15s ease;
+}
+
+.kodza-multi__option:not(#_) {
+  position: relative;
+  display: flex;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.kodza-multi__option[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-multi__option[aria-disabled="true"]:not(#_) {
+  color: var(--kz-multi-muted);
+}
+
+.kodza-multi__box svg:not(#_) {
+  position: relative;
+  transition: stroke-dashoffset 0.12s ease-in;
+}
+
+.kodza-multi__option[aria-selected="true"] .kodza-multi__box svg:not(#_) {
+  transition: stroke-dashoffset 0.3s var(--kz-multi-ease) 0.1s;
+}
+
+.kodza-multi__empty:not(#_) {
+  padding: 18px 10px;
+  font-size: 13px;
+  color: var(--kz-multi-muted);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-multi__chevron:not(#_),
+  .kodza-multi__list:not(#_),
+  .kodza-multi.is-open .kodza-multi__highlight:not(#_),
+  .kodza-multi__box svg:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

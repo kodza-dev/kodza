@@ -1,0 +1,371 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Hold to Confirm
+   For the actions you cannot take back: press and hold (mouse, finger, Space or Enter), an ink
+   pill grows inside the button, and the words turn white exactly under its edge. Let go too
+   early and it drains back, nothing happens. Hold to the end: a tick, and "kodza:confirm".
+   The hold time is data-hold (ms, 1600 by default). The width never moves.
+   Everything is tuned with the --kz-hold-* variables. */
+.kodza-hold-to-confirm {
+  --kz-hold-bg: rgba(10, 10, 10, 0.07);
+  --kz-hold-fg: #0a0a0a;
+  --kz-hold-fill: #0a0a0a;
+  --kz-hold-fill-fg: #ffffff;
+  --kz-hold-ring: #0a0a0a;
+  --kz-hold-height: 52px;
+  --kz-hold-pad-x: 28px;
+  --kz-hold-icon: 18px;
+  --kz-hold-gap: 10px;
+  --kz-hold-peek: 12px; /* how far the ink shows on hover */
+  --kz-hold-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: inline-grid;
+  height: var(--kz-hold-height);
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-hold-bg);
+  color: var(--kz-hold-fg);
+  font: inherit;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform 0.25s var(--kz-hold-ease);
+}
+
+.kodza-hold-to-confirm:focus-visible {
+  outline: 2px solid var(--kz-hold-ring);
+  outline-offset: 3px;
+}
+
+.kodza-hold-to-confirm:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Hover: the ink peeks in at the left edge, the very first instant of the fill */
+.kodza-hold-to-confirm::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--kz-hold-height) * -1);
+  width: calc(var(--kz-hold-height) + var(--kz-hold-peek));
+  border-radius: 999px;
+  background: var(--kz-hold-fill);
+  /* Parked a little further than its own peek: no antialiased tip left at the edge */
+  transform: translateX(calc(var(--kz-hold-peek) * -1 - 4px));
+  transition: transform 0.3s var(--kz-hold-ease);
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .kodza-hold-to-confirm:hover:not(:disabled)::before {
+    transform: none;
+  }
+}
+
+.kodza-hold-to-confirm:focus-visible::before {
+  transform: none;
+}
+
+/* Held: the button sinks a little deeper the longer you hold */
+.kodza-hold-to-confirm.is-holding {
+  transform: scale(calc(0.985 - 0.025 * var(--kz-hold-p, 0)));
+}
+
+/* Confirmed: it springs back up */
+.kodza-hold-to-confirm[data-state="done"] {
+  cursor: default;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kodza-hold-to-confirm--solid {
+  --kz-hold-bg: #0a0a0a;
+  --kz-hold-fg: #ffffff;
+  --kz-hold-fill: #e9e9e6;
+  --kz-hold-fill-fg: #0a0a0a;
+}
+
+/* The content exists twice: underneath (resting colors) and inside the pill (inverted).
+   The pill reveals the second copy, so the words change color exactly under its edge. */
+.kodza-hold-to-confirm__content,
+.kodza-hold-to-confirm__fill {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--kz-hold-gap);
+  padding: 0 var(--kz-hold-pad-x);
+}
+
+.kodza-hold-to-confirm__fill {
+  background: var(--kz-hold-fill);
+  color: var(--kz-hold-fill-fg);
+  /* The pill starts one height to the left, out of sight: its edge is round from the first frame */
+  clip-path: inset(0 calc((1 - var(--kz-hold-p, 0)) * 100%) 0 calc(var(--kz-hold-height) * -1) round 999px);
+  pointer-events: none;
+}
+
+/* The words: three in one cell (the width is the widest), the current one in its place */
+.kodza-hold-to-confirm__label {
+  display: inline-grid;
+  overflow: hidden;
+  padding-block: 0.15em;
+}
+
+.kodza-hold-to-confirm__label > span {
+  grid-area: 1 / 1;
+  justify-self: center;
+}
+
+.kodza-hold-to-confirm__label > span:not(:first-child) {
+  transform: translateY(125%);
+}
+
+/* The icon, then the tick that draws itself in its place */
+.kodza-hold-to-confirm__icon {
+  flex: none;
+  width: var(--kz-hold-icon);
+  height: var(--kz-hold-icon);
+}
+
+.kodza-hold-to-confirm__icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-hold-to-confirm__icon path:first-child {
+  transform-origin: 50% 50%;
+  transition: opacity 0.2s ease, transform 0.45s var(--kz-hold-ease);
+}
+
+.kodza-hold-to-confirm__icon path:last-child {
+  stroke-width: 2.2;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.2s ease;
+}
+
+.kodza-hold-to-confirm[data-state="done"] .kodza-hold-to-confirm__icon path:first-child {
+  opacity: 0;
+  transform: scale(0.4) rotate(-20deg);
+}
+
+.kodza-hold-to-confirm[data-state="done"] .kodza-hold-to-confirm__icon path:last-child {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.45s var(--kz-hold-ease) 0.12s;
+}
+
+/* Spoken status, next to the button (a live region inside it would change its name) */
+.kodza-hold-to-confirm__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hold-to-confirm,
+  .kodza-hold-to-confirm::before,
+  .kodza-hold-to-confirm__icon path {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .kodza-hold-to-confirm.is-holding {
+    transform: none;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-hold-to-confirm {
+  --kz-hold-bg: rgba(255, 255, 255, 0.1);
+  --kz-hold-fg: #ffffff;
+  --kz-hold-fill: #ffffff;
+  --kz-hold-fill-fg: #0a0a0a;
+  --kz-hold-ring: #ffffff;
+}
+*/
+
+/* kodza-guard b8e3d968ac48 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-hold-to-confirm):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-hold-to-confirm:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-hold-to-confirm__content:not(#_),
+.kodza-hold-to-confirm__icon:not(#_),
+.kodza-hold-to-confirm__label:not(#_),
+.kodza-hold-to-confirm__fill:not(#_),
+.kodza-hold-to-confirm__label span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-hold-to-confirm__icon svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hold-to-confirm:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-hold-to-confirm:not(#_) {
+  position: relative;
+  display: inline-grid;
+  height: var(--kz-hold-height);
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-hold-bg);
+  color: var(--kz-hold-fg);
+  font: inherit;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform 0.25s var(--kz-hold-ease);
+}
+
+.kodza-hold-to-confirm:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-hold-ring);
+  outline-offset: 3px;
+}
+
+.kodza-hold-to-confirm:disabled:not(#_) {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.kodza-hold-to-confirm:not(#_)::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--kz-hold-height) * -1);
+  width: calc(var(--kz-hold-height) + var(--kz-hold-peek));
+  border-radius: 999px;
+  background: var(--kz-hold-fill);
+  transform: translateX(calc(var(--kz-hold-peek) * -1 - 4px));
+  transition: transform 0.3s var(--kz-hold-ease);
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .kodza-hold-to-confirm:hover:not(:disabled):not(#_)::before {
+    transform: none;
+  }
+}
+
+.kodza-hold-to-confirm:focus-visible:not(#_)::before {
+  transform: none;
+}
+
+.kodza-hold-to-confirm.is-holding:not(#_) {
+  transform: scale(calc(0.985 - 0.025 * var(--kz-hold-p, 0)));
+}
+
+.kodza-hold-to-confirm[data-state="done"]:not(#_) {
+  cursor: default;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kodza-hold-to-confirm__icon svg:not(#_) {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hold-to-confirm:not(#_),
+  .kodza-hold-to-confirm:not(#_)::before {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hold-to-confirm.is-holding:not(#_) {
+    transform: none;
+  }
+}

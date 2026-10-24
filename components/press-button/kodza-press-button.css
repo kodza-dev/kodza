@@ -1,0 +1,259 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — 3D Press Button
+   A button with real thickness: the face sinks into its base when pressed, every tap goes all
+   the way down, and it springs back with a small bounce.
+   Everything is tuned with the --kz-press-* variables. */
+.kodza-press-button {
+  --kz-press-face: #ffffff;
+  --kz-press-fg: #0a0a0a;
+  --kz-press-edge: #0a0a0a; /* the thickness, and the outline of the face */
+  --kz-press-focus: #0a0a0a;
+  --kz-press-line: 1.5px;
+  --kz-press-radius: 999px;
+  --kz-press-height: 52px;
+  --kz-press-pad-x: 28px;
+  --kz-press-gap: 10px;
+  --kz-press-depth-x: 0px;
+  --kz-press-depth-y: 6px;
+  --kz-press-lift: calc(1 / 3); /* share of the depth the face rises on hover (2px of 6: whole pixels, crisp text) */
+  --kz-press-latch: 0.5; /* how far down a latched toggle stays (3px of 6: whole pixels, crisp text) */
+  --kz-press-down: 0.08s cubic-bezier(0.3, 0, 0.6, 1);
+  --kz-press-up: 0.45s cubic-bezier(0.3, 1.9, 0.5, 1);
+  --kz-press-hover: 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: inline-grid;
+  box-sizing: border-box;
+  margin: 0;
+  /* The room the face travels into */
+  padding: 0 var(--kz-press-depth-x) var(--kz-press-depth-y) 0;
+  border: 0;
+  border-radius: var(--kz-press-radius);
+  background: none;
+  color: var(--kz-press-fg);
+  font: inherit;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  isolation: isolate;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-press-button:focus-visible {
+  outline: 2px solid var(--kz-press-focus);
+  outline-offset: 4px;
+}
+
+/* The base: the same shape as the face, pushed down by the depth. What shows below the face
+   is the thickness. */
+.kodza-press-button::before {
+  content: "";
+  grid-area: 1 / 1;
+  z-index: -1;
+  border-radius: var(--kz-press-radius);
+  background: var(--kz-press-edge);
+  transform: translate(var(--kz-press-depth-x), var(--kz-press-depth-y));
+}
+
+/* The face is filled with the edge color and its inner layer, cut in by the line width, brings
+   the face color: the outer edge matches the base, so no hairline shows between them (an inset
+   shadow leaves one). Both edges of the line are cut by clip-path, which is not snapped to whole
+   pixels like a border, an inset or a background: the line stays even wherever the face lands */
+.kodza-press-button__face {
+  position: relative;
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--kz-press-gap);
+  box-sizing: border-box;
+  height: var(--kz-press-height);
+  padding: 0 var(--kz-press-pad-x);
+  border-radius: var(--kz-press-radius);
+  background: var(--kz-press-edge);
+  box-shadow: 0 0 0 1px var(--kz-press-edge); /* covers the snapped background, the clip cuts it */
+  clip-path: inset(0 round var(--kz-press-radius));
+  isolation: isolate;
+  transition: transform var(--kz-press-hover);
+}
+
+.kodza-press-button__face::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--kz-press-face);
+  clip-path: inset(var(--kz-press-line) round calc(var(--kz-press-radius) - var(--kz-press-line)));
+}
+
+/* Hover: the face rises a little, the thickness grows */
+@media (hover: hover) {
+  .kodza-press-button:hover .kodza-press-button__face {
+    transform: translate(calc(var(--kz-press-depth-x) * var(--kz-press-lift) * -1), calc(var(--kz-press-depth-y) * var(--kz-press-lift) * -1));
+  }
+}
+
+/* A latching toggle (aria-pressed="true") stays part of the way down */
+.kodza-press-button[aria-pressed="true"] .kodza-press-button__face {
+  transform: translate(calc(var(--kz-press-depth-x) * var(--kz-press-latch)), calc(var(--kz-press-depth-y) * var(--kz-press-latch)));
+}
+
+/* Pressed: the face meets its base, fast */
+.kodza-press-button.is-pressed .kodza-press-button__face,
+.kodza-press-button:not(.is-ready):active .kodza-press-button__face {
+  transform: translate(var(--kz-press-depth-x), var(--kz-press-depth-y));
+  transition: transform var(--kz-press-down);
+}
+
+/* Let go: it springs back past its rest, then settles */
+.kodza-press-button.is-releasing .kodza-press-button__face {
+  transition: transform var(--kz-press-up);
+}
+
+/* Disabled: flush with its base, it cannot go any lower */
+.kodza-press-button:disabled,
+.kodza-press-button[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+.kodza-press-button:disabled .kodza-press-button__face,
+.kodza-press-button[aria-disabled="true"] .kodza-press-button__face {
+  transform: translate(var(--kz-press-depth-x), var(--kz-press-depth-y));
+  color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* The toggle's light: an empty ring that fills while it is on */
+.kodza-press-button__dot {
+  position: relative;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 var(--kz-press-line) currentColor;
+}
+
+.kodza-press-button__dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  transform: scale(0);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-press-button[aria-pressed="true"] .kodza-press-button__dot::after {
+  transform: scale(1);
+}
+
+/* Offset variant: a brutalist slab, its hard shadow cast down and to the right */
+.kodza-press-button--offset {
+  --kz-press-radius: 12px;
+  --kz-press-depth-x: 6px;
+  --kz-press-depth-y: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-press-button__face,
+  .kodza-press-button__dot::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-press-button {
+  --kz-press-face: #161616;
+  --kz-press-fg: #f2f2f0;
+  --kz-press-edge: #3d3d3c;
+  --kz-press-focus: #f2f2f0;
+}
+*/
+
+/* kodza-guard 5de0771d194e — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-press-button):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-press-button:not(#_) {
+  transition: revert;
+  list-style: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  min-height: revert;
+}
+
+.kodza-press-button__dot:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-press-button:not(#_)::before,
+.kodza-press-button__face:not(#_)::before,
+.kodza-press-button__dot:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-press-button:not(#_) {
+  position: relative;
+  display: inline-grid;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 var(--kz-press-depth-x) var(--kz-press-depth-y) 0;
+  border: 0;
+  border-radius: var(--kz-press-radius);
+  background: none;
+  color: var(--kz-press-fg);
+  font: inherit;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  isolation: isolate;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-press-button:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-press-focus);
+  outline-offset: 4px;
+}
+
+.kodza-press-button:not(#_)::before {
+  content: "";
+  grid-area: 1 / 1;
+  z-index: -1;
+  border-radius: var(--kz-press-radius);
+  background: var(--kz-press-edge);
+  transform: translate(var(--kz-press-depth-x), var(--kz-press-depth-y));
+}
+
+.kodza-press-button:disabled:not(#_),
+.kodza-press-button[aria-disabled="true"]:not(#_) {
+  cursor: not-allowed;
+}

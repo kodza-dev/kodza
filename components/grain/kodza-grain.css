@@ -1,0 +1,568 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Grain
+   Film grain on a section and on its photo: fractal noise from one inline SVG filter, used as a
+   mask over a layer of colour, so the grain takes your two colours and never a grey of its own.
+   It jumps to a new spot ten times a second, like the next frame of a roll of film. Behind the
+   words, over the photo. Nothing to download: the noise is drawn by the browser.
+   Everything is tuned with the --kz-grain-* variables. */
+.kodza-grain {
+  --kz-grain-bg: #f2f2f0;                 /* the paper, and the light specks on the photo */
+  --kz-grain-ink: #0a0a0a;                /* the text, and the dark specks */
+  --kz-grain-muted: rgba(10, 10, 10, 0.62);
+  --kz-grain-amount: 0.16;                /* grain on the section: 0 is clean, 0.25 is pushed */
+  --kz-grain-photo: 0.35;                 /* grain on the photo */
+  --kz-grain-scale: 1;                    /* 1.5 or 2 for a coarser grain */
+  --kz-grain-speed: 1s;                   /* one cycle of ten frames */
+  --kz-grain-height: 600px;
+  --kz-grain-width: 1152px;               /* the content column */
+  --kz-grain-side: clamp(20px, 5vw, 64px);
+
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: var(--kz-grain-height);
+  padding: 72px var(--kz-grain-side);
+  overflow: hidden;
+  background: var(--kz-grain-bg);
+  color: var(--kz-grain-ink);
+}
+
+/* The grain: a layer of colour seen through a mask of noise. alpha = 4 × noise − 2, so only the
+   top half of the noise shows, as sparse specks rather than a grey veil. Bigger than its box by
+   60px on each side, so it can jump around without showing an edge. */
+.kodza-grain::before,
+.kodza-grain__photo::before,
+.kodza-grain__photo::after {
+  content: "";
+  position: absolute;
+  inset: -60px;
+  background: var(--kz-grain-ink);
+  pointer-events: none;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 0 0 0 -2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 0 0 0 -2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  -webkit-mask-size: calc(240px * var(--kz-grain-scale));
+  mask-size: calc(240px * var(--kz-grain-scale));
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  will-change: transform;
+  animation: kodza-grain-jump var(--kz-grain-speed) steps(1, end) infinite;
+}
+
+/* On the section, under the words */
+.kodza-grain::before {
+  z-index: -1;
+  opacity: var(--kz-grain-amount);
+}
+
+/* The photo carries its own grain, over the picture: dark specks in ::before, and in ::after the
+   other half of the same noise (alpha = 2 − 4 × noise) in the paper colour, so the highlights
+   get grain too. Both jump with the section, one roll of film. */
+.kodza-grain__figure {
+  margin: 0;
+}
+
+.kodza-grain__photo {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--kz-grain-ink) 8%, var(--kz-grain-bg));
+}
+
+.kodza-grain__photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  margin: 0;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+.kodza-grain__photo::before,
+.kodza-grain__photo::after {
+  z-index: 1;
+  opacity: var(--kz-grain-photo);
+}
+
+.kodza-grain__photo::after {
+  background: var(--kz-grain-bg);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -4 0 0 0 2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -4 0 0 0 2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Ten frames, each a jump to a new spot. Steps of 20px, a whole number of device pixels at 125 %,
+   150 % and 200 % too, so every frame lands on the same pixels and is as crisp as the last. */
+@keyframes kodza-grain-jump {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-40px, 20px); }
+  20% { transform: translate(20px, -40px); }
+  30% { transform: translate(-20px, -20px); }
+  40% { transform: translate(40px, 40px); }
+  50% { transform: translate(-40px, -40px); }
+  60% { transform: translate(40px, -20px); }
+  70% { transform: translate(-20px, 40px); }
+  80% { transform: translate(20px, 20px); }
+  90% { transform: translate(0, -40px); }
+}
+
+/* --still: the grain without the movement. Off-screen, the script pauses it. */
+.kodza-grain--still::before,
+.kodza-grain--still .kodza-grain__photo::before,
+.kodza-grain--still .kodza-grain__photo::after {
+  animation: none;
+}
+
+.kodza-grain.is-paused::before,
+.kodza-grain.is-paused .kodza-grain__photo::before,
+.kodza-grain.is-paused .kodza-grain__photo::after {
+  animation-play-state: paused;
+}
+
+.kodza-grain__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+  align-items: end;
+  gap: 64px;
+  width: 100%;
+  max-width: var(--kz-grain-width);
+  margin: 0 auto;
+}
+
+.kodza-grain__eyebrow {
+  margin: 0 0 20px;
+  color: var(--kz-grain-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.kodza-grain__title {
+  margin: 0 0 28px;
+  font-size: clamp(44px, 6.6vw, 92px);
+  font-weight: 600;
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+}
+
+.kodza-grain__line {
+  display: block;
+}
+
+.kodza-grain__lead {
+  max-width: 30em;
+  margin: 0 0 24px;
+  color: var(--kz-grain-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.kodza-grain__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+}
+
+.kodza-grain__button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--kz-grain-ink);
+  color: var(--kz-grain-bg);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.18s ease;
+}
+
+.kodza-grain__button:hover {
+  opacity: 0.86;
+}
+
+.kodza-grain__button--ghost {
+  background: transparent;
+  color: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.kodza-grain__button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.kodza-grain__caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+  color: var(--kz-grain-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+@media (max-width: 720px) {
+  .kodza-grain {
+    padding: 56px var(--kz-grain-side);
+  }
+
+  .kodza-grain__content {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+
+  .kodza-grain__photo img {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* Reduced motion: the grain stays, as a still frame */
+@media (prefers-reduced-motion: reduce) {
+  .kodza-grain::before,
+  .kodza-grain__photo::before,
+  .kodza-grain__photo::after {
+    animation: none !important;
+  }
+
+  .kodza-grain__button {
+    transition: none;
+  }
+}
+
+/* kodza-guard d179802ed2ab — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-grain__button):not(#_) {
+  outline: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-grain__content:not(#_),
+.kodza-grain__text:not(#_),
+.kodza-grain__line:not(#_),
+.kodza-grain__photo:not(#_),
+.kodza-grain__caption span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-grain__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-grain__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-grain__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-grain__actions:not(#_),
+.kodza-grain__figure:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-grain__button:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-grain__caption:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-grain__photo img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-grain__eyebrow:not(#_):where(:not([hidden])),
+.kodza-grain__title:not(#_):where(:not([hidden])),
+.kodza-grain__lead:not(#_):where(:not([hidden])),
+.kodza-grain__figure:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-grain__eyebrow:not(#_):where([hidden]),
+.kodza-grain__title:not(#_):where([hidden]),
+.kodza-grain__lead:not(#_):where([hidden]),
+.kodza-grain__figure:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-grain:not(#_)::before,
+.kodza-grain__photo:not(#_)::before,
+.kodza-grain__photo:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-grain__figure:not(#_) {
+  margin: 0;
+}
+
+.kodza-grain__photo img:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-grain__eyebrow:not(#_) {
+  margin: 0 0 20px;
+  color: var(--kz-grain-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.kodza-grain__title:not(#_) {
+  margin: 0 0 28px;
+  font-size: clamp(44px, 6.6vw, 92px);
+  font-weight: 600;
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+}
+
+.kodza-grain__lead:not(#_) {
+  max-width: 30em;
+  margin: 0 0 24px;
+  color: var(--kz-grain-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+}
+
+.kodza-grain__actions:not(#_) {
+  display: flex;
+  margin: 0;
+}
+
+.kodza-grain__button:not(#_) {
+  box-sizing: border-box;
+  display: inline-flex;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--kz-grain-ink);
+  color: var(--kz-grain-bg);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: opacity 0.18s ease;
+}
+
+.kodza-grain__button--ghost:not(#_) {
+  background: transparent;
+  color: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.kodza-grain__button:focus-visible:not(#_) {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.kodza-grain__caption:not(#_) {
+  display: flex;
+  margin-top: 12px;
+  color: var(--kz-grain-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-grain__button:not(#_) {
+    transition: none;
+  }
+}

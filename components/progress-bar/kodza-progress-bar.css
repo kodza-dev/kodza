@@ -1,0 +1,370 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Progress
+   A bar or a ring, driven by data-value (0–100; leave it out for "we don't know yet"). The
+   percentage rolls digit by digit like an odometer; at 100 it gives way to a tick that draws
+   itself, and the label rolls to data-done if you set one. Without a value, a segment slides
+   along the bar (or an arc turns around the ring). Change data-value from your code, the
+   component follows. Everything is tuned with the --kz-progress-* variables. */
+.kodza-progress {
+  --kz-progress-fg: #0a0a0a;
+  --kz-progress-muted: rgba(10, 10, 10, 0.62);
+  --kz-progress-track: rgba(10, 10, 10, 0.09);
+  --kz-progress-fill: #0a0a0a;
+  --kz-progress-height: 6px;
+  --kz-progress-dial: 104px;
+  --kz-progress-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-progress-v: 0;
+
+  display: grid;
+  gap: 12px;
+  color: var(--kz-progress-fg);
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.kodza-progress__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* The label, and the words it rolls to once done (one cell: the layout never moves) */
+.kodza-progress__label {
+  display: inline-grid;
+  min-width: 0;
+  overflow: hidden;
+  padding-block: 0.12em;
+  margin-block: -0.12em;
+  font-weight: 500;
+}
+
+.kodza-progress__label > span {
+  grid-area: 1 / 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: transform 0.55s var(--kz-progress-ease), opacity 0.3s ease;
+}
+
+.kodza-progress__label > span:nth-child(2) {
+  opacity: 0;
+  transform: translateY(105%);
+}
+
+.kodza-progress.is-complete .kodza-progress__label > span:first-child {
+  opacity: 0;
+  transform: translateY(-105%);
+}
+
+.kodza-progress.is-complete .kodza-progress__label > span:nth-child(2) {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0.1s;
+}
+
+/* The value: rolling digits, then a tick */
+.kodza-progress__value {
+  display: inline-grid;
+  justify-items: end;
+  overflow: hidden;
+  padding-block: 0.12em;
+  margin-block: -0.12em;
+  color: var(--kz-progress-muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.kodza-progress__value > * {
+  display: inline-flex;
+  grid-area: 1 / 1;
+  align-items: center;
+  transition: transform 0.55s var(--kz-progress-ease), opacity 0.3s ease;
+}
+
+.kodza-progress__digit {
+  display: inline-block;
+  height: 1.3em;
+  overflow: hidden;
+  line-height: 1.3;
+}
+
+.kodza-progress__digit.is-off {
+  width: 0;
+  opacity: 0;
+}
+
+.kodza-progress__digit > span {
+  display: block;
+  transform: translateY(calc(var(--kz-progress-d, 0) * -10%));
+  transition: transform 0.5s var(--kz-progress-ease);
+}
+
+.kodza-progress__digit > span > span {
+  display: block;
+  height: 1.3em;
+}
+
+.kodza-progress__tick {
+  color: var(--kz-progress-fg);
+  opacity: 0;
+  transform: translateY(105%);
+}
+
+.kodza-progress__tick svg {
+  width: 1.1em;
+  height: 1.1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-progress__tick path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.2s ease;
+}
+
+.kodza-progress.is-complete .kodza-progress__number {
+  opacity: 0;
+  transform: translateY(-105%);
+}
+
+.kodza-progress.is-complete .kodza-progress__tick {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0.1s;
+}
+
+.kodza-progress.is-complete .kodza-progress__tick path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.4s var(--kz-progress-ease) 0.18s;
+}
+
+.kodza-progress.is-indeterminate .kodza-progress__value {
+  visibility: hidden;
+}
+
+/* The bar: a full-width fill slid in from the left, so its rounded end keeps its shape */
+.kodza-progress__track {
+  position: relative;
+  height: var(--kz-progress-height);
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--kz-progress-track);
+}
+
+.kodza-progress__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--kz-progress-fill);
+  transform: translateX(calc((var(--kz-progress-v) - 100) * 1%));
+  transition: transform 0.6s var(--kz-progress-ease);
+}
+
+.kodza-progress.is-indeterminate .kodza-progress__fill {
+  right: auto;
+  width: 38%;
+  transform: translateX(-100%);
+  transition: none;
+  animation: kodza-progress-slide 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes kodza-progress-slide {
+  to {
+    transform: translateX(265%);
+  }
+}
+
+/* The ring: the value in the middle, the label below */
+.kodza-progress--ring {
+  justify-items: center;
+  gap: 14px;
+}
+
+.kodza-progress__dial {
+  display: grid;
+  place-items: center;
+  width: var(--kz-progress-dial);
+  height: var(--kz-progress-dial);
+}
+
+.kodza-progress__dial > * {
+  grid-area: 1 / 1;
+}
+
+.kodza-progress__ring {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+}
+
+.kodza-progress__ring circle:first-child {
+  stroke: var(--kz-progress-track);
+}
+
+.kodza-progress__ring circle:last-child {
+  stroke: var(--kz-progress-fill);
+  stroke-dasharray: var(--kz-progress-v) 100;
+  transition: stroke-dasharray 0.6s var(--kz-progress-ease), opacity 0.2s ease;
+}
+
+.kodza-progress[data-value="0"] .kodza-progress__ring circle:last-child {
+  opacity: 0;
+}
+
+.kodza-progress--ring .kodza-progress__value {
+  justify-items: center;
+  color: var(--kz-progress-fg);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.kodza-progress--ring .kodza-progress__tick svg {
+  width: 30px;
+  height: 30px;
+  stroke-width: 1.6;
+}
+
+.kodza-progress--ring .kodza-progress__label {
+  color: var(--kz-progress-muted);
+  font-size: 14px;
+}
+
+.kodza-progress--ring .kodza-progress__label > span {
+  justify-self: center;
+}
+
+.kodza-progress--ring.is-indeterminate .kodza-progress__ring {
+  animation: kodza-progress-turn 1.4s linear infinite;
+}
+
+.kodza-progress--ring.is-indeterminate .kodza-progress__ring circle:last-child {
+  stroke-dasharray: 28 100;
+  opacity: 1;
+}
+
+@keyframes kodza-progress-turn {
+  to {
+    transform: rotate(270deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-progress *,
+  .kodza-progress__value > * {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .kodza-progress.is-indeterminate .kodza-progress__fill,
+  .kodza-progress--ring.is-indeterminate .kodza-progress__ring {
+    animation: none;
+  }
+
+  .kodza-progress.is-indeterminate .kodza-progress__fill {
+    transform: translateX(80%);
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-progress {
+  --kz-progress-fg: #f2f2f0;
+  --kz-progress-muted: rgba(242, 242, 240, 0.62);
+  --kz-progress-track: rgba(255, 255, 255, 0.12);
+  --kz-progress-fill: #f2f2f0;
+}
+*/
+
+/* kodza-guard 55722a610015 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-progress__ring):not(#_),
+:where(.kodza-progress__tick svg:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-progress:not(#_),
+.kodza-progress__head:not(#_),
+.kodza-progress__label:not(#_),
+.kodza-progress__value:not(#_),
+.kodza-progress__number:not(#_),
+.kodza-progress__digit:not(#_),
+.kodza-progress__tick:not(#_),
+.kodza-progress__track:not(#_),
+.kodza-progress__fill:not(#_),
+.kodza-progress__dial:not(#_),
+.kodza-progress__label span:where(:not([class*="kodza-"])):not(#_),
+.kodza-progress__digit span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-progress__ring:not(#_),
+.kodza-progress__tick svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-progress__ring:not(#_):where(:not([hidden])),
+.kodza-progress__tick svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-progress__ring:not(#_):where([hidden]),
+.kodza-progress__tick svg:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-progress *:where(svg):not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

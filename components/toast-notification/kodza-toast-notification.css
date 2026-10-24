@@ -1,0 +1,428 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Toast
+   Notifications that stack like a deck at the bottom right: the newest in front, the older
+   ones peeking behind, smaller. Hover the deck and it spreads out; each one has a thin line
+   that runs out with its time, paused while you read. Swipe one to the right to dismiss it.
+   A loading toast turns into a success when its work is done, its words rolling. Monochrome:
+   the kind is said by its icon. Trigger them with data-toast on a button, or from your code
+   with root.kodzaToast({ text, type, action, onAction, duration, then, promise }).
+   Everything is tuned with the --kz-toast-* variables. */
+.kodza-toast {
+  --kz-toast-bg: #ffffff;
+  --kz-toast-fg: #0a0a0a;
+  --kz-toast-muted: rgba(10, 10, 10, 0.6);
+  --kz-toast-line: rgba(10, 10, 10, 0.1);
+  --kz-toast-soft: rgba(10, 10, 10, 0.06);
+  --kz-toast-ink: #0a0a0a;
+  --kz-toast-on-ink: #ffffff;
+  --kz-toast-shadow: 0 16px 40px -18px rgba(10, 10, 10, 0.35);
+  --kz-toast-width: 360px;
+  --kz-toast-gap: 10px;
+  --kz-toast-edge: 20px;
+  --kz-toast-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  color: var(--kz-toast-fg);
+}
+
+.kodza-toast__triggers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.kodza-toast__trigger {
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-toast-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-toast-line);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.kodza-toast__trigger:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-toast-muted);
+}
+
+.kodza-toast__trigger:active {
+  transform: scale(0.97);
+}
+
+.kodza-toast__trigger:focus-visible,
+.kodza-toast__action:focus-visible,
+.kodza-toast__close:focus-visible {
+  outline: 2px solid var(--kz-toast-fg);
+  outline-offset: 2px;
+}
+
+/* The stack, fixed in the corner */
+.kodza-toast__stack {
+  position: fixed;
+  right: var(--kz-toast-edge);
+  bottom: var(--kz-toast-edge);
+  z-index: 60;
+  width: min(var(--kz-toast-width), calc(100vw - var(--kz-toast-edge) * 2));
+  height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The pointer area of the spread deck, so it does not fold back while you move over the gaps */
+.kodza-toast__stack.is-spread::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--kz-toast-span, 0);
+}
+
+.kodza-toast__item {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px 14px 16px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--kz-toast-bg);
+  box-shadow: 0 0 0 1px var(--kz-toast-line), var(--kz-toast-shadow);
+  font-size: 14px;
+  line-height: 1.4;
+  touch-action: pan-y;
+  transform-origin: 50% 0;
+  /* Folded: each older toast a little higher and smaller. Spread: each above the next. */
+  transform: translate(var(--kz-drag, 0px), calc(var(--kz-fold, 0px) * -1)) scale(calc(1 - var(--kz-lift, 0) * 0.05));
+  opacity: var(--kz-alpha, 1);
+  transition:
+    transform 0.45s var(--kz-toast-ease),
+    opacity 0.3s ease;
+}
+
+.kodza-toast__stack.is-spread .kodza-toast__item {
+  transform: translate(var(--kz-drag, 0px), calc(var(--kz-offset, 0px) * -1));
+  opacity: 1;
+}
+
+.kodza-toast__item.is-dragging {
+  transition: none;
+}
+
+/* Arriving from below, leaving to the right */
+.kodza-toast__item.is-entering {
+  opacity: 0;
+  transform: translateY(110%) scale(0.92);
+  transition: none;
+}
+
+.kodza-toast__item.is-leaving {
+  opacity: 0;
+  transform: translate(calc(100% + var(--kz-toast-edge)), calc(var(--kz-fold, 0px) * -1));
+  transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.kodza-toast__icon {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+}
+
+.kodza-toast__icon svg {
+  grid-area: 1 / 1;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-toast__tick {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.45s var(--kz-toast-ease) 0.15s;
+}
+
+.kodza-toast__item[data-type="success"] .kodza-toast__tick {
+  stroke-dashoffset: 0;
+}
+
+.kodza-toast__spinner {
+  animation: kodza-toast-spin 0.8s linear infinite;
+  transition: opacity 0.2s ease;
+}
+
+.kodza-toast__item:not([data-type="loading"]) .kodza-toast__spinner {
+  opacity: 0;
+  animation: none;
+}
+
+@keyframes kodza-toast-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.kodza-toast__text {
+  display: grid;
+  overflow: hidden;
+  font-weight: 500;
+}
+
+.kodza-toast__text > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-toast__end {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kodza-toast__action {
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-toast-ink);
+  color: var(--kz-toast-on-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.kodza-toast__close {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--kz-toast-muted);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.kodza-toast__close:hover {
+  background: var(--kz-toast-soft);
+  color: var(--kz-toast-fg);
+}
+
+.kodza-toast__close svg {
+  width: 11px;
+  height: 11px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+/* Time left: a thin line at the bottom that runs out, paused while the deck is spread */
+.kodza-toast__time {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--kz-toast-soft);
+}
+
+.kodza-toast__time::after {
+  content: "";
+  display: block;
+  height: 100%;
+  background: var(--kz-toast-line);
+  transform-origin: left;
+  animation: kodza-toast-time var(--kz-time, 4s) linear forwards;
+}
+
+.kodza-toast__stack.is-spread .kodza-toast__time::after,
+.kodza-toast__item[data-type="loading"] .kodza-toast__time::after {
+  animation-play-state: paused;
+}
+
+@keyframes kodza-toast-time {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .kodza-toast {
+    --kz-toast-edge: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-toast__item,
+  .kodza-toast__item.is-leaving,
+  .kodza-toast__tick,
+  .kodza-toast__trigger {
+    transition-duration: 0.01ms !important;
+  }
+
+  .kodza-toast__spinner {
+    animation: none;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-toast {
+  --kz-toast-bg: #1b1b1b;
+  --kz-toast-fg: #f2f2f0;
+  --kz-toast-muted: rgba(242, 242, 240, 0.62);
+  --kz-toast-line: rgba(255, 255, 255, 0.12);
+  --kz-toast-soft: rgba(255, 255, 255, 0.07);
+  --kz-toast-ink: #f2f2f0;
+  --kz-toast-on-ink: #0a0a0a;
+  --kz-toast-shadow: 0 16px 40px -18px rgba(0, 0, 0, 0.8);
+}
+*/
+
+/* kodza-guard 75170876913d — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-toast__trigger):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-toast:not(#_),
+.kodza-toast__triggers:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-toast__trigger:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-toast__stack:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-toast__trigger:not(#_):where(:not([hidden])),
+.kodza-toast__stack:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-toast__trigger:not(#_):where([hidden]),
+.kodza-toast__stack:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-toast__stack:not(#_)::before,
+.kodza-toast__time:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-toast__trigger:not(#_) {
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-toast-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-toast-line);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.kodza-toast__trigger:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-toast-muted);
+}
+
+.kodza-toast__trigger:active:not(#_) {
+  transform: scale(0.97);
+}
+
+.kodza-toast__trigger:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-toast-fg);
+  outline-offset: 2px;
+}
+
+.kodza-toast__stack:not(#_) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-toast__trigger:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,28 @@
+<div class="kodza-field">
+  <label class="kodza-field__box">
+    <input class="kodza-field__input" type="email" name="email" placeholder=" " autocomplete="email" required data-error="That does not look like an email.">
+    <span class="kodza-field__label">Email</span>
+    <svg class="kodza-field__check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" pathLength="1"/></svg>
+  </label>
+  <button class="kodza-field__clear" type="button" tabindex="-1" aria-label="Clear the field"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 5l6 6M11 5l-6 6"/></svg></button>
+  <p class="kodza-field__note"><span class="kodza-field__hint">We only write when something ships.</span><span class="kodza-field__error" aria-live="polite"></span></p>
+</div>
+
+<div class="kodza-field">
+  <label class="kodza-field__box">
+    <span class="kodza-field__prefix">kodza.dev/</span>
+    <input class="kodza-field__input" type="text" name="handle" placeholder=" " autocomplete="username" required pattern="[a-z0-9\-]+" minlength="2" data-error="Lowercase letters, digits and dashes only.">
+    <span class="kodza-field__label">Username</span>
+    <svg class="kodza-field__check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" pathLength="1"/></svg>
+  </label>
+  <button class="kodza-field__clear" type="button" tabindex="-1" aria-label="Clear the field"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 5l6 6M11 5l-6 6"/></svg></button>
+  <p class="kodza-field__note"><span class="kodza-field__hint">Lowercase, no spaces. Like your variable names.</span><span class="kodza-field__error" aria-live="polite"></span></p>
+</div>
+
+<div class="kodza-field">
+  <label class="kodza-field__box">
+    <input class="kodza-field__input" type="text" name="plan" placeholder=" " value="Free, forever" disabled>
+    <span class="kodza-field__label">Plan</span>
+  </label>
+  <p class="kodza-field__note"><span class="kodza-field__hint">There is no other plan.</span></p>
+</div>

@@ -1,0 +1,799 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Scroll Header
+   A floating glass pill for the top of a site. Clear over the top of the page, it turns to
+   frosted glass as soon as you scroll, steps aside while you read down and comes back the
+   moment you scroll up (or tab into it). It reads the room: over a section marked
+   data-header-tone="dark" it turns to dark glass. Below 760px (or as soon as they no longer
+   fit), the links and the actions' links fold into the pill behind a two-line button. Its
+   height never changes, so nothing under it moves. A link marked aria-current (page, or the
+   section in view) gets the soft pill. Any button can sit in the actions (--quiet for a
+   second call to action); a filled logo goes in __mark--fill.
+   Options, one class each: --keep (never hides), --solid (glass from the start).
+   --kz-header-hide-after sets how far the page scrolls before it steps aside, and
+   --kz-header-max-scrolled the width it narrows to with the glass. The script measures what the
+   bar needs (--kz-header-content): line --kz-header-max up with your page's column and set
+   --kz-header-max-scrolled: calc(var(--kz-header-content) + 48px), and the bar sits on the column
+   at the top, then hugs its links once you scroll.
+   Everything is tuned with the --kz-header-* variables. */
+.kodza-scroll-header {
+  --kz-header-fg: #0a0a0a;
+  --kz-header-muted: rgba(10, 10, 10, 0.6);
+  --kz-header-soft: rgba(10, 10, 10, 0.07);
+  --kz-header-glass: rgba(255, 255, 255, 0.74);
+  --kz-header-edge: rgba(10, 10, 10, 0.08);
+  --kz-header-shadow: rgba(10, 10, 10, 0.08);
+  --kz-header-ink: #0a0a0a;
+  --kz-header-on-ink: #ffffff;
+  --kz-header-dark-fg: rgba(255, 255, 255, 0.92);
+  --kz-header-dark-muted: rgba(255, 255, 255, 0.62);
+  --kz-header-dark-soft: rgba(255, 255, 255, 0.1);
+  --kz-header-dark-glass: rgba(30, 30, 30, 0.72);
+  --kz-header-dark-edge: rgba(255, 255, 255, 0.1);
+  --kz-header-dark-shadow: rgba(0, 0, 0, 0.32);
+  --kz-header-dark-ink: #ffffff;
+  --kz-header-dark-on-ink: #0a0a0a;
+  --kz-header-top: 12px;
+  --kz-header-height: 60px;
+  --kz-header-max: 1080px;
+  --kz-header-max-scrolled: var(--kz-header-max);
+  /* Set by the script while the links are on the bar: the width they need, logo and actions included */
+  --kz-header-content: 100%;
+  --kz-header-radius: 22px;
+  --kz-header-duration: 0.5s;
+  --kz-header-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-header-hide-after: 600px;
+  --kz-header-hide-duration: 0.8s;
+  --kz-header-hide-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --kz-header-width-duration: 0.7s;
+  --kz-header-width-ease: cubic-bezier(0.65, 0, 0.35, 1);
+
+  position: sticky;
+  top: var(--kz-header-top);
+  z-index: 50;
+  width: min(var(--kz-header-max), calc(100% - 24px));
+  margin: 0 auto;
+  color: var(--kz-header-fg);
+  transition:
+    transform var(--kz-header-duration) var(--kz-header-ease),
+    width var(--kz-header-width-duration) var(--kz-header-width-ease),
+    color 0.35s ease;
+}
+
+/* With the glass, the pill narrows to --kz-header-max-scrolled (never wider than at the top) */
+.kodza-scroll-header.is-scrolled,
+.kodza-scroll-header.is-open,
+.kodza-scroll-header--solid {
+  width: min(var(--kz-header-max-scrolled), var(--kz-header-max), calc(100% - 24px));
+}
+
+/* Over a dark section: the same pill, in dark glass */
+.kodza-scroll-header.is-dark {
+  --kz-header-fg: var(--kz-header-dark-fg);
+  --kz-header-muted: var(--kz-header-dark-muted);
+  --kz-header-soft: var(--kz-header-dark-soft);
+  --kz-header-glass: var(--kz-header-dark-glass);
+  --kz-header-edge: var(--kz-header-dark-edge);
+  --kz-header-shadow: var(--kz-header-dark-shadow);
+  --kz-header-ink: var(--kz-header-dark-ink);
+  --kz-header-on-ink: var(--kz-header-dark-on-ink);
+}
+
+/* Hidden while reading down (once the page has scrolled --kz-header-hide-after past it),
+   shadow included. It leaves slowly and comes back quickly. */
+.kodza-scroll-header.is-hidden {
+  transform: translateY(calc(-100% - var(--kz-header-top) - 32px));
+  transition:
+    transform var(--kz-header-hide-duration) var(--kz-header-hide-ease),
+    width var(--kz-header-width-duration) var(--kz-header-width-ease),
+    color 0.35s ease;
+}
+
+/* The glass: clear at the top of the page, frosted once you scroll */
+.kodza-scroll-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--kz-header-radius);
+  background: var(--kz-header-glass);
+  box-shadow: inset 0 0 0 1px var(--kz-header-edge), 0 10px 30px var(--kz-header-shadow);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  opacity: 0;
+  transform: scale(0.97, 0.9);
+  transition:
+    opacity 0.4s ease,
+    transform var(--kz-header-duration) var(--kz-header-ease),
+    background-color 0.35s ease,
+    box-shadow 0.35s ease;
+  pointer-events: none;
+}
+
+.kodza-scroll-header.is-scrolled::before,
+.kodza-scroll-header.is-open::before,
+.kodza-scroll-header--solid::before {
+  opacity: 1;
+  transform: none;
+}
+
+.kodza-scroll-header__bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: var(--kz-header-height);
+  padding: 0 10px 0 16px;
+}
+
+.kodza-scroll-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 8px;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-scroll-header__mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--kz-header-ink);
+  color: var(--kz-header-on-ink);
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+.kodza-scroll-header__mark svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* A filled logo of your own (an svg drawn with fill, not with a stroke) */
+.kodza-scroll-header__mark--fill svg {
+  fill: currentColor;
+  stroke: none;
+}
+
+.kodza-scroll-header__nav {
+  display: flex;
+  gap: 2px;
+  margin: 0 auto;
+}
+
+.kodza-scroll-header__link {
+  padding: 8px 13px;
+  border-radius: 999px;
+  color: var(--kz-header-muted);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.25s ease, background-color 0.25s ease;
+}
+
+.kodza-scroll-header__link:hover {
+  color: var(--kz-header-fg);
+}
+
+.kodza-scroll-header__link[aria-current]:not([aria-current="false"]) {
+  background: var(--kz-header-soft);
+  color: var(--kz-header-fg);
+}
+
+.kodza-scroll-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kodza-scroll-header__cta {
+  display: inline-grid;
+  place-items: center;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-ink);
+  color: var(--kz-header-on-ink);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.35s ease, color 0.35s ease, opacity 0.25s ease;
+}
+
+.kodza-scroll-header__cta:hover {
+  opacity: 0.85;
+}
+
+/* A second call to action, quieter */
+.kodza-scroll-header__cta--quiet {
+  background: var(--kz-header-soft);
+  color: var(--kz-header-fg);
+}
+
+/* Two lines that cross into an X */
+.kodza-scroll-header__burger {
+  position: relative;
+  display: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-header-soft);
+  cursor: pointer;
+}
+
+.kodza-scroll-header__burger span {
+  position: absolute;
+  right: 12px;
+  left: 12px;
+  height: 1.6px;
+  border-radius: 2px;
+  background: var(--kz-header-fg);
+  transition: transform 0.4s var(--kz-header-ease);
+}
+
+.kodza-scroll-header__burger span:first-child {
+  top: 16px;
+}
+
+.kodza-scroll-header__burger span:last-child {
+  top: 22px;
+}
+
+.kodza-scroll-header.is-open .kodza-scroll-header__burger span:first-child {
+  transform: translateY(3px) rotate(45deg);
+}
+
+.kodza-scroll-header.is-open .kodza-scroll-header__burger span:last-child {
+  transform: translateY(-3px) rotate(-45deg);
+}
+
+.kodza-scroll-header__brand:focus-visible,
+.kodza-scroll-header__link:focus-visible,
+.kodza-scroll-header__cta:focus-visible,
+.kodza-scroll-header__burger:focus-visible,
+.kodza-scroll-header__panel-link:focus-visible {
+  outline: 2px solid var(--kz-header-fg);
+  outline-offset: 3px;
+}
+
+/* The small-screen menu: the pill grows to show the links */
+.kodza-scroll-header__panel {
+  position: relative;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--kz-header-duration) var(--kz-header-ease);
+}
+
+.kodza-scroll-header.is-open .kodza-scroll-header__panel {
+  grid-template-rows: 1fr;
+}
+
+.kodza-scroll-header__panel-in {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 16px;
+  overflow: hidden;
+  visibility: hidden;
+  transition: visibility 0s linear var(--kz-header-duration);
+}
+
+.kodza-scroll-header.is-open .kodza-scroll-header__panel-in {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.kodza-scroll-header__panel-link {
+  padding: 14px 2px;
+  border-top: 1px solid var(--kz-header-soft);
+  border-radius: 4px;
+  color: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.2s ease, transform 0.3s ease;
+}
+
+.kodza-scroll-header.is-open .kodza-scroll-header__panel-link {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.4s ease calc(0.12s + var(--i, 0) * 50ms),
+    transform 0.5s var(--kz-header-ease) calc(0.12s + var(--i, 0) * 50ms);
+}
+
+.kodza-scroll-header__panel-link:last-child {
+  margin-bottom: 14px;
+}
+
+/* The point where the page starts to scroll under the header (added by the script) */
+.kodza-scroll-header__sentinel {
+  display: block;
+  height: 1px;
+  margin-bottom: -1px;
+}
+
+/* Folded: the links (and the actions' links) wait in the menu. Below 760px, or when the
+   script finds they no longer fit on the bar */
+@media (max-width: 760px) {
+  .kodza-scroll-header__nav,
+  .kodza-scroll-header__actions > a {
+    display: none;
+  }
+
+  .kodza-scroll-header__actions {
+    margin-left: auto;
+  }
+
+  .kodza-scroll-header__burger {
+    display: block;
+  }
+}
+
+.kodza-scroll-header.is-folded .kodza-scroll-header__nav,
+.kodza-scroll-header.is-folded .kodza-scroll-header__actions > a {
+  display: none;
+}
+
+.kodza-scroll-header.is-folded .kodza-scroll-header__actions {
+  margin-left: auto;
+}
+
+.kodza-scroll-header.is-folded .kodza-scroll-header__burger {
+  display: block;
+}
+
+@media (min-width: 761px) {
+  .kodza-scroll-header:not(.is-folded) .kodza-scroll-header__panel {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-scroll-header,
+  .kodza-scroll-header::before,
+  .kodza-scroll-header__panel,
+  .kodza-scroll-header__panel-link,
+  .kodza-scroll-header__burger span {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* The dark glass follows the sections marked data-header-tone="dark". To retune it:
+.kodza-scroll-header {
+  --kz-header-dark-glass: rgba(20, 20, 20, 0.8);
+  --kz-header-dark-ink: #f2f2f0;
+}
+*/
+
+/* kodza-guard 0189800b84d5 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-scroll-header__brand):not(#_),
+:where(.kodza-scroll-header__cta):not(#_),
+:where(.kodza-scroll-header__burger):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-scroll-header__link):not(#_) {
+  outline: revert;
+  background-color: revert;
+  background-image: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-scroll-header__panel-link):not(#_) {
+  outline: revert;
+  margin-bottom: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-scroll-header:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-scroll-header__bar:not(#_),
+.kodza-scroll-header__mark:not(#_),
+.kodza-scroll-header__actions:not(#_),
+.kodza-scroll-header__panel:not(#_),
+.kodza-scroll-header__panel-in:not(#_),
+.kodza-scroll-header__burger span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-scroll-header__brand:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-scroll-header__nav:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-scroll-header__link:not(#_),
+.kodza-scroll-header__cta:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-scroll-header__burger:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-scroll-header__panel-link:not(#_) {
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-left: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-scroll-header__mark svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-scroll-header:not(#_):where(:not([hidden])),
+.kodza-scroll-header__link:not(#_):where(:not([hidden])),
+.kodza-scroll-header__panel-link:not(#_):where(:not([hidden])),
+.kodza-scroll-header__mark svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-scroll-header:not(#_):where([hidden]),
+.kodza-scroll-header__link:not(#_):where([hidden]),
+.kodza-scroll-header__panel-link:not(#_):where([hidden]),
+.kodza-scroll-header__mark svg:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-scroll-header:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-scroll-header:not(#_) {
+  position: sticky;
+  color: var(--kz-header-fg);
+  transition: transform var(--kz-header-duration) var(--kz-header-ease),
+    width var(--kz-header-width-duration) var(--kz-header-width-ease),
+    color 0.35s ease;
+}
+
+.kodza-scroll-header:not(#_) {
+  width: min(var(--kz-header-max), calc(100% - 24px));
+}
+
+.kodza-scroll-header.is-scrolled:not(#_),
+.kodza-scroll-header.is-open:not(#_),
+.kodza-scroll-header--solid:not(#_) {
+  width: min(var(--kz-header-max-scrolled), var(--kz-header-max), calc(100% - 24px));
+}
+
+.kodza-scroll-header.is-hidden:not(#_) {
+  transition: transform var(--kz-header-hide-duration) var(--kz-header-hide-ease),
+    width var(--kz-header-width-duration) var(--kz-header-width-ease),
+    color 0.35s ease;
+}
+
+.kodza-scroll-header__brand:not(#_) {
+  display: inline-flex;
+  border-radius: 8px;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-scroll-header__nav:not(#_) {
+  display: flex;
+  margin: 0 auto;
+}
+
+.kodza-scroll-header__link:not(#_) {
+  padding: 8px 13px;
+  border-radius: 999px;
+  color: var(--kz-header-muted);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.25s ease, background-color 0.25s ease;
+}
+
+.kodza-scroll-header__link:hover:not(#_) {
+  color: var(--kz-header-fg);
+}
+
+.kodza-scroll-header__link[aria-current]:not([aria-current="false"]):not(#_) {
+  background: var(--kz-header-soft);
+  color: var(--kz-header-fg);
+}
+
+.kodza-scroll-header__cta:not(#_) {
+  display: inline-grid;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-ink);
+  color: var(--kz-header-on-ink);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.35s ease, color 0.35s ease, opacity 0.25s ease;
+}
+
+.kodza-scroll-header__cta--quiet:not(#_) {
+  background: var(--kz-header-soft);
+  color: var(--kz-header-fg);
+}
+
+.kodza-scroll-header__burger:not(#_) {
+  position: relative;
+  display: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-header-soft);
+  cursor: pointer;
+}
+
+.kodza-scroll-header__brand:focus-visible:not(#_),
+.kodza-scroll-header__link:focus-visible:not(#_),
+.kodza-scroll-header__cta:focus-visible:not(#_),
+.kodza-scroll-header__panel-link:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-fg);
+  outline-offset: 3px;
+}
+
+.kodza-scroll-header__burger:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-fg);
+  outline-offset: 3px;
+}
+
+.kodza-scroll-header__panel-link:not(#_) {
+  padding: 14px 2px;
+  border-top: 1px solid var(--kz-header-soft);
+  border-radius: 4px;
+  color: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+  transition: opacity 0.2s ease, transform 0.3s ease;
+}
+
+.kodza-scroll-header.is-open .kodza-scroll-header__panel-link:not(#_) {
+  transition: opacity 0.4s ease calc(0.12s + var(--i, 0) * 50ms),
+    transform 0.5s var(--kz-header-ease) calc(0.12s + var(--i, 0) * 50ms);
+}
+
+.kodza-scroll-header__panel-link:last-child:not(#_) {
+  margin-bottom: 14px;
+}
+
+@media (max-width: 760px) {
+  .kodza-scroll-header__nav:not(#_),
+  .kodza-scroll-header__actions > a:not(#_) {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .kodza-scroll-header__burger:not(#_) {
+    display: block;
+  }
+}
+
+.kodza-scroll-header.is-folded .kodza-scroll-header__nav:not(#_),
+.kodza-scroll-header.is-folded .kodza-scroll-header__actions > a:not(#_) {
+  display: none;
+}
+
+.kodza-scroll-header.is-folded .kodza-scroll-header__burger:not(#_) {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-scroll-header:not(#_),
+  .kodza-scroll-header__panel-link:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

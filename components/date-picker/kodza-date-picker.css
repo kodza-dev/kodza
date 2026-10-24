@@ -1,0 +1,767 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Date Picker
+   A real date input, dressed up: the field shows the date in words, and a calendar
+   unrolls under it. Months slide sideways in the direction you go, the month name rolls, and
+   the ink mark travels to the day you pick before the calendar closes. Today wears a ring;
+   days outside min / max are off. Arrows, Page Up / Down, Home / End, Enter, Escape.
+   Same box as Select. Everything is tuned with the --kz-date-* variables. */
+.kodza-date {
+  --kz-date-bg: #ffffff;
+  --kz-date-fg: #0a0a0a;
+  --kz-date-muted: rgba(10, 10, 10, 0.6);
+  --kz-date-line: rgba(10, 10, 10, 0.14);
+  --kz-date-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-date-soft: rgba(10, 10, 10, 0.06);
+  --kz-date-ink: #0a0a0a;
+  --kz-date-on-ink: #ffffff;
+  --kz-date-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  --kz-date-height: 56px;
+  --kz-date-radius: 12px;
+  --kz-date-pad: 16px;
+  --kz-date-cell: 38px;
+  --kz-date-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  /* The closed panel keeps its size, ready to unroll, but never lengthens the page */
+  contain: layout;
+  /* A number, not auto, so it can wait for the panel to roll up before dropping back */
+  z-index: 0;
+  transition: z-index 0s linear 0.4s;
+  color: var(--kz-date-fg);
+}
+
+/* Open, the field rises above what follows it (its panel included) */
+.kodza-date.is-open {
+  z-index: 20;
+  transition-delay: 0s;
+}
+
+.kodza-date__label {
+  position: absolute;
+  top: 10px;
+  left: var(--kz-date-pad);
+  z-index: 1;
+  color: var(--kz-date-muted);
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.kodza-date__native,
+.kodza-date__trigger {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: var(--kz-date-height);
+  margin: 0;
+  padding: 0 44px 9px var(--kz-date-pad);
+  border: 0;
+  border-radius: var(--kz-date-radius);
+  background: var(--kz-date-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-date-line);
+  box-sizing: border-box;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease;
+}
+
+.kodza-date__native:hover,
+.kodza-date__trigger:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-date-line-hover);
+}
+
+.kodza-date__native:focus-visible,
+.kodza-date__trigger:focus-visible,
+.kodza-date.is-open .kodza-date__trigger {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--kz-date-fg), 0 0 0 4px var(--kz-date-soft);
+}
+
+.kodza-date.is-ready .kodza-date__native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+.kodza-date__value {
+  display: inline-grid;
+  overflow: hidden;
+}
+
+.kodza-date__value > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.kodza-date__value .is-empty {
+  color: var(--kz-date-muted);
+}
+
+.kodza-date__icon {
+  position: absolute;
+  top: calc(var(--kz-date-height) / 2 - 9px);
+  right: 16px;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--kz-date-muted);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* The calendar unrolls under the field */
+.kodza-date__pop {
+  position: absolute;
+  top: calc(var(--kz-date-height) + 8px);
+  left: 0;
+  z-index: 20;
+  width: calc(var(--kz-date-cell) * 7 + 24px);
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--kz-date-bg);
+  box-shadow: 0 0 0 1px var(--kz-date-line), var(--kz-date-shadow);
+  box-sizing: border-box;
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(0 0 100% 0 round 16px);
+  transform: translateY(-4px);
+  transition:
+    clip-path 0.4s var(--kz-date-ease),
+    opacity 0.2s ease,
+    transform 0.4s var(--kz-date-ease),
+    visibility 0s linear 0.4s;
+}
+
+.kodza-date.is-open .kodza-date__pop {
+  visibility: visible;
+  opacity: 1;
+  clip-path: inset(-40px -40px -60px -40px round 16px);
+  transform: none;
+  transition-delay: 0s;
+}
+
+.kodza-date.is-above .kodza-date__pop {
+  top: auto;
+  bottom: calc(var(--kz-date-height) + 8px);
+  clip-path: inset(100% 0 0 0 round 16px);
+  transform: translateY(4px);
+}
+
+.kodza-date.is-above.is-open .kodza-date__pop {
+  clip-path: inset(-60px -40px -40px -40px round 16px);
+  transform: none;
+}
+
+.kodza-date__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-left: 6px;
+}
+
+.kodza-date__month {
+  display: inline-grid;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.kodza-date__month > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.kodza-date__nav {
+  display: flex;
+  gap: 2px;
+}
+
+.kodza-date__nav button,
+.kodza-date__today {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-date__nav button {
+  width: 32px;
+  padding: 0;
+}
+
+.kodza-date__nav button:hover,
+.kodza-date__today:hover {
+  background: var(--kz-date-soft);
+}
+
+.kodza-date__nav svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-date__weekdays,
+.kodza-date__days {
+  display: grid;
+  grid-template-columns: repeat(7, var(--kz-date-cell));
+}
+
+.kodza-date__weekdays {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-date__weekdays span {
+  display: grid;
+  place-items: center;
+  height: 28px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  color: var(--kz-date-muted);
+}
+
+/* Months share one cell: the old one leaves, the new one comes in from the side you go */
+.kodza-date__stage {
+  display: grid;
+  overflow: hidden;
+}
+
+.kodza-date__days {
+  position: relative;
+  grid-area: 1 / 1;
+  grid-auto-rows: var(--kz-date-cell);
+  align-content: start;
+  height: calc(var(--kz-date-cell) * 6);
+}
+
+.kodza-date__day {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--kz-date-cell);
+  height: var(--kz-date-cell);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: color 0.2s ease 0.1s, background-color 0.2s ease;
+}
+
+.kodza-date__day:hover {
+  background: var(--kz-date-soft);
+}
+
+.kodza-date__day.is-outside {
+  color: var(--kz-date-muted);
+}
+
+.kodza-date__day.is-today::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px var(--kz-date-line-hover);
+}
+
+.kodza-date__day[aria-selected="true"] {
+  color: var(--kz-date-on-ink);
+}
+
+.kodza-date__day[aria-selected="true"]:hover {
+  background: none;
+}
+
+.kodza-date__day:disabled {
+  color: var(--kz-date-muted);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.kodza-date__day:focus-visible,
+.kodza-date__nav button:focus-visible,
+.kodza-date__today:focus-visible {
+  outline: 2px solid var(--kz-date-fg);
+  outline-offset: -2px;
+}
+
+/* The ink mark, one per month: it travels to the day you pick */
+.kodza-date__mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--kz-date-cell);
+  height: var(--kz-date-cell);
+  border-radius: 50%;
+  background: var(--kz-date-ink);
+  transform: translate(var(--kz-mark-x, 0), var(--kz-mark-y, 0));
+  transition: transform 0.4s var(--kz-date-ease), opacity 0.2s ease;
+}
+
+.kodza-date__mark.is-hidden {
+  opacity: 0;
+  transform: translate(var(--kz-mark-x, 0), var(--kz-mark-y, 0)) scale(0.4);
+}
+
+.kodza-date__foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--kz-date-soft);
+}
+
+.kodza-date__today {
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-date__native,
+  .kodza-date__trigger,
+  .kodza-date__pop,
+  .kodza-date__day,
+  .kodza-date__mark {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-date {
+  --kz-date-bg: #161616;
+  --kz-date-fg: #f2f2f0;
+  --kz-date-muted: rgba(242, 242, 240, 0.62);
+  --kz-date-line: rgba(255, 255, 255, 0.14);
+  --kz-date-line-hover: rgba(255, 255, 255, 0.3);
+  --kz-date-soft: rgba(255, 255, 255, 0.08);
+  --kz-date-ink: #f2f2f0;
+  --kz-date-on-ink: #0a0a0a;
+  --kz-date-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+}
+*/
+
+/* kodza-guard cf406d73e6bb — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-date__native):not(#_) {
+  outline: revert;
+  position: revert;
+}
+
+:where(.kodza-date__trigger):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-date__day):not(#_),
+:where(.kodza-date__today):not(#_),
+:where(.kodza-date__nav button:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-date:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-date__label:not(#_),
+.kodza-date__value:not(#_),
+.kodza-date__head:not(#_),
+.kodza-date__month:not(#_),
+.kodza-date__nav:not(#_),
+.kodza-date__weekdays:not(#_),
+.kodza-date__stage:not(#_),
+.kodza-date__days:not(#_),
+.kodza-date__mark:not(#_),
+.kodza-date__foot:not(#_),
+.kodza-date__value span:where(:not([class*="kodza-"])):not(#_),
+.kodza-date__month span:where(:not([class*="kodza-"])):not(#_),
+.kodza-date__weekdays span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-date__native:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-date__trigger:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-date__icon:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-date__day:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-date__today:not(#_),
+.kodza-date__nav button:where(:not([class*="kodza-"])):not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-date__nav svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-date__icon:not(#_):where(:not([hidden])),
+.kodza-date__nav svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-date__icon:not(#_):where([hidden]),
+.kodza-date__nav svg:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-date__day:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-date:not(#_) {
+  position: relative;
+  display: block;
+  transition: z-index 0s linear 0.4s;
+  color: var(--kz-date-fg);
+}
+
+.kodza-date:not(#_) {
+  width: min(100%, 320px);
+}
+
+.kodza-date.is-open:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-date__native:not(#_),
+.kodza-date__trigger:not(#_) {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: var(--kz-date-height);
+  margin: 0;
+  padding: 0 44px 9px var(--kz-date-pad);
+  border: 0;
+  border-radius: var(--kz-date-radius);
+  background: var(--kz-date-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-date-line);
+  box-sizing: border-box;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease;
+}
+
+.kodza-date__native:hover:not(#_),
+.kodza-date__trigger:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-date-line-hover);
+}
+
+.kodza-date__native:focus-visible:not(#_),
+.kodza-date__trigger:focus-visible:not(#_),
+.kodza-date.is-open .kodza-date__trigger:not(#_) {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--kz-date-fg), 0 0 0 4px var(--kz-date-soft);
+}
+
+.kodza-date.is-ready .kodza-date__native:not(#_) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+.kodza-date__icon:not(#_) {
+  position: absolute;
+}
+
+.kodza-date__nav button:not(#_),
+.kodza-date__today:not(#_) {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-date__nav button:not(#_) {
+  width: 32px;
+  padding: 0;
+}
+
+.kodza-date__nav button:hover:not(#_),
+.kodza-date__today:hover:not(#_) {
+  background: var(--kz-date-soft);
+}
+
+.kodza-date__day:not(#_) {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--kz-date-cell);
+  height: var(--kz-date-cell);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: color 0.2s ease 0.1s, background-color 0.2s ease;
+}
+
+.kodza-date__day:hover:not(#_) {
+  background: var(--kz-date-soft);
+}
+
+.kodza-date__day.is-outside:not(#_) {
+  color: var(--kz-date-muted);
+}
+
+.kodza-date__day.is-today:not(#_)::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px var(--kz-date-line-hover);
+}
+
+.kodza-date__day[aria-selected="true"]:not(#_) {
+  color: var(--kz-date-on-ink);
+}
+
+.kodza-date__day[aria-selected="true"]:hover:not(#_) {
+  background: none;
+}
+
+.kodza-date__day:disabled:not(#_) {
+  color: var(--kz-date-muted);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.kodza-date__day:focus-visible:not(#_),
+.kodza-date__nav button:focus-visible:not(#_),
+.kodza-date__today:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-date-fg);
+  outline-offset: -2px;
+}
+
+.kodza-date__today:not(#_) {
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-date__native:not(#_),
+  .kodza-date__trigger:not(#_),
+  .kodza-date__day:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

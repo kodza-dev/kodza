@@ -1,0 +1,1135 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Carousel
+   Slides in a row that scrolls natively and snaps to each slide: without the script it already
+   works with a finger, a trackpad, Shift + wheel and the keyboard. The script adds the buttons
+   (one page at a time, dimmed at the ends), a count that rolls, a progress bar that follows the
+   scroll, dots with an ink pill that stretches from one to the next, mouse dragging with a throw
+   that glides onto a slide, arrow keys, and labels and announcements for screen readers. The
+   vertical wheel always scrolls the page. Any content goes in a slide: cards, products, quotes.
+   Keep the parts you want: __controls (count, prev, next), __progress, __dots.
+   data-autoplay="6000" plays the slides on its own (never under reduced motion until asked): it
+   stops while pointed at or focused, and adds a pause button. Labels for other languages:
+   data-slide-label="{n} of {total}", data-status-one, data-status-many, data-dot-label,
+   data-pause-label, data-play-label.
+   Everything is tuned with the --kz-carousel-* variables. */
+.kodza-carousel {
+  --kz-carousel-per-view: 3; /* slides in view; a decimal shows part of the next one */
+  --kz-carousel-per-view-tablet: 2.2; /* carousel narrower than 860px */
+  --kz-carousel-per-view-phone: 1.1; /* carousel narrower than 560px */
+  --kz-carousel-gap: 16px;
+  --kz-carousel-inset: 0px; /* room before the first slide and after the last (full-width layouts) */
+  --kz-carousel-fg: #0a0a0a;
+  --kz-carousel-muted: rgba(10, 10, 10, 0.64);
+  --kz-carousel-dim: rgba(10, 10, 10, 0.45);
+  --kz-carousel-line: rgba(10, 10, 10, 0.12);
+  --kz-carousel-soft: rgba(10, 10, 10, 0.06);
+  --kz-carousel-ink: #0a0a0a; /* the buttons, the progress bar, the dot pill */
+  --kz-carousel-ink-hover: #2e2e2e;
+  --kz-carousel-on-ink: #ffffff;
+  --kz-carousel-card: #ffffff;
+  --kz-carousel-border: rgba(10, 10, 10, 0.1);
+  --kz-carousel-placeholder: rgba(10, 10, 10, 0.05);
+  --kz-carousel-radius: 16px;
+  --kz-carousel-ratio: 4 / 3; /* the picture frame of a card */
+  --kz-carousel-control: 40px;
+  --kz-carousel-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: grid;
+  grid-template-areas: "head" "track" "progress" "dots";
+  grid-template-columns: minmax(0, 1fr);
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  container: kodza-carousel / inline-size;
+  color: var(--kz-carousel-fg);
+}
+
+/* The keyboard focus ring of the row goes around the slides in view, not the whole width */
+.kodza-carousel::after {
+  grid-area: track;
+  margin: 0 var(--kz-carousel-inset);
+  border-radius: calc(var(--kz-carousel-radius) + 5px);
+  outline: 2px solid transparent;
+  outline-offset: 5px;
+  content: "";
+  pointer-events: none;
+}
+
+.kodza-carousel:has(> .kodza-carousel__viewport:focus-visible)::after {
+  outline-color: var(--kz-carousel-fg);
+}
+
+/* --quotes: two quotes in view */
+.kodza-carousel--quotes {
+  --kz-carousel-per-view: 2;
+  --kz-carousel-per-view-tablet: 1.4;
+  --kz-carousel-per-view-phone: 1.08;
+}
+
+/* Title on the left, count and buttons on the right */
+.kodza-carousel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+  grid-area: head;
+  min-height: var(--kz-carousel-control);
+  margin: 0 0 24px;
+  padding: 0 var(--kz-carousel-inset);
+}
+
+.kodza-carousel__title {
+  margin: 0;
+  color: var(--kz-carousel-fg);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+
+.kodza-carousel__controls {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+/* "01–03 / 06": the numbers roll when they change */
+.kodza-carousel__count {
+  display: flex;
+  align-items: baseline;
+  margin-right: 10px;
+  color: var(--kz-carousel-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.kodza-carousel__num {
+  display: inline-grid;
+  overflow: hidden;
+  color: var(--kz-carousel-fg);
+}
+
+.kodza-carousel__num > * {
+  grid-area: 1 / 1;
+}
+
+.kodza-carousel__dash {
+  padding: 0 0.15em;
+}
+
+.kodza-carousel__total {
+  padding-left: 0.5em;
+}
+
+.kodza-carousel__count.is-single .kodza-carousel__dash,
+.kodza-carousel__count.is-single .kodza-carousel__num + .kodza-carousel__dash + .kodza-carousel__num {
+  display: none;
+}
+
+.kodza-carousel__prev,
+.kodza-carousel__next,
+.kodza-carousel__toggle {
+  position: relative;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--kz-carousel-control);
+  height: var(--kz-carousel-control);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--kz-carousel-line);
+  color: var(--kz-carousel-fg);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s var(--kz-carousel-ease);
+}
+
+.kodza-carousel__toggle:hover {
+  background: var(--kz-carousel-soft);
+}
+
+/* Previous and next: solid ink, easy to find */
+.kodza-carousel__prev,
+.kodza-carousel__next {
+  background: var(--kz-carousel-ink);
+  box-shadow: none;
+  color: var(--kz-carousel-on-ink);
+}
+
+.kodza-carousel__prev:hover,
+.kodza-carousel__next:hover {
+  background: var(--kz-carousel-ink-hover);
+}
+
+.kodza-carousel__prev:active,
+.kodza-carousel__next:active,
+.kodza-carousel__toggle:active {
+  transform: scale(0.94);
+}
+
+/* At the ends: a pale disc, still focusable, announced as unavailable */
+.kodza-carousel__prev[aria-disabled="true"],
+.kodza-carousel__next[aria-disabled="true"] {
+  background: var(--kz-carousel-soft);
+  color: var(--kz-carousel-dim);
+  cursor: default;
+  transform: none;
+}
+
+.kodza-carousel__prev svg,
+.kodza-carousel__next svg,
+.kodza-carousel__toggle svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.kodza-carousel__prev:focus-visible,
+.kodza-carousel__next:focus-visible,
+.kodza-carousel__toggle:focus-visible,
+.kodza-carousel__dot:focus-visible {
+  outline: 2px solid var(--kz-carousel-fg);
+  outline-offset: 2px;
+}
+
+/* The row of slides: native scrolling and snapping */
+.kodza-carousel__viewport {
+  --kz-carousel-view: var(--kz-carousel-per-view);
+
+  position: relative;
+  display: flex;
+  grid-area: track;
+  gap: var(--kz-carousel-gap);
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0 var(--kz-carousel-inset);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-behavior: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--kz-carousel-inset);
+  scrollbar-color: var(--kz-carousel-line) transparent;
+  scrollbar-width: thin;
+}
+
+/* With the script, the progress bar or the dots take the scrollbar's place */
+.kodza-carousel.is-ready .kodza-carousel__viewport {
+  scrollbar-width: none;
+}
+
+.kodza-carousel.is-ready .kodza-carousel__viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.kodza-carousel__viewport:focus-visible {
+  outline: none;
+}
+
+@supports not selector(:has(*)) {
+  .kodza-carousel__viewport:focus-visible {
+    outline: 2px solid var(--kz-carousel-fg);
+    outline-offset: -2px;
+  }
+}
+
+@container kodza-carousel (max-width: 860px) {
+  .kodza-carousel__viewport {
+    --kz-carousel-view: var(--kz-carousel-per-view-tablet);
+  }
+}
+
+@container kodza-carousel (max-width: 560px) {
+  .kodza-carousel__viewport {
+    --kz-carousel-view: var(--kz-carousel-per-view-phone);
+  }
+}
+
+/* A phone: the title makes room for the count and the buttons */
+@container kodza-carousel (max-width: 420px) {
+  .kodza-carousel__title {
+    font-size: 22px;
+  }
+
+  .kodza-carousel__count {
+    margin-right: 4px;
+  }
+}
+
+.kodza-carousel__slide {
+  display: flex;
+  flex: 0 0 calc((100% - (var(--kz-carousel-view) - 1) * var(--kz-carousel-gap)) / var(--kz-carousel-view));
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+/* Dragged with the mouse, or gliding to a slide: the script moves it, snapping waits */
+.kodza-carousel.is-dragging .kodza-carousel__viewport,
+.kodza-carousel.is-gliding .kodza-carousel__viewport {
+  scroll-snap-type: none;
+}
+
+.kodza-carousel.is-dragging .kodza-carousel__viewport {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.kodza-carousel.is-dragging .kodza-carousel__slide {
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .kodza-carousel.is-ready:not(.is-static) .kodza-carousel__viewport {
+    cursor: grab;
+  }
+}
+
+/* A card: picture, name and price, a line of text */
+.kodza-carousel__card {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid var(--kz-carousel-border);
+  border-radius: var(--kz-carousel-radius);
+  background: var(--kz-carousel-card);
+  color: var(--kz-carousel-fg);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-carousel__card:focus-visible {
+  outline: 2px solid var(--kz-carousel-fg);
+  outline-offset: -2px;
+}
+
+.kodza-carousel__media {
+  display: block;
+  aspect-ratio: var(--kz-carousel-ratio);
+  overflow: hidden;
+  background: var(--kz-carousel-placeholder);
+}
+
+.kodza-carousel__media img {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: transform 0.9s var(--kz-carousel-ease);
+}
+
+.kodza-carousel__card:hover .kodza-carousel__media img {
+  transform: scale(1.04);
+}
+
+.kodza-carousel__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 8px 16px;
+  padding: 28px;
+}
+
+.kodza-carousel__name {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.kodza-carousel__price {
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-carousel__text {
+  grid-column: 1 / -1;
+  color: var(--kz-carousel-muted);
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+/* A quote: the words, then who said them */
+.kodza-carousel__quote {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 36px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 28px;
+  border: 1px solid var(--kz-carousel-border);
+  border-radius: var(--kz-carousel-radius);
+  background: var(--kz-carousel-card);
+  color: var(--kz-carousel-fg);
+}
+
+.kodza-carousel__says {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--kz-carousel-fg);
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+  text-wrap: pretty;
+  quotes: none;
+}
+
+.kodza-carousel__says::before,
+.kodza-carousel__says::after {
+  content: none;
+}
+
+.kodza-carousel__quote figcaption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  color: var(--kz-carousel-muted);
+  font-size: 14px;
+  font-style: normal;
+  line-height: 1.4;
+}
+
+.kodza-carousel__avatar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--kz-carousel-ink);
+  color: var(--kz-carousel-on-ink);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.kodza-carousel__who {
+  display: grid;
+}
+
+.kodza-carousel__who b {
+  color: var(--kz-carousel-fg);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* The progress bar: the thumb is as wide as the part in view and follows the scroll */
+.kodza-carousel__progress {
+  position: relative;
+  grid-area: progress;
+  height: 2px;
+  margin: 28px var(--kz-carousel-inset) 0;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--kz-carousel-line);
+}
+
+.kodza-carousel__thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 33%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--kz-carousel-ink);
+  will-change: transform;
+}
+
+/* Dots, one per stop, under an ink pill that stretches to the next one */
+.kodza-carousel__dots {
+  position: relative;
+  display: flex;
+  grid-area: dots;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  margin: 24px var(--kz-carousel-inset) 0;
+}
+
+.kodza-carousel__dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-carousel__dot::before {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--kz-carousel-dim);
+  content: "";
+  transition: background-color 0.25s ease, transform 0.25s var(--kz-carousel-ease);
+}
+
+.kodza-carousel__dot:hover::before {
+  background: var(--kz-carousel-muted);
+  transform: scale(1.35);
+}
+
+.kodza-carousel__pill {
+  position: absolute;
+  inset: 0;
+  background: var(--kz-carousel-ink);
+  pointer-events: none;
+}
+
+/* The autoplay button: pause or play, and a ring that counts down to the next slide */
+.kodza-carousel__toggle svg {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  fill: currentColor;
+  transition: opacity 0.25s ease, transform 0.35s var(--kz-carousel-ease);
+}
+
+.kodza-carousel__dots .kodza-carousel__toggle {
+  margin-right: 12px;
+}
+
+.kodza-carousel__toggle .kodza-carousel__ring {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--kz-carousel-fg);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  stroke-width: 1.5;
+  transform: rotate(-90deg);
+  transition: none;
+}
+
+.kodza-carousel__toggle.is-paused .kodza-carousel__pause,
+.kodza-carousel__toggle:not(.is-paused) .kodza-carousel__play {
+  opacity: 0;
+  transform: scale(0.5) rotate(-90deg);
+}
+
+/* Screen reader announcements */
+.kodza-carousel__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Before the script, or when everything fits: no controls (their room is kept) */
+.kodza-carousel:not(.is-ready) .kodza-carousel__controls,
+.kodza-carousel:not(.is-ready) .kodza-carousel__progress,
+.kodza-carousel.is-static .kodza-carousel__controls,
+.kodza-carousel.is-static .kodza-carousel__progress,
+.kodza-carousel.is-static .kodza-carousel__dots {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-carousel *,
+  .kodza-carousel *::before,
+  .kodza-carousel *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 0a3c5772eba1 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-carousel__title):not(#_),
+:where(.kodza-carousel__quote):not(#_),
+:where(.kodza-carousel__says):not(#_),
+:where(.kodza-carousel__quote figcaption:where(:not([class*="kodza-"]):not(.kodza-carousel__quote [class*="kodza-"] *))):not(#_),
+:where(.kodza-carousel__who b:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-carousel__prev):not(#_),
+:where(.kodza-carousel__next):not(#_),
+:where(.kodza-carousel__viewport):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-carousel__card):not(#_),
+:where(.kodza-carousel__dot):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+}
+
+:where(.kodza-carousel__prev svg:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-carousel__next svg:where(:not([class*="kodza-"]))):not(#_) {
+  margin: revert;
+  transition: revert;
+  position: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-carousel__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-carousel__controls:not(#_),
+.kodza-carousel__count:not(#_),
+.kodza-carousel__num:not(#_),
+.kodza-carousel__dash:not(#_),
+.kodza-carousel__total:not(#_),
+.kodza-carousel__media:not(#_),
+.kodza-carousel__body:not(#_),
+.kodza-carousel__name:not(#_),
+.kodza-carousel__price:not(#_),
+.kodza-carousel__text:not(#_),
+.kodza-carousel__progress:not(#_),
+.kodza-carousel__thumb:not(#_),
+.kodza-carousel__status:not(#_),
+.kodza-carousel__avatar:not(#_),
+.kodza-carousel__who:not(#_),
+.kodza-carousel__dots:not(#_),
+.kodza-carousel__pill:not(#_),
+.kodza-carousel__num span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-carousel__prev:not(#_),
+.kodza-carousel__next:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-carousel__viewport:not(#_) {
+  box-shadow: revert;
+}
+
+.kodza-carousel__card:not(#_) {
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-carousel__quote:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-carousel__says:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-carousel__dot:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-carousel__prev svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-carousel__next svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-carousel__media img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-carousel__quote figcaption:where(:not([class*="kodza-"]):not(.kodza-carousel__quote [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-carousel__who b:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-carousel__title:not(#_):where(:not([hidden])),
+.kodza-carousel__says:not(#_):where(:not([hidden])),
+.kodza-carousel__who b:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-carousel__title:not(#_):where([hidden]),
+.kodza-carousel__says:not(#_):where([hidden]),
+.kodza-carousel__who b:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-carousel:not(#_)::after,
+.kodza-carousel__viewport:not(#_)::after,
+.kodza-carousel__says:not(#_)::before,
+.kodza-carousel__says:not(#_)::after,
+.kodza-carousel__dot:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-carousel__title:not(#_) {
+  margin: 0;
+  color: var(--kz-carousel-fg);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+
+.kodza-carousel__prev:not(#_),
+.kodza-carousel__next:not(#_) {
+  position: relative;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--kz-carousel-control);
+  height: var(--kz-carousel-control);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--kz-carousel-line);
+  color: var(--kz-carousel-fg);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s var(--kz-carousel-ease);
+}
+
+.kodza-carousel__prev:not(#_),
+.kodza-carousel__next:not(#_) {
+  background: var(--kz-carousel-ink);
+  box-shadow: none;
+  color: var(--kz-carousel-on-ink);
+}
+
+.kodza-carousel__prev:hover:not(#_),
+.kodza-carousel__next:hover:not(#_) {
+  background: var(--kz-carousel-ink-hover);
+}
+
+.kodza-carousel__prev:active:not(#_),
+.kodza-carousel__next:active:not(#_) {
+  transform: scale(0.94);
+}
+
+.kodza-carousel__prev[aria-disabled="true"]:not(#_),
+.kodza-carousel__next[aria-disabled="true"]:not(#_) {
+  background: var(--kz-carousel-soft);
+  color: var(--kz-carousel-dim);
+  cursor: default;
+  transform: none;
+}
+
+.kodza-carousel__prev svg:not(#_),
+.kodza-carousel__next svg:not(#_),
+.kodza-carousel__toggle svg:not(#_) {
+  display: block;
+}
+
+.kodza-carousel__prev:focus-visible:not(#_),
+.kodza-carousel__next:focus-visible:not(#_),
+.kodza-carousel__dot:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-carousel-fg);
+  outline-offset: 2px;
+}
+
+.kodza-carousel__viewport:focus-visible:not(#_) {
+  outline: none;
+}
+
+@supports not selector(:has(*)) {
+  .kodza-carousel__viewport:focus-visible:not(#_) {
+    outline: 2px solid var(--kz-carousel-fg);
+    outline-offset: -2px;
+  }
+}
+
+@container kodza-carousel (max-width: 420px) {
+  .kodza-carousel__title:not(#_) {
+    font-size: 22px;
+  }
+}
+
+.kodza-carousel__card:not(#_) {
+  display: flex;
+  box-sizing: border-box;
+  border: 1px solid var(--kz-carousel-border);
+  border-radius: var(--kz-carousel-radius);
+  background: var(--kz-carousel-card);
+  color: var(--kz-carousel-fg);
+  text-decoration: none;
+}
+
+.kodza-carousel__card:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-carousel-fg);
+  outline-offset: -2px;
+}
+
+.kodza-carousel__media img:not(#_) {
+  display: block;
+  max-width: none;
+  transition: transform 0.9s var(--kz-carousel-ease);
+}
+
+.kodza-carousel__quote:not(#_) {
+  display: flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 28px;
+  border: 1px solid var(--kz-carousel-border);
+  border-radius: var(--kz-carousel-radius);
+  background: var(--kz-carousel-card);
+  color: var(--kz-carousel-fg);
+}
+
+.kodza-carousel__says:not(#_) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--kz-carousel-fg);
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+}
+
+.kodza-carousel__quote figcaption:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  color: var(--kz-carousel-muted);
+  font-size: 14px;
+  font-style: normal;
+  line-height: 1.4;
+}
+
+.kodza-carousel__who b:not(#_) {
+  color: var(--kz-carousel-fg);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.kodza-carousel__dot:not(#_) {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-carousel__dot:not(#_)::before {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--kz-carousel-dim);
+  content: "";
+  transition: background-color 0.25s ease, transform 0.25s var(--kz-carousel-ease);
+}
+
+.kodza-carousel__dot:hover:not(#_)::before {
+  background: var(--kz-carousel-muted);
+  transform: scale(1.35);
+}
+
+.kodza-carousel__toggle svg:not(#_) {
+  position: absolute;
+  margin: auto;
+  transition: opacity 0.25s ease, transform 0.35s var(--kz-carousel-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-carousel *:not(#_),
+  .kodza-carousel *:not(#_)::before,
+  .kodza-carousel *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

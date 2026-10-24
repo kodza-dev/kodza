@@ -1,0 +1,504 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Product Tour
+   A guided tour: the page dims, a spotlight cuts out the element to look at, and a card next to
+   it explains. Between steps, the spotlight glides and reshapes itself to the next element and
+   the card follows, its words sliding the way you go. Arrows, Enter and Escape drive it, and it
+   scrolls each element into view first. Steps are an ordered list (ol) of data-target / data-title, looked
+   for inside data-scope (the whole page by default).
+   Everything is tuned with the --kz-tour-* variables. */
+.kodza-tour {
+  --kz-tour-bg: #ffffff;
+  --kz-tour-fg: #0a0a0a;
+  --kz-tour-muted: rgba(10, 10, 10, 0.6);
+  --kz-tour-line: rgba(10, 10, 10, 0.12);
+  --kz-tour-ink: #0a0a0a;
+  --kz-tour-on-ink: #ffffff;
+  --kz-tour-dim: rgba(10, 10, 10, 0.55);
+  --kz-tour-ring: rgba(255, 255, 255, 0.9);
+  --kz-tour-pad: 6px;
+  --kz-tour-radius: 12px;
+  --kz-tour-ease: cubic-bezier(0.65, 0, 0.35, 1);
+
+  color: var(--kz-tour-fg);
+}
+
+.kodza-tour__start,
+.kodza-tour__next,
+.kodza-tour__back {
+  height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-tour-ink);
+  color: var(--kz-tour-on-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.kodza-tour__start:hover,
+.kodza-tour__next:hover {
+  opacity: 0.86;
+}
+
+.kodza-tour__start:active,
+.kodza-tour__next:active,
+.kodza-tour__back:active {
+  transform: scale(0.97);
+}
+
+.kodza-tour__back {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-tour-line);
+  color: var(--kz-tour-fg);
+}
+
+.kodza-tour__back[hidden] {
+  display: none;
+}
+
+/* The spotlight: a hole in the dimmed page, with a thin ring */
+.kodza-tour__spot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 80;
+  border-radius: var(--kz-tour-radius);
+  box-shadow: 0 0 0 1.5px var(--kz-tour-ring), 0 0 0 100vmax var(--kz-tour-dim);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.kodza-tour.is-on .kodza-tour__spot {
+  opacity: 1;
+}
+
+/* A clear layer catches clicks on the page while the tour runs */
+.kodza-tour__blocker {
+  position: fixed;
+  inset: 0;
+  z-index: 79;
+  display: none;
+}
+
+.kodza-tour.is-on .kodza-tour__blocker {
+  display: block;
+}
+
+/* The card */
+.kodza-tour__card {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 81;
+  display: grid;
+  gap: 8px;
+  width: min(320px, calc(100vw - 24px));
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--kz-tour-bg);
+  box-shadow: 0 0 0 1px var(--kz-tour-line), 0 24px 50px -20px rgba(10, 10, 10, 0.5);
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(var(--kz-card-x, 0), var(--kz-card-y, 0)) scale(0.96);
+  transition: opacity 0.3s ease, transform 0.55s var(--kz-tour-ease), visibility 0s linear 0.3s;
+}
+
+.kodza-tour.is-on .kodza-tour__card {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(var(--kz-card-x, 0), var(--kz-card-y, 0));
+  transition: opacity 0.3s ease, transform 0.55s var(--kz-tour-ease), visibility 0s;
+}
+
+/* Following a scroll: no glide, the card stays with its target */
+.kodza-tour.is-on .kodza-tour__card.is-following {
+  transition: opacity 0.3s ease, visibility 0s;
+}
+
+.kodza-tour__card:focus {
+  outline: none;
+}
+
+.kodza-tour__count {
+  margin: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  color: var(--kz-tour-muted);
+}
+
+/* The words: old ones leave the way you go, new ones come in from the other side */
+.kodza-tour__words {
+  display: grid;
+  overflow: hidden;
+}
+
+.kodza-tour__page {
+  display: grid;
+  grid-area: 1 / 1;
+  gap: 6px;
+}
+
+.kodza-tour__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.kodza-tour__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--kz-tour-muted);
+  text-wrap: pretty;
+}
+
+.kodza-tour__foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.kodza-tour__dots {
+  display: flex;
+  flex: 1;
+  gap: 4px;
+}
+
+.kodza-tour__dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--kz-tour-line);
+  transition: transform 0.4s var(--kz-tour-ease), background-color 0.3s ease;
+}
+
+.kodza-tour__dots span.is-on {
+  background: var(--kz-tour-ink);
+  transform: scale(1.35);
+}
+
+.kodza-tour__skip {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--kz-tour-muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.kodza-tour__skip:hover {
+  color: var(--kz-tour-fg);
+}
+
+.kodza-tour__start:focus-visible,
+.kodza-tour__next:focus-visible,
+.kodza-tour__back:focus-visible,
+.kodza-tour__skip:focus-visible {
+  outline: 2px solid var(--kz-tour-fg);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-tour__spot,
+  .kodza-tour__card,
+  .kodza-tour.is-on .kodza-tour__card,
+  .kodza-tour__dots span {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-tour {
+  --kz-tour-bg: #1b1b1b;
+  --kz-tour-fg: #f2f2f0;
+  --kz-tour-muted: rgba(242, 242, 240, 0.62);
+  --kz-tour-line: rgba(255, 255, 255, 0.14);
+  --kz-tour-ink: #f2f2f0;
+  --kz-tour-on-ink: #0a0a0a;
+  --kz-tour-dim: rgba(0, 0, 0, 0.65);
+}
+*/
+
+/* kodza-guard 81931ac0482c — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-tour__start):not(#_),
+:where(.kodza-tour__back):not(#_),
+:where(.kodza-tour__next):not(#_),
+:where(.kodza-tour__skip):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-tour__card):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-tour__back):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-tour__back):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-tour:not(#_),
+.kodza-tour__blocker:not(#_),
+.kodza-tour__spot:not(#_),
+.kodza-tour__words:not(#_),
+.kodza-tour__foot:not(#_),
+.kodza-tour__dots:not(#_),
+.kodza-tour__dots span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-tour__start:not(#_),
+.kodza-tour__next:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-tour__steps:not(#_),
+.kodza-tour__steps li:where(:not([class*="kodza-"]):not(.kodza-tour__steps [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-tour__card:not(#_) {
+  outline-offset: revert;
+}
+
+.kodza-tour__count:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-tour__back:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-tour__skip:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-tour__start:not(#_):where(:not([hidden])),
+.kodza-tour__steps:not(#_):where(:not([hidden])),
+.kodza-tour__count:not(#_):where(:not([hidden])),
+.kodza-tour__next:not(#_):where(:not([hidden])),
+.kodza-tour__skip:not(#_):where(:not([hidden])),
+.kodza-tour__steps li:where(:not([class*="kodza-"]):not(.kodza-tour__steps [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-tour__start:not(#_):where([hidden]),
+.kodza-tour__steps:not(#_):where([hidden]),
+.kodza-tour__count:not(#_):where([hidden]),
+.kodza-tour__next:not(#_):where([hidden]),
+.kodza-tour__skip:not(#_):where([hidden]),
+.kodza-tour__steps li:where(:not([class*="kodza-"]):not(.kodza-tour__steps [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-tour__start:not(#_),
+.kodza-tour__next:not(#_),
+.kodza-tour__back:not(#_) {
+  height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-tour-ink);
+  color: var(--kz-tour-on-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.kodza-tour__start:hover:not(#_),
+.kodza-tour__next:hover:not(#_) {
+  opacity: 0.86;
+}
+
+.kodza-tour__start:active:not(#_),
+.kodza-tour__next:active:not(#_),
+.kodza-tour__back:active:not(#_) {
+  transform: scale(0.97);
+}
+
+.kodza-tour__back:not(#_) {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-tour-line);
+  color: var(--kz-tour-fg);
+}
+
+.kodza-tour__back[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-tour__card:not(#_) {
+  box-shadow: 0 0 0 1px var(--kz-tour-line), 0 24px 50px -20px rgba(10, 10, 10, 0.5);
+}
+
+.kodza-tour__card:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-tour__count:not(#_) {
+  margin: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  color: var(--kz-tour-muted);
+}
+
+.kodza-tour__skip:not(#_) {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--kz-tour-muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.kodza-tour__skip:hover:not(#_) {
+  color: var(--kz-tour-fg);
+}
+
+.kodza-tour__start:focus-visible:not(#_),
+.kodza-tour__next:focus-visible:not(#_),
+.kodza-tour__back:focus-visible:not(#_),
+.kodza-tour__skip:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-tour-fg);
+  outline-offset: 2px;
+}

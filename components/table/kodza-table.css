@@ -1,0 +1,648 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Table
+   A data table that sorts when you click a column title: the rows glide to their new place,
+   the sorted column gets a soft band and an arrow that turns with the order. Numbers are
+   right-aligned in tabular figures. The header stays put when the table scrolls
+   (--kz-table-max sets a height), and the edges fade while there is more to scroll sideways.
+   A status is told by a shape: a full dot, a ring, an ink pill, or struck through.
+   Everything is tuned with the --kz-table-* variables. */
+.kodza-table {
+  --kz-table-bg: #ffffff;
+  --kz-table-fg: #0a0a0a;
+  --kz-table-muted: rgba(10, 10, 10, 0.6);
+  --kz-table-line: rgba(10, 10, 10, 0.09);
+  --kz-table-border: rgba(10, 10, 10, 0.1);
+  --kz-table-soft: rgba(10, 10, 10, 0.035);
+  --kz-table-ink: #0a0a0a;
+  --kz-table-on-ink: #ffffff;
+  --kz-table-max: none;
+  --kz-table-fade-l: 0px;
+  --kz-table-fade-r: 0px;
+  --kz-table-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  max-height: var(--kz-table-max);
+  overflow: auto;
+  border-radius: 16px;
+  background: var(--kz-table-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-table-border);
+  color: var(--kz-table-fg);
+  font-size: 14px;
+  -webkit-mask: linear-gradient(to right, transparent, #000 var(--kz-table-fade-l), #000 calc(100% - var(--kz-table-fade-r)), transparent);
+  mask: linear-gradient(to right, transparent, #000 var(--kz-table-fade-l), #000 calc(100% - var(--kz-table-fade-r)), transparent);
+}
+
+.kodza-table:focus-visible {
+  outline: 2px solid var(--kz-table-fg);
+  outline-offset: 3px;
+}
+
+.kodza-table table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+.kodza-table th,
+.kodza-table td {
+  height: 52px;
+  padding: 0 18px;
+  text-align: left;
+}
+
+.kodza-table th:first-child,
+.kodza-table td:first-child {
+  padding-left: 24px;
+}
+
+.kodza-table th:last-child,
+.kodza-table td:last-child {
+  padding-right: 24px;
+}
+
+/* The header: stays on top when the table scrolls */
+.kodza-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 46px;
+  background: var(--kz-table-bg);
+  box-shadow: inset 0 -1px 0 var(--kz-table-border);
+  color: var(--kz-table-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.kodza-table__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 -8px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.kodza-table__sort:hover {
+  background: var(--kz-table-soft);
+  color: var(--kz-table-fg);
+}
+
+.kodza-table__sort:focus-visible {
+  outline: 2px solid var(--kz-table-fg);
+  outline-offset: 1px;
+}
+
+.kodza-table__sort svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity 0.2s ease, transform 0.45s var(--kz-table-ease);
+}
+
+.kodza-table__sort:hover svg {
+  opacity: 0.4;
+  transform: none;
+}
+
+.kodza-table th[aria-sort] {
+  color: var(--kz-table-fg);
+}
+
+.kodza-table th[aria-sort] svg {
+  opacity: 1;
+  transform: none;
+}
+
+.kodza-table th[aria-sort="ascending"] svg {
+  transform: rotate(180deg);
+}
+
+/* The sorted column: a soft band */
+.kodza-table td.is-sorted {
+  background: var(--kz-table-soft);
+}
+
+.kodza-table th.kodza-table__num,
+.kodza-table td.kodza-table__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-table th.kodza-table__num .kodza-table__sort {
+  flex-direction: row-reverse;
+}
+
+/* Rows have a body: two rows crossing while they glide never mix their words */
+.kodza-table tbody tr {
+  position: relative;
+  background: var(--kz-table-bg);
+}
+
+.kodza-table tbody td {
+  transition: background-color 0.2s ease;
+}
+
+.kodza-table tbody tr + tr td {
+  border-top: 1px solid var(--kz-table-line);
+}
+
+.kodza-table tbody tr:hover td {
+  background-image: linear-gradient(var(--kz-table-soft), var(--kz-table-soft));
+}
+
+.kodza-table__name {
+  display: block;
+  font-weight: 500;
+}
+
+.kodza-table__slug {
+  display: block;
+  margin-top: 1px;
+  color: var(--kz-table-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11.5px;
+}
+
+.kodza-table tbody td:has(.kodza-table__name) {
+  height: 60px;
+}
+
+/* Status: a shape says it, not a color */
+.kodza-table__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kodza-table__status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: var(--kz-table-ink);
+}
+
+.kodza-table__status[data-status="beta"]::before {
+  background: none;
+  border: 1.5px solid var(--kz-table-ink);
+}
+
+.kodza-table__status[data-status="new"] {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--kz-table-ink);
+  color: var(--kz-table-on-ink);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.kodza-table__status[data-status="new"]::before {
+  display: none;
+}
+
+.kodza-table__status[data-status="deprecated"] {
+  color: var(--kz-table-muted);
+  text-decoration: line-through;
+}
+
+.kodza-table__status[data-status="deprecated"]::before {
+  width: 8px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--kz-table-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-table__sort,
+  .kodza-table__sort svg,
+  .kodza-table tbody td {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-table {
+  --kz-table-bg: #161616;
+  --kz-table-fg: #f2f2f0;
+  --kz-table-muted: rgba(242, 242, 240, 0.6);
+  --kz-table-line: rgba(255, 255, 255, 0.08);
+  --kz-table-border: rgba(255, 255, 255, 0.12);
+  --kz-table-soft: rgba(255, 255, 255, 0.04);
+  --kz-table-ink: #f2f2f0;
+  --kz-table-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard 25536beb55df — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-table):not(#_),
+:where(.kodza-table__sort):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-table__num):not(#_) {
+  transition: revert;
+  position: revert;
+  border-top-width: revert;
+  border-top-style: revert;
+  border-top-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  color: revert;
+  font-size: revert;
+  font-weight: revert;
+}
+
+:where(.kodza-table tr:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *))):not(#_) {
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+}
+
+:where(.kodza-table td:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *))):not(#_) {
+  border-top-width: revert;
+  border-top-style: revert;
+  border-top-color: revert;
+  background-color: revert;
+  background-image: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-table:not(#_),
+.kodza-table__name:not(#_),
+.kodza-table__slug:not(#_),
+.kodza-table__status:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-table__sort:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-table__num:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-table table:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_),
+.kodza-table thead:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_),
+.kodza-table tbody:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_),
+.kodza-table__num time:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-table tr:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-table th:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-table__sort svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-table td:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-table__num:not(#_):where(:not([hidden])),
+.kodza-table table:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-table thead:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-table tr:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-table th:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-table__sort svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-table tbody:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-table td:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-table__num time:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-table__num:not(#_):where([hidden]),
+.kodza-table table:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-table thead:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-table tr:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-table th:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-table__sort svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-table tbody:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-table td:where(:not([class*="kodza-"]):not(.kodza-table [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-table__num time:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-table:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-table-border);
+}
+
+.kodza-table:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-table-fg);
+  outline-offset: 3px;
+}
+
+.kodza-table th:not(#_),
+.kodza-table td:not(#_) {
+  padding: 0 18px;
+  text-align: left;
+}
+
+.kodza-table th:first-child:not(#_),
+.kodza-table td:first-child:not(#_) {
+  padding-left: 24px;
+}
+
+.kodza-table th:last-child:not(#_),
+.kodza-table td:last-child:not(#_) {
+  padding-right: 24px;
+}
+
+.kodza-table thead th:not(#_) {
+  position: sticky;
+  background: var(--kz-table-bg);
+  box-shadow: inset 0 -1px 0 var(--kz-table-border);
+  color: var(--kz-table-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.kodza-table__sort:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 -8px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.kodza-table__sort:hover:not(#_) {
+  background: var(--kz-table-soft);
+  color: var(--kz-table-fg);
+}
+
+.kodza-table__sort:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-table-fg);
+  outline-offset: 1px;
+}
+
+.kodza-table__sort svg:not(#_) {
+  transition: opacity 0.2s ease, transform 0.45s var(--kz-table-ease);
+}
+
+.kodza-table th[aria-sort]:not(#_) {
+  color: var(--kz-table-fg);
+}
+
+.kodza-table td.is-sorted:not(#_) {
+  background: var(--kz-table-soft);
+}
+
+.kodza-table th.kodza-table__num:not(#_),
+.kodza-table td.kodza-table__num:not(#_) {
+  text-align: right;
+}
+
+.kodza-table th.kodza-table__num .kodza-table__sort:not(#_) {
+  flex-direction: row-reverse;
+}
+
+.kodza-table tbody tr:not(#_) {
+  position: relative;
+  background: var(--kz-table-bg);
+}
+
+.kodza-table tbody td:not(#_) {
+  transition: background-color 0.2s ease;
+}
+
+.kodza-table tbody tr + tr td:not(#_) {
+  border-top: 1px solid var(--kz-table-line);
+}
+
+.kodza-table tbody tr:hover td:not(#_) {
+  background-image: linear-gradient(var(--kz-table-soft), var(--kz-table-soft));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-table__sort:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-table__sort svg:not(#_),
+  .kodza-table tbody td:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

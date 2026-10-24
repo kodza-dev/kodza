@@ -1,0 +1,586 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Popover
+   A panel attached to its trigger, on the native Popover API (top layer, closes on Escape and
+   on a click elsewhere). It grows out of the trigger, its arrow pointing back at it, flips
+   above when there is no room below and stays inside the screen. With --hover it opens on
+   hover or focus after a short wait, as a hover card, and stays while the pointer is on it.
+   Everything is tuned with the --kz-pop-* variables. */
+.kodza-popover {
+  --kz-pop-bg: #ffffff;
+  --kz-pop-fg: #0a0a0a;
+  --kz-pop-muted: rgba(10, 10, 10, 0.6);
+  --kz-pop-line: rgba(10, 10, 10, 0.12);
+  --kz-pop-soft: rgba(10, 10, 10, 0.05);
+  --kz-pop-ink: #0a0a0a;
+  --kz-pop-on-ink: #ffffff;
+  --kz-pop-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  --kz-pop-width: 300px;
+  --kz-pop-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  color: var(--kz-pop-fg);
+}
+
+.kodza-popover:not(.kodza-popover--hover) {
+  display: inline-block;
+}
+
+.kodza-popover--hover {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+button.kodza-popover__trigger {
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-pop-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-pop-line);
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease;
+}
+
+button.kodza-popover__trigger:hover,
+button.kodza-popover__trigger[aria-expanded="true"] {
+  box-shadow: inset 0 0 0 1px var(--kz-pop-muted);
+}
+
+a.kodza-popover__trigger {
+  border-radius: 4px;
+  color: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.kodza-popover__trigger:focus-visible,
+.kodza-popover__copy:focus-visible {
+  outline: 2px solid var(--kz-pop-fg);
+  outline-offset: 3px;
+}
+
+/* The panel: placed by the script, grows out of the trigger */
+.kodza-popover__panel {
+  position: fixed;
+  inset: auto;
+  top: var(--kz-pop-y, 0);
+  left: var(--kz-pop-x, 0);
+  width: var(--kz-pop-width);
+  max-width: calc(100vw - 16px);
+  margin: 0;
+  padding: 18px;
+  overflow: visible;
+  border: 0;
+  border-radius: 16px;
+  background: var(--kz-pop-bg);
+  box-shadow: 0 0 0 1px var(--kz-pop-line), var(--kz-pop-shadow);
+  color: var(--kz-pop-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.kodza-popover__panel:popover-open,
+.kodza-popover__panel.is-open {
+  display: grid;
+  gap: 8px;
+}
+
+/* The arrow, pointing at the trigger */
+.kodza-popover__panel::before {
+  content: "";
+  position: absolute;
+  left: var(--kz-pop-arrow, 50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--kz-pop-bg);
+  box-shadow: -1px -1px 0 0 var(--kz-pop-line);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.kodza-popover__panel[data-side="bottom"]::before {
+  top: 0;
+}
+
+.kodza-popover__panel[data-side="top"]::before {
+  top: 100%;
+  box-shadow: 1px 1px 0 0 var(--kz-pop-line);
+}
+
+.kodza-popover__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.kodza-popover__text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--kz-pop-muted);
+  text-wrap: pretty;
+}
+
+.kodza-popover__meta {
+  margin-top: -6px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  color: var(--kz-pop-muted);
+}
+
+.kodza-popover__image {
+  width: 100%;
+  height: 120px;
+  margin-bottom: 4px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.kodza-popover__row {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.kodza-popover__field {
+  flex: 1;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 38px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--kz-pop-soft);
+  color: inherit;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  outline: none;
+}
+
+.kodza-popover__field:focus-visible {
+  box-shadow: inset 0 0 0 1.5px var(--kz-pop-fg);
+}
+
+.kodza-popover__copy {
+  height: 38px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--kz-pop-ink);
+  color: var(--kz-pop-on-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* "Copy" rolls to "Copied". Both words share one grid cell, so the button keeps the width
+   of the longer one and the field next to it never moves */
+.kodza-popover__copy-words {
+  display: inline-grid;
+  justify-items: center;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.kodza-popover__copy-words > span {
+  grid-area: 1 / 1;
+}
+
+/* The word waiting its turn, under the button */
+.kodza-popover__copy-words > [aria-hidden="true"] {
+  transform: translateY(110%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button.kodza-popover__trigger {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-popover {
+  --kz-pop-bg: #161616;
+  --kz-pop-fg: #f2f2f0;
+  --kz-pop-muted: rgba(242, 242, 240, 0.62);
+  --kz-pop-line: rgba(255, 255, 255, 0.14);
+  --kz-pop-soft: rgba(255, 255, 255, 0.07);
+  --kz-pop-ink: #f2f2f0;
+  --kz-pop-on-ink: #0a0a0a;
+  --kz-pop-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+}
+*/
+
+/* kodza-guard 94059fc3bacd — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-popover):not(#_) {
+  font-size: revert;
+  line-height: revert;
+}
+
+:where(.kodza-popover__trigger):not(#_) {
+  border: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  font-family: revert;
+  font-size: revert;
+  font-style: revert;
+  line-height: revert;
+  text-underline-offset: revert;
+}
+
+:where(.kodza-popover__field):not(#_) {
+  box-shadow: revert;
+}
+
+:where(.kodza-popover__copy):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-popover:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-popover__trigger:not(#_) {
+  margin: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-popover__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-popover__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-popover__row:not(#_),
+.kodza-popover__copy-words:not(#_),
+.kodza-popover__meta:not(#_),
+.kodza-popover__copy-words span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-popover__field:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-popover__copy:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-popover__image:not(#_) {
+  border: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-popover__trigger:not(#_):where(:not([hidden])),
+.kodza-popover__title:not(#_):where(:not([hidden])),
+.kodza-popover__text:not(#_):where(:not([hidden])),
+.kodza-popover__field:not(#_):where(:not([hidden])),
+.kodza-popover__copy:not(#_):where(:not([hidden])),
+.kodza-popover__image:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-popover__trigger:not(#_):where([hidden]),
+.kodza-popover__title:not(#_):where([hidden]),
+.kodza-popover__text:not(#_):where([hidden]),
+.kodza-popover__field:not(#_):where([hidden]),
+.kodza-popover__copy:not(#_):where([hidden]),
+.kodza-popover__image:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-popover__panel:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-popover:where(p):not(#_) {
+  color: var(--kz-pop-fg);
+}
+
+.kodza-popover:not(.kodza-popover--hover):where(p):not(#_) {
+  display: inline-block;
+}
+
+.kodza-popover--hover:not(#_) {
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+button.kodza-popover__trigger:not(#_) {
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-pop-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-pop-line);
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease;
+}
+
+button.kodza-popover__trigger:hover:not(#_),
+button.kodza-popover__trigger[aria-expanded="true"]:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-pop-muted);
+}
+
+a.kodza-popover__trigger:not(#_) {
+  border-radius: 4px;
+  color: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.kodza-popover__trigger:focus-visible:not(#_),
+.kodza-popover__copy:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-pop-fg);
+  outline-offset: 3px;
+}
+
+.kodza-popover__title:where(p):not(#_) {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.kodza-popover__text:where(p):not(#_) {
+  margin: 0;
+  font-size: 14px;
+  color: var(--kz-pop-muted);
+}
+
+.kodza-popover__image:not(#_) {
+  margin-bottom: 4px;
+  border-radius: 10px;
+}
+
+.kodza-popover__field:not(#_) {
+  flex: 1;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 38px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--kz-pop-soft);
+  color: inherit;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  outline: none;
+}
+
+.kodza-popover__field:focus-visible:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-pop-fg);
+}
+
+.kodza-popover__copy:not(#_) {
+  height: 38px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--kz-pop-ink);
+  color: var(--kz-pop-on-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button.kodza-popover__trigger:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

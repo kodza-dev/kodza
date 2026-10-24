@@ -1,0 +1,402 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Interactive Dots
+   A hero over a field of fine dots: the pointer pushes them aside like a hand in sand, springs
+   bring them home, and a click sends a wave across. One canvas, asleep whenever nothing moves
+   or nobody can see it. Everything is tuned with the --kz-interactive-dots-* variables. */
+.kodza-interactive-dots {
+  --kz-interactive-dots-bg: #f2f2f0;            /* the paper */
+  --kz-interactive-dots-ink: #0a0a0a;           /* the dots, the text, the button */
+  --kz-interactive-dots-muted: rgba(10, 10, 10, 0.62);
+  --kz-interactive-dots-gap: 22px;              /* from one dot to the next */
+  --kz-interactive-dots-size: 1.2px;            /* dot radius at rest */
+  --kz-interactive-dots-rest: 0.24;             /* dot opacity at rest */
+  --kz-interactive-dots-lift: 0.7;              /* how much darker a pushed dot gets, 0 to 1 */
+  --kz-interactive-dots-grow: 0;                /* how much bigger it gets (0.5 = half again) */
+  --kz-interactive-dots-reach: 104px;           /* radius of the hand */
+  --kz-interactive-dots-calm: 0.3;              /* how much a pushed dot lights up under the text, 0 to 1 */
+  --kz-interactive-dots-height: 600px;
+  --kz-interactive-dots-width: 1152px;          /* the text column */
+  --kz-interactive-dots-side: clamp(20px, 5vw, 64px);
+
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: var(--kz-interactive-dots-height);
+  padding: 120px var(--kz-interactive-dots-side) 72px;
+  overflow: hidden;
+  background: var(--kz-interactive-dots-bg);
+  color: var(--kz-interactive-dots-ink);
+}
+
+/* The field: drawn by the script on a canvas, and as plain CSS dots until then (or without it).
+   Both fade in from the top, and run on behind the text. */
+.kodza-interactive-dots::before,
+.kodza-interactive-dots__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16%);
+  mask-image: linear-gradient(to bottom, transparent, #000 16%);
+}
+
+.kodza-interactive-dots::before {
+  content: "";
+  background-image: radial-gradient(circle, color-mix(in srgb, var(--kz-interactive-dots-ink) calc(var(--kz-interactive-dots-rest) * 100%), transparent) var(--kz-interactive-dots-size), transparent calc(var(--kz-interactive-dots-size) + 0.6px));
+  background-position: center;
+  background-size: var(--kz-interactive-dots-gap) var(--kz-interactive-dots-gap);
+}
+
+.kodza-interactive-dots.is-live::before {
+  content: none;
+}
+
+.kodza-interactive-dots__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: var(--kz-interactive-dots-ink); /* the script reads the dot colour here */
+  pointer-events: none;
+}
+
+.kodza-interactive-dots__content {
+  width: 100%;
+  max-width: var(--kz-interactive-dots-width);
+  margin: 0 auto;
+}
+
+.kodza-interactive-dots__eyebrow {
+  margin: 0 0 20px;
+  color: var(--kz-interactive-dots-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.kodza-interactive-dots__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 28px 64px;
+}
+
+.kodza-interactive-dots__title {
+  margin: 0;
+  font-size: clamp(44px, 6.6vw, 92px);
+  font-weight: 600;
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+}
+
+.kodza-interactive-dots__line {
+  display: block;
+}
+
+.kodza-interactive-dots__lead {
+  max-width: 30em;
+  margin: 0 0 24px;
+  color: var(--kz-interactive-dots-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.kodza-interactive-dots__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+}
+
+.kodza-interactive-dots__button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--kz-interactive-dots-ink);
+  color: var(--kz-interactive-dots-bg);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.18s ease;
+}
+
+.kodza-interactive-dots__button:hover {
+  opacity: 0.86;
+}
+
+/* Opaque, so it sits on the dots like a pebble instead of letting them through */
+.kodza-interactive-dots__button--ghost {
+  background: var(--kz-interactive-dots-bg);
+  color: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.kodza-interactive-dots__button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  .kodza-interactive-dots {
+    padding: 96px var(--kz-interactive-dots-side) 56px;
+  }
+
+  .kodza-interactive-dots__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-interactive-dots__button {
+    transition: none;
+  }
+}
+
+/* kodza-guard 8c24cb657e6a — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-interactive-dots__button):not(#_) {
+  outline: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-interactive-dots__canvas:not(#_),
+.kodza-interactive-dots__content:not(#_),
+.kodza-interactive-dots__grid:not(#_),
+.kodza-interactive-dots__line:not(#_),
+.kodza-interactive-dots__side:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-interactive-dots__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-interactive-dots__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-interactive-dots__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-interactive-dots__actions:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-interactive-dots__button:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-interactive-dots__eyebrow:not(#_):where(:not([hidden])),
+.kodza-interactive-dots__title:not(#_):where(:not([hidden])),
+.kodza-interactive-dots__lead:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-interactive-dots__eyebrow:not(#_):where([hidden]),
+.kodza-interactive-dots__title:not(#_):where([hidden]),
+.kodza-interactive-dots__lead:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-interactive-dots:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-interactive-dots__eyebrow:not(#_) {
+  margin: 0 0 20px;
+  color: var(--kz-interactive-dots-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.kodza-interactive-dots__title:not(#_) {
+  margin: 0;
+  font-size: clamp(44px, 6.6vw, 92px);
+  font-weight: 600;
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+}
+
+.kodza-interactive-dots__lead:not(#_) {
+  max-width: 30em;
+  margin: 0 0 24px;
+  color: var(--kz-interactive-dots-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+}
+
+.kodza-interactive-dots__actions:not(#_) {
+  display: flex;
+  margin: 0;
+}
+
+.kodza-interactive-dots__button:not(#_) {
+  box-sizing: border-box;
+  display: inline-flex;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--kz-interactive-dots-ink);
+  color: var(--kz-interactive-dots-bg);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: opacity 0.18s ease;
+}
+
+.kodza-interactive-dots__button--ghost:not(#_) {
+  background: var(--kz-interactive-dots-bg);
+  color: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.kodza-interactive-dots__button:focus-visible:not(#_) {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-interactive-dots__button:not(#_) {
+    transition: none;
+  }
+}
