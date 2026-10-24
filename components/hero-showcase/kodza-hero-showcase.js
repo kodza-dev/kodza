@@ -14,6 +14,7 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const GLIDE = 'cubic-bezier(0.6, 0, 0.1, 1)'; // slow start, long settle
   const SOFT = 'cubic-bezier(0.25, 1, 0.5, 1)';
+  const OPEN = 'cubic-bezier(0.3, 0.5, 0.1, 1)'; // the thumbnails' curtain: a slow start leaves each one a hairline for 200 ms
   const TRAVEL = 'cubic-bezier(0.45, 0, 0.55, 1)'; // the moves on the scroll: gentle, a mouse wheel goes by notches
   const SETTLE = 'cubic-bezier(0.3, 0, 0.2, 1)'; // the rows: under way at once, then a long slow stop into line
   const OFFSETS = [-1.25, 1.25, -0.75]; // how far each row sits off the line at rest, in thumbnails
@@ -241,8 +242,8 @@
         seen.forEach((li, c) => {
           const delay = 260 + r * 140 + c * 70;
           const img = li.querySelector('img');
-          animate(li.querySelector('.kodza-hero-showcase__curtain'), [{ transform: 'translateY(-100%)' }, { transform: 'none' }], { duration: 1100, delay });
-          animate(li.querySelector('.kodza-hero-showcase__hold'), [{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 1100, delay });
+          animate(li.querySelector('.kodza-hero-showcase__curtain'), [{ transform: 'translateY(-100%)' }, { transform: 'none' }], { duration: 1100, delay, easing: OPEN });
+          animate(li.querySelector('.kodza-hero-showcase__hold'), [{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 1100, delay, easing: OPEN });
           if (rest.imgs.has(img)) animate(img, [{ transform: rest.imgs.get(img).replace('scale(1.1)', 'scale(1.3)') }, { transform: rest.imgs.get(img) }], { duration: 1700, delay, easing: SOFT });
           rise(li.querySelector('.kodza-hero-showcase__name'), delay + 480, 900);
           rise(li.querySelector('.kodza-hero-showcase__year'), delay + 560, 900);
