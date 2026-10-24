@@ -1,0 +1,530 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Hero Statement
+   A studio statement set very large, aligned left, over a mono line with the city, the local
+   time that ticks and the booking window. On load the words rise out of their masks one after
+   the other. Everything is tuned with the --kz-hero-statement-* variables. */
+.kodza-hero-statement {
+  --kz-hero-statement-ink: #0a0a0a;
+  --kz-hero-statement-muted: rgba(10, 10, 10, 0.5);
+  --kz-hero-statement-dim: rgba(10, 10, 10, 0.62);
+  --kz-hero-statement-rule: rgba(10, 10, 10, 0.14);
+  --kz-hero-statement-bg: transparent;
+  --kz-hero-statement-width: 1280px;
+  --kz-hero-statement-top: clamp(96px, 13vw, 200px);
+  --kz-hero-statement-bottom: clamp(28px, 3.5vw, 44px);
+  --kz-hero-statement-gutter: clamp(16px, 4vw, 40px);
+  --kz-hero-statement-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-hero-statement-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-hero-statement-glide: cubic-bezier(0.6, 0, 0.1, 1);
+  --kz-hero-statement-soft-ease: cubic-bezier(0.25, 1, 0.5, 1);
+
+  container: kodza-hero-statement / inline-size;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: var(--kz-hero-statement-top);
+  padding-bottom: var(--kz-hero-statement-bottom);
+  padding-left: max(var(--kz-hero-statement-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-hero-statement-gutter), env(safe-area-inset-right, 0px));
+  background: var(--kz-hero-statement-bg);
+  color: var(--kz-hero-statement-ink);
+}
+
+.kodza-hero-statement__inner {
+  max-width: var(--kz-hero-statement-width);
+  margin: 0 auto;
+}
+
+.kodza-hero-statement__title {
+  max-width: 15.5em;
+  margin: 0 0 clamp(64px, 9vw, 136px);
+  font-size: clamp(36px, 5.8vw, 88px);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+  color: var(--kz-hero-statement-ink);
+  text-wrap: pretty;
+}
+
+.kodza-hero-statement__muted {
+  color: var(--kz-hero-statement-muted);
+}
+
+/* Each word is its own mask (set up by the script): it rises from behind its bottom edge */
+.kodza-hero-statement__word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.kodza-hero-statement__rise {
+  display: inline-block;
+}
+
+/* The foot: a hairline, the mono line on the left, the scroll hint on the right */
+.kodza-hero-statement__foot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  padding-top: 20px;
+}
+
+.kodza-hero-statement__foot::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--kz-hero-statement-rule);
+  transform-origin: left center;
+}
+
+/* Every item carries its dot, and the list is shifted left by one dot and clipped there: the
+   dot of an item that starts a line never shows, even when the line wraps */
+.kodza-hero-statement__meta {
+  position: relative;
+  left: -27px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  clip-path: inset(-24px -24px -24px 27px);
+}
+
+.kodza-hero-statement__item {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  font-family: var(--kz-hero-statement-mono);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  white-space: nowrap;
+  color: var(--kz-hero-statement-dim);
+}
+
+/* A dot drawn before each item: 12px + 3px + 12px, the 27px the list is shifted by */
+.kodza-hero-statement__item::before {
+  content: "";
+  flex: none;
+  width: 3px;
+  height: 3px;
+  margin: 0 12px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* Without the script there is no time to show */
+.kodza-hero-statement:not(.is-ready) .kodza-hero-statement__local {
+  display: none;
+}
+
+.kodza-hero-statement__clock {
+  display: inline-flex;
+  /* The space after the time: a flex item drops its leading space */
+  margin-right: 1ch;
+  color: var(--kz-hero-statement-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Each pair of digits is a mask: the new value rolls in from below while the old one leaves */
+.kodza-hero-statement__digits {
+  display: inline-grid;
+  overflow: hidden;
+}
+
+.kodza-hero-statement__digits > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-hero-statement__hint {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-family: var(--kz-hero-statement-mono);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  white-space: nowrap;
+  color: var(--kz-hero-statement-dim);
+}
+
+.kodza-hero-statement__cue {
+  position: relative;
+  overflow: hidden;
+  width: 1px;
+  height: 28px;
+  background: var(--kz-hero-statement-rule);
+}
+
+.kodza-hero-statement__cue::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 10px;
+  background: currentColor;
+  transform: translateY(90%);
+}
+
+/* Narrow: the hint goes under the mono line */
+@container kodza-hero-statement (max-width: 640px) {
+  .kodza-hero-statement__foot {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* The full width plus the hidden dot, so the line only wraps when it has to */
+  .kodza-hero-statement__meta {
+    width: calc(100% + 27px);
+  }
+}
+
+/* The entrance, once the script has set the words up: they rise one after the other, the
+   hairline draws from the left, then the mono line comes up */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-hero-statement.is-ready .kodza-hero-statement__rise {
+    animation: kodza-hero-statement-rise 1170ms var(--kz-hero-statement-glide) calc(120ms + var(--i, 0) * 40ms) both;
+  }
+
+  .kodza-hero-statement.is-ready .kodza-hero-statement__foot::before {
+    animation: kodza-hero-statement-draw 1300ms var(--kz-hero-statement-glide) 450ms both;
+  }
+
+  .kodza-hero-statement.is-ready .kodza-hero-statement__item {
+    animation: kodza-hero-statement-in 900ms var(--kz-hero-statement-soft-ease) 750ms both;
+  }
+
+  .kodza-hero-statement.is-ready .kodza-hero-statement__item:nth-child(2) {
+    animation-delay: 840ms;
+  }
+
+  .kodza-hero-statement.is-ready .kodza-hero-statement__item:nth-child(3) {
+    animation-delay: 930ms;
+  }
+
+  .kodza-hero-statement.is-ready .kodza-hero-statement__hint {
+    animation: kodza-hero-statement-in 900ms var(--kz-hero-statement-soft-ease) 1020ms both;
+  }
+
+  .kodza-hero-statement.is-ready .kodza-hero-statement__colon {
+    animation: kodza-hero-statement-blink 2s steps(1) infinite;
+  }
+
+  .kodza-hero-statement__cue::before {
+    animation: kodza-hero-statement-cue 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+}
+
+@keyframes kodza-hero-statement-rise {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+@keyframes kodza-hero-statement-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes kodza-hero-statement-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes kodza-hero-statement-blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes kodza-hero-statement-cue {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(280%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hero-statement *,
+  .kodza-hero-statement *::before,
+  .kodza-hero-statement *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard d27ca196f188 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-hero-statement__title):not(#_),
+:where(.kodza-hero-statement__meta):not(#_),
+:where(.kodza-hero-statement__item):not(#_),
+:where(.kodza-hero-statement__clock):not(#_),
+:where(.kodza-hero-statement__hint):not(#_) {
+  transition-duration: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-hero-statement__inner:not(#_),
+.kodza-hero-statement__word:not(#_),
+.kodza-hero-statement__rise:not(#_),
+.kodza-hero-statement__muted:not(#_),
+.kodza-hero-statement__foot:not(#_),
+.kodza-hero-statement__digits:not(#_),
+.kodza-hero-statement__colon:not(#_),
+.kodza-hero-statement__cue:not(#_),
+.kodza-hero-statement__digits span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-hero-statement__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-statement__meta:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-statement__item:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-statement__clock:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-statement__hint:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-statement__title:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-hero-statement__title:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-hero-statement__foot:not(#_)::before,
+.kodza-hero-statement__item:not(#_)::before,
+.kodza-hero-statement__cue:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-hero-statement__title:not(#_) {
+  max-width: 15.5em;
+  margin: 0 0 clamp(64px, 9vw, 136px);
+  font-size: clamp(36px, 5.8vw, 88px);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+  color: var(--kz-hero-statement-ink);
+}
+
+.kodza-hero-statement__meta:not(#_) {
+  position: relative;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-hero-statement__item:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  font-family: var(--kz-hero-statement-mono);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--kz-hero-statement-dim);
+}
+
+.kodza-hero-statement:not(.is-ready) .kodza-hero-statement__local:not(#_) {
+  display: none;
+}
+
+.kodza-hero-statement__clock:not(#_) {
+  display: inline-flex;
+  margin-right: 1ch;
+  color: var(--kz-hero-statement-ink);
+}
+
+.kodza-hero-statement__hint:not(#_) {
+  display: flex;
+  margin: 0;
+  font-family: var(--kz-hero-statement-mono);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--kz-hero-statement-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hero-statement *:where(h1, ul, li, time, p):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}
