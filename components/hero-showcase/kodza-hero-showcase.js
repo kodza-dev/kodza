@@ -242,8 +242,8 @@
         seen.forEach((li, c) => {
           const delay = 260 + r * 140 + c * 70;
           const img = li.querySelector('img');
-          animate(li.querySelector('.kodza-hero-showcase__curtain'), [{ transform: 'translateY(-100%)' }, { transform: 'none' }], { duration: 1100, delay, easing: OPEN });
-          animate(li.querySelector('.kodza-hero-showcase__hold'), [{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 1100, delay, easing: OPEN });
+          animate(li.querySelector('.kodza-hero-showcase__curtain'), [{ transform: 'translateY(calc(-100% - 2px))' }, { transform: 'none' }], { duration: 1100, delay, easing: OPEN });
+          animate(li.querySelector('.kodza-hero-showcase__hold'), [{ transform: 'translateY(calc(100% + 2px))' }, { transform: 'none' }], { duration: 1100, delay, easing: OPEN });
           if (rest.imgs.has(img)) animate(img, [{ transform: rest.imgs.get(img).replace('scale(1.1)', 'scale(1.3)') }, { transform: rest.imgs.get(img) }], { duration: 1700, delay, easing: SOFT });
           rise(li.querySelector('.kodza-hero-showcase__name'), delay + 480, 900);
           rise(li.querySelector('.kodza-hero-showcase__year'), delay + 560, 900);
