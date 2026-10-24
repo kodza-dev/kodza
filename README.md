@@ -8,13 +8,44 @@ UI components your AI can fetch. Plain HTML, CSS and JavaScript: no framework, n
 
 ## Just ask
 
-Plug it into your AI once:
+Kodza is an MCP server too, at `https://kodza.dev/api/mcp` (Streamable HTTP). Free, no account, no API key. Plug it into your AI once:
 
 ```bash
 claude mcp add -t http kodza https://kodza.dev/api/mcp
 ```
 
-Then ask in your own words: "Add the Kodza fill button to my hero." It gets the exact files in this repository, not its best guess, and where they go. Free, no account, no API key. Also in Codex, Cursor and VS Code: [setup](https://kodza.dev/docs/#install).
+Then ask in your own words: "Add the Kodza fill button to my hero." It gets the exact files in this repository, not its best guess, and where they go.
+
+### In your editor
+
+**Codex**
+
+```bash
+codex mcp add kodza --url https://kodza.dev/api/mcp
+```
+
+**VS Code** (GitHub Copilot)
+
+```bash
+code --add-mcp '{"name":"kodza","type":"http","url":"https://kodza.dev/api/mcp"}'
+```
+
+**Cursor** (`~/.cursor/mcp.json`)
+
+```json
+{ "mcpServers": { "kodza": { "url": "https://kodza.dev/api/mcp" } } }
+```
+
+Rather keep it on your machine? `npx -y kodza-mcp` runs the same server locally ([kodza-mcp](https://www.npmjs.com/package/kodza-mcp)). Everything else in the [docs](https://kodza.dev/docs/#install).
+
+### What it does
+
+| Tool | What it does |
+| --- | --- |
+| `search_components` | Finds components by what they do or look like ("button fill hover", "sticky header", "date picker"), or lists a category. |
+| `get_component` | One component: its exact HTML, CSS and JS (or the commands to download them), its settings (`--kz-…` variables, modifier classes, `data-` attributes), what each key does, its dark-mode values and how to wire it into a plain page, WordPress, Shopify, React or a Claude artifact. |
+
+Read-only: it hands out code and never touches your project. It counts which components get fetched, and by which assistant; nothing you type is kept.
 
 ## Or take the files
 
