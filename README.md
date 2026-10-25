@@ -61,7 +61,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-115 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+118 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
 
 ### Buttons
 
@@ -249,14 +249,17 @@ Written like it's going live tomorrow. Because it probably is.
 | Component | What it does | |
 | --- | --- | --- |
 | [Hero Centered](components/hero-centered/) | A centred hero with an announcement pill, a headline whose lines rise out of their masks, one sentence and two pill buttons. CSS only, the entrance plays on load. | [Demo](https://kodza.dev/components/hero-centered/) |
+| [Hero Collage](components/hero-collage/) | A centred hero with pictures scattered around the title: they open one after the other, then follow the mouse a little, each at its own depth. | [Demo](https://kodza.dev/components/hero-collage/) |
 | [Hero Cover](components/hero-cover/) | A cover hero: a full-width picture under a monochrome veil with the title at the bottom left. The picture opens from the top edge and settles, the title lines rise. CSS only. | [Demo](https://kodza.dev/components/hero-cover/) |
 | [Hero Exit](components/hero-exit/) | A centred title in two big lines. On scroll the scene holds, the lines part, a picture opens between them and tightens into a card, then the next section slides over it. | [Demo](https://kodza.dev/components/hero-exit/) |
 | [Hero Expand](components/hero-expand/) | A big title with a small picture set between two words. On scroll the scene pins, the picture opens to full screen and pushes the words aside, then a caption and a button rise. Scroll back up: it rewinds. | [Demo](https://kodza.dev/components/hero-expand/) |
 | [Hero Focus](components/hero-focus/) | A title sharp over a blurred picture. On scroll the focus moves to the picture, the title blurs and leaves, a readout counts the distance, then notes point out the details. It rewinds. | [Demo](https://kodza.dev/components/hero-focus/) |
+| [Hero Paths](components/hero-paths/) | A hero that splits visitors in two: a title, then two tall pictures that are links, and the one under the pointer widens while its call to action rises. | [Demo](https://kodza.dev/components/hero-paths/) |
 | [Hero Screen](components/hero-screen/) | A centred title and its buttons over a screenshot of the product, leaning back in perspective. On scroll the screen stands up to face you and grows while the title steps back. | [Demo](https://kodza.dev/components/hero-screen/) |
 | [Hero Showcase](components/hero-showcase/) | A title over a wall of project thumbnails laid back like prints on a table. On scroll the rows slide in opposite directions and click into line as the wall stands up, every thumbnail a link. | [Demo](https://kodza.dev/components/hero-showcase/) |
 | [Hero Split](components/hero-split/) | A split hero, words on the left and a 4:5 picture on the right: the title lines rise out of their masks while the picture opens from the top edge down. | [Demo](https://kodza.dev/components/hero-split/) |
 | [Hero Statement](components/hero-statement/) | A studio statement set very large over a mono line with the city, a live local time and the booking window. The words rise out of their masks one after the other on load. | [Demo](https://kodza.dev/components/hero-statement/) |
+| [Hero Wordmark](components/hero-wordmark/) | A hero that sets the name across the whole width, ink edge to ink edge: its letters rise one by one and a wide picture opens right under them. | [Demo](https://kodza.dev/components/hero-wordmark/) |
 
 ## About this repository
 

@@ -1,0 +1,541 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Hero Paths
+   A hero that splits the visitors in two: a title and an intro, then two tall pictures, each one
+   a link. The one under the pointer (or the keyboard focus) widens while its picture settles and
+   its call to action rises out of its mask; the other gives it the room. The entrance is played
+   by the script. Everything is tuned with the --kz-hero-paths-* variables. */
+.kodza-hero-paths {
+  --kz-hero-paths-ink: #0a0a0a;
+  --kz-hero-paths-dim: rgba(10, 10, 10, 0.62);
+  --kz-hero-paths-faint: rgba(10, 10, 10, 0.6);
+  --kz-hero-paths-on-image: #f2f2f0;
+  --kz-hero-paths-veil: rgba(10, 10, 10, 0.62);
+  --kz-hero-paths-bg: transparent;
+  --kz-hero-paths-width: 1440px;
+  --kz-hero-paths-pad-y: clamp(56px, 7vw, 112px);
+  --kz-hero-paths-gutter: clamp(16px, 4vw, 40px);
+  --kz-hero-paths-height: clamp(380px, 32vw, 460px);
+  --kz-hero-paths-gap: 12px;
+  --kz-hero-paths-grow: 1.8;
+  --kz-hero-paths-radius: 16px;
+  --kz-hero-paths-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-hero-paths-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-hero-paths-sway: cubic-bezier(0.65, 0, 0.35, 1);
+
+  container: kodza-hero-paths / inline-size;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: var(--kz-hero-paths-pad-y);
+  padding-bottom: var(--kz-hero-paths-gutter);
+  padding-left: max(var(--kz-hero-paths-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-hero-paths-gutter), env(safe-area-inset-right, 0px));
+  background: var(--kz-hero-paths-bg);
+  color: var(--kz-hero-paths-ink);
+}
+
+.kodza-hero-paths__inner {
+  max-width: var(--kz-hero-paths-width);
+  margin: 0 auto;
+}
+
+/* Title on the left, intro on the right, on the same bottom line */
+.kodza-hero-paths__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  column-gap: clamp(24px, 4vw, 64px);
+  margin-bottom: clamp(32px, 4vw, 56px);
+}
+
+.kodza-hero-paths__eyebrow {
+  margin: 0 0 20px;
+  overflow: hidden;
+  font-family: var(--kz-hero-paths-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--kz-hero-paths-faint);
+}
+
+.kodza-hero-paths__rise {
+  display: block;
+}
+
+.kodza-hero-paths__title {
+  margin: 0;
+  font-size: clamp(40px, 6.2vw, 92px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--kz-hero-paths-ink);
+}
+
+.kodza-hero-paths__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.kodza-hero-paths__lead {
+  max-width: 34ch;
+  margin: 0;
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.55;
+  color: var(--kz-hero-paths-dim);
+  text-wrap: pretty;
+}
+
+.kodza-hero-paths__paths {
+  display: flex;
+  gap: var(--kz-hero-paths-gap);
+  height: var(--kz-hero-paths-height);
+}
+
+/* Each path is a link the size of its picture; it grows by flex, so the other one shrinks with it */
+.kodza-hero-paths__path {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: var(--kz-hero-paths-radius);
+  color: var(--kz-hero-paths-on-image);
+  text-decoration: none;
+  transition: flex-grow 0.8s var(--kz-hero-paths-sway);
+}
+
+.kodza-hero-paths__path:focus-visible {
+  outline: 2px solid var(--kz-hero-paths-ink);
+  outline-offset: 3px;
+}
+
+/* The picture waits slightly zoomed in, and settles as its path opens */
+.kodza-hero-paths__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  transform: scale(1.1);
+  transition: transform 1s var(--kz-hero-paths-ease);
+}
+
+.kodza-hero-paths__curtain,
+.kodza-hero-paths__hold {
+  display: block;
+  height: 100%;
+}
+
+.kodza-hero-paths__curtain {
+  overflow: hidden;
+}
+
+.kodza-hero-paths__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A veil at the foot of the picture, so the words read on any part of it. It lives behind the
+   curtain with the picture: an empty path shows no grey band before it opens */
+.kodza-hero-paths__hold {
+  position: relative;
+}
+
+.kodza-hero-paths__hold::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--kz-hero-paths-veil), transparent 58%);
+  pointer-events: none;
+}
+
+/* The words never wrap, so a path can narrow without them moving */
+.kodza-hero-paths__body {
+  position: absolute;
+  left: clamp(20px, 2.4vw, 32px);
+  bottom: clamp(20px, 2.4vw, 32px);
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.kodza-hero-paths__tag {
+  font-family: var(--kz-hero-paths-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.kodza-hero-paths__name {
+  font-size: clamp(30px, 3.4vw, 50px);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.kodza-hero-paths__go {
+  display: block;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.kodza-hero-paths__go-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: transform 0.55s var(--kz-hero-paths-ease);
+}
+
+.kodza-hero-paths__arrow {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* With a pointer, the call to action waits under its mask until the path is chosen */
+@media (hover: hover) {
+  .kodza-hero-paths__go-text {
+    transform: translateY(105%);
+  }
+
+  .kodza-hero-paths__path:hover,
+  .kodza-hero-paths__path:focus-visible {
+    flex-grow: var(--kz-hero-paths-grow);
+  }
+
+  .kodza-hero-paths__path:hover .kodza-hero-paths__media,
+  .kodza-hero-paths__path:focus-visible .kodza-hero-paths__media {
+    transform: none;
+  }
+
+  .kodza-hero-paths__path:hover .kodza-hero-paths__go-text,
+  .kodza-hero-paths__path:focus-visible .kodza-hero-paths__go-text {
+    transform: none;
+    transition-delay: 0.12s;
+  }
+}
+
+/* Waiting for its entrance: the script sets is-shown and plays the motion in the same frame */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-hero-paths.is-ready:not(.is-shown) .kodza-hero-paths__rise {
+    transform: translateY(105%);
+  }
+
+  /* 2px past the edge: a curtain closed exactly on the frame's edge leaks a hairline */
+  .kodza-hero-paths.is-ready:not(.is-shown) .kodza-hero-paths__curtain {
+    transform: translateY(calc(-100% - 2px));
+  }
+
+  .kodza-hero-paths.is-ready:not(.is-shown) .kodza-hero-paths__hold {
+    transform: translateY(calc(100% + 2px));
+  }
+
+  .kodza-hero-paths.is-ready:not(.is-shown) .kodza-hero-paths__lead,
+  .kodza-hero-paths.is-ready:not(.is-shown) .kodza-hero-paths__body {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* One column: the intro goes under the title and the paths stack */
+@container kodza-hero-paths (max-width: 700px) {
+  .kodza-hero-paths__head {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 20px;
+  }
+
+  .kodza-hero-paths__paths {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .kodza-hero-paths__path {
+    flex: none;
+    height: 340px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hero-paths *,
+  .kodza-hero-paths *::before,
+  .kodza-hero-paths *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 0db47577ce18 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-hero-paths__eyebrow):not(#_),
+:where(.kodza-hero-paths__title):not(#_),
+:where(.kodza-hero-paths__lead):not(#_),
+:where(.kodza-hero-paths__arrow):not(#_),
+:where(.kodza-hero-paths__hold img:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-hero-paths__path):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-hero-paths__inner:not(#_),
+.kodza-hero-paths__head:not(#_),
+.kodza-hero-paths__rise:not(#_),
+.kodza-hero-paths__line:not(#_),
+.kodza-hero-paths__paths:not(#_),
+.kodza-hero-paths__media:not(#_),
+.kodza-hero-paths__curtain:not(#_),
+.kodza-hero-paths__hold:not(#_),
+.kodza-hero-paths__body:not(#_),
+.kodza-hero-paths__tag:not(#_),
+.kodza-hero-paths__name:not(#_),
+.kodza-hero-paths__go:not(#_),
+.kodza-hero-paths__go-text:not(#_),
+.kodza-hero-paths__head div:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-hero-paths__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-paths__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-paths__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-paths__path:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hero-paths__arrow:not(#_),
+.kodza-hero-paths__hold img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-paths__eyebrow:not(#_):where(:not([hidden])),
+.kodza-hero-paths__title:not(#_):where(:not([hidden])),
+.kodza-hero-paths__lead:not(#_):where(:not([hidden])),
+.kodza-hero-paths__arrow:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-hero-paths__eyebrow:not(#_):where([hidden]),
+.kodza-hero-paths__title:not(#_):where([hidden]),
+.kodza-hero-paths__lead:not(#_):where([hidden]),
+.kodza-hero-paths__arrow:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-hero-paths__hold:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-hero-paths__eyebrow:not(#_) {
+  margin: 0 0 20px;
+  font-family: var(--kz-hero-paths-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--kz-hero-paths-faint);
+}
+
+.kodza-hero-paths__title:not(#_) {
+  margin: 0;
+  font-size: clamp(40px, 6.2vw, 92px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--kz-hero-paths-ink);
+}
+
+.kodza-hero-paths__lead:not(#_) {
+  max-width: 34ch;
+  margin: 0;
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.55;
+  color: var(--kz-hero-paths-dim);
+}
+
+.kodza-hero-paths__path:not(#_) {
+  position: relative;
+  display: block;
+  border-radius: var(--kz-hero-paths-radius);
+  color: var(--kz-hero-paths-on-image);
+  text-decoration: none;
+  transition: flex-grow 0.8s var(--kz-hero-paths-sway);
+}
+
+.kodza-hero-paths__path:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-hero-paths-ink);
+  outline-offset: 3px;
+}
+
+.kodza-hero-paths__media img:not(#_) {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hero-paths *:where(p, h1, a, img, svg):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}
