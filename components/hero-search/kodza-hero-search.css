@@ -1,0 +1,1765 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Hero Search
+   A hero that searches on arrival: a tight headline, its intro, then a search card, with the
+   picture of a listing on the right. Buy and Rent are native radios under an ink pill that slides
+   from one to the other. The place field rolls through its examples (data-examples) while it is
+   empty; Type and Budget are real selects, dressed up as in Kodza Select (a list that unrolls, a
+   highlight that slides, a tick, the value that rolls). Each mode has its own budget select
+   (data-mode): the field shows the chosen mode's one, the other is disabled, so the form only
+   sends one. A price written per mode (data-mode, in the listing's tag) rolls with it.
+   The count in the button rolls too: write the new number into .kodza-hero-search__count
+   (on the form's change event, from your own results). The form sends itself as GET to its
+   action, with or without the script. On arrival the lines rise out of their masks while the
+   picture opens from the top edge down, as in Hero Split. Everything is tuned with the
+   --kz-hero-search-* variables. */
+.kodza-hero-search {
+  --kz-hero-search-ink: #0a0a0a;
+  --kz-hero-search-paper: #f2f2f0;
+  --kz-hero-search-dim: rgba(10, 10, 10, 0.62);
+  --kz-hero-search-faint: rgba(10, 10, 10, 0.6);
+  --kz-hero-search-surface: #ffffff;
+  --kz-hero-search-line: rgba(10, 10, 10, 0.1);
+  --kz-hero-search-field: rgba(10, 10, 10, 0.14);
+  --kz-hero-search-field-hover: rgba(10, 10, 10, 0.3);
+  --kz-hero-search-soft: rgba(10, 10, 10, 0.06);
+  --kz-hero-search-shadow: 0 24px 48px -24px rgba(10, 10, 10, 0.24);
+  --kz-hero-search-pop: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  --kz-hero-search-bg: transparent;
+  --kz-hero-search-width: 1240px;
+  --kz-hero-search-gap: clamp(32px, 5vw, 80px);
+  --kz-hero-search-pad-y: clamp(72px, 9vw, 140px);
+  --kz-hero-search-gutter: clamp(16px, 4vw, 40px);
+  --kz-hero-search-radius: 16px;
+  --kz-hero-search-ratio: 4 / 5;
+  --kz-hero-search-height: 56px;
+  --kz-hero-search-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-hero-search-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-hero-search / inline-size;
+  box-sizing: border-box;
+  width: 100%;
+  padding-block: var(--kz-hero-search-pad-y);
+  padding-left: max(var(--kz-hero-search-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-hero-search-gutter), env(safe-area-inset-right, 0px));
+  background: var(--kz-hero-search-bg);
+  color: var(--kz-hero-search-ink);
+}
+
+.kodza-hero-search__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--kz-hero-search-gap);
+  align-items: center;
+  max-width: var(--kz-hero-search-width);
+  margin: 0 auto;
+}
+
+.kodza-hero-search__copy {
+  min-width: 0;
+}
+
+.kodza-hero-search__eyebrow {
+  margin: 0 0 22px;
+  overflow: hidden;
+  font-family: var(--kz-hero-search-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--kz-hero-search-faint);
+}
+
+.kodza-hero-search__title {
+  margin: 0 0 24px;
+  font-size: clamp(40px, 5.6vw, 84px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--kz-hero-search-ink);
+}
+
+/* Each line is its own mask: the words rise from behind its bottom edge */
+.kodza-hero-search__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.kodza-hero-search__rise {
+  display: block;
+}
+
+.kodza-hero-search__lead {
+  max-width: 34ch;
+  margin: 0 0 clamp(28px, 3vw, 40px);
+  font-size: clamp(17px, 1.45vw, 19px);
+  line-height: 1.55;
+  color: var(--kz-hero-search-dim);
+  text-wrap: pretty;
+}
+
+/* The search card. Open, a list rises above what follows the card, the picture included */
+.kodza-hero-search__form {
+  container: kodza-hero-search-form / inline-size;
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  max-width: 640px;
+  margin: 0;
+  padding: 16px;
+  border-radius: var(--kz-hero-search-radius);
+  background: var(--kz-hero-search-surface);
+  box-shadow: 0 0 0 1px var(--kz-hero-search-line), var(--kz-hero-search-shadow);
+}
+
+/* Buy / Rent: the ink pill covers the whole row and is cut down to the chosen mode, with a
+   paper copy of the labels cut to the same shape on top */
+.kodza-hero-search__modes {
+  position: relative;
+  justify-self: start;
+  display: inline-flex;
+  min-width: 0;
+  margin: 0;
+  padding: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-hero-search-surface);
+  box-shadow: inset 0 0 0 1px var(--kz-hero-search-field);
+}
+
+.kodza-hero-search__indicator,
+.kodza-hero-search__mirror {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  clip-path: inset(4px var(--kz-hero-search-r, 100%) 4px var(--kz-hero-search-l, 0) round 999px);
+  pointer-events: none;
+}
+
+.kodza-hero-search__indicator {
+  background: var(--kz-hero-search-ink);
+}
+
+.kodza-hero-search__mirror {
+  box-sizing: border-box;
+  display: flex;
+  padding: 4px;
+  color: var(--kz-hero-search-paper);
+}
+
+.kodza-hero-search.is-live .kodza-hero-search__indicator,
+.kodza-hero-search.is-live .kodza-hero-search__mirror {
+  transition: clip-path 0.5s var(--kz-hero-search-ease);
+}
+
+.kodza-hero-search__mode,
+.kodza-hero-search__ghost {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 18px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.kodza-hero-search__mode {
+  position: relative;
+  border-radius: 999px;
+  color: var(--kz-hero-search-dim);
+  cursor: pointer;
+  transition: color 0.3s var(--kz-hero-search-ease);
+}
+
+.kodza-hero-search__mode:hover,
+.kodza-hero-search__mode:has(.kodza-hero-search__radio:checked) {
+  color: var(--kz-hero-search-ink);
+}
+
+/* Without the script, the chosen mode is simply filled */
+.kodza-hero-search:not(.is-ready) .kodza-hero-search__mode:has(.kodza-hero-search__radio:checked) {
+  background: var(--kz-hero-search-ink);
+  color: var(--kz-hero-search-paper);
+}
+
+.kodza-hero-search__mode:has(.kodza-hero-search__radio:focus-visible) {
+  outline: 2px solid var(--kz-hero-search-ink);
+  outline-offset: 2px;
+}
+
+/* The native radio stays, invisible, over its label: clicks and arrow keys are its own */
+.kodza-hero-search__radio {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Where, Type and Budget on one row; on a narrower card the place takes its own row */
+.kodza-hero-search__fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 8px;
+}
+
+/* The box of Kodza Text Field: the small label on top, the value below */
+.kodza-hero-search__field {
+  position: relative;
+  display: block;
+  min-width: 0;
+  color: var(--kz-hero-search-ink);
+}
+
+.kodza-hero-search__label {
+  position: absolute;
+  top: 10px;
+  left: 16px;
+  z-index: 1;
+  color: var(--kz-hero-search-dim);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.kodza-hero-search__input,
+.kodza-hero-search__native,
+.kodza-hero-search__trigger {
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: var(--kz-hero-search-height);
+  margin: 0;
+  padding: 25px 16px 9px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--kz-hero-search-surface);
+  box-shadow: inset 0 0 0 1px var(--kz-hero-search-field);
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  appearance: none;
+  transition: box-shadow 0.25s ease;
+}
+
+.kodza-hero-search__native,
+.kodza-hero-search__trigger {
+  padding-right: 44px;
+  cursor: pointer;
+}
+
+.kodza-hero-search__native {
+  background: var(--kz-hero-search-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10.5l4-4' fill='none' stroke='%23999' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 16px center / 16px no-repeat;
+}
+
+.kodza-hero-search__trigger {
+  padding-top: 0;
+}
+
+.kodza-hero-search__input:hover,
+.kodza-hero-search__native:hover,
+.kodza-hero-search__trigger:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-hero-search-field-hover);
+}
+
+.kodza-hero-search__input:focus,
+.kodza-hero-search__native:focus-visible,
+.kodza-hero-search__trigger:focus-visible,
+.kodza-hero-search__select.is-open .kodza-hero-search__trigger {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--kz-hero-search-ink), 0 0 0 4px var(--kz-hero-search-soft);
+}
+
+.kodza-hero-search__input::placeholder {
+  color: var(--kz-hero-search-dim);
+  opacity: 1;
+}
+
+/* The rolling example lies exactly where the placeholder is; the placeholder steps back while it rolls */
+.kodza-hero-search__example {
+  position: absolute;
+  right: 16px;
+  bottom: 9px;
+  left: 16px;
+  display: grid;
+  height: 22px;
+  overflow: clip;
+  color: var(--kz-hero-search-dim);
+  font-size: 15px;
+  line-height: 22px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.kodza-hero-search__field.is-rolling .kodza-hero-search__example {
+  visibility: visible;
+}
+
+.kodza-hero-search__field.is-rolling .kodza-hero-search__input::placeholder {
+  color: transparent;
+}
+
+/* Each mode its own budget: without the script, the radios show the right one */
+.kodza-hero-search:not(.is-ready):has(.kodza-hero-search__radio[value="rent"]:checked) [data-mode="buy"],
+.kodza-hero-search:not(.is-ready):has(.kodza-hero-search__radio[value="buy"]:checked) [data-mode="rent"] {
+  display: none;
+}
+
+/* A select, dressed up. A number, not auto, so it can wait for its list to roll up before
+   dropping back; the closed list keeps its size, ready to unroll, but never lengthens the page */
+.kodza-hero-search__select {
+  z-index: 0;
+  contain: layout;
+  transition: z-index 0s linear 0.35s;
+}
+
+.kodza-hero-search__select.is-open {
+  z-index: 20;
+  transition-delay: 0s;
+}
+
+/* Enhanced: the native select steps back (still in the form), the button takes its place */
+.kodza-hero-search.is-ready .kodza-hero-search__native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+.kodza-hero-search__native[hidden] {
+  display: none;
+}
+
+.kodza-hero-search__value {
+  display: inline-grid;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.kodza-hero-search__value > span,
+.kodza-hero-search__example > span {
+  grid-area: 1 / 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kodza-hero-search__chevron {
+  position: absolute;
+  top: calc(var(--kz-hero-search-height) / 2 - 8px);
+  right: 16px;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--kz-hero-search-dim);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+  transition: transform 0.35s var(--kz-hero-search-ease);
+}
+
+.kodza-hero-search__select.is-open .kodza-hero-search__chevron {
+  transform: rotate(180deg);
+}
+
+/* The list unrolls from the field */
+.kodza-hero-search__list {
+  position: absolute;
+  top: calc(var(--kz-hero-search-height) + 8px);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  box-sizing: border-box;
+  min-width: 180px;
+  max-height: 280px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 14px;
+  background: var(--kz-hero-search-surface);
+  box-shadow: 0 0 0 1px var(--kz-hero-search-field), var(--kz-hero-search-pop);
+  list-style: none;
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(0 0 100% 0 round 14px);
+  transform: translateY(-4px);
+  transition:
+    clip-path 0.35s var(--kz-hero-search-ease),
+    opacity 0s linear 0.35s,
+    transform 0.35s var(--kz-hero-search-ease),
+    visibility 0s linear 0.35s;
+}
+
+.kodza-hero-search__select.is-open .kodza-hero-search__list {
+  visibility: visible;
+  opacity: 1;
+  clip-path: inset(-40px -40px -60px -40px round 14px);
+  transform: none;
+  transition-delay: 0s;
+}
+
+.kodza-hero-search__select.is-above .kodza-hero-search__list {
+  top: auto;
+  bottom: calc(var(--kz-hero-search-height) + 8px);
+  clip-path: inset(100% 0 0 0 round 14px);
+  transform: translateY(4px);
+}
+
+.kodza-hero-search__select.is-above.is-open .kodza-hero-search__list {
+  clip-path: inset(-60px -40px -40px -40px round 14px);
+  transform: none;
+}
+
+.kodza-hero-search__highlight {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  left: 6px;
+  height: var(--kz-hl-h, 36px);
+  border-radius: 8px;
+  background: var(--kz-hero-search-soft);
+  opacity: var(--kz-hl-on, 0);
+  transform: translateY(var(--kz-hl-y, 0));
+  pointer-events: none;
+}
+
+.kodza-hero-search__select.is-open .kodza-hero-search__highlight {
+  transition: transform 0.22s var(--kz-hero-search-ease), opacity 0.15s ease;
+}
+
+.kodza-hero-search__option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  margin: 0;
+  padding: 0 10px 0 32px;
+  border-radius: 8px;
+  color: var(--kz-hero-search-ink);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kodza-hero-search__option[aria-disabled="true"] {
+  color: var(--kz-hero-search-dim);
+  cursor: not-allowed;
+}
+
+/* The tick of the chosen option draws itself */
+.kodza-hero-search__option svg {
+  position: absolute;
+  left: 10px;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.15s ease-in;
+}
+
+.kodza-hero-search__option[aria-selected="true"] svg {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.35s var(--kz-hero-search-ease) 0.05s;
+}
+
+/* The button says how many homes the search finds; the number rolls when the page changes it */
+.kodza-hero-search__submit {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 52px;
+  margin: 0;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-hero-search-ink);
+  color: var(--kz-hero-search-paper);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kodza-hero-search__submit:focus-visible {
+  outline: 2px solid var(--kz-hero-search-ink);
+  outline-offset: 3px;
+}
+
+.kodza-hero-search__count {
+  position: relative;
+  display: inline-grid;
+  justify-items: start;
+  overflow: clip;
+  overflow-clip-margin: 2px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.kodza-hero-search__count > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-hero-search__arrow {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.3s var(--kz-hero-search-ease);
+}
+
+@media (hover: hover) {
+  .kodza-hero-search__submit:hover .kodza-hero-search__arrow {
+    transform: translateX(4px);
+  }
+}
+
+.kodza-hero-search__note {
+  margin: 0;
+  font-family: var(--kz-hero-search-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--kz-hero-search-faint);
+  text-align: center;
+  text-wrap: balance;
+}
+
+.kodza-hero-search__media {
+  min-width: 0;
+  margin: 0;
+}
+
+/* The curtain: the middle layer slides down from above while the inner one slides up into
+   place, so the picture is uncovered from the top edge down and never moves itself */
+.kodza-hero-search__frame {
+  position: relative;
+  max-width: 100%;
+  aspect-ratio: var(--kz-hero-search-ratio);
+  overflow: hidden;
+  border-radius: var(--kz-hero-search-radius);
+}
+
+.kodza-hero-search__curtain,
+.kodza-hero-search__hold {
+  height: 100%;
+}
+
+.kodza-hero-search__curtain {
+  overflow: hidden;
+}
+
+.kodza-hero-search__frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The listing on the picture: where, how big, and the price of the chosen mode */
+.kodza-hero-search__tag {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  box-sizing: border-box;
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 12px 16px 13px;
+  border-radius: 12px;
+  background: var(--kz-hero-search-surface);
+  box-shadow: 0 0 0 1px var(--kz-hero-search-line), var(--kz-hero-search-shadow);
+  color: var(--kz-hero-search-ink);
+}
+
+.kodza-hero-search__meta {
+  font-family: var(--kz-hero-search-mono);
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--kz-hero-search-dim);
+}
+
+.kodza-hero-search__price {
+  display: inline-grid;
+  overflow: clip;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-hero-search__price > [data-mode] {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.kodza-hero-search.is-ready .kodza-hero-search__price > [data-mode]:not(.is-on) {
+  visibility: hidden;
+}
+
+.kodza-hero-search__caption {
+  margin-top: 12px;
+  font-family: var(--kz-hero-search-mono);
+  font-size: 12.5px;
+  color: var(--kz-hero-search-faint);
+  text-wrap: pretty;
+}
+
+.kodza-hero-search__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Waiting for its entrance: the script sets is-shown and plays the motion in the same frame */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-hero-search.is-ready:not(.is-shown) .kodza-hero-search__rise {
+    transform: translateY(105%);
+  }
+
+  .kodza-hero-search.is-ready:not(.is-shown) .kodza-hero-search__curtain {
+    transform: translateY(-100%);
+  }
+
+  .kodza-hero-search.is-ready:not(.is-shown) .kodza-hero-search__hold {
+    transform: translateY(100%);
+  }
+
+  .kodza-hero-search.is-ready:not(.is-shown) .kodza-hero-search__lead,
+  .kodza-hero-search.is-ready:not(.is-shown) .kodza-hero-search__form,
+  .kodza-hero-search.is-ready:not(.is-shown) .kodza-hero-search__tag,
+  .kodza-hero-search.is-ready:not(.is-shown) .kodza-hero-search__caption {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* A narrower card: the place takes the whole row, Type and Budget share the next one */
+@container kodza-hero-search-form (max-width: 520px) {
+  .kodza-hero-search__fields {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .kodza-hero-search__field--where {
+    grid-column: 1 / -1;
+  }
+}
+
+@container kodza-hero-search-form (max-width: 340px) {
+  .kodza-hero-search__fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* One column: the picture goes under the search, wider than tall */
+@container kodza-hero-search (max-width: 700px) {
+  .kodza-hero-search__inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-hero-search__frame {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hero-search *,
+  .kodza-hero-search *::before,
+  .kodza-hero-search *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-hero-search {
+  --kz-hero-search-ink: #f2f2f0;
+  --kz-hero-search-paper: #0a0a0a;
+  --kz-hero-search-dim: rgba(242, 242, 240, 0.64);
+  --kz-hero-search-faint: rgba(242, 242, 240, 0.6);
+  --kz-hero-search-surface: #161616;
+  --kz-hero-search-line: rgba(255, 255, 255, 0.12);
+  --kz-hero-search-field: rgba(255, 255, 255, 0.14);
+  --kz-hero-search-field-hover: rgba(255, 255, 255, 0.3);
+  --kz-hero-search-soft: rgba(255, 255, 255, 0.08);
+  --kz-hero-search-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.7);
+  --kz-hero-search-pop: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+}
+*/
+
+/* kodza-guard 3f61d7b50cad — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-hero-search__eyebrow):not(#_),
+:where(.kodza-hero-search__title):not(#_),
+:where(.kodza-hero-search__lead):not(#_),
+:where(.kodza-hero-search__modes):not(#_),
+:where(.kodza-hero-search__sr):not(#_),
+:where(.kodza-hero-search__radio):not(#_),
+:where(.kodza-hero-search__option):not(#_),
+:where(.kodza-hero-search__note):not(#_),
+:where(.kodza-hero-search__media):not(#_),
+:where(.kodza-hero-search__tag):not(#_),
+:where(.kodza-hero-search__caption):not(#_),
+:where(.kodza-hero-search__hold img:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-hero-search__mode):not(#_) {
+  outline: revert;
+  background-color: revert;
+  background-image: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-hero-search__field):not(#_),
+:where(.kodza-hero-search__highlight):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-hero-search__input):not(#_),
+:where(.kodza-hero-search__trigger):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-hero-search__native):not(#_) {
+  outline: revert;
+  position: revert;
+}
+
+:where(.kodza-hero-search__submit):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-hero-search__eyebrow):not(#_):where(:not([hidden])),
+:where(.kodza-hero-search__title):not(#_):where(:not([hidden])),
+:where(.kodza-hero-search__lead):not(#_):where(:not([hidden])),
+:where(.kodza-hero-search__sr):not(#_):where(:not([hidden])),
+:where(.kodza-hero-search__radio):not(#_):where(:not([hidden])),
+:where(.kodza-hero-search__chevron):not(#_):where(:not([hidden])),
+:where(.kodza-hero-search__list):not(#_):where(:not([hidden])),
+:where(.kodza-hero-search__highlight):not(#_):where(:not([hidden])),
+:where(.kodza-hero-search__arrow):not(#_):where(:not([hidden])),
+:where(.kodza-hero-search__note):not(#_):where(:not([hidden])),
+:where(.kodza-hero-search__media):not(#_):where(:not([hidden])),
+:where(.kodza-hero-search__caption):not(#_):where(:not([hidden])),
+:where(.kodza-hero-search__option svg:where(:not([class*="kodza-"]))):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-hero-search__eyebrow):not(#_):where([hidden]),
+:where(.kodza-hero-search__title):not(#_):where([hidden]),
+:where(.kodza-hero-search__lead):not(#_):where([hidden]),
+:where(.kodza-hero-search__sr):not(#_):where([hidden]),
+:where(.kodza-hero-search__radio):not(#_):where([hidden]),
+:where(.kodza-hero-search__chevron):not(#_):where([hidden]),
+:where(.kodza-hero-search__list):not(#_):where([hidden]),
+:where(.kodza-hero-search__highlight):not(#_):where([hidden]),
+:where(.kodza-hero-search__arrow):not(#_):where([hidden]),
+:where(.kodza-hero-search__note):not(#_):where([hidden]),
+:where(.kodza-hero-search__media):not(#_):where([hidden]),
+:where(.kodza-hero-search__caption):not(#_):where([hidden]),
+:where(.kodza-hero-search__option svg:where(:not([class*="kodza-"]))):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-hero-search__inner:not(#_),
+.kodza-hero-search__copy:not(#_),
+.kodza-hero-search__rise:not(#_),
+.kodza-hero-search__line:not(#_),
+.kodza-hero-search__indicator:not(#_),
+.kodza-hero-search__ghost:not(#_),
+.kodza-hero-search__fields:not(#_),
+.kodza-hero-search__label:not(#_),
+.kodza-hero-search__example:not(#_),
+.kodza-hero-search__value:not(#_),
+.kodza-hero-search__count:not(#_),
+.kodza-hero-search__frame:not(#_),
+.kodza-hero-search__curtain:not(#_),
+.kodza-hero-search__hold:not(#_),
+.kodza-hero-search__meta:not(#_),
+.kodza-hero-search__price:not(#_),
+.kodza-hero-search__mode span:where(:not([class*="kodza-"])):not(#_),
+.kodza-hero-search__example span:where(:not([class*="kodza-"])):not(#_),
+.kodza-hero-search__value span:where(:not([class*="kodza-"])):not(#_),
+.kodza-hero-search__count span:where(:not([class*="kodza-"])):not(#_),
+.kodza-hero-search__price span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-hero-search__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-hero-search__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-hero-search__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-hero-search__modes:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-hero-search__sr:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-hero-search__mode:not(#_) {
+  border: revert;
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hero-search__radio:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-hero-search__field:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hero-search__input:not(#_),
+.kodza-hero-search__trigger:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-hero-search__native:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-hero-search__chevron:not(#_),
+.kodza-hero-search__option svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hero-search__list:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hero-search__highlight:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hero-search__option:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-hero-search__submit:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  min-height: revert;
+}
+
+.kodza-hero-search__arrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hero-search__note:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-hero-search__media:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-hero-search__tag:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-hero-search__caption:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-hero-search__native option:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+  color: revert;
+}
+
+.kodza-hero-search__hold img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-hero-search__eyebrow:not(#_) {
+  margin: 0 0 22px;
+  font-family: var(--kz-hero-search-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--kz-hero-search-faint);
+}
+
+.kodza-hero-search__title:not(#_) {
+  margin: 0 0 24px;
+  font-size: clamp(40px, 5.6vw, 84px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--kz-hero-search-ink);
+}
+
+.kodza-hero-search__lead:not(#_) {
+  max-width: 34ch;
+  margin: 0 0 clamp(28px, 3vw, 40px);
+  font-size: clamp(17px, 1.45vw, 19px);
+  line-height: 1.55;
+  color: var(--kz-hero-search-dim);
+}
+
+.kodza-hero-search__modes:not(#_) {
+  position: relative;
+  display: inline-flex;
+  margin: 0;
+  padding: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-hero-search-surface);
+  box-shadow: inset 0 0 0 1px var(--kz-hero-search-field);
+}
+
+.kodza-hero-search.is-live .kodza-hero-search__indicator:not(#_),
+.kodza-hero-search.is-live .kodza-hero-search__mirror:not(#_) {
+  transition: clip-path 0.5s var(--kz-hero-search-ease);
+}
+
+.kodza-hero-search__mode:not(#_) {
+  display: inline-flex;
+  padding: 0 18px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.kodza-hero-search__mode:not(#_) {
+  position: relative;
+  border-radius: 999px;
+  color: var(--kz-hero-search-dim);
+  transition: color 0.3s var(--kz-hero-search-ease);
+}
+
+.kodza-hero-search__mode:hover:not(#_),
+.kodza-hero-search__mode:has(.kodza-hero-search__radio:checked):not(#_) {
+  color: var(--kz-hero-search-ink);
+}
+
+.kodza-hero-search:not(.is-ready) .kodza-hero-search__mode:has(.kodza-hero-search__radio:checked):not(#_) {
+  background: var(--kz-hero-search-ink);
+  color: var(--kz-hero-search-paper);
+}
+
+.kodza-hero-search__mode:has(.kodza-hero-search__radio:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-hero-search-ink);
+  outline-offset: 2px;
+}
+
+.kodza-hero-search__radio:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kodza-hero-search__field:not(#_) {
+  position: relative;
+  display: block;
+  color: var(--kz-hero-search-ink);
+}
+
+.kodza-hero-search__input:not(#_),
+.kodza-hero-search__native:not(#_),
+.kodza-hero-search__trigger:not(#_) {
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: var(--kz-hero-search-height);
+  margin: 0;
+  padding: 25px 16px 9px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--kz-hero-search-surface);
+  box-shadow: inset 0 0 0 1px var(--kz-hero-search-field);
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  appearance: none;
+  transition: box-shadow 0.25s ease;
+}
+
+.kodza-hero-search__native:not(#_),
+.kodza-hero-search__trigger:not(#_) {
+  padding-right: 44px;
+  cursor: pointer;
+}
+
+.kodza-hero-search__native:not(#_) {
+  background: var(--kz-hero-search-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10.5l4-4' fill='none' stroke='%23999' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 16px center / 16px no-repeat;
+}
+
+.kodza-hero-search__trigger:not(#_) {
+  padding-top: 0;
+}
+
+.kodza-hero-search__input:hover:not(#_),
+.kodza-hero-search__native:hover:not(#_),
+.kodza-hero-search__trigger:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-hero-search-field-hover);
+}
+
+.kodza-hero-search__input:focus:not(#_),
+.kodza-hero-search__native:focus-visible:not(#_),
+.kodza-hero-search__trigger:focus-visible:not(#_),
+.kodza-hero-search__select.is-open .kodza-hero-search__trigger:not(#_) {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--kz-hero-search-ink), 0 0 0 4px var(--kz-hero-search-soft);
+}
+
+.kodza-hero-search__input:not(#_)::placeholder {
+  color: var(--kz-hero-search-dim);
+  opacity: 1;
+}
+
+.kodza-hero-search__field.is-rolling .kodza-hero-search__input:not(#_)::placeholder {
+  color: transparent;
+}
+
+.kodza-hero-search:not(.is-ready):has(.kodza-hero-search__radio[value="rent"]:checked) [data-mode="buy"]:not(#_),
+.kodza-hero-search:not(.is-ready):has(.kodza-hero-search__radio[value="buy"]:checked) [data-mode="rent"]:not(#_) {
+  display: none;
+}
+
+.kodza-hero-search__select:not(#_) {
+  transition: z-index 0s linear 0.35s;
+}
+
+.kodza-hero-search__select.is-open:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-hero-search.is-ready .kodza-hero-search__native:not(#_) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+.kodza-hero-search__native[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-hero-search__chevron:not(#_) {
+  position: absolute;
+  transition: transform 0.35s var(--kz-hero-search-ease);
+}
+
+.kodza-hero-search__list:not(#_) {
+  position: absolute;
+  box-sizing: border-box;
+  max-height: 280px;
+  margin: 0;
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--kz-hero-search-surface);
+  box-shadow: 0 0 0 1px var(--kz-hero-search-field), var(--kz-hero-search-pop);
+  list-style: none;
+  transition: clip-path 0.35s var(--kz-hero-search-ease),
+    opacity 0s linear 0.35s,
+    transform 0.35s var(--kz-hero-search-ease),
+    visibility 0s linear 0.35s;
+}
+
+.kodza-hero-search__select.is-open .kodza-hero-search__list:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-hero-search__highlight:not(#_) {
+  position: absolute;
+  border-radius: 8px;
+  background: var(--kz-hero-search-soft);
+}
+
+.kodza-hero-search__select.is-open .kodza-hero-search__highlight:not(#_) {
+  transition: transform 0.22s var(--kz-hero-search-ease), opacity 0.15s ease;
+}
+
+.kodza-hero-search__option:not(#_) {
+  position: relative;
+  display: flex;
+  margin: 0;
+  padding: 0 10px 0 32px;
+  border-radius: 8px;
+  color: var(--kz-hero-search-ink);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.kodza-hero-search__option[aria-disabled="true"]:not(#_) {
+  color: var(--kz-hero-search-dim);
+}
+
+.kodza-hero-search__option svg:not(#_) {
+  position: absolute;
+  transition: stroke-dashoffset 0.15s ease-in;
+}
+
+.kodza-hero-search__option[aria-selected="true"] svg:not(#_) {
+  transition: stroke-dashoffset 0.35s var(--kz-hero-search-ease) 0.05s;
+}
+
+.kodza-hero-search__submit:not(#_) {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 52px;
+  margin: 0;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-hero-search-ink);
+  color: var(--kz-hero-search-paper);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kodza-hero-search__submit:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-hero-search-ink);
+  outline-offset: 3px;
+}
+
+.kodza-hero-search__arrow:not(#_) {
+  margin-left: 4px;
+  transition: transform 0.3s var(--kz-hero-search-ease);
+}
+
+.kodza-hero-search__note:not(#_) {
+  margin: 0;
+  font-family: var(--kz-hero-search-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--kz-hero-search-faint);
+  text-align: center;
+}
+
+.kodza-hero-search__media:not(#_) {
+  margin: 0;
+}
+
+.kodza-hero-search__frame img:not(#_) {
+  display: block;
+}
+
+.kodza-hero-search__tag:not(#_) {
+  position: absolute;
+  box-sizing: border-box;
+  display: grid;
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 12px 16px 13px;
+  border-radius: 12px;
+  background: var(--kz-hero-search-surface);
+  box-shadow: 0 0 0 1px var(--kz-hero-search-line), var(--kz-hero-search-shadow);
+  color: var(--kz-hero-search-ink);
+}
+
+.kodza-hero-search__caption:not(#_) {
+  margin-top: 12px;
+  font-family: var(--kz-hero-search-mono);
+  font-size: 12.5px;
+  color: var(--kz-hero-search-faint);
+}
+
+.kodza-hero-search__sr:not(#_) {
+  position: absolute;
+  padding: 0;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hero-search *:not(#_),
+  .kodza-hero-search *:not(#_)::before,
+  .kodza-hero-search *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,1145 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Hero Showreel
+   A hero over a silent loop of the reel. "Play reel" waits in the corner; with a mouse it leaves
+   its place to follow the pointer over the picture, and a click anywhere on it opens the full
+   reel with sound: the pill grows into the player, and goes back into itself on close. The
+   player has its own bar (pause, sound, a track to seek, the time). The link is the video file,
+   so it still plays without the script. Everything is tuned with the --kz-hero-showreel-*
+   variables. */
+.kodza-hero-showreel {
+  --kz-hero-showreel-light: #f2f2f0;
+  --kz-hero-showreel-ink: #0a0a0a;
+  --kz-hero-showreel-dim: rgba(242, 242, 240, 0.8);
+  --kz-hero-showreel-faint: rgba(242, 242, 240, 0.7);
+  --kz-hero-showreel-glass: rgba(242, 242, 240, 0.14);
+  --kz-hero-showreel-shade: rgba(10, 10, 10, 0.8);
+  --kz-hero-showreel-base: #1c1c1c;
+  --kz-hero-showreel-curtain: rgba(10, 10, 10, 0.9);
+  --kz-hero-showreel-bg: transparent;
+  --kz-hero-showreel-height: clamp(560px, 54vw, 800px);
+  --kz-hero-showreel-gutter: clamp(12px, 2vw, 24px);
+  --kz-hero-showreel-pad: clamp(24px, 4.5vw, 64px);
+  --kz-hero-showreel-radius: 16px;
+  --kz-hero-showreel-position: 50% 50%;
+  --kz-hero-showreel-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-hero-showreel-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-hero-showreel-glide: cubic-bezier(0.6, 0, 0.1, 1);
+  --kz-hero-showreel-soft-ease: cubic-bezier(0.25, 1, 0.5, 1);
+
+  container: kodza-hero-showreel / inline-size;
+  box-sizing: border-box;
+  width: 100%;
+  padding-block: var(--kz-hero-showreel-gutter);
+  padding-left: max(var(--kz-hero-showreel-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-hero-showreel-gutter), env(safe-area-inset-right, 0px));
+  background: var(--kz-hero-showreel-bg);
+  color: var(--kz-hero-showreel-light);
+}
+
+.kodza-hero-showreel__frame {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: var(--kz-hero-showreel-height);
+  overflow: hidden;
+  border-radius: var(--kz-hero-showreel-radius);
+  cursor: pointer;
+}
+
+/* With a mouse, the pill is the pointer over the picture */
+.kodza-hero-showreel.is-following .kodza-hero-showreel__frame {
+  cursor: none;
+}
+
+/* A dark base under the picture: the words stay readable while it loads. Inset by a pixel so it
+   never bleeds past the picture's rounded edge */
+.kodza-hero-showreel__frame::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border-radius: max(0px, calc(var(--kz-hero-showreel-radius) - 1px));
+  background: var(--kz-hero-showreel-base);
+}
+
+.kodza-hero-showreel__media {
+  position: absolute;
+  inset: 0;
+}
+
+/* The curtain: the middle layer slides down from above while the inner one slides up into
+   place, so the picture is uncovered from the top edge down and never moves itself */
+.kodza-hero-showreel__curtain,
+.kodza-hero-showreel__hold {
+  height: 100%;
+}
+
+.kodza-hero-showreel__curtain {
+  overflow: hidden;
+}
+
+.kodza-hero-showreel__loop {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--kz-hero-showreel-position);
+}
+
+/* The veil: darkest under the words (bottom left), clear at the top right */
+.kodza-hero-showreel__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, color-mix(in srgb, var(--kz-hero-showreel-shade) 50%, transparent), transparent 70%),
+    linear-gradient(to top, var(--kz-hero-showreel-shade), color-mix(in srgb, var(--kz-hero-showreel-shade) 35%, transparent) 62%, transparent);
+}
+
+.kodza-hero-showreel__content {
+  position: relative;
+  padding: var(--kz-hero-showreel-pad);
+}
+
+.kodza-hero-showreel__label {
+  margin: 0 0 20px;
+  font-family: var(--kz-hero-showreel-mono);
+  font-size: 12.5px;
+  line-height: 16px;
+  color: var(--kz-hero-showreel-faint);
+}
+
+.kodza-hero-showreel__title {
+  margin: 0 0 22px;
+  /* Bounded by the container too, so each line keeps to one line on a phone */
+  font-size: min(clamp(38px, 6.4vw, 96px), 10.8cqi);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--kz-hero-showreel-light);
+}
+
+/* Each line is its own mask: the words rise from behind its bottom edge */
+.kodza-hero-showreel__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.kodza-hero-showreel__rise {
+  display: block;
+}
+
+.kodza-hero-showreel__lead {
+  max-width: 36ch;
+  margin: 0 0 32px;
+  font-size: clamp(16px, 1.35vw, 19px);
+  line-height: 1.55;
+  color: var(--kz-hero-showreel-dim);
+  text-wrap: pretty;
+}
+
+.kodza-hero-showreel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Glass: frosted over the picture, light rises from the bottom edge on hover */
+.kodza-hero-showreel__button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 26px;
+  border-radius: 999px;
+  background: var(--kz-hero-showreel-glass);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  color: var(--kz-hero-showreel-light);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.4s var(--kz-hero-showreel-ease);
+}
+
+.kodza-hero-showreel__button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--kz-hero-showreel-light);
+  transform: translateY(101%);
+  transition: transform 0.4s var(--kz-hero-showreel-ease);
+}
+
+.kodza-hero-showreel__arrow {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.3s var(--kz-hero-showreel-ease);
+}
+
+.kodza-hero-showreel__button:focus-visible,
+.kodza-hero-showreel__play:focus-visible {
+  outline: 2px solid var(--kz-hero-showreel-light);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .kodza-hero-showreel__button:hover {
+    color: var(--kz-hero-showreel-ink);
+  }
+
+  .kodza-hero-showreel__button:hover::before {
+    transform: none;
+  }
+
+  .kodza-hero-showreel__button:hover .kodza-hero-showreel__arrow {
+    transform: translateX(4px);
+  }
+}
+
+/* The pill: at home in the bottom right corner; the script moves it with `translate` */
+.kodza-hero-showreel__play {
+  position: absolute;
+  z-index: 2;
+  right: var(--kz-hero-showreel-pad);
+  bottom: var(--kz-hero-showreel-pad);
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 20px 0 8px;
+  border-radius: 999px;
+  background: var(--kz-hero-showreel-light);
+  color: var(--kz-hero-showreel-ink);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    scale 0.3s var(--kz-hero-showreel-ease),
+    opacity 0.2s ease;
+}
+
+.kodza-hero-showreel__dot {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--kz-hero-showreel-ink);
+}
+
+.kodza-hero-showreel__dot svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--kz-hero-showreel-light);
+}
+
+.kodza-hero-showreel__time {
+  font-family: var(--kz-hero-showreel-mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.68;
+}
+
+/* Following the pointer, it lets the clicks through to what is under it */
+.kodza-hero-showreel.is-following .kodza-hero-showreel__play {
+  pointer-events: none;
+}
+
+.kodza-hero-showreel__play.is-pressed {
+  scale: 0.92;
+}
+
+/* Over a link of the hero, it tucks itself away and the pointer comes back */
+.kodza-hero-showreel__play.is-tucked {
+  scale: 0.3;
+  opacity: 0;
+}
+
+/* While the reel is open, the player holds it */
+.kodza-hero-showreel__play.is-away {
+  visibility: hidden;
+}
+
+/* One column: the words take the width, the pill waits in the top right corner */
+@container kodza-hero-showreel (max-width: 720px) {
+  .kodza-hero-showreel__play {
+    top: var(--kz-hero-showreel-pad);
+    bottom: auto;
+  }
+
+  .kodza-hero-showreel__button {
+    flex: 1 1 auto;
+  }
+}
+
+/* The viewer: the whole screen, a shade, the player, its bar */
+.kodza-hero-showreel__viewer {
+  /* A modal dialog sits on the screen itself: 100% is the screen */
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: none;
+  color: var(--kz-hero-showreel-light);
+}
+
+.kodza-hero-showreel__viewer::backdrop {
+  background: none;
+}
+
+.kodza-hero-showreel__shade {
+  position: absolute;
+  inset: 0;
+  background: var(--kz-hero-showreel-curtain);
+  /* The page behind is blurred out of reading, not just darkened */
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.kodza-hero-showreel__player {
+  position: fixed;
+  overflow: hidden;
+  margin: 0;
+  border-radius: 12px;
+  background: #000;
+}
+
+.kodza-hero-showreel__video {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+/* The pill, drawn over the player while it grows out of it or goes back into it */
+.kodza-hero-showreel__cover {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--kz-hero-showreel-light);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kodza-hero-showreel__ghost {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 20px 0 8px;
+  color: var(--kz-hero-showreel-ink);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.kodza-hero-showreel__bar {
+  position: fixed;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.kodza-hero-showreel__control {
+  display: inline-grid;
+  flex: none;
+  height: 36px;
+  padding: 0 14px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-hero-showreel-glass);
+  color: var(--kz-hero-showreel-light);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 36px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* The words of a button share one cell: it keeps the width of the longest */
+.kodza-hero-showreel__control > span {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+.kodza-hero-showreel__control > .is-on,
+.kodza-hero-showreel__control > .is-leaving {
+  visibility: visible;
+}
+
+.kodza-hero-showreel__track {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 48px;
+  height: 36px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.kodza-hero-showreel__track::before,
+.kodza-hero-showreel__fill {
+  content: "";
+  position: absolute;
+  top: 17px;
+  right: 0;
+  left: 0;
+  height: 2px;
+  border-radius: 2px;
+}
+
+.kodza-hero-showreel__track::before {
+  background: var(--kz-hero-showreel-glass);
+}
+
+.kodza-hero-showreel__fill {
+  background: var(--kz-hero-showreel-light);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+.kodza-hero-showreel__clock {
+  flex: none;
+  font-family: var(--kz-hero-showreel-mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--kz-hero-showreel-faint);
+  white-space: nowrap;
+}
+
+.kodza-hero-showreel__close {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  right: calc(14px + env(safe-area-inset-right, 0px));
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-hero-showreel-glass);
+  color: var(--kz-hero-showreel-light);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-hero-showreel__close svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.kodza-hero-showreel__control:focus-visible,
+.kodza-hero-showreel__close:focus-visible {
+  outline: 2px solid var(--kz-hero-showreel-light);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .kodza-hero-showreel__control:hover,
+  .kodza-hero-showreel__close:hover {
+    background: color-mix(in srgb, var(--kz-hero-showreel-light) 24%, transparent);
+  }
+}
+
+/* The entrance, on load: the loop opens and settles, the title lines rise, then the rest */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-hero-showreel__curtain {
+    animation: kodza-hero-showreel-curtain 1350ms var(--kz-hero-showreel-glide) 100ms both;
+  }
+
+  .kodza-hero-showreel__hold {
+    animation: kodza-hero-showreel-hold 1350ms var(--kz-hero-showreel-glide) 100ms both;
+  }
+
+  .kodza-hero-showreel__loop {
+    animation: kodza-hero-showreel-settle 2000ms var(--kz-hero-showreel-soft-ease) 100ms both;
+  }
+
+  .kodza-hero-showreel__label {
+    animation: kodza-hero-showreel-in 900ms var(--kz-hero-showreel-soft-ease) 250ms both;
+  }
+
+  .kodza-hero-showreel__rise {
+    animation: kodza-hero-showreel-rise 1170ms var(--kz-hero-showreel-glide) 300ms both;
+  }
+
+  .kodza-hero-showreel__line:nth-child(2) .kodza-hero-showreel__rise {
+    animation-delay: 425ms;
+  }
+
+  .kodza-hero-showreel__lead {
+    animation: kodza-hero-showreel-in 900ms var(--kz-hero-showreel-soft-ease) 650ms both;
+  }
+
+  .kodza-hero-showreel__actions {
+    animation: kodza-hero-showreel-in 900ms var(--kz-hero-showreel-soft-ease) 760ms both;
+  }
+
+  /* Backwards only: once in, the pill's scale and opacity belong to its states */
+  .kodza-hero-showreel__play {
+    animation: kodza-hero-showreel-pop 700ms var(--kz-hero-showreel-ease) 600ms backwards;
+  }
+}
+
+/* Closed 2px past the edge: a curtain closed exactly on the frame's edge can leak a hairline */
+@keyframes kodza-hero-showreel-curtain {
+  from {
+    transform: translateY(calc(-100% - 2px));
+  }
+}
+
+@keyframes kodza-hero-showreel-hold {
+  from {
+    transform: translateY(calc(100% + 2px));
+  }
+}
+
+@keyframes kodza-hero-showreel-settle {
+  from {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes kodza-hero-showreel-rise {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+/* Fully drawn halfway: the words are readable while they still move */
+@keyframes kodza-hero-showreel-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes kodza-hero-showreel-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hero-showreel *,
+  .kodza-hero-showreel *::before,
+  .kodza-hero-showreel *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard f8d75e023eb5 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-hero-showreel__loop):not(#_),
+:where(.kodza-hero-showreel__label):not(#_),
+:where(.kodza-hero-showreel__title):not(#_),
+:where(.kodza-hero-showreel__lead):not(#_),
+:where(.kodza-hero-showreel__viewer):not(#_),
+:where(.kodza-hero-showreel__video):not(#_),
+:where(.kodza-hero-showreel__dot svg:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-hero-showreel__close svg:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-hero-showreel__button):not(#_),
+:where(.kodza-hero-showreel__play):not(#_),
+:where(.kodza-hero-showreel__control):not(#_),
+:where(.kodza-hero-showreel__close):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-hero-showreel__frame:not(#_),
+.kodza-hero-showreel__media:not(#_),
+.kodza-hero-showreel__curtain:not(#_),
+.kodza-hero-showreel__hold:not(#_),
+.kodza-hero-showreel__content:not(#_),
+.kodza-hero-showreel__line:not(#_),
+.kodza-hero-showreel__rise:not(#_),
+.kodza-hero-showreel__actions:not(#_),
+.kodza-hero-showreel__dot:not(#_),
+.kodza-hero-showreel__word:not(#_),
+.kodza-hero-showreel__time:not(#_),
+.kodza-hero-showreel__shade:not(#_),
+.kodza-hero-showreel__player:not(#_),
+.kodza-hero-showreel__cover:not(#_),
+.kodza-hero-showreel__track:not(#_),
+.kodza-hero-showreel__fill:not(#_),
+.kodza-hero-showreel__clock:not(#_),
+.kodza-hero-showreel__now:not(#_),
+.kodza-hero-showreel__total:not(#_),
+.kodza-hero-showreel__control span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-hero-showreel__loop:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-showreel__label:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-showreel__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-showreel__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-showreel__button:not(#_),
+.kodza-hero-showreel__play:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hero-showreel__arrow:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hero-showreel__viewer:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-showreel__video:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-showreel__control:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-hero-showreel__close:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-hero-showreel__dot svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-hero-showreel__close svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-showreel__label:not(#_):where(:not([hidden])),
+.kodza-hero-showreel__title:not(#_):where(:not([hidden])),
+.kodza-hero-showreel__lead:not(#_):where(:not([hidden])),
+.kodza-hero-showreel__arrow:not(#_):where(:not([hidden])),
+.kodza-hero-showreel__viewer:not(#_):where(:not([hidden])),
+.kodza-hero-showreel__dot svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-hero-showreel__close svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-hero-showreel__label:not(#_):where([hidden]),
+.kodza-hero-showreel__title:not(#_):where([hidden]),
+.kodza-hero-showreel__lead:not(#_):where([hidden]),
+.kodza-hero-showreel__arrow:not(#_):where([hidden]),
+.kodza-hero-showreel__viewer:not(#_):where([hidden]),
+.kodza-hero-showreel__dot svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-hero-showreel__close svg:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-hero-showreel__frame:not(#_)::before,
+.kodza-hero-showreel__media:not(#_)::after,
+.kodza-hero-showreel__button:not(#_)::before,
+.kodza-hero-showreel__track:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-hero-showreel__loop:not(#_) {
+  display: block;
+  max-width: none;
+}
+
+.kodza-hero-showreel__label:not(#_) {
+  margin: 0 0 20px;
+  font-family: var(--kz-hero-showreel-mono);
+  font-size: 12.5px;
+  line-height: 16px;
+  color: var(--kz-hero-showreel-faint);
+}
+
+.kodza-hero-showreel__title:not(#_) {
+  margin: 0 0 22px;
+  font-size: min(clamp(38px, 6.4vw, 96px), 10.8cqi);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--kz-hero-showreel-light);
+}
+
+.kodza-hero-showreel__lead:not(#_) {
+  max-width: 36ch;
+  margin: 0 0 32px;
+  font-size: clamp(16px, 1.35vw, 19px);
+  line-height: 1.55;
+  color: var(--kz-hero-showreel-dim);
+}
+
+.kodza-hero-showreel__button:not(#_) {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  padding: 0 26px;
+  border-radius: 999px;
+  background: var(--kz-hero-showreel-glass);
+  color: var(--kz-hero-showreel-light);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  transition: color 0.4s var(--kz-hero-showreel-ease);
+}
+
+.kodza-hero-showreel__arrow:not(#_) {
+  transition: transform 0.3s var(--kz-hero-showreel-ease);
+}
+
+.kodza-hero-showreel__button:focus-visible:not(#_),
+.kodza-hero-showreel__play:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-hero-showreel-light);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .kodza-hero-showreel__button:hover:not(#_) {
+    color: var(--kz-hero-showreel-ink);
+  }
+}
+
+.kodza-hero-showreel__play:not(#_) {
+  position: absolute;
+  box-sizing: border-box;
+  display: inline-flex;
+  padding: 0 20px 0 8px;
+  border-radius: 999px;
+  background: var(--kz-hero-showreel-light);
+  color: var(--kz-hero-showreel-ink);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  transition: scale 0.3s var(--kz-hero-showreel-ease),
+    opacity 0.2s ease;
+}
+
+.kodza-hero-showreel__viewer:not(#_) {
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--kz-hero-showreel-light);
+}
+
+.kodza-hero-showreel__video:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-hero-showreel__control:not(#_) {
+  display: inline-grid;
+  flex: none;
+  height: 36px;
+  padding: 0 14px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-hero-showreel-glass);
+  color: var(--kz-hero-showreel-light);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 36px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-hero-showreel__close:not(#_) {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  right: calc(14px + env(safe-area-inset-right, 0px));
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-hero-showreel-glass);
+  color: var(--kz-hero-showreel-light);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-hero-showreel__control:focus-visible:not(#_),
+.kodza-hero-showreel__close:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-hero-showreel-light);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .kodza-hero-showreel__control:hover:not(#_),
+  .kodza-hero-showreel__close:hover:not(#_) {
+    background: color-mix(in srgb, var(--kz-hero-showreel-light) 24%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hero-showreel *:not(#_),
+  .kodza-hero-showreel *:not(#_)::before,
+  .kodza-hero-showreel *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

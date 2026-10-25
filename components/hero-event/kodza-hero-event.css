@@ -1,0 +1,964 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Hero Event
+   An event hero: the date and place in mono above a tight headline, a live countdown under a
+   hairline, a ticket button and a 4:5 picture of the venue. The dates come from the datetime of
+   the two time elements, time zone included. Counting down, every digit that changes falls out
+   of its window; at the start the count makes way for "Live now", and after the end for a link
+   to the replay. On arrival the lines rise out of their masks while the picture opens from the
+   top edge down, as in Hero Split. Everything is tuned with the --kz-hero-event-* variables. */
+.kodza-hero-event {
+  --kz-hero-event-ink: #0a0a0a;
+  --kz-hero-event-paper: #f2f2f0;
+  --kz-hero-event-dim: rgba(10, 10, 10, 0.62);
+  --kz-hero-event-faint: rgba(10, 10, 10, 0.6);
+  --kz-hero-event-soft: rgba(10, 10, 10, 0.07);
+  --kz-hero-event-line: rgba(10, 10, 10, 0.16);
+  --kz-hero-event-bg: transparent;
+  --kz-hero-event-width: 1240px;
+  --kz-hero-event-gap: clamp(32px, 5vw, 80px);
+  --kz-hero-event-pad-y: clamp(72px, 9vw, 140px);
+  --kz-hero-event-gutter: clamp(16px, 4vw, 40px);
+  --kz-hero-event-radius: 16px;
+  --kz-hero-event-ratio: 4 / 5;
+  --kz-hero-event-size: clamp(36px, 4.4vw, 60px);
+  --kz-hero-event-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-hero-event-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-hero-event / inline-size;
+  box-sizing: border-box;
+  width: 100%;
+  padding-block: var(--kz-hero-event-pad-y);
+  padding-left: max(var(--kz-hero-event-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-hero-event-gutter), env(safe-area-inset-right, 0px));
+  background: var(--kz-hero-event-bg);
+  color: var(--kz-hero-event-ink);
+}
+
+.kodza-hero-event__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--kz-hero-event-gap);
+  align-items: center;
+  max-width: var(--kz-hero-event-width);
+  margin: 0 auto;
+}
+
+.kodza-hero-event__copy {
+  min-width: 0;
+}
+
+.kodza-hero-event__eyebrow {
+  margin: 0 0 22px;
+  overflow: hidden;
+  font-family: var(--kz-hero-event-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--kz-hero-event-faint);
+}
+
+.kodza-hero-event__title {
+  margin: 0 0 26px;
+  font-size: clamp(40px, 6.2vw, 92px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--kz-hero-event-ink);
+}
+
+/* Each line is its own mask: the words rise from behind its bottom edge */
+.kodza-hero-event__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.kodza-hero-event__rise {
+  display: block;
+}
+
+.kodza-hero-event__lead {
+  max-width: 30ch;
+  margin: 0 0 36px;
+  font-size: clamp(17px, 1.45vw, 20px);
+  line-height: 1.55;
+  color: var(--kz-hero-event-dim);
+  text-wrap: pretty;
+}
+
+/* The status: one cell under a hairline, where the count, "Live now" and the replay link take
+   turns. It needs the script, so it waits for it; the date above says it all without. */
+.kodza-hero-event__status {
+  position: relative;
+  display: none;
+  max-width: 460px;
+  margin: 0 0 36px;
+  padding: 18px 0 0.08em;
+  overflow: clip;
+}
+
+.kodza-hero-event.is-ready .kodza-hero-event__status {
+  display: grid;
+}
+
+.kodza-hero-event__status::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1; /* the edge the states roll past, drawn over them */
+  height: 1px;
+  background: var(--kz-hero-event-line);
+  transform-origin: left;
+}
+
+.kodza-hero-event__state {
+  grid-area: 1 / 1;
+  align-self: end;
+  margin: 0;
+  visibility: hidden;
+}
+
+.kodza-hero-event__state.is-current {
+  visibility: visible;
+}
+
+.kodza-hero-event__state--count {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.kodza-hero-event__unit {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.kodza-hero-event__label {
+  font-family: var(--kz-hero-event-mono);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kz-hero-event-faint);
+}
+
+.kodza-hero-event__value {
+  display: inline-flex;
+  font-size: var(--kz-hero-event-size);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+/* Each digit in its own window, where it falls */
+.kodza-hero-event__digit {
+  display: inline-grid;
+  overflow: hidden;
+  padding-block: 0.06em;
+  margin-block: -0.06em;
+}
+
+.kodza-hero-event__digit > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-hero-event__state--live,
+.kodza-hero-event__state--over {
+  font-size: calc(var(--kz-hero-event-size) * 0.8);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.kodza-hero-event__state--live {
+  display: flex;
+  align-items: center;
+  gap: 0.34em;
+}
+
+/* A filled dot that breathes: a soft ring leaves it, again and again */
+.kodza-hero-event__dot {
+  position: relative;
+  flex: none;
+  width: 0.3em;
+  height: 0.3em;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.kodza-hero-event__dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+}
+
+.kodza-hero-event__state--live.is-current .kodza-hero-event__dot::after {
+  animation: kodza-hero-event-breathe 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes kodza-hero-event-breathe {
+  0% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+.kodza-hero-event__replay {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.24em;
+  border-radius: 6px;
+  color: var(--kz-hero-event-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.14em;
+  text-decoration-color: var(--kz-hero-event-line);
+  transition: text-decoration-color 0.3s var(--kz-hero-event-ease);
+}
+
+.kodza-hero-event__replay .kodza-hero-event__arrow {
+  width: 0.62em;
+  height: 0.62em;
+  stroke-width: 1.6;
+}
+
+.kodza-hero-event__replay:focus-visible {
+  outline: 2px solid var(--kz-hero-event-ink);
+  outline-offset: 4px;
+}
+
+.kodza-hero-event__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.kodza-hero-event__button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 26px;
+  border: 0;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.kodza-hero-event__button:focus-visible {
+  outline: 2px solid var(--kz-hero-event-ink);
+  outline-offset: 3px;
+}
+
+/* After the end, there is no ticket left to sell */
+.kodza-hero-event.is-over .kodza-hero-event__ticket {
+  display: none;
+}
+
+/* Solid: the arrow steps forward on hover */
+.kodza-hero-event__button--ink {
+  background: var(--kz-hero-event-ink);
+  color: var(--kz-hero-event-paper);
+}
+
+.kodza-hero-event__arrow {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.3s var(--kz-hero-event-ease);
+}
+
+/* Soft: ink rises from the bottom edge on hover */
+.kodza-hero-event__button--soft {
+  background: var(--kz-hero-event-soft);
+  color: var(--kz-hero-event-ink);
+  transition: color 0.4s var(--kz-hero-event-ease);
+}
+
+.kodza-hero-event__button--soft::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--kz-hero-event-ink);
+  transform: translateY(101%);
+  transition: transform 0.4s var(--kz-hero-event-ease);
+}
+
+@media (hover: hover) {
+  .kodza-hero-event__button--ink:hover .kodza-hero-event__arrow,
+  .kodza-hero-event__replay:hover .kodza-hero-event__arrow {
+    transform: translateX(4px);
+  }
+
+  .kodza-hero-event__replay:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .kodza-hero-event__button--soft:hover {
+    color: var(--kz-hero-event-paper);
+  }
+
+  .kodza-hero-event__button--soft:hover::before {
+    transform: none;
+  }
+}
+
+.kodza-hero-event__media {
+  min-width: 0;
+  margin: 0;
+}
+
+/* The curtain: the middle layer slides down from above while the inner one slides up into
+   place, so the picture is uncovered from the top edge down and never moves itself */
+.kodza-hero-event__frame {
+  max-width: 100%;
+  aspect-ratio: var(--kz-hero-event-ratio);
+  overflow: hidden;
+  border-radius: var(--kz-hero-event-radius);
+}
+
+.kodza-hero-event__curtain,
+.kodza-hero-event__hold {
+  height: 100%;
+}
+
+.kodza-hero-event__curtain {
+  overflow: hidden;
+}
+
+.kodza-hero-event__frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kodza-hero-event__caption {
+  margin-top: 12px;
+  font-family: var(--kz-hero-event-mono);
+  font-size: 12.5px;
+  color: var(--kz-hero-event-faint);
+}
+
+.kodza-hero-event__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Waiting for its entrance: the script sets is-shown and plays the motion in the same frame */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-hero-event.is-ready:not(.is-shown) .kodza-hero-event__rise {
+    transform: translateY(105%);
+  }
+
+  .kodza-hero-event.is-ready:not(.is-shown) .kodza-hero-event__curtain {
+    transform: translateY(-100%);
+  }
+
+  .kodza-hero-event.is-ready:not(.is-shown) .kodza-hero-event__hold {
+    transform: translateY(100%);
+  }
+
+  .kodza-hero-event.is-ready:not(.is-shown) .kodza-hero-event__status::before {
+    transform: scaleX(0);
+  }
+
+  .kodza-hero-event.is-ready:not(.is-shown) .kodza-hero-event__state {
+    transform: translateY(110%);
+  }
+
+  .kodza-hero-event.is-ready:not(.is-shown) .kodza-hero-event__lead,
+  .kodza-hero-event.is-ready:not(.is-shown) .kodza-hero-event__actions,
+  .kodza-hero-event.is-ready:not(.is-shown) .kodza-hero-event__caption {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* One column: the picture goes under the words, wider than tall, and the buttons share the row */
+@container kodza-hero-event (max-width: 700px) {
+  .kodza-hero-event__inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-hero-event__frame {
+    aspect-ratio: 4 / 3;
+  }
+
+  .kodza-hero-event__button {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hero-event *,
+  .kodza-hero-event *::before,
+  .kodza-hero-event *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+
+  .kodza-hero-event__state--live.is-current .kodza-hero-event__dot::after {
+    animation: none;
+  }
+}
+
+/* kodza-guard e1d00bd60af0 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-hero-event__eyebrow):not(#_),
+:where(.kodza-hero-event__start):not(#_),
+:where(.kodza-hero-event__end):not(#_),
+:where(.kodza-hero-event__title):not(#_),
+:where(.kodza-hero-event__lead):not(#_),
+:where(.kodza-hero-event__media):not(#_),
+:where(.kodza-hero-event__caption):not(#_),
+:where(.kodza-hero-event__hold img:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-hero-event__state):not(#_) {
+  font-size: revert;
+  font-weight: revert;
+  line-height: revert;
+  letter-spacing: revert;
+}
+
+:where(.kodza-hero-event__replay):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-hero-event__button):not(#_) {
+  outline: revert;
+  transition: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-hero-event__inner:not(#_),
+.kodza-hero-event__copy:not(#_),
+.kodza-hero-event__rise:not(#_),
+.kodza-hero-event__line:not(#_),
+.kodza-hero-event__status:not(#_),
+.kodza-hero-event__unit:not(#_),
+.kodza-hero-event__label:not(#_),
+.kodza-hero-event__value:not(#_),
+.kodza-hero-event__digit:not(#_),
+.kodza-hero-event__dot:not(#_),
+.kodza-hero-event__sr:not(#_),
+.kodza-hero-event__actions:not(#_),
+.kodza-hero-event__frame:not(#_),
+.kodza-hero-event__curtain:not(#_),
+.kodza-hero-event__hold:not(#_),
+.kodza-hero-event__digit span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-hero-event__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-event__start:not(#_),
+.kodza-hero-event__end:not(#_),
+.kodza-hero-event__hold img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-event__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-event__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-event__state:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-event__replay:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hero-event__arrow:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hero-event__button:not(#_) {
+  margin: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-hero-event__media:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-event__caption:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-hero-event__eyebrow:not(#_):where(:not([hidden])),
+.kodza-hero-event__start:not(#_):where(:not([hidden])),
+.kodza-hero-event__end:not(#_):where(:not([hidden])),
+.kodza-hero-event__title:not(#_):where(:not([hidden])),
+.kodza-hero-event__lead:not(#_):where(:not([hidden])),
+.kodza-hero-event__arrow:not(#_):where(:not([hidden])),
+.kodza-hero-event__media:not(#_):where(:not([hidden])),
+.kodza-hero-event__caption:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-hero-event__eyebrow:not(#_):where([hidden]),
+.kodza-hero-event__start:not(#_):where([hidden]),
+.kodza-hero-event__end:not(#_):where([hidden]),
+.kodza-hero-event__title:not(#_):where([hidden]),
+.kodza-hero-event__lead:not(#_):where([hidden]),
+.kodza-hero-event__arrow:not(#_):where([hidden]),
+.kodza-hero-event__media:not(#_):where([hidden]),
+.kodza-hero-event__caption:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-hero-event__status:not(#_)::before,
+.kodza-hero-event__dot:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-hero-event__eyebrow:not(#_) {
+  margin: 0 0 22px;
+  font-family: var(--kz-hero-event-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--kz-hero-event-faint);
+}
+
+.kodza-hero-event__title:not(#_) {
+  margin: 0 0 26px;
+  font-size: clamp(40px, 6.2vw, 92px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--kz-hero-event-ink);
+}
+
+.kodza-hero-event__lead:not(#_) {
+  max-width: 30ch;
+  margin: 0 0 36px;
+  font-size: clamp(17px, 1.45vw, 20px);
+  line-height: 1.55;
+  color: var(--kz-hero-event-dim);
+}
+
+.kodza-hero-event__state:where(p):not(#_) {
+  margin: 0;
+}
+
+.kodza-hero-event__state--live:not(#_),
+.kodza-hero-event__state--over:not(#_) {
+  font-size: calc(var(--kz-hero-event-size) * 0.8);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.kodza-hero-event__state--live:not(#_) {
+  display: flex;
+}
+
+.kodza-hero-event__replay:not(#_) {
+  display: inline-flex;
+  border-radius: 6px;
+  color: var(--kz-hero-event-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.14em;
+  text-decoration-color: var(--kz-hero-event-line);
+  transition: text-decoration-color 0.3s var(--kz-hero-event-ease);
+}
+
+.kodza-hero-event__replay:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-hero-event-ink);
+  outline-offset: 4px;
+}
+
+.kodza-hero-event__button:not(#_) {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  padding: 0 26px;
+  border: 0;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.kodza-hero-event__button:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-hero-event-ink);
+  outline-offset: 3px;
+}
+
+.kodza-hero-event.is-over .kodza-hero-event__ticket:not(#_) {
+  display: none;
+}
+
+.kodza-hero-event__button--ink:not(#_) {
+  background: var(--kz-hero-event-ink);
+  color: var(--kz-hero-event-paper);
+}
+
+.kodza-hero-event__arrow:not(#_) {
+  transition: transform 0.3s var(--kz-hero-event-ease);
+}
+
+.kodza-hero-event__button--soft:not(#_) {
+  background: var(--kz-hero-event-soft);
+  color: var(--kz-hero-event-ink);
+  transition: color 0.4s var(--kz-hero-event-ease);
+}
+
+@media (hover: hover) {
+  .kodza-hero-event__replay:hover:not(#_) {
+    text-decoration-color: currentColor;
+  }
+}
+
+@media (hover: hover) {
+  .kodza-hero-event__button--soft:hover:not(#_) {
+    color: var(--kz-hero-event-paper);
+  }
+}
+
+.kodza-hero-event__media:not(#_) {
+  margin: 0;
+}
+
+.kodza-hero-event__frame img:not(#_) {
+  display: block;
+}
+
+.kodza-hero-event__caption:not(#_) {
+  margin-top: 12px;
+  font-family: var(--kz-hero-event-mono);
+  font-size: 12.5px;
+  color: var(--kz-hero-event-faint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hero-event *:where(p, time, h1, a, svg, figure, img, figcaption):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

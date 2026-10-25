@@ -1,0 +1,58 @@
+<section class="kodza-hero-search">
+  <div class="kodza-hero-search__inner">
+    <div class="kodza-hero-search__copy">
+      <p class="kodza-hero-search__eyebrow"><span class="kodza-hero-search__rise">Homes to buy and rent · updated hourly</span></p>
+      <h1 class="kodza-hero-search__title"><span class="kodza-hero-search__line"><span class="kodza-hero-search__rise">Find a home,</span></span> <span class="kodza-hero-search__line"><span class="kodza-hero-search__rise">not a brochure.</span></span></h1>
+      <p class="kodza-hero-search__lead">Real floor plans, real prices and the street before the visit. When it says cosy, we say small.</p>
+      <form class="kodza-hero-search__form" action="/search" method="get" role="search">
+        <fieldset class="kodza-hero-search__modes">
+          <legend class="kodza-hero-search__sr">Looking to</legend>
+          <label class="kodza-hero-search__mode"><input class="kodza-hero-search__radio" type="radio" name="mode" value="buy" checked /><span>Buy</span></label>
+          <label class="kodza-hero-search__mode"><input class="kodza-hero-search__radio" type="radio" name="mode" value="rent" /><span>Rent</span></label>
+        </fieldset>
+        <div class="kodza-hero-search__fields">
+          <label class="kodza-hero-search__field kodza-hero-search__field--where">
+            <span class="kodza-hero-search__label">Where</span>
+            <input class="kodza-hero-search__input" type="text" name="where" placeholder="Le Havre" autocomplete="off" data-examples="Le Havre, Lisbon, Nantes, Porto" />
+          </label>
+          <label class="kodza-hero-search__field kodza-hero-search__select">
+            <span class="kodza-hero-search__label">Type</span>
+            <select class="kodza-hero-search__native" name="type" aria-label="Type">
+              <option value="" selected>Any type</option>
+              <option value="house">House</option>
+              <option value="flat">Flat</option>
+              <option value="loft">Loft</option>
+              <option value="studio">Studio</option>
+            </select>
+          </label>
+          <label class="kodza-hero-search__field kodza-hero-search__select">
+            <span class="kodza-hero-search__label">Budget</span>
+            <select class="kodza-hero-search__native" name="max_price" data-mode="buy" aria-label="Budget">
+              <option value="" selected>Any price</option>
+              <option value="200000">Up to €200k</option>
+              <option value="350000">Up to €350k</option>
+              <option value="500000">Up to €500k</option>
+              <option value="800000">Up to €800k</option>
+            </select>
+            <select class="kodza-hero-search__native" name="max_rent" data-mode="rent" aria-label="Budget">
+              <option value="" selected>Any rent</option>
+              <option value="800">Up to €800 / mo</option>
+              <option value="1200">Up to €1,200 / mo</option>
+              <option value="1800">Up to €1,800 / mo</option>
+              <option value="2500">Up to €2,500 / mo</option>
+            </select>
+          </label>
+        </div>
+        <button class="kodza-hero-search__submit" type="submit">Show <span class="kodza-hero-search__count">128</span> homes<svg class="kodza-hero-search__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h10.5M9 3.5 13.5 8 9 12.5" /></svg></button>
+        <p class="kodza-hero-search__note">Free to search. No account, no agent calling you at dinner.</p>
+      </form>
+    </div>
+    <figure class="kodza-hero-search__media">
+      <div class="kodza-hero-search__frame">
+        <div class="kodza-hero-search__curtain"><div class="kodza-hero-search__hold"><img src="https://kodza.dev/media/kz-overflow-1400.webp" alt="A two-storey concrete house, its upper floor cantilevered over the ground" width="1400" height="1400" /></div></div>
+        <p class="kodza-hero-search__tag"><span class="kodza-hero-search__meta">Sainte-Adresse · 4&nbsp;rooms · 132&nbsp;m²</span> <span class="kodza-hero-search__price"><span data-mode="buy">€465,000</span><span data-mode="rent">€1,750 / mo</span></span></p>
+      </div>
+      <figcaption class="kodza-hero-search__caption">fig. 01 — 132&nbsp;m², measured, not estimated</figcaption>
+    </figure>
+  </div>
+</section>
