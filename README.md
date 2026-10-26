@@ -61,22 +61,25 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-128 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+131 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
 
 ### Buttons
 
 | Component | What it does | |
 | --- | --- | --- |
 | [3D Press Button](components/press-button/) | A button with real thickness: the face sinks into its base, even the quickest tap goes all the way down, and it springs back with a small bounce. A keycap, a brutalist slab, or a toggle that stays down. | [Demo](https://kodza.dev/components/press-button/) |
+| [Add to Cart](components/add-to-cart/) | Add-to-cart button that confirms with a tick while a copy of the product picture flies into the cart icon and its count rolls up by one. Rolls back if the request fails. | [Demo](https://kodza.dev/components/add-to-cart/) |
 | [Arrow Button](components/button-arrow-slide/) | An arrow that draws itself in on hover, nudges the label aside, then carries on through the button when you leave. | [Demo](https://kodza.dev/components/button-arrow-slide/) |
 | [Call Button](components/call-button-expand/) | A round phone icon that opens into a full "Book a call" button, with a little ring. Stays open on touch screens. Pure CSS. | [Demo](https://kodza.dev/components/call-button-expand/) |
 | [Copy to Clipboard](components/copy-clipboard/) | A command, or a sentence for your AI, with a copy button: the icon turns into a check that draws itself and the label rolls to "Copied". | [Demo](https://kodza.dev/components/copy-clipboard/) |
 | [Fill Button](components/button-fill/) | A button that fills from the exact point your cursor enters and empties toward where it leaves, with a rolling label and a looping arrow. | [Demo](https://kodza.dev/components/button-fill/) |
 | [Hold to Confirm](components/hold-to-confirm/) | For the actions you cannot take back: hold it down and an ink pill fills the button, let go too early and it drains back, hold to the end and it ticks. Mouse, finger, Space or Enter. | [Demo](https://kodza.dev/components/hold-to-confirm/) |
+| [Ink Like](components/ink-like/) | Like button whose heart fills with ink, a small wave riding the surface, and drains when the like is taken back. The count rolls digit by digit with carries (999 → 1,000) and rolls back if the request fails. | [Demo](https://kodza.dev/components/ink-like/) |
 | [Loading Button](components/loading-button/) | A button that shows its work: its words roll from Deploy to Deploying while a ring comes in, then the ring closes on a tick for Deployed. The width never moves. | [Demo](https://kodza.dev/components/loading-button/) |
 | [Magnetic Button](components/magnetic-button/) | A button that leans towards the pointer as it comes near, its words a little further, and settles back softly. Its click area moves with it. Calm on touch screens. | [Demo](https://kodza.dev/components/magnetic-button/) |
 | [Morph Button](components/button-svg-morph/) | A pill that tightens into a circle on hover while its label gives way to an arrow. The clickable area never moves. Pure CSS. | [Demo](https://kodza.dev/components/button-svg-morph/) |
 | [Roll Button](components/button-slide/) | A button whose label rolls up letter by letter on hover, and keeps rolling the same way when you leave. Plain CSS and a few lines of JS. | [Demo](https://kodza.dev/components/button-slide/) |
+| [Scroll Down](components/scroll-down/) | The cue at the bottom of a hero: an arrow in a ring or a mouse whose wheel rolls now and then. One click glides to the next section, the first scroll fades it out, and it comes back at the top. | [Demo](https://kodza.dev/components/scroll-down/) |
 | [Share Button](components/share-button/) | Press Share and the options slide out from behind it, the last one pushing the pill open, while the arrow takes off and a cross draws itself. Copy link turns into a check; X and LinkedIn open in a small window. | [Demo](https://kodza.dev/components/share-button/) |
 | [Split Button](components/split-button/) | The main action on the left, the other options behind an arrow. One tint slides between the halves; pick another way to do it and the label rolls over, the button easing to its new width. | [Demo](https://kodza.dev/components/split-button/) |
 

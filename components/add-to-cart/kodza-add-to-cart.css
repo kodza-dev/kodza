@@ -1,0 +1,421 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Add to Cart
+   Two pieces: the button that goes on each product, and the cart icon that goes in the header.
+   Clicked, the button rolls to "Added" with a tick, a copy of the product picture flies in an
+   arc into the bag, and the count rolls up by one, digit by digit. The count lives in the
+   cart's data-count: set it from your code (cart fragments, a page load) and it rolls too.
+   From your code: listen to "kodza:add" and pass your request to event.detail.wait(promise);
+   if it fails, the count rolls back and the button says "Try again".
+   Everything is tuned with the --kz-add-to-cart-* variables. */
+.kodza-add-to-cart {
+  --kz-add-to-cart-bg: #0a0a0a;
+  --kz-add-to-cart-fg: #ffffff;
+  --kz-add-to-cart-height: 52px;
+  --kz-add-to-cart-pad-x: 28px;
+  --kz-add-to-cart-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: inline-grid;
+  align-items: center;
+  height: var(--kz-add-to-cart-height);
+  padding: 0 var(--kz-add-to-cart-pad-x);
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-add-to-cart-bg);
+  color: var(--kz-add-to-cart-fg);
+  font: inherit;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.25s var(--kz-add-to-cart-ease);
+}
+
+.kodza-add-to-cart:active {
+  transform: scale(0.97);
+}
+
+.kodza-add-to-cart:focus-visible {
+  outline: 2px solid var(--kz-add-to-cart-bg);
+  outline-offset: 3px;
+}
+
+.kodza-add-to-cart--soft {
+  --kz-add-to-cart-bg: rgba(10, 10, 10, 0.07);
+  --kz-add-to-cart-fg: #0a0a0a;
+}
+
+.kodza-add-to-cart--soft:focus-visible {
+  outline-color: var(--kz-add-to-cart-fg);
+}
+
+/* The words: three in one cell, so the width is the widest one's and never moves */
+.kodza-add-to-cart__label {
+  display: inline-grid;
+  grid-area: 1 / 1;
+  overflow: hidden;
+  padding-block: 0.15em;
+}
+
+.kodza-add-to-cart__label > span {
+  display: inline-flex;
+  grid-area: 1 / 1;
+  align-items: center;
+  justify-self: center;
+  gap: 8px;
+}
+
+.kodza-add-to-cart__label > span:not(:first-child) {
+  transform: translateY(110%);
+}
+
+.kodza-add-to-cart__label svg {
+  display: block;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-left: -4px;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* The tick draws itself once "Added" is in */
+.kodza-add-to-cart__label > span:nth-child(2) path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.kodza-add-to-cart[data-state="added"] .kodza-add-to-cart__label > span:nth-child(2) path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.38s var(--kz-add-to-cart-ease) 0.16s;
+}
+
+.kodza-add-to-cart__label > span:nth-child(3) svg {
+  stroke-width: 1.8;
+}
+
+.kodza-add-to-cart__label > span:nth-child(3) path {
+  stroke-width: 2.2;
+}
+
+/* The cart: a round icon link with its count on the corner */
+.kodza-add-to-cart__cart {
+  --kz-add-to-cart-ink: #0a0a0a;
+  --kz-add-to-cart-paper: #ffffff;
+  --kz-add-to-cart-cart-size: 44px;
+  --kz-add-to-cart-cart-hover: rgba(10, 10, 10, 0.06);
+
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--kz-add-to-cart-cart-size);
+  height: var(--kz-add-to-cart-cart-size);
+  border-radius: 999px;
+  color: var(--kz-add-to-cart-ink);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-add-to-cart__cart:hover {
+  background: var(--kz-add-to-cart-cart-hover);
+}
+
+.kodza-add-to-cart__cart:focus-visible {
+  outline: 2px solid var(--kz-add-to-cart-ink);
+  outline-offset: 2px;
+}
+
+.kodza-add-to-cart__bag {
+  display: block;
+  width: 22px;
+  height: 22px;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform-origin: 50% 85%;
+}
+
+/* The count: hidden at zero, pops in with the first item */
+.kodza-add-to-cart__count {
+  position: absolute;
+  top: 3px;
+  left: calc(50% + 3px);
+  display: inline-flex;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--kz-add-to-cart-ink);
+  color: var(--kz-add-to-cart-paper);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+}
+
+.kodza-add-to-cart__cart[data-count="0"] .kodza-add-to-cart__count {
+  opacity: 0;
+  transform: scale(0.3);
+  transition: transform 0.25s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.2s ease 0.05s;
+}
+
+/* One cell per digit, so only the digits that change roll */
+.kodza-add-to-cart__digit {
+  position: relative;
+  display: block;
+  height: 18px;
+  overflow: hidden;
+}
+
+.kodza-add-to-cart__digit > span {
+  display: block;
+}
+
+.kodza-add-to-cart__digit > span + span {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.kodza-add-to-cart__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-add-to-cart,
+  .kodza-add-to-cart__count,
+  .kodza-add-to-cart__label path {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-add-to-cart {
+  --kz-add-to-cart-bg: #ffffff;
+  --kz-add-to-cart-fg: #0a0a0a;
+}
+.dark-section .kodza-add-to-cart__cart {
+  --kz-add-to-cart-ink: #ffffff;
+  --kz-add-to-cart-paper: #0a0a0a;
+  --kz-add-to-cart-cart-hover: rgba(255, 255, 255, 0.1);
+}
+*/
+
+/* kodza-guard 7903578edcb7 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-add-to-cart__cart):not(#_) {
+  outline: revert;
+  background-color: revert;
+  background-image: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-add-to-cart):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-add-to-cart__cart:not(#_) {
+  border: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-add-to-cart__bag:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-add-to-cart:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-add-to-cart__label:not(#_),
+.kodza-add-to-cart__label span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-add-to-cart__label svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-add-to-cart:not(#_) {
+  position: relative;
+  display: inline-grid;
+  align-items: center;
+  height: var(--kz-add-to-cart-height);
+  padding: 0 var(--kz-add-to-cart-pad-x);
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-add-to-cart-bg);
+  color: var(--kz-add-to-cart-fg);
+  font: inherit;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.25s var(--kz-add-to-cart-ease);
+}
+
+.kodza-add-to-cart:active:not(#_) {
+  transform: scale(0.97);
+}
+
+.kodza-add-to-cart:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-add-to-cart-bg);
+  outline-offset: 3px;
+}
+
+.kodza-add-to-cart__label svg:not(#_) {
+  display: block;
+  margin-left: -4px;
+}
+
+.kodza-add-to-cart__cart:not(#_) {
+  position: relative;
+  display: inline-grid;
+  border-radius: 999px;
+  color: var(--kz-add-to-cart-ink);
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-add-to-cart__cart:hover:not(#_) {
+  background: var(--kz-add-to-cart-cart-hover);
+}
+
+.kodza-add-to-cart__cart:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-add-to-cart-ink);
+  outline-offset: 2px;
+}
+
+.kodza-add-to-cart__bag:not(#_) {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-add-to-cart:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
