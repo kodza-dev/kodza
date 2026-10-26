@@ -61,7 +61,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-126 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+128 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
 
 ### Buttons
 
@@ -216,6 +216,8 @@ Written like it's going live tomorrow. Because it probably is.
 
 | Component | What it does | |
 | --- | --- | --- |
+| [Caustics](components/caustics/) | A hero over the floor of a pool in the sun: a net of bright lines ray-traced by native WebGL 2 from two dozen swells, and calm water under the text. | [Demo](https://kodza.dev/components/caustics/) |
+| [Cymatics](components/cymatics/) | A hero beside a speaker drawn in sand: the frame and screws hold their lines while the cone rings through a sweeping tone, its sand sliding to one to five still circles. A woofer, or the whole box. | [Demo](https://kodza.dev/components/cymatics/) |
 | [Dimension Lines](components/dimension-lines/) | A hero dimensioned like a technical drawing: arrowed lines measure its real margins, columns, title and height, and recompute on resize. They open one by one on entry. | [Demo](https://kodza.dev/components/dimension-lines/) |
 | [Grain](components/grain/) | Film grain from one inline SVG noise, jumping ten times a second like the next frame of a roll: under the words of a section, over its photo. The specks take your two colours. Nothing to download. | [Demo](https://kodza.dev/components/grain/) |
 | [Interactive Dots](components/interactive-dots/) | A hero over a field of fine dots. The pointer pushes them aside like a hand in sand, they spring back, and a click sends a wave across. One canvas, asleep when nobody is looking. | [Demo](https://kodza.dev/components/interactive-dots/) |

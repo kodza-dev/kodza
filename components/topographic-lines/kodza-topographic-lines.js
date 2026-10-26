@@ -8,7 +8,7 @@
   const SELECTOR = '[data-kodza-topographic-lines]';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ---- Kodza shader engine 1.0 -----------------------------------------------------------
+  // ---- Kodza shader engine 1.1 -----------------------------------------------------------
   // The same copy in every WebGL background of the family: it owns the canvas and its context,
   // one triangle over the whole section, the pointer, the text mask and the pauses (off-screen,
   // hidden tab, nothing moving, context lost). A background hands it a layer: its fragment
@@ -20,6 +20,9 @@
   //   The fragment shader gets u_size (CSS pixels), u_ratio (device pixels per CSS pixel),
   //   u_ink (the canvas `color`, as rgba), u_quiet and u_quietSize (1 in the open, 0 under a line
   //   of text, feathered) and u_calm.
+  //   1.1, a 1.0 layer runs on it unchanged: `webgl2: true` asks for a WebGL 2 context (then
+  //   `vertex` and `fragment` are GLSL 300 es), `prepare(s, gl)` builds whatever else the layer
+  //   draws once the program is in (false: it cannot, the CSS background stays).
   const VERTEX = 'attribute vec2 a_position; void main() { gl_Position = vec4(a_position, 0.0, 1.0); }';
   const PIXELS = 4.5e6; // device pixels at most: a huge section is drawn a little softer, not slower
   const CELL = 8;       // the text mask, in CSS pixels per cell
@@ -28,7 +31,7 @@
 
   function shader(root, signal, layer) {
     const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
+    const gl = canvas.getContext(layer.webgl2 ? 'webgl2' : 'webgl', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
     if (!gl) return null; // the still background drawn in CSS stays
 
     const s = {
@@ -48,14 +51,14 @@
     let size = '';
 
     const compile = () => {
-      if (!gl.getExtension('OES_standard_derivatives')) return false; // fwidth keeps every line one pixel wide
+      if (!layer.webgl2 && !gl.getExtension('OES_standard_derivatives')) return false; // fwidth keeps every line one pixel wide (WebGL 2 has it)
       const part = (type, source) => {
         const sh = gl.createShader(type);
         gl.shaderSource(sh, source);
         gl.compileShader(sh);
         return gl.getShaderParameter(sh, gl.COMPILE_STATUS) ? sh : null;
       };
-      const vs = part(gl.VERTEX_SHADER, VERTEX);
+      const vs = part(gl.VERTEX_SHADER, layer.vertex || VERTEX);
       const fs = part(gl.FRAGMENT_SHADER, layer.fragment);
       if (!vs || !fs) return false;
       const program = gl.createProgram();
@@ -82,7 +85,7 @@
       gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, 1, 1, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, new Uint8Array([255]));
       gl.uniform1i(u.u_quiet, 0);
-      return true;
+      return layer.prepare?.(s, gl) !== false;
     };
     if (!compile()) return null;
     canvas.className = layer.canvas;
@@ -254,7 +257,7 @@
       if (!compile()) {
         lost = true;
         canvas.remove();
-        root.classList.remove('is-live'); // back to the CSS rings
+        root.classList.remove('is-live'); // back to the still CSS background
         return;
       }
       if (build()) paint();
