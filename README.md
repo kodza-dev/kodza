@@ -61,7 +61,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-123 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+126 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
 
 ### Buttons
 
@@ -216,9 +216,12 @@ Written like it's going live tomorrow. Because it probably is.
 
 | Component | What it does | |
 | --- | --- | --- |
+| [Dimension Lines](components/dimension-lines/) | A hero dimensioned like a technical drawing: arrowed lines measure its real margins, columns, title and height, and recompute on resize. They open one by one on entry. | [Demo](https://kodza.dev/components/dimension-lines/) |
 | [Grain](components/grain/) | Film grain from one inline SVG noise, jumping ten times a second like the next frame of a roll: under the words of a section, over its photo. The specks take your two colours. Nothing to download. | [Demo](https://kodza.dev/components/grain/) |
 | [Interactive Dots](components/interactive-dots/) | A hero over a field of fine dots. The pointer pushes them aside like a hand in sand, they spring back, and a click sends a wave across. One canvas, asleep when nobody is looking. | [Demo](https://kodza.dev/components/interactive-dots/) |
 | [Pattern Background](components/pattern-background/) | A hero framed by its own pattern: the grid lines up on your content, four hairlines run along its edges with crop marks on the corners, the rest fades out. Grid, dots, crosses or diagonals. No images. | [Demo](https://kodza.dev/components/pattern-background/) |
+| [Ruled Paper](components/ruled-paper/) | A section ruled like a notebook page, with an ink margin line. The rules follow the text's line height and every line of text sits on its rule, at every size. | [Demo](https://kodza.dev/components/ruled-paper/) |
+| [Topographic Lines](components/topographic-lines/) | A hero over a contour map drawn by a native WebGL shader: the lines drift very slowly, the pointer raises a hill under it, and they thin out under the text. Plain CSS rings without WebGL. | [Demo](https://kodza.dev/components/topographic-lines/) |
 
 ### Scroll
 
