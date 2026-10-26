@@ -12,7 +12,7 @@ A section ruled like a notebook page, with an ink margin line. The rules follow 
 | --- | ---: | --- |
 | [`kodza-ruled-paper.html`](kodza-ruled-paper.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-ruled-paper.css`](kodza-ruled-paper.css) | 14.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-ruled-paper.js`](kodza-ruled-paper.js) | 7.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-ruled-paper.js`](kodza-ruled-paper.js) | 8.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

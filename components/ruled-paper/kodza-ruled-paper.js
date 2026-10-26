@@ -4,7 +4,7 @@
 // (the real text), then every other block of text (title, labels, your own paragraphs) is nudged
 // by a few pixels onto its nearest rule: lines are a whole number of rules apart, so the rest of
 // the block follows. Measured again when the section reflows or a web font comes in. The first
-// time it is seen, the page is ruled in (see the CSS).
+// time it is seen, the page is ruled in (see the CSS); "kodza:replay" rules it in again.
 (() => {
   const SELECTOR = '[data-kodza-ruled-paper]';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -82,21 +82,29 @@
     fonts.then(soon);
     document.fonts?.addEventListener('loadingdone', soon, { signal });
 
-    // Ruled in once, when a quarter of it shows and the web font is in (no rule moves after it)
+    // Ruled in when a quarter of it shows and the web font is in (no rule moves after it)
     let io = null;
+    const ruleIn = () => {
+      io?.disconnect();
+      fonts.then(() => {
+        if (signal.aborted) return;
+        cancelAnimationFrame(frame);
+        align();
+        root.classList.add('is-in');
+      });
+    };
     if (reduceMotion) root.classList.add('is-in');
     else {
       io = new IntersectionObserver((entries) => {
-        if (!entries[entries.length - 1].isIntersecting) return;
-        io.disconnect();
-        fonts.then(() => {
-          if (signal.aborted) return;
-          cancelAnimationFrame(frame);
-          align();
-          root.classList.add('is-in');
-        });
+        if (entries[entries.length - 1].isIntersecting) ruleIn();
       }, { threshold: 0.25 });
       io.observe(root);
+      // Ruled in again: blank at once (only the way in is animated), drawn blank, then ruled
+      root.addEventListener('kodza:replay', () => {
+        root.classList.remove('is-in');
+        void root.offsetWidth;
+        ruleIn();
+      }, { signal });
     }
 
     align();
