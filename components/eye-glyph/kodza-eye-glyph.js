@@ -124,6 +124,8 @@
     };
 
     eye.place = () => {
+      // A framework can take the letter out of the page before kodza:destroy: nothing to measure
+      if (!el.isConnected) return;
       const z = measure(el);
       if (!z) {
         eye.geo = null;
