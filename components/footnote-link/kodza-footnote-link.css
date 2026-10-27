@@ -1,0 +1,410 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Footnote Link
+   Footnotes that stay on their line. In a wide column the note sits in the margin, level with
+   its line, and the number and the note ink together; in a narrow one a tap folds the note out
+   under the line and the text slides down. Without the script, every note stays readable.
+   Everything is tuned with the --kz-footnote-link-* variables. */
+.kodza-footnote-link {
+  --kz-footnote-link-ink: #0a0a0a;
+  --kz-footnote-link-paper: #fff;
+  --kz-footnote-link-muted: rgba(10, 10, 10, 0.62);
+  --kz-footnote-link-sheet: rgba(10, 10, 10, 0.05);
+  --kz-footnote-link-note-width: 210px;
+  --kz-footnote-link-gap: 48px;
+  --kz-footnote-link-note-size: 0.82em;
+  --kz-footnote-link-duration: 0.26s;
+  --kz-footnote-link-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-footnote-link / inline-size;
+  display: flow-root;
+  counter-reset: kodza-footnote-link;
+}
+
+/* The paragraphs it holds: their own spacing, whatever the theme gives to p */
+.kodza-footnote-link > p {
+  margin: 0 0 1.1em;
+}
+
+.kodza-footnote-link > p:last-child {
+  margin-bottom: 0;
+}
+
+/* The number in the text: a small mono pill, raised without making its line taller */
+.kodza-footnote-link__ref {
+  position: relative;
+  top: -0.5em;
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 1.7em;
+  height: 1.6em;
+  margin: 0 0.1em 0 0.2em;
+  padding: 0 0.45em;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-footnote-link-sheet);
+  color: var(--kz-footnote-link-muted);
+  font: 500 0.62em/1.6em "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0;
+  text-align: center;
+  text-transform: none;
+  vertical-align: baseline;
+  cursor: pointer;
+  counter-increment: kodza-footnote-link;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* A target of 24 px at least, more under a finger */
+.kodza-footnote-link__ref::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+}
+
+@media (pointer: coarse) {
+  .kodza-footnote-link__ref::before {
+    inset: -10px -8px;
+  }
+}
+
+.kodza-footnote-link__ref:focus-visible {
+  outline: 2px solid var(--kz-footnote-link-ink);
+  outline-offset: 2px;
+}
+
+/* The word before a number, the number and its note, kept on one line by the script */
+.kodza-footnote-link__tie {
+  white-space: nowrap;
+}
+
+/* The note. Narrow column (and the default): a sheet under the line, the text flows below it */
+.kodza-footnote-link__note {
+  --kz-footnote-link-pad-top: 12px;
+
+  position: relative;
+  white-space: normal;
+  float: left;
+  clear: both;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0.55em 0 0.9em;
+  padding: var(--kz-footnote-link-pad-top) 16px 13px 46px;
+  border-radius: 12px;
+  background: var(--kz-footnote-link-sheet);
+  color: var(--kz-footnote-link-ink);
+  font-size: var(--kz-footnote-link-note-size);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+/* Its number, the same pill as in the text, centred on the first line */
+.kodza-footnote-link__note::before,
+.kodza-footnote-link.is-ready .kodza-footnote-link__note::after {
+  position: absolute;
+  top: calc(var(--kz-footnote-link-pad-top) + 0.225em);
+  left: 16px;
+  box-sizing: border-box;
+  min-width: 1.7em;
+  height: 1.6em;
+  padding: 0 0.45em;
+  border-radius: 999px;
+  font: 500 0.756em/1.6em "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.kodza-footnote-link__note::before {
+  content: counter(kodza-footnote-link);
+  background: var(--kz-footnote-link-sheet);
+  color: var(--kz-footnote-link-muted);
+}
+
+.kodza-footnote-link.is-ready .kodza-footnote-link__note::before {
+  content: attr(data-n);
+}
+
+/* Folded until its number is pressed, once the script runs */
+@container kodza-footnote-link (max-width: 759.98px) {
+  .kodza-footnote-link.is-ready .kodza-footnote-link__note:not(.is-open) {
+    display: none;
+  }
+}
+
+.kodza-footnote-link__note.is-moving {
+  overflow: hidden;
+}
+
+/* Wide column: the text keeps a margin on its right, and each note sits there, level with its
+   line. Notes close together stack instead of overlapping. */
+@container kodza-footnote-link (min-width: 760px) {
+  .kodza-footnote-link > * {
+    padding-right: calc(var(--kz-footnote-link-note-width) + var(--kz-footnote-link-gap));
+  }
+
+  .kodza-footnote-link__note {
+    --kz-footnote-link-pad-top: 0px;
+
+    float: right;
+    clear: right;
+    width: var(--kz-footnote-link-note-width);
+    margin: 0.3em calc(-1 * (var(--kz-footnote-link-note-width) + var(--kz-footnote-link-gap))) 1em 0;
+    padding: 0 0 0 2.1em;
+    border-radius: 0;
+    background: none;
+    color: var(--kz-footnote-link-muted);
+  }
+
+  .kodza-footnote-link__note::before,
+  .kodza-footnote-link.is-ready .kodza-footnote-link__note::after {
+    left: 0;
+  }
+}
+
+/* The ink: a double of the number, ink on paper, uncovered from the bottom up. It rises in the
+   number and in its note at the same time */
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref::after,
+.kodza-footnote-link.is-ready .kodza-footnote-link__note::after {
+  content: attr(data-n);
+  background: var(--kz-footnote-link-ink);
+  color: var(--kz-footnote-link-paper);
+  clip-path: inset(100% 0 0 0);
+  pointer-events: none;
+  transition: clip-path var(--kz-footnote-link-duration) var(--kz-footnote-link-ease);
+}
+
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.kodza-footnote-link.is-ready .kodza-footnote-link__note {
+  transition: color 0.2s ease;
+}
+
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref:focus-visible::after,
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref.is-active::after,
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref[aria-expanded="true"]::after,
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref:focus-visible + .kodza-footnote-link__note::after,
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref.is-active + .kodza-footnote-link__note::after,
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref[aria-expanded="true"] + .kodza-footnote-link__note::after {
+  clip-path: inset(0);
+}
+
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref:focus-visible + .kodza-footnote-link__note,
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref.is-active + .kodza-footnote-link__note {
+  color: var(--kz-footnote-link-ink);
+}
+
+/* Pointing at the number or at its note inks both */
+@media (hover: hover) {
+  .kodza-footnote-link.is-ready .kodza-footnote-link__ref:hover::after,
+  .kodza-footnote-link.is-ready .kodza-footnote-link__ref:has(+ .kodza-footnote-link__note:hover)::after,
+  .kodza-footnote-link.is-ready .kodza-footnote-link__ref:hover + .kodza-footnote-link__note::after,
+  .kodza-footnote-link.is-ready .kodza-footnote-link__note:hover::after {
+    clip-path: inset(0);
+  }
+
+  .kodza-footnote-link.is-ready .kodza-footnote-link__ref:hover + .kodza-footnote-link__note,
+  .kodza-footnote-link.is-ready .kodza-footnote-link__note:hover {
+    color: var(--kz-footnote-link-ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-footnote-link *,
+  .kodza-footnote-link *::before,
+  .kodza-footnote-link *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 73c91f13db29 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-footnote-link__ref):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+}
+
+:where(.kodza-footnote-link p:where(:not([class*="kodza-"]):not(.kodza-footnote-link [class*="kodza-"] *))):not(#_) {
+  padding-right: revert;
+  transition-duration: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-footnote-link:not(#_),
+.kodza-footnote-link__tie:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-footnote-link__ref:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-footnote-link p:where(:not([class*="kodza-"]):not(.kodza-footnote-link [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  padding-top: revert;
+  padding-bottom: revert;
+  padding-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-footnote-link p:where(:not([class*="kodza-"]):not(.kodza-footnote-link [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-footnote-link p:where(:not([class*="kodza-"]):not(.kodza-footnote-link [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-footnote-link__ref:not(#_)::before,
+.kodza-footnote-link__ref:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-footnote-link > p:not(#_) {
+  margin: 0 0 1.1em;
+}
+
+.kodza-footnote-link > p:last-child:not(#_) {
+  margin-bottom: 0;
+}
+
+.kodza-footnote-link__ref:not(#_) {
+  position: relative;
+  top: -0.5em;
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 1.7em;
+  height: 1.6em;
+  margin: 0 0.1em 0 0.2em;
+  padding: 0 0.45em;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-footnote-link-sheet);
+  color: var(--kz-footnote-link-muted);
+  font: 500 0.62em/1.6em "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0;
+  text-align: center;
+  text-transform: none;
+  vertical-align: baseline;
+  cursor: pointer;
+  counter-increment: kodza-footnote-link;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-footnote-link__ref:not(#_)::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+}
+
+@media (pointer: coarse) {
+  .kodza-footnote-link__ref:not(#_)::before {
+    inset: -10px -8px;
+  }
+}
+
+.kodza-footnote-link__ref:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-footnote-link-ink);
+  outline-offset: 2px;
+}
+
+@container kodza-footnote-link (min-width: 760px) {
+  .kodza-footnote-link > *:not(#_) {
+    padding-right: calc(var(--kz-footnote-link-note-width) + var(--kz-footnote-link-gap));
+  }
+}
+
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref:not(#_)::after {
+  content: attr(data-n);
+  background: var(--kz-footnote-link-ink);
+  color: var(--kz-footnote-link-paper);
+  clip-path: inset(100% 0 0 0);
+  pointer-events: none;
+  transition: clip-path var(--kz-footnote-link-duration) var(--kz-footnote-link-ease);
+}
+
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref:not(#_)::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.kodza-footnote-link.is-ready .kodza-footnote-link__note:not(#_) {
+  transition: color 0.2s ease;
+}
+
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref:focus-visible:not(#_)::after,
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref.is-active:not(#_)::after,
+.kodza-footnote-link.is-ready .kodza-footnote-link__ref[aria-expanded="true"]:not(#_)::after {
+  clip-path: inset(0);
+}
+
+@media (hover: hover) {
+  .kodza-footnote-link.is-ready .kodza-footnote-link__ref:hover:not(#_)::after,
+  .kodza-footnote-link.is-ready .kodza-footnote-link__ref:has(+ .kodza-footnote-link__note:hover):not(#_)::after {
+    clip-path: inset(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-footnote-link *:not(#_),
+  .kodza-footnote-link *:not(#_)::before,
+  .kodza-footnote-link *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

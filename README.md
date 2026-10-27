@@ -61,7 +61,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-131 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+136 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
 
 ### Buttons
 
@@ -88,9 +88,13 @@ Written like it's going live tomorrow. Because it probably is.
 | Component | What it does | |
 | --- | --- | --- |
 | [Arrow Link](components/arrow-link/) | A link that points the way: at rest a chevron, on hover the shaft draws itself in and the head moves on, › becomes →. A back variant points the other way. Pure CSS. | [Demo](https://kodza.dev/components/arrow-link/) |
+| [Download Link](components/download-link/) | A download link that shows the file's type and weight beside its words, read from the file itself. On hover the arrow sinks into its tray; a click sends it through and back from the top. | [Demo](https://kodza.dev/components/download-link/) |
 | [External Link](components/external-link/) | A link that leaves the site says so: a line of ink runs under the words to the ↗, which then springs out towards the corner, its shaft stretching after it. Pure CSS. | [Demo](https://kodza.dev/components/external-link/) |
+| [Footnote Link](components/footnote-link/) | Footnotes that stay on their line. Wide, the note sits in the margin level with its line and inks with its number; narrow, it folds out under the line. Picks up WordPress footnotes as they are. | [Demo](https://kodza.dev/components/footnote-link/) |
+| [Heading Anchor](components/heading-anchor/) | A # beside every heading. It slides out of the margin when the heading is pointed at, or waits after the last word on a touch screen. Click it, or the heading, to put the section in the bar and copy the link. | [Demo](https://kodza.dev/components/heading-anchor/) |
 | [Highlight Link](components/hover-link-text-background-reveal/) | A highlighter stroke that sweeps behind the link text, or a solid block that flips the text to white exactly under its edge. | [Demo](https://kodza.dev/components/hover-link-text-background-reveal/) |
 | [Link Preview](components/link-preview/) | Point at a link and a card of where it goes unfolds above it. One card per paragraph: it glides from link to link, its picture cross-fading and its words rolling. | [Demo](https://kodza.dev/components/link-preview/) |
+| [Quote Link](components/quote-link/) | Select words in an article and a pill offers a link to them: the page's address with a text fragment, which opens it scrolled to the quote and highlighted. It rolls to Link copied with a check. | [Demo](https://kodza.dev/components/quote-link/) |
 | [Scramble Link](components/hover-link-text-shuffle/) | Hover a link and its word scrambles, then settles from left to right: symbols that decode, its own letters shuffling, or a split-flap. | [Demo](https://kodza.dev/components/hover-link-text-shuffle/) |
 | [Underline Link](components/hover-link-text-underline/) | An underline that slides in from the left and leaves through the right, or the reverse. Follows the text across lines, like a pen. | [Demo](https://kodza.dev/components/hover-link-text-underline/) |
 
@@ -222,6 +226,7 @@ Written like it's going live tomorrow. Because it probably is.
 | [Caustics](components/caustics/) | A hero over the floor of a pool in the sun: a net of bright lines ray-traced by native WebGL 2 from two dozen swells, and calm water under the text. | [Demo](https://kodza.dev/components/caustics/) |
 | [Cymatics](components/cymatics/) | A hero beside a speaker drawn in sand: the frame and screws hold their lines while the cone rings through a sweeping tone, its sand sliding to one to five still circles. A woofer, or the whole box. | [Demo](https://kodza.dev/components/cymatics/) |
 | [Dimension Lines](components/dimension-lines/) | A hero dimensioned like a technical drawing: arrowed lines measure its real margins, columns, title and height, and recompute on resize. They open one by one on entry. | [Demo](https://kodza.dev/components/dimension-lines/) |
+| [Dot Map](components/dot-map/) | A hero over a world map in fine dots, framed on the places you list. Each one shows its local time, and a ring tours them, lighting the land it crosses. A plain list without the script. | [Demo](https://kodza.dev/components/dot-map/) |
 | [Grain](components/grain/) | Film grain from one inline SVG noise, jumping ten times a second like the next frame of a roll: under the words of a section, over its photo. The specks take your two colours. Nothing to download. | [Demo](https://kodza.dev/components/grain/) |
 | [Interactive Dots](components/interactive-dots/) | A hero over a field of fine dots. The pointer pushes them aside like a hand in sand, they spring back, and a click sends a wave across. One canvas, asleep when nobody is looking. | [Demo](https://kodza.dev/components/interactive-dots/) |
 | [Pattern Background](components/pattern-background/) | A hero framed by its own pattern: the grid lines up on your content, four hairlines run along its edges with crop marks on the corners, the rest fades out. Grid, dots, crosses or diagonals. No images. | [Demo](https://kodza.dev/components/pattern-background/) |

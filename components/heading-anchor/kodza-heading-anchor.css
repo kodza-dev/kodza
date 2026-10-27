@@ -1,0 +1,525 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Heading Anchor
+   A link to every heading. With a mouse and room on the left, a # slides out of the margin when
+   the heading is pointed at or focused; on a touch screen, in a narrow column or under a centred
+   heading, it waits after the last word. A click on it (with a mouse, on the heading too) puts the
+   section's address in the bar and copies it: the # rolls up into a check and "Link copied" rolls
+   in beside it.
+   Tuned with the --kz-heading-anchor-* variables, on the root (for an empty root, on the article
+   whose headings it links). By default the mark follows the heading's colour. */
+.kodza-heading-anchor {
+  --kz-heading-anchor-heading: #0a0a0a;
+  --kz-heading-anchor-text: rgba(10, 10, 10, 0.72);
+  --kz-heading-anchor-ink: currentColor;
+  --kz-heading-anchor-muted: color-mix(in srgb, currentColor 50%, transparent);
+  --kz-heading-anchor-paper: #fff;
+  --kz-heading-anchor-line: rgba(10, 10, 10, 0.1);
+  --kz-heading-anchor-gap: 0.3em;
+  --kz-heading-anchor-size: 0.75em;
+  --kz-heading-anchor-offset: 24px;
+  --kz-heading-anchor-duration: 0.24s;
+  --kz-heading-anchor-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: block;
+}
+
+/* The article it holds: its own type, whatever the theme gives to headings and paragraphs (an
+   empty root leaves the page's own text as it is) */
+.kodza-heading-anchor > h2,
+.kodza-heading-anchor > h3 {
+  color: var(--kz-heading-anchor-heading);
+  font-family: "Geist", system-ui, sans-serif;
+  font-weight: 600;
+  text-align: start;
+}
+
+.kodza-heading-anchor > h2 {
+  margin: 56px 0 14px;
+  font-size: clamp(24px, 4vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
+.kodza-heading-anchor > h3 {
+  margin: 36px 0 10px;
+  font-size: 20px;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+}
+
+.kodza-heading-anchor > :is(h2, h3):first-child {
+  margin-top: 0;
+}
+
+.kodza-heading-anchor > p {
+  margin: 0 0 1.1em;
+  color: var(--kz-heading-anchor-text);
+  font-family: "Geist", system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.kodza-heading-anchor > p:last-child {
+  margin-bottom: 0;
+}
+
+/* The last word and the mark, kept on one line by the script */
+.kodza-heading-anchor__tie {
+  white-space: nowrap;
+}
+
+/* After the last word (touch screens, narrow columns, centred headings, and the default) */
+.kodza-heading-anchor__link {
+  position: relative;
+  display: inline;
+  margin: 0 0 0 var(--kz-heading-anchor-gap, 0.3em);
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--kz-heading-anchor-ink, currentColor);
+  font: inherit;
+  letter-spacing: 0;
+  text-decoration: none;
+  text-transform: none;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-heading-anchor__link:dir(rtl) {
+  margin: 0 var(--kz-heading-anchor-gap, 0.3em) 0 0;
+}
+
+.kodza-heading-anchor__link:focus-visible {
+  outline: 2px solid var(--kz-heading-anchor-ink, currentColor);
+  outline-offset: 3px;
+}
+
+/* The mark: the # and the check share one masked cell, and take turns in it */
+.kodza-heading-anchor__glyph {
+  display: inline-grid;
+  place-items: center;
+  vertical-align: baseline;
+  clip-path: inset(0);
+}
+
+.kodza-heading-anchor__hash,
+.kodza-heading-anchor__check {
+  grid-area: 1 / 1;
+  transition: translate var(--kz-heading-anchor-duration, 0.24s) var(--kz-heading-anchor-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.kodza-heading-anchor__hash {
+  padding: 0 0.04em;
+  color: var(--kz-heading-anchor-muted, color-mix(in srgb, currentColor 50%, transparent));
+  font: 500 var(--kz-heading-anchor-size, 0.75em)/1.15 "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  transition-property: translate, transform, color;
+}
+
+.kodza-heading-anchor__link:hover .kodza-heading-anchor__hash,
+.kodza-heading-anchor__link:focus-visible .kodza-heading-anchor__hash {
+  color: var(--kz-heading-anchor-ink, currentColor);
+}
+
+.kodza-heading-anchor__check {
+  width: calc(var(--kz-heading-anchor-size, 0.75em) * 0.82);
+  height: calc(var(--kz-heading-anchor-size, 0.75em) * 0.82);
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  translate: 0 110%;
+}
+
+.kodza-heading-anchor__check path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.2s ease;
+}
+
+/* In the margin: level with the first line, its baseline on the heading's baseline. Hidden in its
+   mask until the heading is pointed at or the link focused, then it slides out of the text. */
+.kodza-heading-anchor__link.is-margin {
+  position: absolute;
+  top: var(--kz-heading-anchor-top, 0px);
+  right: calc(100% + var(--kz-heading-anchor-gap, 0.3em));
+  display: block;
+  margin: 0;
+}
+
+.kodza-heading-anchor__link.is-margin:dir(rtl) {
+  right: auto;
+  left: calc(100% + var(--kz-heading-anchor-gap, 0.3em));
+}
+
+/* The way from the heading to the mark stays a hover */
+.kodza-heading-anchor__link.is-margin::before {
+  content: "";
+  position: absolute;
+  inset: 0 calc(-1 * var(--kz-heading-anchor-gap, 0.3em)) 0 -0.2em;
+}
+
+.kodza-heading-anchor__link.is-margin:dir(rtl)::before {
+  inset: 0 -0.2em 0 calc(-1 * var(--kz-heading-anchor-gap, 0.3em));
+}
+
+.kodza-heading-anchor__link.is-margin .kodza-heading-anchor__hash {
+  translate: 100% 0;
+}
+
+.kodza-heading-anchor__link.is-margin:dir(rtl) .kodza-heading-anchor__hash {
+  translate: -100% 0;
+}
+
+@media (hover: hover) {
+  :is(h1, h2, h3, h4, h5, h6):hover > .kodza-heading-anchor__link.is-margin .kodza-heading-anchor__hash,
+  :is(h1, h2, h3, h4, h5, h6):hover > .kodza-heading-anchor__tie > .kodza-heading-anchor__link.is-margin .kodza-heading-anchor__hash {
+    translate: 0 0;
+  }
+}
+
+/* With a mouse the whole heading copies its link: pointing at it shows the hand and inks the # */
+@media (hover: hover) and (pointer: fine) {
+  :is(h1, h2, h3, h4, h5, h6):has(> .kodza-heading-anchor__link, > .kodza-heading-anchor__tie > .kodza-heading-anchor__link) {
+    cursor: pointer;
+  }
+
+  :is(h1, h2, h3, h4, h5, h6):hover > .kodza-heading-anchor__link .kodza-heading-anchor__hash,
+  :is(h1, h2, h3, h4, h5, h6):hover > .kodza-heading-anchor__tie > .kodza-heading-anchor__link .kodza-heading-anchor__hash {
+    color: var(--kz-heading-anchor-ink, currentColor);
+  }
+}
+
+.kodza-heading-anchor__link.is-margin:focus-visible .kodza-heading-anchor__hash {
+  translate: 0 0;
+}
+
+/* Copied: the # rolls up out of its cell, the check comes up behind it, drawing itself on the way */
+.kodza-heading-anchor__link.is-copied .kodza-heading-anchor__hash {
+  transform: translateY(-110%);
+}
+
+.kodza-heading-anchor__link.is-copied .kodza-heading-anchor__check {
+  translate: 0 0;
+}
+
+.kodza-heading-anchor__link.is-copied .kodza-heading-anchor__check path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.3s var(--kz-heading-anchor-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+/* "Link copied", beside the mark on the side away from the text, its word rolling in its mask.
+   Centred on the # (in the heading's em: the # sits on the baseline, lower than the box centre) */
+.kodza-heading-anchor__label {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 0.6rem);
+  display: grid;
+  clip-path: inset(0 -2px);
+  color: var(--kz-heading-anchor-ink, currentColor);
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateY(calc(-50% + 0.075em));
+}
+
+.kodza-heading-anchor__link:dir(rtl) .kodza-heading-anchor__label,
+.kodza-heading-anchor__link.is-margin .kodza-heading-anchor__label {
+  right: calc(100% + 0.6rem);
+  left: auto;
+}
+
+.kodza-heading-anchor__link.is-margin:dir(rtl) .kodza-heading-anchor__label {
+  right: auto;
+  left: calc(100% + 0.6rem);
+}
+
+.kodza-heading-anchor__word {
+  font: 500 12px/1.5 "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0;
+  translate: 0 110%;
+  transition: translate var(--kz-heading-anchor-duration, 0.24s) var(--kz-heading-anchor-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.kodza-heading-anchor__link.is-copied .kodza-heading-anchor__word {
+  translate: 0 0;
+  transition-delay: 0.06s;
+}
+
+/* No room beside it: above the mark, on a small sheet */
+.kodza-heading-anchor__link.is-above .kodza-heading-anchor__label,
+.kodza-heading-anchor__link.is-above:dir(rtl) .kodza-heading-anchor__label {
+  top: auto;
+  right: auto;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  padding: 4px 9px;
+  border: 1px solid var(--kz-heading-anchor-line, rgba(10, 10, 10, 0.1));
+  border-radius: 8px;
+  background: var(--kz-heading-anchor-paper, #fff);
+  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.08);
+  color: var(--kz-heading-anchor-ink, #0a0a0a);
+  clip-path: inset(-1px -1px -1px -1px round 8px);
+  opacity: 0;
+  transform: translate(-50%, 4px);
+  transition: opacity 0.18s ease, transform var(--kz-heading-anchor-duration, 0.24s) var(--kz-heading-anchor-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.kodza-heading-anchor__link.is-above.is-copied .kodza-heading-anchor__label {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.kodza-heading-anchor__link.is-above .kodza-heading-anchor__word {
+  translate: 0 0;
+  transition: none;
+}
+
+/* For screen readers: what happened after the click */
+.kodza-heading-anchor__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-heading-anchor__link *,
+  .kodza-heading-anchor__link::before {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* kodza-guard dba5956bf4eb — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-heading-anchor__link):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-heading-anchor:not(#_),
+.kodza-heading-anchor__tie:not(#_),
+.kodza-heading-anchor__glyph:not(#_),
+.kodza-heading-anchor__hash:not(#_),
+.kodza-heading-anchor__label:not(#_),
+.kodza-heading-anchor__word:not(#_),
+.kodza-heading-anchor__status:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-heading-anchor__link:not(#_) {
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-heading-anchor__check:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-heading-anchor h2:where(:not([class*="kodza-"]):not(.kodza-heading-anchor [class*="kodza-"] *)):not(#_),
+.kodza-heading-anchor h3:where(:not([class*="kodza-"]):not(.kodza-heading-anchor [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-heading-anchor p:where(:not([class*="kodza-"]):not(.kodza-heading-anchor [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-heading-anchor__check:not(#_):where(:not([hidden])),
+.kodza-heading-anchor h2:where(:not([class*="kodza-"]):not(.kodza-heading-anchor [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-heading-anchor p:where(:not([class*="kodza-"]):not(.kodza-heading-anchor [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-heading-anchor h3:where(:not([class*="kodza-"]):not(.kodza-heading-anchor [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-heading-anchor__check:not(#_):where([hidden]),
+.kodza-heading-anchor h2:where(:not([class*="kodza-"]):not(.kodza-heading-anchor [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-heading-anchor p:where(:not([class*="kodza-"]):not(.kodza-heading-anchor [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-heading-anchor h3:where(:not([class*="kodza-"]):not(.kodza-heading-anchor [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-heading-anchor__link:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-heading-anchor > h2:not(#_),
+.kodza-heading-anchor > h3:not(#_) {
+  color: var(--kz-heading-anchor-heading);
+  font-family: "Geist", system-ui, sans-serif;
+  font-weight: 600;
+  text-align: start;
+}
+
+.kodza-heading-anchor > h2:not(#_) {
+  margin: 56px 0 14px;
+  font-size: clamp(24px, 4vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
+.kodza-heading-anchor > h3:not(#_) {
+  margin: 36px 0 10px;
+  font-size: 20px;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+}
+
+.kodza-heading-anchor > :is(h2, h3):first-child:where(h2, p, h3):not(#_) {
+  margin-top: 0;
+}
+
+.kodza-heading-anchor > p:not(#_) {
+  margin: 0 0 1.1em;
+  color: var(--kz-heading-anchor-text);
+  font-family: "Geist", system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.kodza-heading-anchor > p:last-child:not(#_) {
+  margin-bottom: 0;
+}
+
+.kodza-heading-anchor__link:not(#_) {
+  position: relative;
+  display: inline;
+  margin: 0 0 0 var(--kz-heading-anchor-gap, 0.3em);
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--kz-heading-anchor-ink, currentColor);
+  font: inherit;
+  letter-spacing: 0;
+  text-decoration: none;
+  text-transform: none;
+}
+
+.kodza-heading-anchor__link:dir(rtl):not(#_) {
+  margin: 0 var(--kz-heading-anchor-gap, 0.3em) 0 0;
+}
+
+.kodza-heading-anchor__link:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-heading-anchor-ink, currentColor);
+  outline-offset: 3px;
+}
+
+.kodza-heading-anchor__check:not(#_) {
+  transition: translate var(--kz-heading-anchor-duration, 0.24s) var(--kz-heading-anchor-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.kodza-heading-anchor__link.is-margin:not(#_) {
+  position: absolute;
+  display: block;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-heading-anchor__link *:where(svg):not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

@@ -1,0 +1,682 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Dot Map
+   A hero over a world map in fine dots, framed on the places you list. Each place gets its dot,
+   its name and its local time, kept current to the minute, and a ring tours them one after the
+   other, lighting the dots it crosses. The hand lights them too. Without the script, the places
+   stay as a plain list. Tuned with the --kz-dot-map-* variables. */
+.kodza-dot-map {
+  --kz-dot-map-bg: #f2f2f0;              /* the paper */
+  --kz-dot-map-ink: #0a0a0a;             /* the dots, the text, the button */
+  --kz-dot-map-muted: rgba(10, 10, 10, 0.62);
+  --kz-dot-map-gap: 9px;                 /* from one dot of land to the next */
+  --kz-dot-map-size: 1.5px;              /* dot radius */
+  --kz-dot-map-rest: 0.26;               /* land at rest, 0 to 1 */
+  --kz-dot-map-calm: 0.3;                /* how much the dots light up under the text, 0 to 1 (at rest they fade half as far) */
+  --kz-dot-map-zone: 260px;              /* the least height left to the map above the text */
+  --kz-dot-map-height: 720px;
+  --kz-dot-map-width: 1152px;            /* the text column */
+  --kz-dot-map-side: clamp(20px, 5vw, 64px);
+
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: var(--kz-dot-map-height);
+  padding: 120px var(--kz-dot-map-side) 72px;
+  overflow: hidden;
+  background: var(--kz-dot-map-bg);
+  color: var(--kz-dot-map-ink);
+}
+
+/* The map, drawn by the script; it fades in from the top and runs on behind the text */
+.kodza-dot-map__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: var(--kz-dot-map-ink); /* the script reads the dot colour here */
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16%);
+  mask-image: linear-gradient(to bottom, transparent, #000 16%);
+}
+
+.kodza-dot-map__content {
+  width: 100%;
+  max-width: var(--kz-dot-map-width);
+  margin: 0 auto;
+}
+
+.kodza-dot-map__eyebrow {
+  margin: 0 0 20px;
+  color: var(--kz-dot-map-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.kodza-dot-map__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 28px 64px;
+}
+
+.kodza-dot-map__title {
+  margin: 0;
+  font-size: clamp(44px, 6.6vw, 92px);
+  font-weight: 600;
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+}
+
+.kodza-dot-map__line {
+  display: block;
+}
+
+.kodza-dot-map__lead {
+  max-width: 30em;
+  margin: 0 0 24px;
+  color: var(--kz-dot-map-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.kodza-dot-map__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+}
+
+.kodza-dot-map__button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--kz-dot-map-ink);
+  color: var(--kz-dot-map-bg);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.18s ease;
+}
+
+.kodza-dot-map__button:hover {
+  opacity: 0.86;
+}
+
+/* Opaque, so it sits on the map instead of letting the dots through */
+.kodza-dot-map__button--ghost {
+  background: var(--kz-dot-map-bg);
+  color: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.kodza-dot-map__button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* The places: a row of labels under the text, until the script sets them on the map */
+.kodza-dot-map__places {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  max-width: var(--kz-dot-map-width);
+  margin: 32px auto 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-dot-map__place {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  margin: 0;
+  padding: 0 11px 0 10px;
+  border-radius: 999px;
+  background: var(--kz-dot-map-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kz-dot-map-ink) 14%, transparent);
+  color: var(--kz-dot-map-ink);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* The place's dot, drawn in CSS */
+.kodza-dot-map__place::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kz-dot-map-ink);
+}
+
+.kodza-dot-map__time {
+  color: var(--kz-dot-map-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* On the map: the list is the frame the places are fitted into, above the text */
+.kodza-dot-map.is-live .kodza-dot-map__places {
+  position: relative;
+  display: block;
+  flex: 1 0 var(--kz-dot-map-zone);
+  order: -1;
+  max-width: none;
+  margin: 0 0 24px;
+}
+
+/* Each label sits right of its place (left of it near the right edge); the dot is the place itself */
+.kodza-dot-map.is-live .kodza-dot-map__place {
+  position: absolute;
+  top: 0;
+  left: 0;
+  translate: calc(var(--kz-dot-map-x, 0px) + 22px) calc(var(--kz-dot-map-y, 0px) - 50%);
+  opacity: 0;
+  /* The text turns when the fill is halfway: never pale on pale. A label comes in once the one it
+     would cover has gone */
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.15s, background-color 0.25s ease, color 0s linear 0.08s, box-shadow 0.25s ease;
+}
+
+.kodza-dot-map.is-live .kodza-dot-map__time {
+  transition: color 0s linear 0.08s;
+}
+
+.kodza-dot-map.is-live .kodza-dot-map__place::before {
+  position: absolute;
+  top: calc(50% - 3px);
+  left: -25px;
+}
+
+.kodza-dot-map.is-live .kodza-dot-map__place.is-left {
+  translate: calc(var(--kz-dot-map-x, 0px) - 100% - 22px) calc(var(--kz-dot-map-y, 0px) - 50%);
+}
+
+.kodza-dot-map.is-live .kodza-dot-map__place.is-left::before {
+  right: -25px;
+  left: auto;
+}
+
+.kodza-dot-map.is-live .kodza-dot-map__place.is-on {
+  opacity: 1;
+}
+
+/* Panned out of the frame, or about to meet another label: it leaves fast */
+.kodza-dot-map.is-live .kodza-dot-map__place.is-away {
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.25s ease, color 0s linear 0.08s, box-shadow 0.25s ease;
+}
+
+/* Where the ring is: the label turns to ink */
+.kodza-dot-map.is-live .kodza-dot-map__place.is-active {
+  background: var(--kz-dot-map-ink);
+  box-shadow: none;
+  color: var(--kz-dot-map-bg);
+}
+
+.kodza-dot-map__place.is-active .kodza-dot-map__time {
+  color: color-mix(in srgb, var(--kz-dot-map-bg) 66%, transparent);
+}
+
+/* Still, when the places cannot all be seen on the map at once: a row again, at the foot of the map */
+.kodza-dot-map.is-live.is-listed .kodza-dot-map__places {
+  display: flex;
+  align-content: flex-end;
+}
+
+.kodza-dot-map.is-live.is-listed .kodza-dot-map__place {
+  position: static;
+  translate: none;
+  opacity: 1;
+}
+
+.kodza-dot-map.is-live.is-listed .kodza-dot-map__place::before {
+  position: static;
+}
+
+@media (max-width: 720px) {
+  .kodza-dot-map {
+    --kz-dot-map-gap: 7px;
+    --kz-dot-map-size: 1.2px;
+    --kz-dot-map-zone: 240px;
+    padding: 96px var(--kz-dot-map-side) 56px;
+  }
+
+  .kodza-dot-map__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-dot-map__button,
+  .kodza-dot-map.is-live .kodza-dot-map__place,
+  .kodza-dot-map.is-live .kodza-dot-map__time {
+    transition: none;
+  }
+}
+
+/* kodza-guard 3dfe6f2fd696 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-dot-map__button):not(#_) {
+  outline: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-dot-map__places):not(#_) {
+  position: revert;
+}
+
+:where(.kodza-dot-map__place):not(#_) {
+  transition: revert;
+  position: revert;
+}
+
+:where(.kodza-dot-map__time):not(#_) {
+  transition: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-dot-map__canvas:not(#_),
+.kodza-dot-map__content:not(#_),
+.kodza-dot-map__grid:not(#_),
+.kodza-dot-map__line:not(#_),
+.kodza-dot-map__side:not(#_),
+.kodza-dot-map__name:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-dot-map__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dot-map__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dot-map__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dot-map__actions:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dot-map__button:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dot-map__places:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dot-map__place:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dot-map__time:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-dot-map__eyebrow:not(#_):where(:not([hidden])),
+.kodza-dot-map__title:not(#_):where(:not([hidden])),
+.kodza-dot-map__lead:not(#_):where(:not([hidden])),
+.kodza-dot-map__time:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-dot-map__eyebrow:not(#_):where([hidden]),
+.kodza-dot-map__title:not(#_):where([hidden]),
+.kodza-dot-map__lead:not(#_):where([hidden]),
+.kodza-dot-map__time:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-dot-map__place:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-dot-map__eyebrow:not(#_) {
+  margin: 0 0 20px;
+  color: var(--kz-dot-map-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.kodza-dot-map__title:not(#_) {
+  margin: 0;
+  font-size: clamp(44px, 6.6vw, 92px);
+  font-weight: 600;
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+}
+
+.kodza-dot-map__lead:not(#_) {
+  max-width: 30em;
+  margin: 0 0 24px;
+  color: var(--kz-dot-map-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+}
+
+.kodza-dot-map__actions:not(#_) {
+  display: flex;
+  margin: 0;
+}
+
+.kodza-dot-map__button:not(#_) {
+  box-sizing: border-box;
+  display: inline-flex;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--kz-dot-map-ink);
+  color: var(--kz-dot-map-bg);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: opacity 0.18s ease;
+}
+
+.kodza-dot-map__button--ghost:not(#_) {
+  background: var(--kz-dot-map-bg);
+  color: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.kodza-dot-map__button:focus-visible:not(#_) {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.kodza-dot-map__places:not(#_) {
+  display: flex;
+  max-width: var(--kz-dot-map-width);
+  margin: 32px auto 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-dot-map__place:not(#_) {
+  box-sizing: border-box;
+  display: inline-flex;
+  margin: 0;
+  padding: 0 11px 0 10px;
+  border-radius: 999px;
+  background: var(--kz-dot-map-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kz-dot-map-ink) 14%, transparent);
+  color: var(--kz-dot-map-ink);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.kodza-dot-map__time:not(#_) {
+  color: var(--kz-dot-map-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.kodza-dot-map.is-live .kodza-dot-map__places:not(#_) {
+  position: relative;
+  display: block;
+  max-width: none;
+  margin: 0 0 24px;
+}
+
+.kodza-dot-map.is-live .kodza-dot-map__place:not(#_) {
+  position: absolute;
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.15s, background-color 0.25s ease, color 0s linear 0.08s, box-shadow 0.25s ease;
+}
+
+.kodza-dot-map.is-live .kodza-dot-map__time:not(#_) {
+  transition: color 0s linear 0.08s;
+}
+
+.kodza-dot-map.is-live .kodza-dot-map__place.is-away:not(#_) {
+  transition: opacity 0.15s ease, background-color 0.25s ease, color 0s linear 0.08s, box-shadow 0.25s ease;
+}
+
+.kodza-dot-map.is-live .kodza-dot-map__place.is-active:not(#_) {
+  background: var(--kz-dot-map-ink);
+  box-shadow: none;
+  color: var(--kz-dot-map-bg);
+}
+
+.kodza-dot-map__place.is-active .kodza-dot-map__time:not(#_) {
+  color: color-mix(in srgb, var(--kz-dot-map-bg) 66%, transparent);
+}
+
+.kodza-dot-map.is-live.is-listed .kodza-dot-map__places:not(#_) {
+  display: flex;
+}
+
+.kodza-dot-map.is-live.is-listed .kodza-dot-map__place:not(#_) {
+  position: static;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-dot-map__button:not(#_),
+  .kodza-dot-map.is-live .kodza-dot-map__place:not(#_),
+  .kodza-dot-map.is-live .kodza-dot-map__time:not(#_) {
+    transition: none;
+  }
+}

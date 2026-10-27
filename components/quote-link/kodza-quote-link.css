@@ -1,0 +1,486 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Quote Link
+   Select a sentence in the article: a pill comes up over it and copies a link that opens the page
+   on that sentence, highlighted (a text fragment, #:~:text=…). The pill stays centred on the first
+   line, goes below the last one on a touch screen (the system menu is above) or when the top of
+   the window is too close, and rolls to "Link copied" with a check.
+   Tuned with the --kz-quote-link-* variables. */
+.kodza-quote-link {
+  --kz-quote-link-heading: #0a0a0a;
+  --kz-quote-link-text: rgba(10, 10, 10, 0.72);
+  --kz-quote-link-pill: #0a0a0a;
+  --kz-quote-link-pill-ink: #fff;
+  --kz-quote-link-pill-hover: #262626;
+  --kz-quote-link-shadow: 0 1px 2px rgba(10, 10, 10, 0.12), 0 10px 28px rgba(10, 10, 10, 0.18);
+  --kz-quote-link-mark: rgba(10, 10, 10, 0.14);
+  --kz-quote-link-duration: 0.22s;
+  --kz-quote-link-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+}
+
+/* The article it holds: its own type, whatever the theme gives to headings and paragraphs (an
+   empty root leaves the page's own text as it is) */
+.kodza-quote-link > h2,
+.kodza-quote-link > h3 {
+  color: var(--kz-quote-link-heading);
+  font-family: "Geist", system-ui, sans-serif;
+  font-weight: 600;
+  text-align: start;
+}
+
+.kodza-quote-link > h2 {
+  margin: 56px 0 14px;
+  font-size: clamp(24px, 4vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
+.kodza-quote-link > h3 {
+  margin: 36px 0 10px;
+  font-size: 20px;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+}
+
+.kodza-quote-link > :is(h2, h3):first-child {
+  margin-top: 0;
+}
+
+.kodza-quote-link > p {
+  margin: 0 0 1.1em;
+  color: var(--kz-quote-link-text);
+  font-family: "Geist", system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.kodza-quote-link > p:last-child {
+  margin-bottom: 0;
+}
+
+/* Where the pill stands (placed by the script with translate): centred on the line above it,
+   below it with .is-below */
+.kodza-quote-link__float {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  pointer-events: none;
+  visibility: hidden;
+  transform: translate(-50%, -100%);
+  transition: visibility 0s linear 0.16s;
+}
+
+.kodza-quote-link__float.is-below {
+  transform: translate(-50%, 0);
+}
+
+/* Shown, it glides to a new selection instead of jumping */
+.kodza-quote-link__float.is-shown {
+  pointer-events: auto;
+  visibility: visible;
+  transition: translate 0.32s var(--kz-quote-link-ease), transform 0.32s var(--kz-quote-link-ease), visibility 0s;
+}
+
+.kodza-quote-link__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 14px 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-quote-link-pill);
+  box-shadow: var(--kz-quote-link-shadow);
+  color: var(--kz-quote-link-pill-ink);
+  font: 500 14px/20px "Geist", system-ui, sans-serif;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  scale: 0.96;
+  translate: 0 6px;
+  transform-origin: 50% 100%;
+  transition: opacity 0.16s ease, scale 0.16s ease, translate 0.16s ease, background-color 0.15s ease;
+}
+
+.kodza-quote-link__float.is-below .kodza-quote-link__pill {
+  translate: 0 -6px;
+  transform-origin: 50% 0;
+}
+
+.kodza-quote-link__float.is-shown .kodza-quote-link__pill {
+  opacity: 1;
+  scale: 1;
+  translate: 0 0;
+  transition: opacity var(--kz-quote-link-duration) var(--kz-quote-link-ease), scale var(--kz-quote-link-duration) var(--kz-quote-link-ease), translate var(--kz-quote-link-duration) var(--kz-quote-link-ease), background-color 0.15s ease;
+}
+
+.kodza-quote-link__pill:hover {
+  background: var(--kz-quote-link-pill-hover);
+}
+
+.kodza-quote-link__pill:focus-visible {
+  outline: 2px solid var(--kz-quote-link-pill);
+  outline-offset: 3px;
+}
+
+/* The chain and the check share one cell: one leaves upwards as the other comes up and draws */
+.kodza-quote-link__icon {
+  display: grid;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  clip-path: inset(0);
+}
+
+.kodza-quote-link__icon svg {
+  grid-area: 1 / 1;
+  display: block;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: translate var(--kz-quote-link-duration) var(--kz-quote-link-ease);
+}
+
+.kodza-quote-link__check {
+  translate: 0 110%;
+}
+
+.kodza-quote-link__check path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.2s ease;
+}
+
+.kodza-quote-link__pill.is-copied:not(.is-failed) .kodza-quote-link__chain {
+  translate: 0 -110%;
+}
+
+.kodza-quote-link__pill.is-copied:not(.is-failed) .kodza-quote-link__check {
+  translate: 0 0;
+}
+
+.kodza-quote-link__pill.is-copied:not(.is-failed) .kodza-quote-link__check path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.3s var(--kz-quote-link-ease) 0.08s;
+}
+
+/* The words roll in their mask: the old one up and out, the new one in from below. The label's
+   width follows, measured in the script */
+.kodza-quote-link__label {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+
+.kodza-quote-link__word,
+.kodza-quote-link__done {
+  display: block;
+  transition: translate var(--kz-quote-link-duration) var(--kz-quote-link-ease);
+}
+
+.kodza-quote-link__done {
+  position: absolute;
+  top: 0;
+  left: 0;
+  translate: 0 110%;
+}
+
+.kodza-quote-link__pill.is-copied .kodza-quote-link__word {
+  position: absolute;
+  top: 0;
+  left: 0;
+  translate: 0 -110%;
+}
+
+.kodza-quote-link__pill.is-copied .kodza-quote-link__done {
+  position: static;
+  translate: 0 0;
+  transition-delay: 0.06s;
+}
+
+/* For screen readers: what happened after the click */
+.kodza-quote-link__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Opened from a quote link: the sentence in the page's ink, not the browser's yellow (also in the
+   article an empty root dresses) */
+.kodza-quote-link ::target-text,
+:has(> .kodza-quote-link) ::target-text {
+  background-color: var(--kz-quote-link-mark, rgba(10, 10, 10, 0.14));
+  color: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-quote-link__float,
+  .kodza-quote-link__float *,
+  .kodza-quote-link__check path {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* kodza-guard 854a28a19548 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-quote-link__pill):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-quote-link:not(#_),
+.kodza-quote-link__float:not(#_),
+.kodza-quote-link__icon:not(#_),
+.kodza-quote-link__label:not(#_),
+.kodza-quote-link__word:not(#_),
+.kodza-quote-link__done:not(#_),
+.kodza-quote-link__status:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-quote-link__pill:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-quote-link__chain:not(#_),
+.kodza-quote-link__check:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quote-link h2:where(:not([class*="kodza-"]):not(.kodza-quote-link [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quote-link p:where(:not([class*="kodza-"]):not(.kodza-quote-link [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quote-link h2:where(:not([class*="kodza-"]):not(.kodza-quote-link [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-quote-link p:where(:not([class*="kodza-"]):not(.kodza-quote-link [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-quote-link h2:where(:not([class*="kodza-"]):not(.kodza-quote-link [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-quote-link p:where(:not([class*="kodza-"]):not(.kodza-quote-link [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-quote-link > h2:not(#_) {
+  color: var(--kz-quote-link-heading);
+  font-family: "Geist", system-ui, sans-serif;
+  font-weight: 600;
+  text-align: start;
+}
+
+.kodza-quote-link > h2:not(#_) {
+  margin: 56px 0 14px;
+  font-size: clamp(24px, 4vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
+.kodza-quote-link > :is(h2, h3):first-child:where(h2, p):not(#_) {
+  margin-top: 0;
+}
+
+.kodza-quote-link > p:not(#_) {
+  margin: 0 0 1.1em;
+  color: var(--kz-quote-link-text);
+  font-family: "Geist", system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.kodza-quote-link > p:last-child:not(#_) {
+  margin-bottom: 0;
+}
+
+.kodza-quote-link__pill:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 14px 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-quote-link-pill);
+  box-shadow: var(--kz-quote-link-shadow);
+  color: var(--kz-quote-link-pill-ink);
+  font: 500 14px/20px "Geist", system-ui, sans-serif;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  scale: 0.96;
+  translate: 0 6px;
+  transform-origin: 50% 100%;
+  transition: opacity 0.16s ease, scale 0.16s ease, translate 0.16s ease, background-color 0.15s ease;
+}
+
+.kodza-quote-link__float.is-below .kodza-quote-link__pill:not(#_) {
+  translate: 0 -6px;
+  transform-origin: 50% 0;
+}
+
+.kodza-quote-link__float.is-shown .kodza-quote-link__pill:not(#_) {
+  opacity: 1;
+  scale: 1;
+  translate: 0 0;
+  transition: opacity var(--kz-quote-link-duration) var(--kz-quote-link-ease), scale var(--kz-quote-link-duration) var(--kz-quote-link-ease), translate var(--kz-quote-link-duration) var(--kz-quote-link-ease), background-color 0.15s ease;
+}
+
+.kodza-quote-link__pill:hover:not(#_) {
+  background: var(--kz-quote-link-pill-hover);
+}
+
+.kodza-quote-link__pill:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-quote-link-pill);
+  outline-offset: 3px;
+}
+
+.kodza-quote-link__icon svg:not(#_) {
+  display: block;
+  transition: translate var(--kz-quote-link-duration) var(--kz-quote-link-ease);
+}
+
+.kodza-quote-link__pill.is-copied:not(.is-failed) .kodza-quote-link__check path:not(#_) {
+  transition: stroke-dashoffset 0.3s var(--kz-quote-link-ease) 0.08s;
+}
+
+.kodza-quote-link__pill.is-copied .kodza-quote-link__done:not(#_) {
+  transition-delay: 0.06s;
+}
+
+.kodza-quote-link :not(#_)::target-text,
+:has(> .kodza-quote-link) :not(#_)::target-text {
+  background-color: var(--kz-quote-link-mark, rgba(10, 10, 10, 0.14));
+  color: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-quote-link__float *:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
