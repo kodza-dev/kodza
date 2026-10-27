@@ -1,0 +1,722 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Side Reveal Menu
+   The page steps aside: it slides to the left and shrinks into a card, and the menu that was
+   lying under it all along comes into view on the right. Close is uncovered right where Menu
+   was, the links rise as the page's edge goes past them, and a click on the card brings the
+   page back. Mark the wrapper of your site with data-side-reveal-page, or name it on the menu
+   with data-page="…" (the wrapper of most WordPress themes is found on its own); without one
+   the menu slides in over the page.
+   Everything is tuned with the --kz-side-reveal-* variables. */
+.kodza-side-reveal {
+  --kz-side-reveal-bg: #0a0a0a; /* the menu, under the page */
+  --kz-side-reveal-fg: #f2f2f0;
+  --kz-side-reveal-muted: rgba(242, 242, 240, 0.62);
+  --kz-side-reveal-ink: #0a0a0a; /* the Menu button, on the page */
+  --kz-side-reveal-on-ink: #ffffff;
+  --kz-side-reveal-page: auto; /* the page colour while it steps aside; auto = the first background above it */
+  --kz-side-reveal-top: calc(var(--wp-admin--admin-bar--height, 0px) + 20px); /* match your header, so Close lands right where Menu was (below the WordPress admin bar) */
+  --kz-side-reveal-side: 24px;
+  --kz-side-reveal-width: min(clamp(340px, 40cqw, 560px), calc(100cqw - 56px)); /* the menu column; on a phone a strip of the page stays in view */
+  --kz-side-reveal-size: clamp(36px, min(4.6cqw + 8px, calc((100cqh - 300px) / 5.6)), 72px);
+  --kz-side-reveal-depth: 0.88; /* the page's size once aside */
+  --kz-side-reveal-shadow: 0 32px 80px -24px rgba(0, 0, 0, 0.45); /* under the card, seen on a light menu */
+  --kz-side-reveal-shade: 0.5; /* without a page: how dark the page gets under the menu */
+  --kz-side-reveal-duration: 1s;
+  --kz-side-reveal-ease: cubic-bezier(0.76, 0, 0.24, 1);
+
+  display: inline-block;
+}
+
+.kodza-side-reveal__toggle,
+.kodza-side-reveal__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-side-reveal__toggle {
+  background: var(--kz-side-reveal-ink);
+  color: var(--kz-side-reveal-on-ink);
+}
+
+.kodza-side-reveal__close {
+  background: var(--kz-side-reveal-fg);
+  color: var(--kz-side-reveal-bg);
+}
+
+.kodza-side-reveal__toggle:focus-visible {
+  outline: 2px solid var(--kz-side-reveal-ink);
+  outline-offset: 3px;
+}
+
+.kodza-side-reveal__close:focus-visible,
+.kodza-side-reveal__info a:focus-visible {
+  outline: 2px solid var(--kz-side-reveal-fg);
+  outline-offset: 4px;
+}
+
+/* Two lines on the button: they meet and cross as the page leaves, and Close is uncovered with
+   them crossed, in the same place */
+.kodza-side-reveal__lines,
+.kodza-side-reveal__cross {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 8px;
+}
+
+.kodza-side-reveal__lines::before,
+.kodza-side-reveal__lines::after,
+.kodza-side-reveal__cross::before,
+.kodza-side-reveal__cross::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  /* On its own layer: drawn the same way at rest and while turning, so no snap at the end */
+  will-change: transform;
+}
+
+.kodza-side-reveal__lines::before,
+.kodza-side-reveal__cross::before {
+  top: 0;
+}
+
+.kodza-side-reveal__lines::after,
+.kodza-side-reveal__cross::after {
+  top: 6px; /* whole pixels: both lines sit on the pixel grid the same way */
+}
+
+.kodza-side-reveal__lines::before,
+.kodza-side-reveal__lines::after {
+  transition: clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Whole at rest, as an inset: the pointer slides it to a shorter one (from none it would jump) */
+.kodza-side-reveal__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-side-reveal__toggle:hover .kodza-side-reveal__lines::after {
+  clip-path: inset(0 45% 0 0);
+}
+
+.kodza-side-reveal__toggle[aria-expanded="true"] .kodza-side-reveal__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-side-reveal__cross::before {
+  translate: 0 3px;
+  rotate: 45deg;
+}
+
+.kodza-side-reveal__cross::after {
+  translate: 0 -3px;
+  rotate: -45deg;
+}
+
+/* The word rolls in from below its mask */
+.kodza-side-reveal__say {
+  display: grid;
+  margin: -3px 0;
+  padding: 3px 0;
+  overflow: hidden;
+}
+
+.kodza-side-reveal__say > span {
+  display: block;
+}
+
+/* The menu: the whole screen, under the page while it is open (over it when there is none) */
+.kodza-side-reveal__panel {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--kz-side-reveal-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: size;
+  -webkit-font-smoothing: antialiased;
+}
+
+.kodza-side-reveal__panel[hidden] {
+  display: none;
+}
+
+.kodza-side-reveal__panel:focus {
+  outline: none;
+}
+
+.kodza-side-reveal__ground,
+.kodza-side-reveal__shade {
+  position: absolute;
+  inset: 0;
+}
+
+.kodza-side-reveal__ground {
+  background: var(--kz-side-reveal-bg);
+  pointer-events: none;
+}
+
+/* The card's shadow: under the page, on the same path (the script places it) */
+.kodza-side-reveal__card {
+  position: absolute;
+  inset: 0;
+  box-shadow: var(--kz-side-reveal-shadow);
+  pointer-events: none;
+}
+
+/* Without a page the menu slides in over it, and the page dims; a click on it closes */
+.kodza-side-reveal__shade {
+  display: none;
+  background: rgba(0, 0, 0, var(--kz-side-reveal-shade));
+  cursor: pointer;
+}
+
+.kodza-side-reveal__panel.is-flat .kodza-side-reveal__shade {
+  display: block;
+}
+
+.kodza-side-reveal__panel.is-flat .kodza-side-reveal__ground,
+.kodza-side-reveal__panel.is-flat .kodza-side-reveal__card {
+  display: none;
+}
+
+/* The column on the right: it scrolls on its own on a short screen */
+.kodza-side-reveal__side {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  box-sizing: border-box;
+  width: var(--kz-side-reveal-width);
+  padding: 0 var(--kz-side-reveal-side) clamp(20px, 4cqh, 36px) clamp(28px, 3.4cqw, 48px);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  background: var(--kz-side-reveal-bg);
+}
+
+.kodza-side-reveal__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: var(--kz-side-reveal-top);
+}
+
+.kodza-side-reveal__label,
+.kodza-side-reveal__index,
+.kodza-side-reveal__small {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-side-reveal-muted);
+}
+
+.kodza-side-reveal__label {
+  margin: 0;
+}
+
+/* The links, big, in the middle of the column */
+.kodza-side-reveal__nav {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  padding: 32px 0;
+}
+
+.kodza-side-reveal__link {
+  display: grid;
+  grid-template-columns: 36px max-content;
+  align-items: start;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.kodza-side-reveal__index {
+  padding-top: calc(var(--kz-side-reveal-size) * 0.14);
+  transition: color 0.25s;
+}
+
+/* The mask has the size of its word, so its room for descenders (g, j, p, q, y) and its step
+   aside are measured on the word */
+.kodza-side-reveal__mask {
+  display: block;
+  margin: -0.06em 0 -0.22em;
+  padding: 0.06em 0 0.22em;
+  overflow: hidden;
+  font-size: var(--kz-side-reveal-size);
+  transition: translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-side-reveal__word {
+  display: block;
+  font-size: var(--kz-side-reveal-size);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+}
+
+/* Pointed at: the word steps aside and its number lights up. A link's focus is drawn on its
+   word, so it rises with it instead of waiting there as an empty box */
+.kodza-side-reveal__link:hover .kodza-side-reveal__mask,
+.kodza-side-reveal__link:focus-visible .kodza-side-reveal__mask {
+  translate: 0.14em 0;
+}
+
+.kodza-side-reveal__link:hover .kodza-side-reveal__index,
+.kodza-side-reveal__link:focus-visible .kodza-side-reveal__index {
+  color: var(--kz-side-reveal-fg);
+}
+
+.kodza-side-reveal__link:focus-visible .kodza-side-reveal__word {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.12em;
+}
+
+.kodza-side-reveal__info {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 16px;
+}
+
+.kodza-side-reveal__info p {
+  margin: 0;
+}
+
+.kodza-side-reveal__info > .kodza-side-reveal__small {
+  grid-column: 1 / -1;
+}
+
+.kodza-side-reveal__group {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+}
+
+.kodza-side-reveal__info a {
+  color: var(--kz-side-reveal-fg);
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-side-reveal__info a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-side-reveal__socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+/* A narrow column: the contact details one under the other */
+@container (max-width: 520px) {
+  .kodza-side-reveal__info {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-side-reveal__toggle *,
+  .kodza-side-reveal__toggle *::before,
+  .kodza-side-reveal__toggle *::after,
+  .kodza-side-reveal__mask,
+  .kodza-side-reveal__index {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Dark site: the menu underneath is paper
+.kodza-side-reveal {
+  --kz-side-reveal-bg: #f2f2f0;
+  --kz-side-reveal-fg: #0a0a0a;
+  --kz-side-reveal-muted: rgba(10, 10, 10, 0.62);
+  --kz-side-reveal-ink: #f2f2f0;
+  --kz-side-reveal-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard f73aea86c8af — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-side-reveal__toggle):not(#_),
+:where(.kodza-side-reveal__close):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-side-reveal__panel):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-side-reveal__group a:where(:not([class*="kodza-"]):not(.kodza-side-reveal__group [class*="kodza-"] *))):not(#_),
+:where(.kodza-side-reveal__socials a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  text-underline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-side-reveal:not(#_),
+.kodza-side-reveal__lines:not(#_),
+.kodza-side-reveal__ground:not(#_),
+.kodza-side-reveal__card:not(#_),
+.kodza-side-reveal__shade:not(#_),
+.kodza-side-reveal__bar:not(#_),
+.kodza-side-reveal__cross:not(#_),
+.kodza-side-reveal__say:not(#_),
+.kodza-side-reveal__index:not(#_),
+.kodza-side-reveal__mask:not(#_),
+.kodza-side-reveal__word:not(#_),
+.kodza-side-reveal__info:not(#_),
+.kodza-side-reveal__group:not(#_),
+.kodza-side-reveal__say span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-side-reveal__toggle:not(#_),
+.kodza-side-reveal__close:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-side-reveal__panel:not(#_) {
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+.kodza-side-reveal__label:not(#_),
+.kodza-side-reveal__small:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-side-reveal__nav:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-side-reveal__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-side-reveal__socials:not(#_),
+.kodza-side-reveal__group p:where(:not([class*="kodza-"]):not(.kodza-side-reveal__group [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-side-reveal__group a:where(:not([class*="kodza-"]):not(.kodza-side-reveal__group [class*="kodza-"] *)):not(#_),
+.kodza-side-reveal__socials a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-side-reveal__label:not(#_):where(:not([hidden])),
+.kodza-side-reveal__small:not(#_):where(:not([hidden])),
+.kodza-side-reveal__group p:where(:not([class*="kodza-"]):not(.kodza-side-reveal__group [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-side-reveal__group a:where(:not([class*="kodza-"]):not(.kodza-side-reveal__group [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-side-reveal__socials a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-side-reveal__label:not(#_):where([hidden]),
+.kodza-side-reveal__small:not(#_):where([hidden]),
+.kodza-side-reveal__group p:where(:not([class*="kodza-"]):not(.kodza-side-reveal__group [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-side-reveal__group a:where(:not([class*="kodza-"]):not(.kodza-side-reveal__group [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-side-reveal__socials a:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-side-reveal__lines:not(#_)::before,
+.kodza-side-reveal__lines:not(#_)::after,
+.kodza-side-reveal__cross:not(#_)::before,
+.kodza-side-reveal__cross:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-side-reveal__toggle:not(#_),
+.kodza-side-reveal__close:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-side-reveal__toggle:not(#_) {
+  background: var(--kz-side-reveal-ink);
+  color: var(--kz-side-reveal-on-ink);
+}
+
+.kodza-side-reveal__close:not(#_) {
+  background: var(--kz-side-reveal-fg);
+  color: var(--kz-side-reveal-bg);
+}
+
+.kodza-side-reveal__toggle:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-side-reveal-ink);
+  outline-offset: 3px;
+}
+
+.kodza-side-reveal__close:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-side-reveal-fg);
+  outline-offset: 4px;
+}
+
+.kodza-side-reveal__info a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-side-reveal-fg);
+  outline-offset: 4px;
+}
+
+.kodza-side-reveal__panel:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-side-reveal__label:not(#_),
+.kodza-side-reveal__small:not(#_) {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-side-reveal-muted);
+}
+
+.kodza-side-reveal__label:not(#_) {
+  margin: 0;
+}
+
+.kodza-side-reveal__nav:not(#_) {
+  display: grid;
+  padding: 32px 0;
+}
+
+.kodza-side-reveal__link:not(#_) {
+  display: grid;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.kodza-side-reveal__info p:not(#_) {
+  margin: 0;
+}
+
+.kodza-side-reveal__info a:not(#_) {
+  color: var(--kz-side-reveal-fg);
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-side-reveal__info a:hover:not(#_) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-side-reveal__socials:not(#_) {
+  display: flex;
+}

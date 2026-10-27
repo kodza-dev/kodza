@@ -12,7 +12,7 @@ Press Menu and the page swings down on its hinge like a trapdoor, showing the me
 | --- | ---: | --- |
 | [`kodza-trapdoor-menu.html`](kodza-trapdoor-menu.html) | 3.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-trapdoor-menu.css`](kodza-trapdoor-menu.css) | 19.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-trapdoor-menu.js`](kodza-trapdoor-menu.js) | 28.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-trapdoor-menu.js`](kodza-trapdoor-menu.js) | 32.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

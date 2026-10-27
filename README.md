@@ -61,7 +61,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-136 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+142 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
 
 ### Buttons
 
@@ -123,12 +123,18 @@ Written like it's going live tomorrow. Because it probably is.
 | Component | What it does | |
 | --- | --- | --- |
 | [Breadcrumbs](components/breadcrumbs/) | A breadcrumb trail that folds its middle behind a "…" button when it would not fit on one line, and unfolds it crumb after crumb. | [Demo](https://kodza.dev/components/breadcrumbs/) |
+| [Burger Button](components/burger-button/) | A menu button: the lines meet, then cross, and Menu rolls to Close at a fixed width. It follows aria-expanded and fires kodza:burger, so it drives the menu you already have. | [Demo](https://kodza.dev/components/burger-button/) |
 | [Command Palette](components/command-palette/) | A ⌘K palette in a real dialog: results filter as you type, matched letters are underlined and a highlight slides between them. | [Demo](https://kodza.dev/components/command-palette/) |
 | [Context Menu](components/context-menu/) | A right-click menu that grows from the exact point you clicked, stays on screen and works from the keyboard with Shift + F10. | [Demo](https://kodza.dev/components/context-menu/) |
 | [Dropdown Menu](components/dropdown-menu/) | A menu that unrolls from its button, with a highlight that slides from item to item. Actions or choices, arrows and first letters. | [Demo](https://kodza.dev/components/dropdown-menu/) |
+| [Expanding Pill Menu](components/expanding-pill-menu/) | A Menu button that grows into the menu around itself: the card widens, then unfolds, Close stays on the button, and each link rises as the edge uncovers it. Grows upward near the bottom. | [Demo](https://kodza.dev/components/expanding-pill-menu/) |
+| [Fullscreen Menu](components/fullscreen-menu/) | A fullscreen menu: a curtain comes down with its edge bending as it moves, the page backs off under it, and each link rises as the edge passes. Closing plays it backwards. | [Demo](https://kodza.dev/components/fullscreen-menu/) |
 | [Hover Nav](components/hover-nav/) | A pill of links where the highlight slides under the pointer and settles back on the current page. The ink version turns the text white right at its edges. | [Demo](https://kodza.dev/components/hover-nav/) |
+| [Multi-Level Menu](components/multi-level-menu/) | A burger drawer for menus with levels: each sub-menu slides in over the last, the top row rolls to the level's name and leads back, and it reads the list wp_nav_menu() writes. | [Demo](https://kodza.dev/components/multi-level-menu/) |
 | [Pagination](components/pagination/) | Seven slots that never jump: the ink pill slides to the page and the numbers that change roll into place. Compact version included. | [Demo](https://kodza.dev/components/pagination/) |
 | [Scroll Header](components/scroll-header/) | A floating glass pill that clears the top of the page, frosts as you scroll, steps aside while you read and turns to dark glass over dark sections. | [Demo](https://kodza.dev/components/scroll-header/) |
+| [Shutter Menu](components/shutter-menu/) | A menu that comes down under your header like a shutter: each link rises as the edge reaches it, Menu rolls to Close. The panel is a native popover, so Escape, a click outside and focus return come free. | [Demo](https://kodza.dev/components/shutter-menu/) |
+| [Side Reveal Menu](components/side-reveal-menu/) | A menu under the page: the page slides left and shrinks into a card, the menu was underneath, and each link rises as the page's edge passes. A click on the card closes it. | [Demo](https://kodza.dev/components/side-reveal-menu/) |
 | [Sidebar Menu](components/sidebar-toggle-menu/) | A side panel that slides in over the page, then big links rise one by one. A real dialog: focus kept inside, Escape to leave. No GSAP. | [Demo](https://kodza.dev/components/sidebar-toggle-menu/) |
 | [Staggered Horizontal Menu](components/menu-horizontal-stagger-reverse/) | A button that lets its links out one by one, nearest first, and calls them back in reverse. Its label rolls to "Close". No GSAP. | [Demo](https://kodza.dev/components/menu-horizontal-stagger-reverse/) |
 | [Stepper](components/stepper/) | A flow in four steps: the line fills, a check draws itself on each finished step and the content slides in from where you are heading. | [Demo](https://kodza.dev/components/stepper/) |

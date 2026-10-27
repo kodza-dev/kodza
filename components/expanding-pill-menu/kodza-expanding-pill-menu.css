@@ -1,0 +1,748 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Expanding Pill Menu
+   The Menu button grows into a card around itself: it widens first, then unfolds towards the
+   middle of the screen, its corners staying concentric with the pill. Close never moves, it is
+   the button, its word rolling from Menu to Close. Each link rises from its mask as the card's
+   edge uncovers it, and closing folds it all back into the button. Near the bottom of the screen
+   the card grows upward; near an edge, inward. No page to mark: it opens over the page.
+   Everything is tuned with the --kz-expanding-pill-* variables. */
+.kodza-expanding-pill {
+  --kz-expanding-pill-bg: #0a0a0a; /* the button, and the card it becomes */
+  --kz-expanding-pill-fg: #f2f2f0;
+  --kz-expanding-pill-muted: rgba(242, 242, 240, 0.62);
+  --kz-expanding-pill-shade: rgba(10, 10, 10, 0.2); /* over the page while it is open */
+  --kz-expanding-pill-width: 360px; /* the card, never wider than the screen minus 12px a side */
+  --kz-expanding-pill-size: 34px; /* the links */
+  --kz-expanding-pill-inset: 6px; /* from the card's edge to Close: the corners stay concentric */
+  --kz-expanding-pill-duration: 0.8s;
+  --kz-expanding-pill-ease: cubic-bezier(0.62, 0, 0.22, 1);
+
+  display: inline-block;
+}
+
+.kodza-expanding-pill__toggle,
+.kodza-expanding-pill__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-expanding-pill__toggle {
+  background: var(--kz-expanding-pill-bg);
+  color: var(--kz-expanding-pill-fg);
+}
+
+/* On the card, Close is the button: same place, same size, a lighter ground once open */
+.kodza-expanding-pill__close {
+  position: absolute;
+  top: var(--kz-expanding-pill-inset);
+  right: var(--kz-expanding-pill-inset);
+  z-index: 1;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--kz-expanding-pill-fg) 12%, transparent);
+  color: var(--kz-expanding-pill-fg);
+  transition: background-color 0.25s;
+}
+
+.kodza-expanding-pill__close:hover {
+  background: color-mix(in srgb, var(--kz-expanding-pill-fg) 18%, transparent);
+}
+
+.kodza-expanding-pill__toggle:focus-visible {
+  outline: 2px solid var(--kz-expanding-pill-bg);
+  outline-offset: 3px;
+}
+
+.kodza-expanding-pill__close:focus-visible,
+.kodza-expanding-pill__foot a:focus-visible {
+  outline: 2px solid var(--kz-expanding-pill-fg);
+  outline-offset: 3px;
+}
+
+/* A link's focus is drawn on its word, so it rises with it */
+.kodza-expanding-pill__link:focus-visible {
+  outline: none;
+}
+
+.kodza-expanding-pill__link:focus-visible .kodza-expanding-pill__word {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.12em;
+}
+
+/* Two lines on the button; Close shows them crossed, turned on the card's clock */
+.kodza-expanding-pill__lines,
+.kodza-expanding-pill__cross {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 8px;
+}
+
+.kodza-expanding-pill__lines::before,
+.kodza-expanding-pill__lines::after,
+.kodza-expanding-pill__cross::before,
+.kodza-expanding-pill__cross::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  /* On its own layer: drawn the same way at rest and while turning, so no snap at the end */
+  will-change: transform;
+}
+
+.kodza-expanding-pill__lines::before,
+.kodza-expanding-pill__cross::before {
+  top: 0;
+}
+
+.kodza-expanding-pill__lines::after,
+.kodza-expanding-pill__cross::after {
+  top: 6px; /* whole pixels: both lines sit on the pixel grid the same way */
+}
+
+/* Whole at rest, as an inset: the pointer slides it to a shorter one (from none it would jump) */
+.kodza-expanding-pill__lines::after {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-expanding-pill__toggle:hover .kodza-expanding-pill__lines::after {
+  clip-path: inset(0 45% 0 0);
+}
+
+.kodza-expanding-pill__toggle[aria-expanded="true"] .kodza-expanding-pill__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-expanding-pill__cross::before {
+  translate: 0 3px;
+  rotate: 45deg;
+}
+
+.kodza-expanding-pill__cross::after {
+  translate: 0 -3px;
+  rotate: -45deg;
+}
+
+/* Menu and Close share one cell: the button keeps the width of the longer word, and on the
+   card the word rolls from one to the other */
+.kodza-expanding-pill__say {
+  display: grid;
+  margin: -3px 0;
+  padding: 3px 0;
+  overflow: hidden;
+}
+
+.kodza-expanding-pill__say > span {
+  grid-area: 1 / 1;
+  display: block;
+}
+
+.kodza-expanding-pill__toggle .kodza-expanding-pill__say > span + span {
+  visibility: hidden;
+}
+
+.kodza-expanding-pill__close .kodza-expanding-pill__say > span:first-child {
+  transform: translateY(-110%);
+}
+
+/* The menu: a layer over the page while it is open, the card placed on the button by the script */
+.kodza-expanding-pill__panel {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--kz-expanding-pill-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  -webkit-font-smoothing: antialiased;
+}
+
+.kodza-expanding-pill__panel[hidden] {
+  display: none;
+}
+
+.kodza-expanding-pill__panel:focus {
+  outline: none;
+}
+
+/* A click beside the card closes it */
+.kodza-expanding-pill__shade {
+  position: absolute;
+  inset: 0;
+  background: var(--kz-expanding-pill-shade);
+}
+
+/* The shadow lives outside the card, so it follows the card's growing shape */
+.kodza-expanding-pill__float {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: min(var(--kz-expanding-pill-width), calc(100% - 24px));
+  filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.22));
+}
+
+.kodza-expanding-pill__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: var(--kz-expanding-pill-inset) 0;
+  border-radius: calc(20px + var(--kz-expanding-pill-inset));
+  background: var(--kz-expanding-pill-bg);
+  color: var(--kz-expanding-pill-fg);
+  overflow: hidden;
+}
+
+.kodza-expanding-pill__label,
+.kodza-expanding-pill__index {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-expanding-pill-muted);
+}
+
+/* The label shares Close's row, on the other side of it */
+.kodza-expanding-pill__label {
+  display: flex;
+  align-items: center;
+  flex: none;
+  min-height: 40px;
+  margin: 0;
+  padding: 0 20px;
+}
+
+.kodza-expanding-pill__card.is-start .kodza-expanding-pill__label {
+  justify-content: flex-end;
+}
+
+.kodza-expanding-pill__card.is-mid:not(.is-up) .kodza-expanding-pill__label {
+  visibility: hidden;
+}
+
+/* Growing upward: Close at the bottom, on the button, the label up top on its own */
+.kodza-expanding-pill__dock {
+  display: none;
+  flex: none;
+  height: 40px;
+}
+
+.kodza-expanding-pill__card.is-up .kodza-expanding-pill__label {
+  justify-content: flex-start;
+}
+
+.kodza-expanding-pill__card.is-up .kodza-expanding-pill__dock {
+  display: block;
+}
+
+.kodza-expanding-pill__nav {
+  display: grid;
+  min-height: 0;
+  padding: 10px 20px 18px;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+}
+
+.kodza-expanding-pill__link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 3px 0;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The mask has the size of its word, room for descenders included */
+.kodza-expanding-pill__mask {
+  display: block;
+  margin: -0.06em 0 -0.22em;
+  padding: 0.06em 0 0.22em;
+  overflow: hidden;
+  font-size: var(--kz-expanding-pill-size);
+}
+
+.kodza-expanding-pill__word {
+  display: block;
+  font-size: var(--kz-expanding-pill-size);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+
+.kodza-expanding-pill__index {
+  transition: color 0.25s;
+}
+
+/* Pointed at: the other links step back, its number lights up */
+.kodza-expanding-pill__nav:hover .kodza-expanding-pill__link:not(:hover),
+.kodza-expanding-pill__nav:has(.kodza-expanding-pill__link:focus-visible) .kodza-expanding-pill__link:not(:focus-visible) {
+  opacity: 0.35;
+}
+
+.kodza-expanding-pill__link:hover .kodza-expanding-pill__index,
+.kodza-expanding-pill__link:focus-visible .kodza-expanding-pill__index {
+  color: var(--kz-expanding-pill-fg);
+}
+
+.kodza-expanding-pill__foot {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 0 20px;
+  padding: 14px 0 12px;
+  border-top: 1px solid color-mix(in srgb, var(--kz-expanding-pill-fg) 14%, transparent);
+  font-size: 13px;
+  color: var(--kz-expanding-pill-muted);
+}
+
+.kodza-expanding-pill__foot a {
+  color: var(--kz-expanding-pill-fg);
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-expanding-pill__foot a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-expanding-pill__socials {
+  display: flex;
+  gap: 14px;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-expanding-pill__toggle *,
+  .kodza-expanding-pill__toggle *::before,
+  .kodza-expanding-pill__toggle *::after,
+  .kodza-expanding-pill__close,
+  .kodza-expanding-pill__link,
+  .kodza-expanding-pill__index {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Dark site: a paper pill, and a paper card
+.kodza-expanding-pill {
+  --kz-expanding-pill-bg: #f2f2f0;
+  --kz-expanding-pill-fg: #0a0a0a;
+  --kz-expanding-pill-muted: rgba(10, 10, 10, 0.62);
+  --kz-expanding-pill-shade: rgba(0, 0, 0, 0.5);
+}
+*/
+
+/* kodza-guard 92c53261613b — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-expanding-pill__toggle):not(#_),
+:where(.kodza-expanding-pill__close):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-expanding-pill__panel):not(#_),
+:where(.kodza-expanding-pill__link):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-expanding-pill__foot a:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-expanding-pill__socials a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  text-underline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-expanding-pill:not(#_),
+.kodza-expanding-pill__lines:not(#_),
+.kodza-expanding-pill__say:not(#_),
+.kodza-expanding-pill__shade:not(#_),
+.kodza-expanding-pill__float:not(#_),
+.kodza-expanding-pill__cross:not(#_),
+.kodza-expanding-pill__mask:not(#_),
+.kodza-expanding-pill__word:not(#_),
+.kodza-expanding-pill__index:not(#_),
+.kodza-expanding-pill__foot:not(#_),
+.kodza-expanding-pill__dock:not(#_),
+.kodza-expanding-pill__say span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-expanding-pill__toggle:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-expanding-pill__panel:not(#_) {
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+.kodza-expanding-pill__close:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-expanding-pill__label:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-expanding-pill__nav:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-expanding-pill__link:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-expanding-pill__socials:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-expanding-pill__foot a:where(:not([class*="kodza-"])):not(#_),
+.kodza-expanding-pill__socials a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-expanding-pill__foot a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-expanding-pill__socials a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-expanding-pill__foot a:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-expanding-pill__socials a:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-expanding-pill__lines:not(#_)::before,
+.kodza-expanding-pill__lines:not(#_)::after,
+.kodza-expanding-pill__cross:not(#_)::before,
+.kodza-expanding-pill__cross:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-expanding-pill__toggle:not(#_),
+.kodza-expanding-pill__close:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-expanding-pill__toggle:not(#_) {
+  background: var(--kz-expanding-pill-bg);
+  color: var(--kz-expanding-pill-fg);
+}
+
+.kodza-expanding-pill__close:not(#_) {
+  position: absolute;
+  top: var(--kz-expanding-pill-inset);
+  right: var(--kz-expanding-pill-inset);
+  z-index: 1;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--kz-expanding-pill-fg) 12%, transparent);
+  color: var(--kz-expanding-pill-fg);
+  transition: background-color 0.25s;
+}
+
+.kodza-expanding-pill__close:hover:not(#_) {
+  background: color-mix(in srgb, var(--kz-expanding-pill-fg) 18%, transparent);
+}
+
+.kodza-expanding-pill__toggle:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-expanding-pill-bg);
+  outline-offset: 3px;
+}
+
+.kodza-expanding-pill__close:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-expanding-pill-fg);
+  outline-offset: 3px;
+}
+
+.kodza-expanding-pill__foot a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-expanding-pill-fg);
+  outline-offset: 3px;
+}
+
+.kodza-expanding-pill__link:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-expanding-pill__panel:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-expanding-pill__label:not(#_) {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-expanding-pill-muted);
+}
+
+.kodza-expanding-pill__label:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0 20px;
+}
+
+.kodza-expanding-pill__nav:not(#_) {
+  display: grid;
+  padding: 10px 20px 18px;
+}
+
+.kodza-expanding-pill__link:not(#_) {
+  display: grid;
+  padding: 3px 0;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-expanding-pill__foot a:not(#_) {
+  color: var(--kz-expanding-pill-fg);
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-expanding-pill__foot a:hover:not(#_) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-expanding-pill__socials:not(#_) {
+  display: flex;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-expanding-pill__close:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-expanding-pill__link:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

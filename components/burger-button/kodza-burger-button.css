@@ -1,0 +1,260 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Burger Button
+   The lines meet in the middle, then cross; the label rolls from Menu to Close without changing
+   the button's width. Closing undoes it in the same two steps: uncross, then part, and Close rolls
+   up while Menu comes back from below.
+   It follows aria-expanded: the script flips it on click, and so can your theme's own script.
+   Everything is tuned with the --kz-burger-* variables. */
+.kodza-burger {
+  --kz-burger-ink: #0a0a0a;
+  --kz-burger-on-ink: #ffffff;
+  --kz-burger-height: 40px;
+  --kz-burger-duration: 0.5s;
+  --kz-burger-meet: cubic-bezier(0.65, 0, 0.35, 1);
+  --kz-burger-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* The lines: how far apart (two lines), and where each one ends up. Whole pixels, so both
+     lines sit on the pixel grid the same way and look the same weight */
+  --kz-burger-gap: 6px;
+  --kz-burger-half: calc(var(--kz-burger-gap) / 2);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--kz-burger-height);
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-burger-ink);
+  color: var(--kz-burger-on-ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-burger:focus-visible {
+  outline: 2px solid var(--kz-burger-ink);
+  outline-offset: 3px;
+}
+
+/* Round: the lines alone, in a circle */
+.kodza-burger--round {
+  justify-content: center;
+  width: var(--kz-burger-height);
+  padding: 0;
+}
+
+/* Bare: no fill, for a header that keeps its links plain */
+.kodza-burger--bare {
+  padding: 0 4px;
+  background: transparent;
+  color: var(--kz-burger-ink);
+}
+
+.kodza-burger--three {
+  --kz-burger-gap: 5px;
+  --kz-burger-half: var(--kz-burger-gap);
+}
+
+.kodza-burger__lines {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: calc(var(--kz-burger-gap) + 2px);
+}
+
+.kodza-burger--three .kodza-burger__lines {
+  height: calc(var(--kz-burger-gap) * 2 + 2px);
+  /* The middle line: drawn as a background, it shrinks to its centre as the others meet */
+  background: linear-gradient(currentColor, currentColor) 50% var(--kz-burger-gap) / 100% 1.5px no-repeat;
+  transition: background-size calc(var(--kz-burger-duration) * 0.4) var(--kz-burger-meet) calc(var(--kz-burger-duration) * 0.4);
+}
+
+.kodza-burger__lines::before,
+.kodza-burger__lines::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  /* Kept on its own layer: the browser draws it the same way at rest and while it moves, so the
+     lines never thicken during the turn and snap thin at the end */
+  will-change: transform;
+  /* Closing: they uncross first, then part */
+  transition:
+    rotate calc(var(--kz-burger-duration) * 0.44) var(--kz-burger-meet),
+    translate calc(var(--kz-burger-duration) * 0.44) var(--kz-burger-meet) calc(var(--kz-burger-duration) * 0.36),
+    clip-path 0.3s var(--kz-burger-ease);
+}
+
+.kodza-burger__lines::before {
+  top: 0;
+}
+
+.kodza-burger__lines::after {
+  top: var(--kz-burger-gap);
+}
+
+.kodza-burger--three .kodza-burger__lines::after {
+  top: calc(var(--kz-burger-gap) * 2);
+}
+
+/* Whole at rest, as an inset: the pointer slides it to a shorter one (from none it would jump) */
+.kodza-burger__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Pointed at: the bottom line draws back */
+.kodza-burger:hover .kodza-burger__lines::after {
+  clip-path: inset(0 45% 0 0);
+}
+
+/* Open: they meet in the middle, then cross */
+.kodza-burger[aria-expanded="true"] .kodza-burger__lines::before,
+.kodza-burger[aria-expanded="true"] .kodza-burger__lines::after {
+  clip-path: inset(0 0 0 0);
+  transition:
+    translate calc(var(--kz-burger-duration) * 0.4) var(--kz-burger-meet),
+    rotate calc(var(--kz-burger-duration) * 0.6) var(--kz-burger-ease) calc(var(--kz-burger-duration) * 0.34),
+    clip-path 0.3s var(--kz-burger-ease);
+}
+
+.kodza-burger[aria-expanded="true"] .kodza-burger__lines::before {
+  translate: 0 var(--kz-burger-half);
+  rotate: 45deg;
+}
+
+.kodza-burger[aria-expanded="true"] .kodza-burger__lines::after {
+  translate: 0 calc(var(--kz-burger-half) * -1);
+  rotate: -45deg;
+}
+
+.kodza-burger--three[aria-expanded="true"] .kodza-burger__lines {
+  background-size: 0% 1.5px;
+  transition-delay: 0s;
+}
+
+/* The label: both words in one cell, so the button is as wide as the longer one. The script
+   rolls them, both ways: the old word goes up out of its mask while the new one comes up from below */
+.kodza-burger__label {
+  display: grid;
+  margin: -3px 0;
+  padding: 3px 0;
+  overflow: hidden;
+}
+
+.kodza-burger__word {
+  grid-area: 1 / 1;
+}
+
+.kodza-burger__word + .kodza-burger__word {
+  translate: 0 115%;
+}
+
+.kodza-burger[aria-expanded="true"] .kodza-burger__word {
+  translate: 0 -115%;
+}
+
+.kodza-burger[aria-expanded="true"] .kodza-burger__word + .kodza-burger__word {
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-burger *,
+  .kodza-burger *::before,
+  .kodza-burger *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* kodza-guard 425fbb1a1717 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-burger):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-burger:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-burger__lines:not(#_),
+.kodza-burger__label:not(#_),
+.kodza-burger__word:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-burger__lines:not(#_)::before,
+.kodza-burger__lines:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-burger:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--kz-burger-height);
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-burger-ink);
+  color: var(--kz-burger-on-ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-burger:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-burger-ink);
+  outline-offset: 3px;
+}
+
+.kodza-burger--round:not(#_) {
+  justify-content: center;
+  width: var(--kz-burger-height);
+  padding: 0;
+}
+
+.kodza-burger--bare:not(#_) {
+  padding: 0 4px;
+  background: transparent;
+  color: var(--kz-burger-ink);
+}

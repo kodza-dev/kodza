@@ -1,0 +1,1035 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Multi-Level Menu
+   A drawer for menus with levels. Each sub-menu slides in over the one before, the row on top
+   rolls to the level's name and turns into the way back, and the path to the current page is
+   marked all the way down. It reads the nested list WordPress already writes (ul.sub-menu), so
+   wp_nav_menu() goes straight into the nav. Close lands right where Menu was, and the drawer
+   opens on the side of the screen the button sits on.
+   Everything is tuned with the --kz-multi-level-* variables. */
+.kodza-multi-level {
+  --kz-multi-level-bg: #0a0a0a; /* the drawer */
+  --kz-multi-level-fg: #f2f2f0;
+  --kz-multi-level-muted: rgba(242, 242, 240, 0.62);
+  --kz-multi-level-rule: rgba(242, 242, 240, 0.14);
+  --kz-multi-level-ink: #0a0a0a; /* the Menu button, on the page */
+  --kz-multi-level-on-ink: #ffffff;
+  --kz-multi-level-gap: 10px; /* between the drawer and the edges of the screen */
+  --kz-multi-level-radius: 20px;
+  --kz-multi-level-pad: clamp(20px, 6cqw, 28px);
+  --kz-multi-level-width: min(440px, calc(100cqw - 2 * var(--kz-multi-level-gap)));
+  --kz-multi-level-size: clamp(24px, calc(2.6cqh + 14px), 34px);
+  --kz-multi-level-shade: 0.5; /* how dark the page gets under the drawer */
+  --kz-multi-level-shadow: 0 24px 64px -16px rgba(0, 0, 0, 0.5);
+  --kz-multi-level-duration: 0.8s;
+  --kz-multi-level-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  display: inline-block;
+}
+
+.kodza-multi-level__toggle,
+.kodza-multi-level__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-multi-level__toggle {
+  background: var(--kz-multi-level-ink);
+  color: var(--kz-multi-level-on-ink);
+}
+
+.kodza-multi-level__close {
+  background: var(--kz-multi-level-fg);
+  color: var(--kz-multi-level-bg);
+}
+
+.kodza-multi-level__toggle:focus-visible {
+  outline: 2px solid var(--kz-multi-level-ink);
+  outline-offset: 3px;
+}
+
+.kodza-multi-level__close:focus-visible,
+.kodza-multi-level__more a:focus-visible {
+  outline: 2px solid var(--kz-multi-level-fg);
+  outline-offset: 4px;
+}
+
+/* Two lines on the button: they cross as the drawer comes in, and Close arrives with them
+   crossed, in the same place */
+.kodza-multi-level__lines,
+.kodza-multi-level__cross {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 8px;
+}
+
+.kodza-multi-level__lines::before,
+.kodza-multi-level__lines::after,
+.kodza-multi-level__cross::before,
+.kodza-multi-level__cross::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  /* On its own layer: drawn the same way at rest and while turning, so no snap at the end */
+  will-change: transform;
+}
+
+.kodza-multi-level__lines::before,
+.kodza-multi-level__cross::before {
+  top: 0;
+}
+
+.kodza-multi-level__lines::after,
+.kodza-multi-level__cross::after {
+  top: 6px; /* whole pixels: both lines sit on the pixel grid the same way */
+}
+
+.kodza-multi-level__lines::before,
+.kodza-multi-level__lines::after {
+  transition: clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Whole at rest, as an inset: the pointer slides it to a shorter one (from none it would jump) */
+.kodza-multi-level__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-multi-level__toggle:hover .kodza-multi-level__lines::after {
+  clip-path: inset(0 45% 0 0);
+}
+
+.kodza-multi-level__toggle[aria-expanded="true"] .kodza-multi-level__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-multi-level__cross::before {
+  translate: 0 3px;
+  rotate: 45deg;
+}
+
+.kodza-multi-level__cross::after {
+  translate: 0 -3px;
+  rotate: -45deg;
+}
+
+/* The word rolls in from below its mask */
+.kodza-multi-level__say {
+  display: grid;
+  margin: -3px 0;
+  padding: 3px 0;
+  overflow: hidden;
+}
+
+.kodza-multi-level__say > span {
+  display: block;
+}
+
+/* The whole screen while it is open: the dimmed page, and the drawer over it */
+.kodza-multi-level__panel {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--kz-multi-level-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: size;
+  -webkit-font-smoothing: antialiased;
+}
+
+.kodza-multi-level__panel[hidden] {
+  display: none;
+}
+
+.kodza-multi-level__panel:focus {
+  outline: none;
+}
+
+/* A click on the dimmed page closes it */
+.kodza-multi-level__shade {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, var(--kz-multi-level-shade));
+  cursor: pointer;
+}
+
+/* The drawer, off the edges of the screen (and below the WordPress admin bar) */
+.kodza-multi-level__sheet {
+  position: absolute;
+  top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--kz-multi-level-gap));
+  right: var(--kz-multi-level-gap);
+  bottom: var(--kz-multi-level-gap);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  box-sizing: border-box;
+  width: var(--kz-multi-level-width);
+  overflow: hidden;
+  border-radius: var(--kz-multi-level-radius);
+  background: var(--kz-multi-level-bg);
+  color: var(--kz-multi-level-fg);
+  box-shadow: var(--kz-multi-level-shadow);
+}
+
+.kodza-multi-level__panel.is-left .kodza-multi-level__sheet {
+  right: auto;
+  left: var(--kz-multi-level-gap);
+}
+
+.kodza-multi-level__bar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px 14px 0;
+}
+
+.kodza-multi-level__panel.is-left .kodza-multi-level__bar {
+  justify-content: flex-start;
+}
+
+/* The row on top: the name of the level you are in, and from the second level on the way back */
+.kodza-multi-level__back {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 48px;
+  margin: 8px 0 0;
+  padding: 0 var(--kz-multi-level-pad);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--kz-multi-level-fg);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-multi-level__back:disabled {
+  color: var(--kz-multi-level-muted);
+  opacity: 1;
+  cursor: default;
+}
+
+.kodza-multi-level__back:focus-visible {
+  outline: none;
+}
+
+.kodza-multi-level__arrow {
+  position: absolute;
+  top: 50%;
+  left: var(--kz-multi-level-pad);
+  width: 16px;
+  height: 12px;
+  opacity: 0;
+  translate: -8px -50%;
+  transition: opacity 0.15s, translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-multi-level__arrow::before,
+.kodza-multi-level__arrow::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+}
+
+.kodza-multi-level__arrow::before {
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  margin-top: -0.75px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+.kodza-multi-level__arrow::after {
+  left: 1px;
+  box-sizing: border-box;
+  width: 7px;
+  height: 7px;
+  border-bottom: 1.5px solid currentColor;
+  border-left: 1.5px solid currentColor;
+  translate: 0 -50%;
+  rotate: 45deg;
+}
+
+.kodza-multi-level__title {
+  display: block;
+  margin: -3px 0 -6px;
+  padding: 3px 0 6px;
+  overflow: hidden;
+  transition: translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The level names are stacked in one cell: the old one rolls up as the new one comes in */
+.kodza-multi-level__heading {
+  display: grid;
+}
+
+.kodza-multi-level__heading > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+/* The arrow comes in from the left once the name has started to make room for it */
+.kodza-multi-level__back.is-deep .kodza-multi-level__arrow {
+  opacity: 1;
+  translate: 0 -50%;
+  transition: opacity 0.3s 0.1s, translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-multi-level__back.is-deep .kodza-multi-level__title {
+  translate: 26px 0;
+}
+
+@media (hover: hover) {
+  .kodza-multi-level__back.is-deep:hover .kodza-multi-level__arrow {
+    translate: -3px -50%;
+  }
+}
+
+.kodza-multi-level__back:focus-visible .kodza-multi-level__heading {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+/* The levels, one over the other in the same cell: the drawer keeps its size */
+.kodza-multi-level__nav {
+  display: grid;
+  align-content: start;
+  min-height: 0;
+  padding: 4px var(--kz-multi-level-pad) 8px;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+}
+
+.kodza-multi-level__list {
+  grid-area: 1 / 1;
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-multi-level__list[hidden] {
+  display: none;
+}
+
+.kodza-multi-level__item {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A hairline under each row, drawn from the left as the rows come in */
+.kodza-multi-level__item::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: var(--kz-multi-level-rule);
+  transform-origin: left;
+}
+
+.kodza-multi-level__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 14px 0 13px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The mask has the size of its word, so its room for descenders (g, j, p, q, y) and its step
+   aside are measured on the word */
+.kodza-multi-level__mask {
+  display: block;
+  min-width: 0;
+  margin: -0.06em 0 -0.22em;
+  padding: 0.06em 0 0.22em;
+  overflow: hidden;
+  font-size: var(--kz-multi-level-size);
+  transition: translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-multi-level__word {
+  display: block;
+  font-size: var(--kz-multi-level-size);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+}
+
+/* On the right of a row: how many links a level holds and its chevron, or a dot on the way to
+   the current page */
+.kodza-multi-level__meta {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  color: var(--kz-multi-level-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  transition: color 0.25s;
+}
+
+.kodza-multi-level__link.is-current .kodza-multi-level__meta::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kz-multi-level-fg);
+}
+
+.kodza-multi-level__branch .kodza-multi-level__meta::after {
+  content: "";
+  box-sizing: border-box;
+  width: 7px;
+  height: 7px;
+  margin-right: 3px;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  rotate: 45deg;
+  transition: translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Pointed at (by a mouse: a tap must not leave it stuck): the word steps aside, the count
+   lights up and the chevron leans in. A row's focus does the same, and is drawn on its word */
+@media (hover: hover) {
+  .kodza-multi-level__link:hover .kodza-multi-level__mask {
+    translate: 0.14em 0;
+  }
+
+  .kodza-multi-level__link:hover .kodza-multi-level__meta {
+    color: var(--kz-multi-level-fg);
+  }
+
+  .kodza-multi-level__branch:hover .kodza-multi-level__meta::after {
+    translate: 3px 0;
+  }
+}
+
+.kodza-multi-level__link:focus-visible .kodza-multi-level__mask {
+  translate: 0.14em 0;
+}
+
+.kodza-multi-level__link:focus-visible .kodza-multi-level__meta {
+  color: var(--kz-multi-level-fg);
+}
+
+.kodza-multi-level__branch:focus-visible .kodza-multi-level__meta::after {
+  translate: 3px 0;
+}
+
+.kodza-multi-level__link:focus-visible .kodza-multi-level__word {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.12em;
+}
+
+.kodza-multi-level__foot {
+  display: grid;
+  gap: 12px;
+  padding: 20px var(--kz-multi-level-pad) 24px;
+}
+
+.kodza-multi-level__foot p {
+  margin: 0;
+}
+
+.kodza-multi-level__more {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.kodza-multi-level__more a {
+  border-radius: 2px;
+  color: var(--kz-multi-level-fg);
+  text-decoration: none;
+}
+
+.kodza-multi-level__more a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-multi-level__small {
+  color: var(--kz-multi-level-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-multi-level__toggle *,
+  .kodza-multi-level__toggle *::before,
+  .kodza-multi-level__toggle *::after,
+  .kodza-multi-level__arrow,
+  .kodza-multi-level__title,
+  .kodza-multi-level__mask,
+  .kodza-multi-level__meta,
+  .kodza-multi-level__meta::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Dark site: the drawer is paper
+.kodza-multi-level {
+  --kz-multi-level-bg: #f2f2f0;
+  --kz-multi-level-fg: #0a0a0a;
+  --kz-multi-level-muted: rgba(10, 10, 10, 0.62);
+  --kz-multi-level-rule: rgba(10, 10, 10, 0.12);
+  --kz-multi-level-ink: #f2f2f0;
+  --kz-multi-level-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard 25d5d1126efc — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-multi-level__toggle):not(#_),
+:where(.kodza-multi-level__close):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-multi-level__panel):not(#_),
+:where(.kodza-multi-level__back):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-multi-level__more a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  text-underline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-multi-level:not(#_),
+.kodza-multi-level__lines:not(#_),
+.kodza-multi-level__shade:not(#_),
+.kodza-multi-level__bar:not(#_),
+.kodza-multi-level__cross:not(#_),
+.kodza-multi-level__say:not(#_),
+.kodza-multi-level__arrow:not(#_),
+.kodza-multi-level__title:not(#_),
+.kodza-multi-level__heading:not(#_),
+.kodza-multi-level__mask:not(#_),
+.kodza-multi-level__word:not(#_),
+.kodza-multi-level__meta:not(#_),
+.kodza-multi-level__foot:not(#_),
+.kodza-multi-level__say span:where(:not([class*="kodza-"])):not(#_),
+.kodza-multi-level__heading span:where(:not([class*="kodza-"])):not(#_),
+.kodza-multi-level__meta span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-multi-level__toggle:not(#_),
+.kodza-multi-level__close:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-multi-level__panel:not(#_) {
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+.kodza-multi-level__back:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-multi-level__nav:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi-level__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi-level__item:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi-level__link:not(#_) {
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi-level__branch:not(#_) {
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-multi-level__more:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi-level__small:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi-level__more a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-multi-level__small:not(#_):where(:not([hidden])),
+.kodza-multi-level__more a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-multi-level__small:not(#_):where([hidden]),
+.kodza-multi-level__more a:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-multi-level__lines:not(#_)::before,
+.kodza-multi-level__lines:not(#_)::after,
+.kodza-multi-level__cross:not(#_)::before,
+.kodza-multi-level__cross:not(#_)::after,
+.kodza-multi-level__arrow:not(#_)::before,
+.kodza-multi-level__item:not(#_)::after,
+.kodza-multi-level__meta:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-multi-level__toggle:not(#_),
+.kodza-multi-level__close:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-multi-level__toggle:not(#_) {
+  background: var(--kz-multi-level-ink);
+  color: var(--kz-multi-level-on-ink);
+}
+
+.kodza-multi-level__close:not(#_) {
+  background: var(--kz-multi-level-fg);
+  color: var(--kz-multi-level-bg);
+}
+
+.kodza-multi-level__toggle:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-multi-level-ink);
+  outline-offset: 3px;
+}
+
+.kodza-multi-level__close:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-multi-level-fg);
+  outline-offset: 4px;
+}
+
+.kodza-multi-level__more a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-multi-level-fg);
+  outline-offset: 4px;
+}
+
+.kodza-multi-level__panel:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-multi-level__back:not(#_) {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 48px;
+  margin: 8px 0 0;
+  padding: 0 var(--kz-multi-level-pad);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--kz-multi-level-fg);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-multi-level__back:disabled:not(#_) {
+  color: var(--kz-multi-level-muted);
+  opacity: 1;
+  cursor: default;
+}
+
+.kodza-multi-level__back:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-multi-level__nav:not(#_) {
+  display: grid;
+  padding: 4px var(--kz-multi-level-pad) 8px;
+}
+
+.kodza-multi-level__list:not(#_) {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-multi-level__list[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-multi-level__item:not(#_) {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-multi-level__link:not(#_) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 14px 0 13px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-multi-level__foot p:not(#_) {
+  margin: 0;
+}
+
+.kodza-multi-level__more:not(#_) {
+  display: flex;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.kodza-multi-level__more a:not(#_) {
+  border-radius: 2px;
+  color: var(--kz-multi-level-fg);
+  text-decoration: none;
+}
+
+.kodza-multi-level__more a:hover:not(#_) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-multi-level__small:not(#_) {
+  color: var(--kz-multi-level-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+}

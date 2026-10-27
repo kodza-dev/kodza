@@ -1,0 +1,602 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Shutter Menu
+   The menu comes down from under your header like a shop shutter, and each link rises from its
+   mask as the edge gets to it. The button stays in view: its lines cross, Menu rolls to Close.
+   The panel is a native popover: Escape, a click outside and the focus going back to the button
+   are the browser's own. Everything is tuned with the --kz-shutter-* variables. */
+.kodza-shutter {
+  --kz-shutter-bg: #0a0a0a; /* the menu */
+  --kz-shutter-fg: #f2f2f0;
+  --kz-shutter-muted: rgba(242, 242, 240, 0.62);
+  --kz-shutter-line: rgba(242, 242, 240, 0.16);
+  --kz-shutter-ink: #0a0a0a; /* the Menu button, on the page */
+  --kz-shutter-on-ink: #ffffff;
+  --kz-shutter-top: auto; /* where the shutter starts; auto = the bottom of the header that holds the button */
+  --kz-shutter-side: 24px;
+  --kz-shutter-size: clamp(36px, min(9cqw, calc((100cqh - 190px) / 4.9)), 112px);
+  --kz-shutter-duration: 0.8s;
+  --kz-shutter-ease: cubic-bezier(0.76, 0, 0.24, 1);
+
+  display: inline-block;
+}
+
+/* The button: two lines meet, then cross; the label rolls without changing the width */
+.kodza-shutter__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-shutter-ink);
+  color: var(--kz-shutter-on-ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-shutter__toggle:focus-visible {
+  outline: 2px solid var(--kz-shutter-ink);
+  outline-offset: 3px;
+}
+
+.kodza-shutter__lines {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 8px;
+}
+
+.kodza-shutter__lines::before,
+.kodza-shutter__lines::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  /* On its own layer: drawn the same way at rest and while turning, so no snap at the end */
+  will-change: transform;
+  /* Closing: they uncross first, then part */
+  transition:
+    rotate 0.22s cubic-bezier(0.65, 0, 0.35, 1),
+    translate 0.22s cubic-bezier(0.65, 0, 0.35, 1) 0.18s,
+    clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-shutter__lines::before {
+  top: 0;
+}
+
+.kodza-shutter__lines::after {
+  top: 6px; /* whole pixels: both lines sit on the pixel grid the same way */
+}
+
+/* Whole at rest, as an inset: the pointer slides it to a shorter one (from none it would jump) */
+.kodza-shutter__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-shutter__toggle:hover .kodza-shutter__lines::after {
+  clip-path: inset(0 45% 0 0);
+}
+
+.kodza-shutter__toggle[aria-expanded="true"] .kodza-shutter__lines::before,
+.kodza-shutter__toggle[aria-expanded="true"] .kodza-shutter__lines::after {
+  clip-path: inset(0 0 0 0);
+  transition:
+    translate 0.2s cubic-bezier(0.65, 0, 0.35, 1),
+    rotate 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.17s,
+    clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-shutter__toggle[aria-expanded="true"] .kodza-shutter__lines::before {
+  translate: 0 3px;
+  rotate: 45deg;
+}
+
+.kodza-shutter__toggle[aria-expanded="true"] .kodza-shutter__lines::after {
+  translate: 0 -3px;
+  rotate: -45deg;
+}
+
+.kodza-shutter__label {
+  display: grid;
+  margin: -3px 0;
+  padding: 3px 0;
+  overflow: hidden;
+}
+
+/* The script rolls the words both ways: the old one goes up, the new one comes up from below */
+.kodza-shutter__say {
+  grid-area: 1 / 1;
+}
+
+.kodza-shutter__say + .kodza-shutter__say {
+  translate: 0 115%;
+}
+
+.kodza-shutter__toggle[aria-expanded="true"] .kodza-shutter__say {
+  translate: 0 -115%;
+}
+
+.kodza-shutter__toggle[aria-expanded="true"] .kodza-shutter__say + .kodza-shutter__say {
+  translate: 0 0;
+}
+
+/* The shutter: from the bottom of your header to the bottom of the screen, rolled up until it opens */
+.kodza-shutter__panel {
+  position: fixed;
+  inset: var(--kz-shutter-from, 0px) 0 0 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0 var(--kz-shutter-side);
+  border: 0;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  background: var(--kz-shutter-bg);
+  color: var(--kz-shutter-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: size;
+  z-index: 99990;
+  /* Here and not on the open state: the panel keeps its rows while it rolls back up */
+  grid-template-rows: 1fr auto;
+  -webkit-font-smoothing: antialiased;
+  clip-path: inset(0 0 100% 0);
+  /* Closing: quicker than it came down */
+  transition:
+    clip-path calc(var(--kz-shutter-duration) * 0.7) var(--kz-shutter-ease),
+    display calc(var(--kz-shutter-duration) * 0.7) allow-discrete,
+    overlay calc(var(--kz-shutter-duration) * 0.7) allow-discrete;
+}
+
+.kodza-shutter__panel:popover-open {
+  display: grid;
+  clip-path: inset(0 0 0 0);
+  transition:
+    clip-path var(--kz-shutter-duration) var(--kz-shutter-ease),
+    display var(--kz-shutter-duration) allow-discrete,
+    overlay var(--kz-shutter-duration) allow-discrete;
+}
+
+@starting-style {
+  .kodza-shutter__panel:popover-open {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+.kodza-shutter__nav {
+  align-self: center;
+  display: grid;
+  padding: 28px 0;
+}
+
+/* Each row: its hairline draws in, then the word rises from its mask */
+.kodza-shutter__link {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(44px, 9cqw, 132px) minmax(0, 1fr);
+  align-items: start;
+  padding: 14px 0 10px;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.kodza-shutter__link::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: var(--kz-shutter-line);
+  scale: 0 1;
+  transform-origin: left center;
+  transition: scale 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-shutter__index {
+  padding-top: 0.4em;
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--kz-shutter-muted);
+  opacity: 0;
+  transition: opacity 0.2s, color 0.25s;
+}
+
+/* The mask has the size of its word, so its room for descenders (g, j, p, q, y) and its step
+   aside are measured on the word */
+.kodza-shutter__mask {
+  display: block;
+  margin: -0.06em 0 -0.24em;
+  padding: 0.06em 0 0.24em;
+  overflow: hidden;
+  font-size: var(--kz-shutter-size);
+  transition: translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-shutter__word {
+  display: block;
+  font-size: var(--kz-shutter-size);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  translate: 0 135%;
+  /* Closing: the words drop back into their masks while the shutter rolls up */
+  transition: translate 0.32s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-shutter__info {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding: 18px 0 22px;
+  border-top: 1px solid var(--kz-shutter-line);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--kz-shutter-muted);
+  opacity: 0;
+  translate: 0 8px;
+  transition: opacity 0.2s, translate 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-shutter__info p {
+  margin: 0;
+}
+
+.kodza-shutter__socials {
+  display: flex;
+  gap: 20px;
+}
+
+.kodza-shutter__socials a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+/* Open: each part starts when the edge reaches it (the script sets --kz-shutter-delay) */
+.kodza-shutter__panel.is-open .kodza-shutter__link::before {
+  scale: 1 1;
+  transition: scale 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay, 0s);
+}
+
+.kodza-shutter__panel.is-open .kodza-shutter__index {
+  opacity: 1;
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--kz-shutter-delay, 0s) + 0.12s), color 0.25s;
+}
+
+.kodza-shutter__panel.is-open .kodza-shutter__word {
+  translate: 0 0;
+  transition: translate 0.75s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay, 0s);
+}
+
+.kodza-shutter__panel.is-open .kodza-shutter__info {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay, 0s),
+    translate 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay, 0s);
+}
+
+/* Pointed at: the word steps aside and its number lights up */
+.kodza-shutter__link:hover .kodza-shutter__mask,
+.kodza-shutter__link:focus-visible .kodza-shutter__mask {
+  translate: 0.14em 0;
+}
+
+.kodza-shutter__link:hover .kodza-shutter__index,
+.kodza-shutter__link:focus-visible .kodza-shutter__index,
+.kodza-shutter__socials a:hover {
+  color: var(--kz-shutter-fg);
+}
+
+.kodza-shutter__link:focus-visible .kodza-shutter__word {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.12em;
+}
+
+.kodza-shutter__socials a:focus-visible {
+  outline: 2px solid var(--kz-shutter-fg);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-shutter__panel,
+  .kodza-shutter__panel *,
+  .kodza-shutter__panel *::before,
+  .kodza-shutter__toggle *,
+  .kodza-shutter__toggle *::before,
+  .kodza-shutter__toggle *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* kodza-guard f2b6a432fe24 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-shutter__toggle):not(#_),
+:where(.kodza-shutter__socials a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-shutter__nav):not(#_),
+:where(.kodza-shutter__link):not(#_),
+:where(.kodza-shutter__socials):not(#_),
+:where(.kodza-shutter__info p:where(:not([class*="kodza-"]):not(.kodza-shutter__info [class*="kodza-"] *))):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-shutter:not(#_),
+.kodza-shutter__lines:not(#_),
+.kodza-shutter__label:not(#_),
+.kodza-shutter__say:not(#_),
+.kodza-shutter__index:not(#_),
+.kodza-shutter__mask:not(#_),
+.kodza-shutter__word:not(#_),
+.kodza-shutter__info:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-shutter__toggle:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-shutter__nav:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-shutter__link:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-shutter__socials:not(#_),
+.kodza-shutter__info p:where(:not([class*="kodza-"]):not(.kodza-shutter__info [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-shutter__socials a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-shutter__info p:where(:not([class*="kodza-"]):not(.kodza-shutter__info [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-shutter__socials a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-shutter__info p:where(:not([class*="kodza-"]):not(.kodza-shutter__info [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-shutter__socials a:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-shutter__lines:not(#_)::before,
+.kodza-shutter__lines:not(#_)::after,
+.kodza-shutter__link:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-shutter__toggle:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-shutter-ink);
+  color: var(--kz-shutter-on-ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-shutter__toggle:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-shutter-ink);
+  outline-offset: 3px;
+}
+
+.kodza-shutter__nav:not(#_) {
+  display: grid;
+  padding: 28px 0;
+}
+
+.kodza-shutter__link:not(#_) {
+  position: relative;
+  display: grid;
+  padding: 14px 0 10px;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.kodza-shutter__info p:not(#_) {
+  margin: 0;
+}
+
+.kodza-shutter__socials:not(#_) {
+  display: flex;
+}
+
+.kodza-shutter__socials a:not(#_) {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.kodza-shutter__socials a:hover:not(#_) {
+  color: var(--kz-shutter-fg);
+}
+
+.kodza-shutter__socials a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-shutter-fg);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-shutter__panel *:where(nav, a, p):not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

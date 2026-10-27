@@ -1,0 +1,791 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Fullscreen Menu
+   A curtain of ink comes down over the whole screen, its edge bending with the speed and
+   flattening as it lands. Under it the page backs off and dims; the big links rise from their
+   masks as the edge passes them, then the contact column. Closing plays it all backwards.
+   Mark the wrapper of your site with data-fullscreen-page, or name it on the menu with
+   data-page="…" (the wrapper of most WordPress themes is found on its own).
+   Everything is tuned with the --kz-fullscreen-* variables. */
+.kodza-fullscreen {
+  --kz-fullscreen-bg: #0a0a0a; /* the curtain */
+  --kz-fullscreen-fg: #f2f2f0;
+  --kz-fullscreen-muted: rgba(242, 242, 240, 0.62);
+  --kz-fullscreen-ink: #0a0a0a; /* the Menu button, on the page */
+  --kz-fullscreen-on-ink: #ffffff;
+  --kz-fullscreen-page: auto; /* the page colour while it backs off; auto = the first background above it */
+  --kz-fullscreen-top: calc(var(--wp-admin--admin-bar--height, 0px) + 20px); /* match your header, so Close lands right where Menu was (below the WordPress admin bar) */
+  --kz-fullscreen-side: 24px;
+  --kz-fullscreen-size: clamp(40px, min(10cqw + 12px, calc((100cqh - 230px) / 5.3)), 132px);
+  --kz-fullscreen-curve: 1; /* how far the edge bends on the way; 0 = a straight edge */
+  --kz-fullscreen-shade: 0.5; /* how dark the page gets under it */
+  --kz-fullscreen-depth: 0.94; /* the page's size once covered */
+  --kz-fullscreen-duration: 1s;
+  --kz-fullscreen-ease: cubic-bezier(0.76, 0, 0.24, 1);
+
+  display: inline-block;
+}
+
+/* A straight edge, for a stricter site */
+.kodza-fullscreen--straight {
+  --kz-fullscreen-curve: 0;
+}
+
+.kodza-fullscreen__toggle,
+.kodza-fullscreen__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-fullscreen__toggle {
+  background: var(--kz-fullscreen-ink);
+  color: var(--kz-fullscreen-on-ink);
+}
+
+.kodza-fullscreen__close {
+  background: var(--kz-fullscreen-fg);
+  color: var(--kz-fullscreen-bg);
+}
+
+.kodza-fullscreen__toggle:focus-visible {
+  outline: 2px solid var(--kz-fullscreen-ink);
+  outline-offset: 3px;
+}
+
+.kodza-fullscreen__close:focus-visible,
+.kodza-fullscreen__info a:focus-visible {
+  outline: 2px solid var(--kz-fullscreen-fg);
+  outline-offset: 4px;
+}
+
+/* A link's focus is drawn on its word, so it rises with it instead of waiting there as an empty box */
+.kodza-fullscreen__link:focus-visible {
+  outline: none;
+}
+
+.kodza-fullscreen__link:focus-visible .kodza-fullscreen__word {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.12em;
+}
+
+/* Two lines on the button: they meet and cross as the curtain comes, and Close takes them
+   over crossed, in the same place */
+.kodza-fullscreen__lines,
+.kodza-fullscreen__cross {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 8px;
+}
+
+.kodza-fullscreen__lines::before,
+.kodza-fullscreen__lines::after,
+.kodza-fullscreen__cross::before,
+.kodza-fullscreen__cross::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  /* On its own layer: drawn the same way at rest and while turning, so no snap at the end */
+  will-change: transform;
+}
+
+.kodza-fullscreen__lines::before,
+.kodza-fullscreen__cross::before {
+  top: 0;
+}
+
+.kodza-fullscreen__lines::after,
+.kodza-fullscreen__cross::after {
+  top: 6px; /* whole pixels: both lines sit on the pixel grid the same way */
+}
+
+/* The script turns them on the same clock as the curtain: when its edge goes over the button,
+   Close shows the lines exactly as they were, and closing plays it backwards */
+.kodza-fullscreen__lines::before,
+.kodza-fullscreen__lines::after {
+  transition: clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Whole at rest, as an inset: the pointer slides it to a shorter one (from none it would jump) */
+.kodza-fullscreen__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-fullscreen__toggle:hover .kodza-fullscreen__lines::after {
+  clip-path: inset(0 45% 0 0);
+}
+
+.kodza-fullscreen__toggle[aria-expanded="true"] .kodza-fullscreen__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-fullscreen__cross::before {
+  translate: 0 3px;
+  rotate: 45deg;
+}
+
+.kodza-fullscreen__cross::after {
+  translate: 0 -3px;
+  rotate: -45deg;
+}
+
+/* The word rolls in from below its mask */
+.kodza-fullscreen__say {
+  display: grid;
+  margin: -3px 0;
+  padding: 3px 0;
+  overflow: hidden;
+}
+
+.kodza-fullscreen__say > span {
+  display: block;
+}
+
+/* The menu: over the whole screen, on top of everything while it is open */
+.kodza-fullscreen__panel {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--kz-fullscreen-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: size;
+  -webkit-font-smoothing: antialiased;
+}
+
+.kodza-fullscreen__panel[hidden] {
+  display: none;
+}
+
+.kodza-fullscreen__panel:focus {
+  outline: none;
+}
+
+.kodza-fullscreen__shade,
+.kodza-fullscreen__curtain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.kodza-fullscreen__shade {
+  background: rgba(0, 0, 0, var(--kz-fullscreen-shade));
+  /* Around the page once it has backed off: darker than the page, so its edge reads */
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.82);
+}
+
+.kodza-fullscreen__curtain {
+  background: var(--kz-fullscreen-bg);
+}
+
+/* The bend under the curtain: as deep as the curtain is fast, flat once it lands */
+.kodza-fullscreen__edge {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: calc(var(--kz-fullscreen-curve) * min(22cqh, 32cqw, 200px)); /* a phone gets a gentler bend */
+  margin-top: -1px;
+  overflow: visible;
+  fill: var(--kz-fullscreen-bg);
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+/* What the curtain carries: it scrolls on its own on a short screen */
+.kodza-fullscreen__body {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+}
+
+.kodza-fullscreen__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: var(--kz-fullscreen-top) var(--kz-fullscreen-side) 0;
+}
+
+.kodza-fullscreen__label,
+.kodza-fullscreen__index,
+.kodza-fullscreen__small {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-fullscreen-muted);
+}
+
+.kodza-fullscreen__label {
+  margin: 0;
+}
+
+/* The links, big, at the bottom left; the contact column at the bottom right */
+.kodza-fullscreen__stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(190px, 21cqw, 280px);
+  align-items: end;
+  gap: 32px clamp(32px, 6cqw, 96px);
+  padding: 32px var(--kz-fullscreen-side) clamp(20px, 4cqh, 36px);
+}
+
+.kodza-fullscreen__nav {
+  display: grid;
+  justify-items: start;
+}
+
+.kodza-fullscreen__link {
+  display: grid;
+  grid-template-columns: max-content auto;
+  align-items: start;
+  column-gap: calc(var(--kz-fullscreen-size) * 0.1);
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The mask has the size of its word, so its room for descenders (g, j, p, q, y) is measured
+   on the word */
+.kodza-fullscreen__mask {
+  display: block;
+  margin: -0.06em 0 -0.22em;
+  padding: 0.06em 0 0.22em;
+  overflow: hidden;
+  font-size: var(--kz-fullscreen-size);
+}
+
+.kodza-fullscreen__word {
+  display: block;
+  font-size: var(--kz-fullscreen-size);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+}
+
+.kodza-fullscreen__index {
+  padding-top: calc(var(--kz-fullscreen-size) * 0.1);
+  transition: color 0.25s;
+}
+
+/* Pointed at: the other links step back, its number lights up */
+.kodza-fullscreen__nav:hover .kodza-fullscreen__link:not(:hover),
+.kodza-fullscreen__nav:has(.kodza-fullscreen__link:focus-visible) .kodza-fullscreen__link:not(:focus-visible) {
+  opacity: 0.35;
+}
+
+.kodza-fullscreen__link:hover .kodza-fullscreen__index,
+.kodza-fullscreen__link:focus-visible .kodza-fullscreen__index {
+  color: var(--kz-fullscreen-fg);
+}
+
+.kodza-fullscreen__info {
+  display: grid;
+  gap: 22px;
+  padding-bottom: calc(var(--kz-fullscreen-size) * 0.08);
+}
+
+.kodza-fullscreen__info p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.kodza-fullscreen__group {
+  display: grid;
+  gap: 6px;
+}
+
+/* One line of an address */
+.kodza-fullscreen__row {
+  display: block;
+}
+
+.kodza-fullscreen__info a {
+  color: var(--kz-fullscreen-fg);
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-fullscreen__info a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-fullscreen__socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+/* A phone: the links, then the contact column under them */
+@container (max-width: 720px) {
+  .kodza-fullscreen__stage {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: end;
+    gap: 40px;
+  }
+
+  .kodza-fullscreen__info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 16px;
+    padding-bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-fullscreen__toggle *,
+  .kodza-fullscreen__toggle *::before,
+  .kodza-fullscreen__toggle *::after,
+  .kodza-fullscreen__link,
+  .kodza-fullscreen__index {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Dark site: a paper curtain
+.kodza-fullscreen {
+  --kz-fullscreen-bg: #f2f2f0;
+  --kz-fullscreen-fg: #0a0a0a;
+  --kz-fullscreen-muted: rgba(10, 10, 10, 0.62);
+  --kz-fullscreen-ink: #f2f2f0;
+  --kz-fullscreen-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard 40885bd00908 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-fullscreen__toggle):not(#_),
+:where(.kodza-fullscreen__close):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-fullscreen__panel):not(#_),
+:where(.kodza-fullscreen__link):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-fullscreen__group a:where(:not([class*="kodza-"]):not(.kodza-fullscreen__group [class*="kodza-"] *))):not(#_),
+:where(.kodza-fullscreen__socials a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  text-underline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-fullscreen:not(#_),
+.kodza-fullscreen__lines:not(#_),
+.kodza-fullscreen__shade:not(#_),
+.kodza-fullscreen__curtain:not(#_),
+.kodza-fullscreen__body:not(#_),
+.kodza-fullscreen__bar:not(#_),
+.kodza-fullscreen__cross:not(#_),
+.kodza-fullscreen__say:not(#_),
+.kodza-fullscreen__stage:not(#_),
+.kodza-fullscreen__mask:not(#_),
+.kodza-fullscreen__word:not(#_),
+.kodza-fullscreen__index:not(#_),
+.kodza-fullscreen__info:not(#_),
+.kodza-fullscreen__group:not(#_),
+.kodza-fullscreen__row:not(#_),
+.kodza-fullscreen__say span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-fullscreen__toggle:not(#_),
+.kodza-fullscreen__close:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-fullscreen__panel:not(#_) {
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+.kodza-fullscreen__edge:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-fullscreen__label:not(#_),
+.kodza-fullscreen__small:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-fullscreen__nav:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-fullscreen__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-fullscreen__socials:not(#_),
+.kodza-fullscreen__group p:where(:not([class*="kodza-"]):not(.kodza-fullscreen__group [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-fullscreen__group a:where(:not([class*="kodza-"]):not(.kodza-fullscreen__group [class*="kodza-"] *)):not(#_),
+.kodza-fullscreen__socials a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-fullscreen__label:not(#_):where(:not([hidden])),
+.kodza-fullscreen__small:not(#_):where(:not([hidden])),
+.kodza-fullscreen__group p:where(:not([class*="kodza-"]):not(.kodza-fullscreen__group [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-fullscreen__group a:where(:not([class*="kodza-"]):not(.kodza-fullscreen__group [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-fullscreen__socials a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-fullscreen__label:not(#_):where([hidden]),
+.kodza-fullscreen__small:not(#_):where([hidden]),
+.kodza-fullscreen__group p:where(:not([class*="kodza-"]):not(.kodza-fullscreen__group [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-fullscreen__group a:where(:not([class*="kodza-"]):not(.kodza-fullscreen__group [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-fullscreen__socials a:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-fullscreen__lines:not(#_)::before,
+.kodza-fullscreen__lines:not(#_)::after,
+.kodza-fullscreen__cross:not(#_)::before,
+.kodza-fullscreen__cross:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-fullscreen__toggle:not(#_),
+.kodza-fullscreen__close:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-fullscreen__toggle:not(#_) {
+  background: var(--kz-fullscreen-ink);
+  color: var(--kz-fullscreen-on-ink);
+}
+
+.kodza-fullscreen__close:not(#_) {
+  background: var(--kz-fullscreen-fg);
+  color: var(--kz-fullscreen-bg);
+}
+
+.kodza-fullscreen__toggle:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-fullscreen-ink);
+  outline-offset: 3px;
+}
+
+.kodza-fullscreen__close:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-fullscreen-fg);
+  outline-offset: 4px;
+}
+
+.kodza-fullscreen__info a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-fullscreen-fg);
+  outline-offset: 4px;
+}
+
+.kodza-fullscreen__link:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-fullscreen__panel:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-fullscreen__edge:not(#_) {
+  position: absolute;
+  display: block;
+  margin-top: -1px;
+}
+
+.kodza-fullscreen__label:not(#_),
+.kodza-fullscreen__small:not(#_) {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-fullscreen-muted);
+}
+
+.kodza-fullscreen__label:not(#_) {
+  margin: 0;
+}
+
+.kodza-fullscreen__nav:not(#_) {
+  display: grid;
+}
+
+.kodza-fullscreen__link:not(#_) {
+  display: grid;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-fullscreen__info p:not(#_) {
+  margin: 0;
+}
+
+.kodza-fullscreen__info a:not(#_) {
+  color: var(--kz-fullscreen-fg);
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-fullscreen__info a:hover:not(#_) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-fullscreen__socials:not(#_) {
+  display: flex;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-fullscreen__link:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
