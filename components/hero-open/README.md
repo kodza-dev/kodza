@@ -12,7 +12,7 @@ A hero for a place with opening hours: a status line works out, at the place's o
 | --- | ---: | --- |
 | [`kodza-hero-open.html`](kodza-hero-open.html) | 2.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-hero-open.css`](kodza-hero-open.css) | 22.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-open.js`](kodza-hero-open.js) | 11.9 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-open.js`](kodza-hero-open.js) | 12.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

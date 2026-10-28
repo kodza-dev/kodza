@@ -542,6 +542,10 @@
   };
   const init = (scope) => find(scope).forEach((root) => {
     if (root.classList.contains('is-ready')) return; // already running, maybe from another copy of this script
+    // Rendered by React (data-kodza-manual): React starts it, with an init aimed at that markup once
+    // it has hydrated it. Any earlier start would change markup React has not taken over yet
+    const owner = root.closest('[data-kodza-manual]');
+    if (owner && !(scope && owner.contains(scope))) return;
     const controller = new AbortController();
     const saved = { html: written(root), attrs: attrsOf(root), stop: () => destroy(root) };
     instances.set(root, { controller, saved });

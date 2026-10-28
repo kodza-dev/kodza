@@ -12,7 +12,7 @@ A password field with an eye that crosses itself out, a meter that fills as it g
 | --- | ---: | --- |
 | [`kodza-password-field.html`](kodza-password-field.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-password-field.css`](kodza-password-field.css) | 14.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-password-field.js`](kodza-password-field.js) | 6.7 KB | The script. One copy per page runs every instance. |
+| [`kodza-password-field.js`](kodza-password-field.js) | 7.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

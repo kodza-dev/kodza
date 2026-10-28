@@ -12,7 +12,7 @@ Initials or a picture in four sizes, a status told by a shape (full, ring, bar, 
 | --- | ---: | --- |
 | [`kodza-avatar.html`](kodza-avatar.html) | 1.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-avatar.css`](kodza-avatar.css) | 6.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-avatar.js`](kodza-avatar.js) | 3.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-avatar.js`](kodza-avatar.js) | 3.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

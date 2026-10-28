@@ -12,7 +12,7 @@ A burger drawer for menus with levels: each sub-menu slides in over the last, th
 | --- | ---: | --- |
 | [`kodza-multi-level-menu.html`](kodza-multi-level-menu.html) | 2.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-multi-level-menu.css`](kodza-multi-level-menu.css) | 24.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-multi-level-menu.js`](kodza-multi-level-menu.js) | 38.7 KB | The script. One copy per page runs every instance. |
+| [`kodza-multi-level-menu.js`](kodza-multi-level-menu.js) | 39.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

@@ -12,7 +12,7 @@ A button that fills from the exact point your cursor enters and empties toward w
 | --- | ---: | --- |
 | [`kodza-button-fill.html`](kodza-button-fill.html) | 0.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-button-fill.css`](kodza-button-fill.css) | 7.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-button-fill.js`](kodza-button-fill.js) | 5.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-button-fill.js`](kodza-button-fill.js) | 5.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

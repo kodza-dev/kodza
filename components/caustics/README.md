@@ -12,7 +12,7 @@ A hero over the floor of a pool in the sun: a net of bright lines ray-traced by 
 | --- | ---: | --- |
 | [`kodza-caustics.html`](kodza-caustics.html) | 0.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-caustics.css`](kodza-caustics.css) | 10.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-caustics.js`](kodza-caustics.js) | 28.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-caustics.js`](kodza-caustics.js) | 28.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

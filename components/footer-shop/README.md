@@ -12,7 +12,7 @@ A shop footer: four promises with icons, a newsletter field whose button rolls t
 | --- | ---: | --- |
 | [`kodza-footer-shop.html`](kodza-footer-shop.html) | 8.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-footer-shop.css`](kodza-footer-shop.css) | 50.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-footer-shop.js`](kodza-footer-shop.js) | 16.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-footer-shop.js`](kodza-footer-shop.js) | 17.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

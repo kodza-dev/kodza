@@ -12,7 +12,7 @@ Point at a row and its picture shows in one frame that follows the pointer, wipi
 | --- | ---: | --- |
 | [`kodza-hover-list-preview.html`](kodza-hover-list-preview.html) | 3.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-hover-list-preview.css`](kodza-hover-list-preview.css) | 20.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hover-list-preview.js`](kodza-hover-list-preview.js) | 16.7 KB | The script. One copy per page runs every instance. |
+| [`kodza-hover-list-preview.js`](kodza-hover-list-preview.js) | 17.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

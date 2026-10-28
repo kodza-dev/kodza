@@ -12,7 +12,7 @@ A floating glass pill that clears the top of the page, frosts as you scroll, ste
 | --- | ---: | --- |
 | [`kodza-scroll-header.html`](kodza-scroll-header.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-scroll-header.css`](kodza-scroll-header.css) | 21.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-scroll-header.js`](kodza-scroll-header.js) | 10.2 KB | The script. One copy per page runs every instance. |
+| [`kodza-scroll-header.js`](kodza-scroll-header.js) | 10.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

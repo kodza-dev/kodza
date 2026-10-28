@@ -12,7 +12,7 @@ A big title with a small picture set between two words. On scroll the scene pins
 | --- | ---: | --- |
 | [`kodza-hero-expand.html`](kodza-hero-expand.html) | 2.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-hero-expand.css`](kodza-hero-expand.css) | 19.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-expand.js`](kodza-hero-expand.js) | 14.4 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-expand.js`](kodza-hero-expand.js) | 14.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

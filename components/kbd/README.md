@@ -12,7 +12,7 @@ Keyboard keys with a little depth, alone, in a combo or in a list of shortcuts. 
 | --- | ---: | --- |
 | [`kodza-kbd.html`](kodza-kbd.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-kbd.css`](kodza-kbd.css) | 5.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-kbd.js`](kodza-kbd.js) | 5.5 KB | The script. One copy per page runs every instance. |
+| [`kodza-kbd.js`](kodza-kbd.js) | 5.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

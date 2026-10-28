@@ -12,7 +12,7 @@ Two pictures in one frame and a handle between them: drag it, click and it glide
 | --- | ---: | --- |
 | [`kodza-before-after.html`](kodza-before-after.html) | 0.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-before-after.css`](kodza-before-after.css) | 7.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-before-after.js`](kodza-before-after.js) | 5.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-before-after.js`](kodza-before-after.js) | 5.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

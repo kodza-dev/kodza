@@ -12,7 +12,7 @@ Three plans in one block, the featured one inked and lifted out. Switch to yearl
 | --- | ---: | --- |
 | [`kodza-pricing-plans.html`](kodza-pricing-plans.html) | 2.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-pricing-plans.css`](kodza-pricing-plans.css) | 18.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-pricing-plans.js`](kodza-pricing-plans.js) | 7.4 KB | The script. One copy per page runs every instance. |
+| [`kodza-pricing-plans.js`](kodza-pricing-plans.js) | 7.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

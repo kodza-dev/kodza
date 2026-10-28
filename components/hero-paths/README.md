@@ -12,7 +12,7 @@ A hero that splits visitors in two: a title, then two tall pictures that are lin
 | --- | ---: | --- |
 | [`kodza-hero-paths.html`](kodza-hero-paths.html) | 2.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-hero-paths.css`](kodza-hero-paths.css) | 13.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-paths.js`](kodza-hero-paths.js) | 6.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-paths.js`](kodza-hero-paths.js) | 6.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

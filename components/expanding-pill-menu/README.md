@@ -12,7 +12,7 @@ A Menu button that grows into the menu around itself: the card widens, then unfo
 | --- | ---: | --- |
 | [`kodza-expanding-pill-menu.html`](kodza-expanding-pill-menu.html) | 2.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-expanding-pill-menu.css`](kodza-expanding-pill-menu.css) | 19.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-expanding-pill-menu.js`](kodza-expanding-pill-menu.js) | 32.5 KB | The script. One copy per page runs every instance. |
+| [`kodza-expanding-pill-menu.js`](kodza-expanding-pill-menu.js) | 32.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

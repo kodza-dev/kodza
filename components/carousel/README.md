@@ -12,7 +12,7 @@ A native scroll-snap carousel that works before the script loads. Then: page but
 | --- | ---: | --- |
 | [`kodza-carousel.html`](kodza-carousel.html) | 7.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-carousel.css`](kodza-carousel.css) | 28.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-carousel.js`](kodza-carousel.js) | 25.2 KB | The script. One copy per page runs every instance. |
+| [`kodza-carousel.js`](kodza-carousel.js) | 25.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

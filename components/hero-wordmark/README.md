@@ -12,7 +12,7 @@ A hero that sets the name across the whole width, ink edge to ink edge: its lett
 | --- | ---: | --- |
 | [`kodza-hero-wordmark.html`](kodza-hero-wordmark.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-hero-wordmark.css`](kodza-hero-wordmark.css) | 16.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-wordmark.js`](kodza-hero-wordmark.js) | 9.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-wordmark.js`](kodza-hero-wordmark.js) | 10.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

@@ -12,7 +12,7 @@ A hero over a contour map drawn by a native WebGL shader: the lines drift very s
 | --- | ---: | --- |
 | [`kodza-topographic-lines.html`](kodza-topographic-lines.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-topographic-lines.css`](kodza-topographic-lines.css) | 12.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-topographic-lines.js`](kodza-topographic-lines.js) | 21.5 KB | The script. One copy per page runs every instance. |
+| [`kodza-topographic-lines.js`](kodza-topographic-lines.js) | 21.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

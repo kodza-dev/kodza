@@ -12,7 +12,7 @@ Four ways for an image to answer the pointer, inside its own frame: a slow zoom,
 | --- | ---: | --- |
 | [`kodza-image-scale.html`](kodza-image-scale.html) | 0.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-image-scale.css`](kodza-image-scale.css) | 5.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-image-scale.js`](kodza-image-scale.js) | 3.7 KB | The script. One copy per page runs every instance. |
+| [`kodza-image-scale.js`](kodza-image-scale.js) | 4.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

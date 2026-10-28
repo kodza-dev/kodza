@@ -12,7 +12,7 @@ A # beside every heading. It slides out of the margin when the heading is pointe
 | --- | ---: | --- |
 | [`kodza-heading-anchor.html`](kodza-heading-anchor.html) | 0.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-heading-anchor.css`](kodza-heading-anchor.css) | 15.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-heading-anchor.js`](kodza-heading-anchor.js) | 13.7 KB | The script. One copy per page runs every instance. |
+| [`kodza-heading-anchor.js`](kodza-heading-anchor.js) | 14.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

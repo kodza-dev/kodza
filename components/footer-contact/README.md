@@ -12,7 +12,7 @@ A freelance or studio footer: the email address across the whole width, copied o
 | --- | ---: | --- |
 | [`kodza-footer-contact.html`](kodza-footer-contact.html) | 3.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-footer-contact.css`](kodza-footer-contact.css) | 29.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-footer-contact.js`](kodza-footer-contact.js) | 12.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-footer-contact.js`](kodza-footer-contact.js) | 12.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

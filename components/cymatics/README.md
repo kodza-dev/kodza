@@ -12,7 +12,7 @@ A hero beside a speaker drawn in sand: the frame and screws hold their lines whi
 | --- | ---: | --- |
 | [`kodza-cymatics.html`](kodza-cymatics.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-cymatics.css`](kodza-cymatics.css) | 11.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-cymatics.js`](kodza-cymatics.js) | 30.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-cymatics.js`](kodza-cymatics.js) | 30.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

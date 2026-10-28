@@ -12,7 +12,7 @@ A transparent header over the hero photo: once the hero passes under it, a solid
 | --- | ---: | --- |
 | [`kodza-header-overlay.html`](kodza-header-overlay.html) | 3.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-header-overlay.css`](kodza-header-overlay.css) | 37.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-header-overlay.js`](kodza-header-overlay.js) | 36.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-header-overlay.js`](kodza-header-overlay.js) | 37.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

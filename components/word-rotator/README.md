@@ -12,7 +12,7 @@ One word of a sentence keeps changing: the next one's letters rise as the old on
 | --- | ---: | --- |
 | [`kodza-word-rotator.html`](kodza-word-rotator.html) | 0.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-word-rotator.css`](kodza-word-rotator.css) | 2.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-word-rotator.js`](kodza-word-rotator.js) | 6.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-word-rotator.js`](kodza-word-rotator.js) | 6.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

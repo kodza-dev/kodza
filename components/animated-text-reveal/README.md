@@ -12,7 +12,7 @@ Words light up one after the other as a paragraph scrolls by, and dim again on t
 | --- | ---: | --- |
 | [`kodza-animated-text-reveal.html`](kodza-animated-text-reveal.html) | 0.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-animated-text-reveal.css`](kodza-animated-text-reveal.css) | 2.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-animated-text-reveal.js`](kodza-animated-text-reveal.js) | 5.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-animated-text-reveal.js`](kodza-animated-text-reveal.js) | 5.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

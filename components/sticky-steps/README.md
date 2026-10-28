@@ -12,7 +12,7 @@ A picture pinned on one side, steps scrolling on the other: each step draws its 
 | --- | ---: | --- |
 | [`kodza-sticky-steps.html`](kodza-sticky-steps.html) | 1.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-sticky-steps.css`](kodza-sticky-steps.css) | 12.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-sticky-steps.js`](kodza-sticky-steps.js) | 7.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-sticky-steps.js`](kodza-sticky-steps.js) | 7.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

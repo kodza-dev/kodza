@@ -12,7 +12,7 @@ An editorial image grid: each image grows into a fullscreen viewer in one contin
 | --- | ---: | --- |
 | [`kodza-image-gallery.html`](kodza-image-gallery.html) | 4.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-image-gallery.css`](kodza-image-gallery.css) | 16.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-image-gallery.js`](kodza-image-gallery.js) | 15.7 KB | The script. One copy per page runs every instance. |
+| [`kodza-image-gallery.js`](kodza-image-gallery.js) | 16.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

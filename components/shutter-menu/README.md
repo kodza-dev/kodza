@@ -12,7 +12,7 @@ A menu that comes down under your header like a shutter: each link rises as the 
 | --- | ---: | --- |
 | [`kodza-shutter-menu.html`](kodza-shutter-menu.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-shutter-menu.css`](kodza-shutter-menu.css) | 15.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-shutter-menu.js`](kodza-shutter-menu.js) | 9.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-shutter-menu.js`](kodza-shutter-menu.js) | 10.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

@@ -12,7 +12,7 @@ A block that pins itself while big statements take turns as you scroll: each lin
 | --- | ---: | --- |
 | [`kodza-sticky-scroll-reveal.html`](kodza-sticky-scroll-reveal.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-sticky-scroll-reveal.css`](kodza-sticky-scroll-reveal.css) | 6.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-sticky-scroll-reveal.js`](kodza-sticky-scroll-reveal.js) | 10.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-sticky-scroll-reveal.js`](kodza-sticky-scroll-reveal.js) | 11.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

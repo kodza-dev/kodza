@@ -12,7 +12,7 @@ Real range inputs on a drawn track: a value bubble pops out of the handle, ticks
 | --- | ---: | --- |
 | [`kodza-range-slider.html`](kodza-range-slider.html) | 0.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-range-slider.css`](kodza-range-slider.css) | 11.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-range-slider.js`](kodza-range-slider.js) | 6.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-range-slider.js`](kodza-range-slider.js) | 6.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

@@ -12,7 +12,7 @@ A real colour input with a proper panel: saturation square, hue slider, hex fiel
 | --- | ---: | --- |
 | [`kodza-color-picker.html`](kodza-color-picker.html) | 0.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-color-picker.css`](kodza-color-picker.css) | 20.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-color-picker.js`](kodza-color-picker.js) | 15.4 KB | The script. One copy per page runs every instance. |
+| [`kodza-color-picker.js`](kodza-color-picker.js) | 15.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

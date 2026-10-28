@@ -12,7 +12,7 @@ A drop zone over a real file input: the border marches when files hover, each fi
 | --- | ---: | --- |
 | [`kodza-file-upload.html`](kodza-file-upload.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-file-upload.css`](kodza-file-upload.css) | 14.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-file-upload.js`](kodza-file-upload.js) | 11.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-file-upload.js`](kodza-file-upload.js) | 11.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

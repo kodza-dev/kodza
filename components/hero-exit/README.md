@@ -12,7 +12,7 @@ A centred title in two big lines. On scroll the scene holds, the lines part, a p
 | --- | ---: | --- |
 | [`kodza-hero-exit.html`](kodza-hero-exit.html) | 1.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-hero-exit.css`](kodza-hero-exit.css) | 18.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-exit.js`](kodza-hero-exit.js) | 14.9 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-exit.js`](kodza-hero-exit.js) | 15.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

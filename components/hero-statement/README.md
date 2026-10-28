@@ -12,7 +12,7 @@ A studio statement set very large over a mono line with the city, a live local t
 | --- | ---: | --- |
 | [`kodza-hero-statement.html`](kodza-hero-statement.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-hero-statement.css`](kodza-hero-statement.css) | 13.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-statement.js`](kodza-hero-statement.js) | 6.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-statement.js`](kodza-hero-statement.js) | 6.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

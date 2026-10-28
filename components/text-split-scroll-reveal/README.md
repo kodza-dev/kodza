@@ -12,7 +12,7 @@ Text that writes itself in when it reaches the screen: lines rising from a mask,
 | --- | ---: | --- |
 | [`kodza-text-split-scroll-reveal.html`](kodza-text-split-scroll-reveal.html) | 0.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-text-split-scroll-reveal.css`](kodza-text-split-scroll-reveal.css) | 3.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-text-split-scroll-reveal.js`](kodza-text-split-scroll-reveal.js) | 6.5 KB | The script. One copy per page runs every instance. |
+| [`kodza-text-split-scroll-reveal.js`](kodza-text-split-scroll-reveal.js) | 6.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

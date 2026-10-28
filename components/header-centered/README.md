@@ -11,8 +11,8 @@ A centred header for a restaurant or a shop: the name in the middle, links on bo
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-centered.html`](kodza-header-centered.html) | 3.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-centered.css`](kodza-header-centered.css) | 44.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-header-centered.js`](kodza-header-centered.js) | 43.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-header-centered.css`](kodza-header-centered.css) | 43.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-centered.js`](kodza-header-centered.js) | 44.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

@@ -12,7 +12,7 @@ Inside its zone the pointer becomes a dot with a soft lag, and a pill that says 
 | --- | ---: | --- |
 | [`kodza-hover-custom-cursor.html`](kodza-hover-custom-cursor.html) | 0.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-hover-custom-cursor.css`](kodza-hover-custom-cursor.css) | 5.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hover-custom-cursor.js`](kodza-hover-custom-cursor.js) | 5.2 KB | The script. One copy per page runs every instance. |
+| [`kodza-hover-custom-cursor.js`](kodza-hover-custom-cursor.js) | 5.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

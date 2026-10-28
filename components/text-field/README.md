@@ -12,7 +12,7 @@ A text field whose label folds up as you type. A button clears it, a check draws
 | --- | ---: | --- |
 | [`kodza-text-field.html`](kodza-text-field.html) | 1.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-text-field.css`](kodza-text-field.css) | 15.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-text-field.js`](kodza-text-field.js) | 4.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-text-field.js`](kodza-text-field.js) | 4.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

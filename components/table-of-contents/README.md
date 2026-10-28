@@ -12,7 +12,7 @@ A summary card built from your headings: an ink marker follows the section you r
 | --- | ---: | --- |
 | [`kodza-table-of-contents.html`](kodza-table-of-contents.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-table-of-contents.css`](kodza-table-of-contents.css) | 15.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-table-of-contents.js`](kodza-table-of-contents.js) | 8.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-table-of-contents.js`](kodza-table-of-contents.js) | 9.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
