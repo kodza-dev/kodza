@@ -1,0 +1,1862 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Header Shop
+   A shop's header: the name on the left, the departments next to it, then search, your account
+   and the bag on the right. The magnifier rolls the search field out across the departments,
+   which slide away under it, and turns into the close button; Esc or a click elsewhere rolls it
+   back. The bag counts what's in it: change data-count and the figures roll, the bag gives a
+   little bounce. Below 900 px the departments wait behind a Menu button: the page slides aside
+   and scales back, and the menu is revealed underneath it, on the right (Side Reveal Menu),
+   written from the same links. The bag stays in the bar.
+   Mark the wrapper of your site with data-header-shop-page, or name it with data-page="…" (the
+   wrapper of most WordPress themes is found on its own).
+   Everything is tuned with the --kz-header-shop-* variables (--kz-header-shop-menu-* for the
+   menu). */
+.kodza-header-shop {
+  --kz-header-shop-bg: #f2f2f0;
+  --kz-header-shop-fg: #0a0a0a;
+  --kz-header-shop-muted: rgba(10, 10, 10, 0.62);
+  --kz-header-shop-soft: rgba(10, 10, 10, 0.06); /* the round buttons under the pointer, the Menu button */
+  --kz-header-shop-rule: rgba(10, 10, 10, 0.1);
+  --kz-header-shop-field: color-mix(in srgb, var(--kz-header-shop-fg) 6%, var(--kz-header-shop-bg)); /* the search field */
+  --kz-header-shop-top: var(--wp-admin--admin-bar--height, 0px); /* below the WordPress admin bar */
+  --kz-header-shop-height: 72px;
+  --kz-header-shop-width: 1200px; /* the row, centred */
+  --kz-header-shop-pad: 24px;
+  --kz-header-shop-search-duration: 0.6s;
+  --kz-header-shop-search-ease: cubic-bezier(0.76, 0, 0.24, 1);
+  /* The menu, below 900 px */
+  --kz-header-shop-menu-bg: #0a0a0a;
+  --kz-header-shop-menu-fg: #f2f2f0;
+  --kz-header-shop-menu-muted: rgba(242, 242, 240, 0.62);
+  --kz-header-shop-menu-top: calc(var(--wp-admin--admin-bar--height, 0px) + 20px); /* Close lands on Menu on its own; this is where it goes if Menu is somewhere else */
+  --kz-header-shop-menu-side: 24px;
+  --kz-header-shop-menu-width: min(clamp(340px, 40cqw, 560px), calc(100cqw - 56px));
+  --kz-header-shop-menu-size: clamp(36px, min(4.6cqw + 8px, calc((100cqh - 300px) / 6.6)), 72px);
+  --kz-header-shop-menu-depth: 0.88; /* the page's size once it has stepped aside */
+  --kz-header-shop-menu-shadow: 0 32px 80px -24px rgba(0, 0, 0, 0.45);
+  --kz-header-shop-menu-shade: 0.5; /* how dark the page gets when the menu slides over it */
+  --kz-header-shop-menu-duration: 1s;
+  --kz-header-shop-menu-ease: cubic-bezier(0.76, 0, 0.24, 1);
+  --kz-header-shop-page: auto; /* the page colour while it steps aside; auto = the first background above it */
+
+  position: sticky;
+  top: var(--kz-header-shop-top);
+  z-index: 50;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--kz-header-shop-bg);
+  box-shadow: inset 0 -1px 0 var(--kz-header-shop-rule);
+  color: var(--kz-header-shop-fg);
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: inline-size;
+  -webkit-font-smoothing: antialiased;
+}
+
+.kodza-header-shop__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 24px;
+  box-sizing: border-box;
+  max-width: var(--kz-header-shop-width);
+  height: var(--kz-header-shop-height);
+  /* Centred like margin: auto, but spelled out: Chrome can report a stale 0 for an auto margin */
+  margin: 0 max(0px, calc((100% - var(--kz-header-shop-width)) / 2));
+  padding: 0 var(--kz-header-shop-pad);
+}
+
+.kodza-header-shop__logo {
+  display: inline-flex;
+  grid-column: 1;
+  grid-row: 1;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  margin: 0;
+  padding: 0 4px;
+  border-radius: 6px;
+  color: var(--kz-header-shop-fg);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: translate var(--kz-header-shop-search-duration) var(--kz-header-shop-search-ease), opacity 0.3s;
+}
+
+.kodza-header-shop__logo svg {
+  display: block;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.kodza-header-shop__logo:focus-visible {
+  outline: 2px solid var(--kz-header-shop-fg);
+  outline-offset: 2px;
+}
+
+/* The departments: they fade out as the search field rolls out over them, and come back as it
+   rolls away */
+.kodza-header-shop__menu {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  margin: -4px 44px -4px -4px; /* room for the focus rings; the magnifier sits on the right */
+  padding: 4px;
+  overflow: clip;
+}
+
+.kodza-header-shop__links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: opacity 0.35s calc(var(--kz-header-shop-search-duration) * 0.3);
+}
+
+.kodza-header-shop__links > li {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A line draws itself under the link pointed at, from the left, and leaves to the right */
+.kodza-header-shop__item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: 8px;
+  color: var(--kz-header-shop-muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.kodza-header-shop__item::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 9px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-shop__item[aria-current="page"],
+.kodza-header-shop__item:focus-visible {
+  color: var(--kz-header-shop-fg);
+}
+
+.kodza-header-shop__item:focus-visible {
+  outline: 2px solid var(--kz-header-shop-fg);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .kodza-header-shop__item:hover {
+    color: var(--kz-header-shop-fg);
+  }
+
+  .kodza-header-shop__item:hover::after {
+    transform: scaleX(1);
+    transform-origin: 0% 50%;
+  }
+}
+
+.kodza-header-shop__item[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+.kodza-header-shop.is-searching .kodza-header-shop__links {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Search: the field rolls out from the magnifier, leftwards, over the departments; the
+   magnifier rides its edge, and Close is left where it was */
+.kodza-header-shop__search {
+  position: relative;
+  display: flex;
+  grid-column: 2;
+  grid-row: 1;
+  justify-content: flex-end;
+  align-items: center;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+/* The field grows from the button's own circle, its outline whole all the way, and melts back
+   into it on the way home */
+.kodza-header-shop__field {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  border-radius: 20px;
+  background: var(--kz-header-shop-field);
+  box-shadow: inset 0 0 0 1px var(--kz-header-shop-rule);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    width var(--kz-header-shop-search-duration) var(--kz-header-shop-search-ease),
+    box-shadow 0.2s,
+    opacity 0.2s calc(var(--kz-header-shop-search-duration) * 0.8),
+    visibility 0s linear calc(var(--kz-header-shop-search-duration) * 0.8 + 0.2s);
+}
+
+.kodza-header-shop__search.is-open .kodza-header-shop__field {
+  width: 100%;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    width var(--kz-header-shop-search-duration) var(--kz-header-shop-search-ease),
+    box-shadow 0.2s,
+    opacity 0s,
+    visibility 0s;
+}
+
+.kodza-header-shop__field:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-header-shop-fg);
+}
+
+.kodza-header-shop__input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 44px;
+  border: 0;
+  border-radius: 20px;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  color: var(--kz-header-shop-fg);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: -0.01em;
+  caret-color: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: color 0.12s, caret-color 0.01s;
+}
+
+.kodza-header-shop__search.is-open .kodza-header-shop__input {
+  caret-color: var(--kz-header-shop-fg);
+  transition: color 0.3s calc(var(--kz-header-shop-search-duration) * 0.9), caret-color 0.01s calc(var(--kz-header-shop-search-duration) * 0.9);
+}
+
+.kodza-header-shop__search:not(.is-open) .kodza-header-shop__input {
+  color: transparent;
+}
+
+/* The hint waits for the magnifier to land, so the two never cross */
+.kodza-header-shop__input::placeholder {
+  color: transparent;
+  opacity: 1;
+  transition: color 0.12s;
+}
+
+.kodza-header-shop__search.is-open .kodza-header-shop__input::placeholder {
+  color: var(--kz-header-shop-muted);
+  transition: color 0.3s calc(var(--kz-header-shop-search-duration) * 0.9);
+}
+
+.kodza-header-shop__input::-webkit-search-cancel-button,
+.kodza-header-shop__input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* The round buttons: search, account, bag */
+.kodza-header-shop__find,
+.kodza-header-shop__account,
+.kodza-header-shop__cart {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--kz-header-shop-fg);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s;
+}
+
+.kodza-header-shop__find {
+  pointer-events: auto;
+}
+
+@media (hover: hover) {
+  .kodza-header-shop__account:hover,
+  .kodza-header-shop__cart:hover {
+    background: var(--kz-header-shop-soft);
+  }
+}
+
+/* The search button's disc sits on its own layer: open, the field is the circle, so the disc
+   steps out at once, and on the way home it waits for the field to melt into it */
+.kodza-header-shop__find {
+  isolation: isolate;
+}
+
+.kodza-header-shop__find::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: transparent;
+  transition: background-color 0.2s, opacity 0.2s calc(var(--kz-header-shop-search-duration) * 0.8);
+}
+
+@media (hover: hover) {
+  .kodza-header-shop__find:hover::before {
+    background: var(--kz-header-shop-soft);
+  }
+}
+
+.kodza-header-shop__search.is-open .kodza-header-shop__find::before {
+  opacity: 0;
+  transition: background-color 0.2s, opacity 0.15s;
+}
+
+.kodza-header-shop__find:focus-visible,
+.kodza-header-shop__account:focus-visible,
+.kodza-header-shop__cart:focus-visible {
+  outline: 2px solid var(--kz-header-shop-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-shop__find svg,
+.kodza-header-shop__account svg,
+.kodza-header-shop__bag {
+  display: block;
+  grid-area: 1 / 1;
+  width: 21px;
+  height: 21px;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-header-shop__bag {
+  width: 22px;
+  height: 22px;
+  transform-origin: 50% 85%;
+}
+
+/* The magnifier leaves the button for the far end of the field; a cross turns into its place */
+.kodza-header-shop__glass {
+  transition: translate var(--kz-header-shop-search-duration) var(--kz-header-shop-search-ease);
+}
+
+.kodza-header-shop__search.is-open .kodza-header-shop__glass {
+  translate: calc(-1 * var(--kz-header-shop-run, 0px)) 0;
+  pointer-events: none;
+}
+
+.kodza-header-shop__x {
+  position: relative;
+  grid-area: 1 / 1;
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  scale: 0.6;
+  rotate: -45deg;
+  transition:
+    opacity 0.2s,
+    scale 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    rotate 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-shop__search.is-open .kodza-header-shop__x {
+  opacity: 1;
+  scale: 1;
+  rotate: 0deg;
+  transition:
+    opacity 0.25s calc(var(--kz-header-shop-search-duration) * 0.45),
+    scale 0.45s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--kz-header-shop-search-duration) * 0.45),
+    rotate 0.45s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--kz-header-shop-search-duration) * 0.45);
+}
+
+.kodza-header-shop__x::before,
+.kodza-header-shop__x::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.6px;
+  margin-top: -0.8px;
+  border-radius: 1px;
+  background: currentColor;
+  rotate: 45deg;
+}
+
+.kodza-header-shop__x::after {
+  rotate: -45deg;
+}
+
+.kodza-header-shop__end {
+  display: flex;
+  grid-column: 3;
+  grid-row: 1;
+  align-items: center;
+  justify-self: end;
+  gap: 4px;
+  margin: 0;
+}
+
+/* The bag's count: the figures roll when it changes, and the bag bounces */
+.kodza-header-shop__count {
+  position: absolute;
+  top: 2px;
+  left: calc(50% + 2px);
+  display: inline-flex;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--kz-header-shop-fg);
+  box-shadow: 0 0 0 2px var(--kz-header-shop-bg);
+  color: var(--kz-header-shop-bg);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s;
+}
+
+.kodza-header-shop__cart[data-count="0"] .kodza-header-shop__count,
+.kodza-header-shop__cart:not([data-count]) .kodza-header-shop__count {
+  opacity: 0;
+  transform: scale(0.3);
+  transition: transform 0.25s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.2s 0.05s;
+}
+
+.kodza-header-shop__digit {
+  position: relative;
+  display: block;
+  height: 18px;
+  overflow: hidden;
+}
+
+.kodza-header-shop__digit > span {
+  display: block;
+}
+
+.kodza-header-shop__digit > span + span {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* The Menu button, and Close in the menu */
+.kodza-header-shop__toggle,
+.kodza-header-shop__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-shop__toggle {
+  margin-left: 4px;
+  background: var(--kz-header-shop-soft);
+  color: var(--kz-header-shop-fg);
+}
+
+.kodza-header-shop__close {
+  background: var(--kz-header-shop-menu-fg);
+  color: var(--kz-header-shop-menu-bg);
+}
+
+.kodza-header-shop__toggle:focus-visible {
+  outline: 2px solid var(--kz-header-shop-fg);
+  outline-offset: 3px;
+}
+
+.kodza-header-shop__close:focus-visible,
+.kodza-header-shop__info a:focus-visible {
+  outline: 2px solid var(--kz-header-shop-menu-fg);
+  outline-offset: 4px;
+}
+
+.kodza-header-shop__link:focus-visible {
+  outline: none;
+}
+
+/* Two lines on the button: they meet and cross as the page leaves, and Close is uncovered with
+   them crossed, in the same place */
+.kodza-header-shop__lines,
+.kodza-header-shop__cross {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 8px;
+}
+
+.kodza-header-shop__lines::before,
+.kodza-header-shop__lines::after,
+.kodza-header-shop__cross::before,
+.kodza-header-shop__cross::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  /* On its own layer: drawn the same way at rest and while turning, so no snap at the end */
+  will-change: transform;
+}
+
+.kodza-header-shop__lines::before,
+.kodza-header-shop__cross::before {
+  top: 0;
+}
+
+.kodza-header-shop__lines::after,
+.kodza-header-shop__cross::after {
+  top: 6px; /* whole pixels: both lines sit on the pixel grid the same way */
+}
+
+.kodza-header-shop__lines::before,
+.kodza-header-shop__lines::after {
+  transition: clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Whole at rest, as an inset: the pointer slides it to a shorter one (from none it would jump) */
+.kodza-header-shop__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-header-shop__toggle:hover .kodza-header-shop__lines::after {
+  clip-path: inset(0 45% 0 0);
+}
+
+.kodza-header-shop__toggle[aria-expanded="true"] .kodza-header-shop__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-header-shop__cross::before {
+  translate: 0 3px;
+  rotate: 45deg;
+}
+
+.kodza-header-shop__cross::after {
+  translate: 0 -3px;
+  rotate: -45deg;
+}
+
+/* The word rolls in from below its mask */
+.kodza-header-shop__say {
+  display: grid;
+  margin: -3px 0;
+  padding: 3px 0;
+  overflow: hidden;
+}
+
+.kodza-header-shop__say > span {
+  display: block;
+}
+
+/* The menu: the whole screen, under the page while it is open (over it when there is none) */
+.kodza-header-shop__panel {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--kz-header-shop-menu-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: size;
+  -webkit-font-smoothing: antialiased;
+}
+
+.kodza-header-shop__panel[hidden] {
+  display: none;
+}
+
+.kodza-header-shop__panel:focus {
+  outline: none;
+}
+
+.kodza-header-shop__ground,
+.kodza-header-shop__shade {
+  position: absolute;
+  inset: 0;
+}
+
+.kodza-header-shop__ground {
+  background: var(--kz-header-shop-menu-bg);
+  pointer-events: none;
+}
+
+/* The card's shadow: under the page, on the same path (the script places it) */
+.kodza-header-shop__card {
+  position: absolute;
+  inset: 0;
+  box-shadow: var(--kz-header-shop-menu-shadow);
+  pointer-events: none;
+}
+
+/* Without a page the menu slides in over it, and the page dims; a click on it closes */
+.kodza-header-shop__shade {
+  display: none;
+  background: rgba(0, 0, 0, var(--kz-header-shop-menu-shade));
+  cursor: pointer;
+}
+
+.kodza-header-shop__panel.is-flat .kodza-header-shop__shade {
+  display: block;
+}
+
+.kodza-header-shop__panel.is-flat .kodza-header-shop__ground,
+.kodza-header-shop__panel.is-flat .kodza-header-shop__card {
+  display: none;
+}
+
+/* The column on the right: it scrolls on its own on a short screen */
+.kodza-header-shop__side {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  box-sizing: border-box;
+  width: var(--kz-header-shop-menu-width);
+  padding: 0 var(--kz-header-shop-menu-side) clamp(20px, 4cqh, 36px) clamp(28px, 3.4cqw, 48px);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  background: var(--kz-header-shop-menu-bg);
+}
+
+.kodza-header-shop__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: var(--kz-header-shop-menu-top);
+}
+
+.kodza-header-shop__label,
+.kodza-header-shop__index,
+.kodza-header-shop__small {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-header-shop-menu-muted);
+}
+
+.kodza-header-shop__label {
+  margin: 0;
+}
+
+/* The links, big, in the middle of the column */
+.kodza-header-shop__nav {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  padding: 32px 0;
+}
+
+.kodza-header-shop__link {
+  display: grid;
+  grid-template-columns: 36px max-content;
+  align-items: start;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.kodza-header-shop__index {
+  padding-top: calc(var(--kz-header-shop-menu-size) * 0.14);
+  transition: color 0.25s;
+}
+
+/* The mask has the size of its word, so its room for descenders (g, j, p, q, y) and its step
+   aside are measured on the word */
+.kodza-header-shop__mask {
+  display: block;
+  margin: -0.06em 0 -0.22em;
+  padding: 0.06em 0 0.22em;
+  overflow: hidden;
+  font-size: var(--kz-header-shop-menu-size);
+  transition: translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-shop__word {
+  display: block;
+  font-size: var(--kz-header-shop-menu-size);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+}
+
+/* Pointed at: the word steps aside and its number lights up. A link's focus is drawn on its
+   word, so it rises with it instead of waiting there as an empty box */
+.kodza-header-shop__link:hover .kodza-header-shop__mask,
+.kodza-header-shop__link:focus-visible .kodza-header-shop__mask {
+  translate: 0.14em 0;
+}
+
+.kodza-header-shop__link:hover .kodza-header-shop__index,
+.kodza-header-shop__link:focus-visible .kodza-header-shop__index {
+  color: var(--kz-header-shop-menu-fg);
+}
+
+.kodza-header-shop__link:focus-visible .kodza-header-shop__word {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.12em;
+}
+
+.kodza-header-shop__info {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 16px;
+}
+
+.kodza-header-shop__info p {
+  margin: 0;
+}
+
+/* Two short lines in one paragraph, one under the other */
+.kodza-header-shop__pair {
+  display: grid;
+  justify-items: start;
+}
+
+.kodza-header-shop__info > .kodza-header-shop__small {
+  grid-column: 1 / -1;
+}
+
+.kodza-header-shop__group {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+}
+
+.kodza-header-shop__info a {
+  color: var(--kz-header-shop-menu-fg);
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-header-shop__info a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* A narrow column: the contact details one under the other */
+@container (max-width: 520px) {
+  .kodza-header-shop__info {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+}
+
+
+/* Under 900 px the departments and the account wait in the menu: the name, the magnifier, the
+   bag and Menu stay; the field rolls out over the name */
+@container (max-width: 899px) {
+  .kodza-header-shop__row {
+    gap: 0 12px;
+  }
+
+  .kodza-header-shop__menu,
+  .kodza-header-shop__account {
+    display: none;
+  }
+
+  .kodza-header-shop__search {
+    grid-column: 1 / 3;
+  }
+
+  .kodza-header-shop.is-searching .kodza-header-shop__logo {
+    translate: -16px 0;
+    opacity: 0;
+  }
+}
+
+@container (min-width: 900px) {
+  .kodza-header-shop__toggle {
+    display: none;
+  }
+}
+
+/* A phone: a little less room on the sides */
+@container (max-width: 519px) {
+  .kodza-header-shop__row {
+    --kz-header-shop-pad: 16px;
+    gap: 0 8px;
+  }
+
+  .kodza-header-shop__end {
+    gap: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-header-shop__logo,
+  .kodza-header-shop__links,
+  .kodza-header-shop__item,
+  .kodza-header-shop__item::after,
+  .kodza-header-shop__field,
+  .kodza-header-shop__input,
+  .kodza-header-shop__find::before,
+  .kodza-header-shop__glass,
+  .kodza-header-shop__x,
+  .kodza-header-shop__input::placeholder,
+  .kodza-header-shop__count,
+  .kodza-header-shop__toggle *,
+  .kodza-header-shop__toggle *::before,
+  .kodza-header-shop__toggle *::after,
+  .kodza-header-shop__mask,
+  .kodza-header-shop__index {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Dark site: the bar turns to ink, its words to paper, and the menu underneath to paper
+.dark-section .kodza-header-shop {
+  --kz-header-shop-bg: #0a0a0a;
+  --kz-header-shop-fg: #f2f2f0;
+  --kz-header-shop-muted: rgba(242, 242, 240, 0.62);
+  --kz-header-shop-soft: rgba(242, 242, 240, 0.08);
+  --kz-header-shop-rule: rgba(242, 242, 240, 0.12);
+  --kz-header-shop-menu-bg: #f2f2f0;
+  --kz-header-shop-menu-fg: #0a0a0a;
+  --kz-header-shop-menu-muted: rgba(10, 10, 10, 0.62);
+}
+*/
+
+/* kodza-guard e82ff539343d — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-header-shop__logo):not(#_),
+:where(.kodza-header-shop__item):not(#_),
+:where(.kodza-header-shop__find):not(#_),
+:where(.kodza-header-shop__account):not(#_),
+:where(.kodza-header-shop__cart):not(#_),
+:where(.kodza-header-shop__toggle):not(#_),
+:where(.kodza-header-shop__close):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-header-shop__panel):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-header-shop__pair a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  text-underline-offset: revert;
+}
+
+:where(.kodza-header-shop__menu):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-header-shop__menu):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-header-shop:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__logo:not(#_) {
+  border: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__menu:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__links:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__item:not(#_) {
+  border: revert;
+  list-style: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__search:not(#_),
+.kodza-header-shop__field:not(#_),
+.kodza-header-shop__x:not(#_),
+.kodza-header-shop__end:not(#_),
+.kodza-header-shop__lines:not(#_),
+.kodza-header-shop__ground:not(#_),
+.kodza-header-shop__card:not(#_),
+.kodza-header-shop__shade:not(#_),
+.kodza-header-shop__bar:not(#_),
+.kodza-header-shop__cross:not(#_),
+.kodza-header-shop__say:not(#_),
+.kodza-header-shop__index:not(#_),
+.kodza-header-shop__mask:not(#_),
+.kodza-header-shop__word:not(#_),
+.kodza-header-shop__info:not(#_),
+.kodza-header-shop__group:not(#_),
+.kodza-header-shop__logo span:where(:not([class*="kodza-"])):not(#_),
+.kodza-header-shop__say span:where(:not([class*="kodza-"])):not(#_),
+.kodza-header-shop__pair span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-header-shop__input:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-header-shop__find:not(#_) {
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-header-shop__glass:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__account:not(#_),
+.kodza-header-shop__cart:not(#_) {
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__bag:not(#_),
+.kodza-header-shop__logo svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-header-shop__account svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__toggle:not(#_),
+.kodza-header-shop__close:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-header-shop__panel:not(#_) {
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+.kodza-header-shop__label:not(#_),
+.kodza-header-shop__small:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__nav:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__pair:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__links li:where(:not([class*="kodza-"]):not(.kodza-header-shop__links [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__field input:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-header-shop__pair a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-shop__label:not(#_):where(:not([hidden])),
+.kodza-header-shop__small:not(#_):where(:not([hidden])),
+.kodza-header-shop__field input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-header-shop__pair a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-header-shop__label:not(#_):where([hidden]),
+.kodza-header-shop__small:not(#_):where([hidden]),
+.kodza-header-shop__field input:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-header-shop__pair a:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-header-shop__item:not(#_)::after,
+.kodza-header-shop__find:not(#_)::before,
+.kodza-header-shop__x:not(#_)::before,
+.kodza-header-shop__x:not(#_)::after,
+.kodza-header-shop__lines:not(#_)::before,
+.kodza-header-shop__lines:not(#_)::after,
+.kodza-header-shop__cross:not(#_)::before,
+.kodza-header-shop__cross:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-header-shop:not(#_) {
+  position: sticky;
+  display: block;
+  box-sizing: border-box;
+  padding: 0;
+  background: var(--kz-header-shop-bg);
+  box-shadow: inset 0 -1px 0 var(--kz-header-shop-rule);
+  color: var(--kz-header-shop-fg);
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.kodza-header-shop__logo:not(#_) {
+  display: inline-flex;
+  margin: 0;
+  padding: 0 4px;
+  border-radius: 6px;
+  color: var(--kz-header-shop-fg);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  text-decoration: none;
+  transition: translate var(--kz-header-shop-search-duration) var(--kz-header-shop-search-ease), opacity 0.3s;
+}
+
+.kodza-header-shop__logo svg:not(#_) {
+  display: block;
+}
+
+.kodza-header-shop__logo:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-shop-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-shop__menu:not(#_) {
+  margin: -4px 44px -4px -4px;
+  padding: 4px;
+}
+
+.kodza-header-shop__links:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: opacity 0.35s calc(var(--kz-header-shop-search-duration) * 0.3);
+}
+
+.kodza-header-shop__links > li:not(#_) {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-shop__item:not(#_) {
+  position: relative;
+  display: inline-flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: 8px;
+  color: var(--kz-header-shop-muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.kodza-header-shop__item[aria-current="page"]:not(#_),
+.kodza-header-shop__item:focus-visible:not(#_) {
+  color: var(--kz-header-shop-fg);
+}
+
+.kodza-header-shop__item:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-shop-fg);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .kodza-header-shop__item:hover:not(#_) {
+    color: var(--kz-header-shop-fg);
+  }
+}
+
+.kodza-header-shop.is-searching .kodza-header-shop__links:not(#_) {
+  transition: opacity 0.3s;
+}
+
+.kodza-header-shop__input:not(#_) {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 44px;
+  border: 0;
+  border-radius: 20px;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  color: var(--kz-header-shop-fg);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: -0.01em;
+  caret-color: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: color 0.12s, caret-color 0.01s;
+}
+
+.kodza-header-shop__search.is-open .kodza-header-shop__input:not(#_) {
+  caret-color: var(--kz-header-shop-fg);
+  transition: color 0.3s calc(var(--kz-header-shop-search-duration) * 0.9), caret-color 0.01s calc(var(--kz-header-shop-search-duration) * 0.9);
+}
+
+.kodza-header-shop__search:not(.is-open) .kodza-header-shop__input:not(#_) {
+  color: transparent;
+}
+
+.kodza-header-shop__input:not(#_)::placeholder {
+  color: transparent;
+  opacity: 1;
+  transition: color 0.12s;
+}
+
+.kodza-header-shop__search.is-open .kodza-header-shop__input:not(#_)::placeholder {
+  color: var(--kz-header-shop-muted);
+  transition: color 0.3s calc(var(--kz-header-shop-search-duration) * 0.9);
+}
+
+.kodza-header-shop__input:not(#_)::-webkit-search-cancel-button,
+.kodza-header-shop__input:not(#_)::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.kodza-header-shop__find:not(#_) {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--kz-header-shop-fg);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s;
+}
+
+.kodza-header-shop__account:not(#_),
+.kodza-header-shop__cart:not(#_) {
+  position: relative;
+  display: inline-grid;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--kz-header-shop-fg);
+  font: inherit;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.kodza-header-shop__find:not(#_) {
+  pointer-events: auto;
+}
+
+@media (hover: hover) {
+  .kodza-header-shop__account:hover:not(#_),
+  .kodza-header-shop__cart:hover:not(#_) {
+    background: var(--kz-header-shop-soft);
+  }
+}
+
+.kodza-header-shop__find:not(#_) {
+  isolation: isolate;
+}
+
+.kodza-header-shop__find:not(#_)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: transparent;
+  transition: background-color 0.2s, opacity 0.2s calc(var(--kz-header-shop-search-duration) * 0.8);
+}
+
+@media (hover: hover) {
+  .kodza-header-shop__find:hover:not(#_)::before {
+    background: var(--kz-header-shop-soft);
+  }
+}
+
+.kodza-header-shop__search.is-open .kodza-header-shop__find:not(#_)::before {
+  opacity: 0;
+  transition: background-color 0.2s, opacity 0.15s;
+}
+
+.kodza-header-shop__find:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-shop-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-shop__account:focus-visible:not(#_),
+.kodza-header-shop__cart:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-shop-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-shop__find svg:not(#_),
+.kodza-header-shop__account svg:not(#_),
+.kodza-header-shop__bag:not(#_) {
+  display: block;
+}
+
+.kodza-header-shop__glass:not(#_) {
+  transition: translate var(--kz-header-shop-search-duration) var(--kz-header-shop-search-ease);
+}
+
+.kodza-header-shop__toggle:not(#_),
+.kodza-header-shop__close:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-shop__toggle:not(#_) {
+  margin-left: 4px;
+  background: var(--kz-header-shop-soft);
+  color: var(--kz-header-shop-fg);
+}
+
+.kodza-header-shop__close:not(#_) {
+  background: var(--kz-header-shop-menu-fg);
+  color: var(--kz-header-shop-menu-bg);
+}
+
+.kodza-header-shop__toggle:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-shop-fg);
+  outline-offset: 3px;
+}
+
+.kodza-header-shop__close:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-shop-menu-fg);
+  outline-offset: 4px;
+}
+
+.kodza-header-shop__info a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-shop-menu-fg);
+  outline-offset: 4px;
+}
+
+.kodza-header-shop__link:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-header-shop__panel:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-header-shop__label:not(#_),
+.kodza-header-shop__small:not(#_) {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-header-shop-menu-muted);
+}
+
+.kodza-header-shop__label:not(#_) {
+  margin: 0;
+}
+
+.kodza-header-shop__nav:not(#_) {
+  display: grid;
+  padding: 32px 0;
+}
+
+.kodza-header-shop__link:not(#_) {
+  display: grid;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.kodza-header-shop__info p:not(#_) {
+  margin: 0;
+}
+
+.kodza-header-shop__pair:not(#_) {
+  display: grid;
+}
+
+.kodza-header-shop__info a:not(#_) {
+  color: var(--kz-header-shop-menu-fg);
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-header-shop__info a:hover:not(#_) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+@container (max-width: 899px) {
+  .kodza-header-shop__menu:not(#_),
+  .kodza-header-shop__account:not(#_) {
+    display: none;
+  }
+}
+
+@container (min-width: 900px) {
+  .kodza-header-shop__toggle:not(#_) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-header-shop__logo:not(#_),
+  .kodza-header-shop__links:not(#_),
+  .kodza-header-shop__item:not(#_),
+  .kodza-header-shop__glass:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-header-shop__input:not(#_),
+  .kodza-header-shop__find:not(#_)::before,
+  .kodza-header-shop__input:not(#_)::placeholder {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

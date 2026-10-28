@@ -49,7 +49,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 142. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 148. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -76,7 +76,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-142 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+148 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
 
 ### Buttons
 
@@ -299,6 +299,17 @@ Written like it's going live tomorrow. Because it probably is.
 | [Hero Split](components/hero-split/) | A split hero, words on the left and a 4:5 picture on the right: the title lines rise out of their masks while the picture opens from the top edge down. | [Demo](https://kodza.dev/components/hero-split/) |
 | [Hero Statement](components/hero-statement/) | A studio statement set very large over a mono line with the city, a live local time and the booking window. The words rise out of their masks one after the other on load. | [Demo](https://kodza.dev/components/hero-statement/) |
 | [Hero Wordmark](components/hero-wordmark/) | A hero that sets the name across the whole width, ink edge to ink edge: its letters rise one by one and a wide picture opens right under them. | [Demo](https://kodza.dev/components/hero-wordmark/) |
+
+### Header
+
+| Component | What it does | |
+| --- | --- | --- |
+| [Header Announcement](components/header-announcement/) | A site header with a strip of news on top: messages roll and pause on hover or focus; the cross folds the strip, the header slides up without a jump, and it stays closed. Below 900 px, a shutter menu. | [Demo](https://kodza.dev/components/header-announcement/) |
+| [Header Centered](components/header-centered/) | A centred header for a restaurant or a shop: the name in the middle, links on both sides, a line above that says whether it's open now. On scroll the bar tightens; below 900 px, a full-screen menu. | [Demo](https://kodza.dev/components/header-centered/) |
+| [Header Classic](components/header-classic/) | A site header with a logo, links and one button: a line glides under the links, front edge first, and returns under the current page; below 900 px the links become a shutter menu. | [Demo](https://kodza.dev/components/header-classic/) |
+| [Header Mega](components/header-mega/) | A full site header whose mega menus share one panel: from a link to the next it changes shape and slides instead of closing, a soft pill follows the pointer, and below 900 px the links become a drawer with levels. | [Demo](https://kodza.dev/components/header-mega/) |
+| [Header Overlay](components/header-overlay/) | A transparent header over the hero photo: once the hero passes under it, a solid bar comes down and the text turns dark along its edge; below 900 px, a full-screen menu. | [Demo](https://kodza.dev/components/header-overlay/) |
+| [Header Shop](components/header-shop/) | A shop header: the name, the categories, a search that opens over them, the account and a bag whose count rolls when something is added. Below 900 px, a menu the page steps aside for. | [Demo](https://kodza.dev/components/header-shop/) |
 
 ## About this repository
 

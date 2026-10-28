@@ -1,0 +1,1652 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Header Announcement
+   A header with a strip of news on top. The messages roll one after the other (the old one goes
+   up, the next one comes from below) and wait while you read; the cross folds the strip away,
+   the header slides up in its place, and the site remembers. A new message comes back on its own.
+   Below 900 px the links give way to a Menu button and a shutter that comes down under the
+   header, written from the same links. Everything is tuned with the --kz-header-announcement-*
+   variables (--kz-header-announcement-strip-* for the strip, -menu-* for the shutter). */
+.kodza-header-announcement {
+  --kz-header-announcement-bg: transparent;
+  --kz-header-announcement-fg: #0a0a0a;
+  --kz-header-announcement-muted: rgba(10, 10, 10, 0.62);
+  --kz-header-announcement-soft: rgba(10, 10, 10, 0.06); /* the Menu button */
+  --kz-header-announcement-ink: #0a0a0a; /* the call to action */
+  --kz-header-announcement-on-ink: #ffffff;
+  --kz-header-announcement-height: 72px;
+  --kz-header-announcement-width: 1200px; /* the row, centred */
+  --kz-header-announcement-pad: 24px;
+  --kz-header-announcement-strip-bg: #0a0a0a; /* the strip of news */
+  --kz-header-announcement-strip-fg: #f2f2f0;
+  --kz-header-announcement-strip-muted: rgba(242, 242, 240, 0.62);
+  --kz-header-announcement-strip-height: 40px;
+  --kz-header-announcement-interval: 4.5s; /* how long each message stays */
+  --kz-header-announcement-roll: 0.7s; /* one message rolling to the next */
+  --kz-header-announcement-fold: 0.6s; /* the strip folding away */
+  --kz-header-announcement-menu-bg: #0a0a0a; /* the shutter, below 900 px */
+  --kz-header-announcement-menu-fg: #f2f2f0;
+  --kz-header-announcement-menu-muted: rgba(242, 242, 240, 0.62);
+  --kz-header-announcement-menu-line: rgba(242, 242, 240, 0.16);
+  --kz-header-announcement-menu-top: auto; /* where the shutter starts; auto = the bottom of the header */
+  --kz-header-announcement-menu-side: 24px;
+  --kz-header-announcement-menu-size: clamp(34px, min(10cqw, calc((100cqh - 240px) / 6)), 96px);
+  --kz-header-announcement-menu-duration: 0.8s;
+  --kz-header-announcement-menu-ease: cubic-bezier(0.76, 0, 0.24, 1);
+
+  position: relative;
+  z-index: 60;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--kz-header-announcement-bg);
+  color: var(--kz-header-announcement-fg);
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: inline-size;
+}
+
+/* The strip: a grid row that folds from 1fr to 0fr, so the header under it slides up as it goes,
+   never jumps. Its content clips from the bottom, like a blind rolled up */
+.kodza-header-announcement__strip {
+  display: grid;
+  grid-template-rows: 1fr;
+  margin: 0;
+  padding: 0;
+  background: var(--kz-header-announcement-strip-bg);
+  color: var(--kz-header-announcement-strip-fg);
+  -webkit-font-smoothing: antialiased;
+  transition: grid-template-rows var(--kz-header-announcement-fold) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-header-announcement__strip.is-dismissed {
+  grid-template-rows: 0fr;
+}
+
+.kodza-header-announcement__strip[hidden] {
+  display: none;
+}
+
+/* The message in the middle, the cross on the right: the same width either side keeps the
+   message in the true centre */
+.kodza-header-announcement__fold {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--kz-header-announcement-width);
+  min-height: 0;
+  margin: 0 auto;
+  padding: 0 calc(var(--kz-header-announcement-pad) - 8px);
+  overflow: hidden;
+}
+
+/* Folding away: the message lifts a little and dims while the strip closes over it */
+.kodza-header-announcement__fold > * {
+  transition:
+    translate var(--kz-header-announcement-fold) cubic-bezier(0.65, 0, 0.35, 1),
+    opacity calc(var(--kz-header-announcement-fold) * 0.6);
+}
+
+.kodza-header-announcement__strip.is-dismissed .kodza-header-announcement__fold > * {
+  translate: 0 -10px;
+  opacity: 0;
+}
+
+/* The messages share one cell; the strip's own height is their mask */
+.kodza-header-announcement__news {
+  display: grid;
+  grid-column: 2;
+  height: var(--kz-header-announcement-strip-height);
+  overflow: hidden;
+}
+
+.kodza-header-announcement__message {
+  grid-area: 1 / 1;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: var(--kz-header-announcement-strip-height);
+  letter-spacing: -0.005em;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Without the script, the first message alone; with it, the one it shows */
+.kodza-header-announcement__message + .kodza-header-announcement__message,
+.kodza-header-announcement.is-ready .kodza-header-announcement__message {
+  visibility: hidden;
+}
+
+.kodza-header-announcement.is-ready .kodza-header-announcement__message.is-shown {
+  visibility: visible;
+}
+
+.kodza-header-announcement__message a {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-header-announcement__message a span {
+  display: inline-block;
+  margin-left: 2px;
+  transition: translate 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .kodza-header-announcement__message a:hover span {
+    translate: 3px 0;
+  }
+}
+
+.kodza-header-announcement__message a:focus-visible {
+  outline: 2px solid var(--kz-header-announcement-strip-fg);
+  outline-offset: 2px;
+}
+
+/* The cross: two strokes, dim until pointed at */
+.kodza-header-announcement__dismiss {
+  position: relative;
+  display: block;
+  grid-column: 3;
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--kz-header-announcement-strip-muted);
+  cursor: pointer;
+  /* Its own colours, and the fold it shares with the messages */
+  transition:
+    color 0.2s,
+    background-color 0.2s,
+    translate var(--kz-header-announcement-fold) cubic-bezier(0.65, 0, 0.35, 1),
+    opacity calc(var(--kz-header-announcement-fold) * 0.6);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .kodza-header-announcement__dismiss:hover {
+    background: color-mix(in srgb, var(--kz-header-announcement-strip-fg) 12%, transparent);
+    color: var(--kz-header-announcement-strip-fg);
+  }
+}
+
+.kodza-header-announcement__dismiss:focus-visible {
+  color: var(--kz-header-announcement-strip-fg);
+  outline: 2px solid var(--kz-header-announcement-strip-fg);
+  outline-offset: 0;
+}
+
+.kodza-header-announcement__x {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 12px;
+  height: 12px;
+}
+
+.kodza-header-announcement__x::before,
+.kodza-header-announcement__x::after {
+  content: "";
+  position: absolute;
+  top: 5.25px;
+  left: 0;
+  width: 12px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  rotate: 45deg;
+}
+
+.kodza-header-announcement__x::after {
+  rotate: -45deg;
+}
+
+/* Three columns, the middle one as wide as the links: they sit in the true centre, whatever the
+   width of the logo and of the button */
+.kodza-header-announcement__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  box-sizing: border-box;
+  max-width: var(--kz-header-announcement-width);
+  height: var(--kz-header-announcement-height);
+  margin: 0 auto;
+  padding: 0 var(--kz-header-announcement-pad);
+}
+
+.kodza-header-announcement__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  height: 40px;
+  margin: 0;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-header-announcement__logo svg {
+  display: block;
+  flex: none;
+  fill: currentColor;
+}
+
+.kodza-header-announcement__menu {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-header-announcement__links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-announcement__links > li {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-announcement__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: 8px;
+  color: var(--kz-header-announcement-muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.kodza-header-announcement__link:hover,
+.kodza-header-announcement__link:focus-visible,
+.kodza-header-announcement__link[aria-current="page"] {
+  color: var(--kz-header-announcement-fg);
+}
+
+/* A hairline under the word: drawn from the left when pointed at, gone to the right after.
+   The page you are on keeps it */
+.kodza-header-announcement__link::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 8px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  scale: 0 1;
+  transform-origin: right center;
+  transition: scale 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-header-announcement__link:hover::after,
+.kodza-header-announcement__link[aria-current="page"]::after {
+  scale: 1 1;
+  transform-origin: left center;
+}
+
+.kodza-header-announcement__link:focus-visible,
+.kodza-header-announcement__logo:focus-visible {
+  outline: 2px solid var(--kz-header-announcement-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-announcement__end {
+  display: flex;
+  grid-column: 3;
+  align-items: center;
+  justify-self: end;
+  gap: 8px;
+  margin: 0;
+}
+
+.kodza-header-announcement__sign {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: var(--kz-header-announcement-muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.kodza-header-announcement__sign:hover {
+  color: var(--kz-header-announcement-fg);
+}
+
+.kodza-header-announcement__sign:focus-visible {
+  outline: 2px solid var(--kz-header-announcement-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-announcement__cta {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-announcement-ink);
+  color: var(--kz-header-announcement-on-ink);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-header-announcement__cta:hover {
+    background: color-mix(in srgb, var(--kz-header-announcement-ink) 84%, transparent);
+  }
+}
+
+.kodza-header-announcement__cta:focus-visible {
+  outline: 2px solid var(--kz-header-announcement-ink);
+  outline-offset: 3px;
+}
+
+/* The Menu button: two lines meet, then cross; the label rolls without changing the width */
+.kodza-header-announcement__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-header-announcement-soft);
+  color: var(--kz-header-announcement-fg);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-announcement__toggle:focus-visible {
+  outline: 2px solid var(--kz-header-announcement-fg);
+  outline-offset: 3px;
+}
+
+.kodza-header-announcement__lines {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 8px;
+}
+
+.kodza-header-announcement__lines::before,
+.kodza-header-announcement__lines::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  /* On its own layer: drawn the same way at rest and while turning, so no snap at the end */
+  will-change: transform;
+  /* Closing: they uncross first, then part */
+  transition:
+    rotate 0.22s cubic-bezier(0.65, 0, 0.35, 1),
+    translate 0.22s cubic-bezier(0.65, 0, 0.35, 1) 0.18s,
+    clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-announcement__lines::before {
+  top: 0;
+}
+
+.kodza-header-announcement__lines::after {
+  top: 6px; /* whole pixels: both lines sit on the pixel grid the same way */
+}
+
+/* Whole at rest, as an inset: the pointer slides it to a shorter one (from none it would jump) */
+.kodza-header-announcement__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-header-announcement__toggle:hover .kodza-header-announcement__lines::after {
+  clip-path: inset(0 45% 0 0);
+}
+
+.kodza-header-announcement__toggle[aria-expanded="true"] .kodza-header-announcement__lines::before,
+.kodza-header-announcement__toggle[aria-expanded="true"] .kodza-header-announcement__lines::after {
+  clip-path: inset(0 0 0 0);
+  transition:
+    translate 0.2s cubic-bezier(0.65, 0, 0.35, 1),
+    rotate 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.17s,
+    clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-announcement__toggle[aria-expanded="true"] .kodza-header-announcement__lines::before {
+  translate: 0 3px;
+  rotate: 45deg;
+}
+
+.kodza-header-announcement__toggle[aria-expanded="true"] .kodza-header-announcement__lines::after {
+  translate: 0 -3px;
+  rotate: -45deg;
+}
+
+.kodza-header-announcement__label {
+  display: grid;
+  margin: -3px 0;
+  padding: 3px 0;
+  overflow: hidden;
+}
+
+/* The script rolls the words both ways: the old one goes up, the new one comes up from below */
+.kodza-header-announcement__say {
+  grid-area: 1 / 1;
+}
+
+.kodza-header-announcement__say + .kodza-header-announcement__say {
+  translate: 0 115%;
+}
+
+.kodza-header-announcement__toggle[aria-expanded="true"] .kodza-header-announcement__say {
+  translate: 0 -115%;
+}
+
+.kodza-header-announcement__toggle[aria-expanded="true"] .kodza-header-announcement__say + .kodza-header-announcement__say {
+  translate: 0 0;
+}
+
+/* The shutter: from the bottom of the header to the bottom of the screen, rolled up until it
+   opens. A native popover, so Escape, a click outside and the focus going back to Menu are the
+   browser's own */
+.kodza-header-announcement__panel {
+  position: fixed;
+  inset: var(--kz-header-announcement-from, 0px) 0 0 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0 var(--kz-header-announcement-menu-side);
+  border: 0;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  background: var(--kz-header-announcement-menu-bg);
+  color: var(--kz-header-announcement-menu-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: size;
+  z-index: 99990;
+  /* Here and not on the open state: the panel keeps its rows while it rolls back up */
+  grid-template-rows: 1fr auto;
+  -webkit-font-smoothing: antialiased;
+  clip-path: inset(0 0 100% 0);
+  /* Closing: quicker than it came down */
+  transition:
+    clip-path calc(var(--kz-header-announcement-menu-duration) * 0.7) var(--kz-header-announcement-menu-ease),
+    display calc(var(--kz-header-announcement-menu-duration) * 0.7) allow-discrete,
+    overlay calc(var(--kz-header-announcement-menu-duration) * 0.7) allow-discrete;
+}
+
+.kodza-header-announcement__panel:popover-open {
+  display: grid;
+  clip-path: inset(0 0 0 0);
+  transition:
+    clip-path var(--kz-header-announcement-menu-duration) var(--kz-header-announcement-menu-ease),
+    display var(--kz-header-announcement-menu-duration) allow-discrete,
+    overlay var(--kz-header-announcement-menu-duration) allow-discrete;
+}
+
+@starting-style {
+  .kodza-header-announcement__panel:popover-open {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+.kodza-header-announcement__list {
+  align-self: center;
+  display: grid;
+  margin: 0;
+  padding: 28px 0;
+}
+
+/* Each row: its hairline draws in, then the word rises from its mask */
+.kodza-header-announcement__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(44px, 9cqw, 132px) minmax(0, 1fr);
+  align-items: start;
+  margin: 0;
+  padding: 14px 0 10px;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.kodza-header-announcement__item::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: var(--kz-header-announcement-menu-line);
+  scale: 0 1;
+  transform-origin: left center;
+  transition: scale 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-header-announcement__index {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 0.4em;
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--kz-header-announcement-menu-muted);
+  opacity: 0;
+  transition: opacity 0.2s, color 0.25s;
+}
+
+/* The page you are on: its number lights up, with a dot */
+.kodza-header-announcement__item[aria-current="page"] .kodza-header-announcement__index {
+  color: var(--kz-header-announcement-menu-fg);
+}
+
+.kodza-header-announcement__item[aria-current="page"] .kodza-header-announcement__index::after {
+  content: "";
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* The mask has the size of its word, so its room for descenders (g, j, p, q, y) and its step
+   aside are measured on the word */
+.kodza-header-announcement__mask {
+  display: block;
+  margin: -0.06em 0 -0.24em;
+  padding: 0.06em 0 0.24em;
+  overflow: hidden;
+  font-size: var(--kz-header-announcement-menu-size);
+  transition: translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-announcement__word {
+  display: block;
+  font-size: var(--kz-header-announcement-menu-size);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  translate: 0 135%;
+  /* Closing: the words drop back into their masks while the shutter rolls up */
+  transition: translate 0.32s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-header-announcement__info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding: 16px 0 22px;
+  border-top: 1px solid var(--kz-header-announcement-menu-line);
+  opacity: 0;
+  translate: 0 8px;
+  transition: opacity 0.2s, translate 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-header-announcement__info p {
+  margin: 0;
+}
+
+.kodza-header-announcement__action {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-announcement-menu-fg);
+  color: var(--kz-header-announcement-menu-bg);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.kodza-header-announcement__action:focus-visible {
+  outline: 2px solid var(--kz-header-announcement-menu-fg);
+  outline-offset: 3px;
+}
+
+.kodza-header-announcement__socials {
+  display: flex;
+  gap: 20px;
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--kz-header-announcement-menu-muted);
+}
+
+.kodza-header-announcement__socials a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+/* Open: each part starts when the edge reaches it (the script sets --kz-header-announcement-delay) */
+.kodza-header-announcement__panel.is-open .kodza-header-announcement__item::before {
+  scale: 1 1;
+  transition: scale 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-announcement-delay, 0s);
+}
+
+.kodza-header-announcement__panel.is-open .kodza-header-announcement__index {
+  opacity: 1;
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--kz-header-announcement-delay, 0s) + 0.12s), color 0.25s;
+}
+
+.kodza-header-announcement__panel.is-open .kodza-header-announcement__word {
+  translate: 0 0;
+  transition: translate 0.75s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-announcement-delay, 0s);
+}
+
+.kodza-header-announcement__panel.is-open .kodza-header-announcement__info {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-announcement-delay, 0s),
+    translate 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-announcement-delay, 0s);
+}
+
+/* Pointed at: the word steps aside and its number lights up */
+.kodza-header-announcement__item:hover .kodza-header-announcement__mask,
+.kodza-header-announcement__item:focus-visible .kodza-header-announcement__mask {
+  translate: 0.14em 0;
+}
+
+.kodza-header-announcement__item:hover .kodza-header-announcement__index,
+.kodza-header-announcement__item:focus-visible .kodza-header-announcement__index,
+.kodza-header-announcement__socials a:hover {
+  color: var(--kz-header-announcement-menu-fg);
+}
+
+.kodza-header-announcement__item:focus-visible .kodza-header-announcement__word {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.12em;
+}
+
+.kodza-header-announcement__socials a:focus-visible {
+  outline: 2px solid var(--kz-header-announcement-menu-fg);
+  outline-offset: 4px;
+}
+
+/* Below 900 px the links give way to the Menu button; below 520 px only Menu stays */
+@container (max-width: 899px) {
+  .kodza-header-announcement__menu {
+    display: none;
+  }
+}
+
+@container (min-width: 900px) {
+  .kodza-header-announcement__toggle {
+    display: none;
+  }
+}
+
+@container (max-width: 519px) {
+  .kodza-header-announcement__row {
+    padding: 0 16px;
+  }
+
+  .kodza-header-announcement__fold {
+    padding: 0 8px;
+  }
+
+  .kodza-header-announcement__sign,
+  .kodza-header-announcement__cta {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-header-announcement__strip,
+  .kodza-header-announcement__fold > *,
+  .kodza-header-announcement__link::after,
+  .kodza-header-announcement__panel,
+  .kodza-header-announcement__panel *,
+  .kodza-header-announcement__panel *::before,
+  .kodza-header-announcement__toggle *,
+  .kodza-header-announcement__toggle *::before,
+  .kodza-header-announcement__toggle *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* kodza-guard 513a8e19758b — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-header-announcement__dismiss):not(#_),
+:where(.kodza-header-announcement__logo):not(#_),
+:where(.kodza-header-announcement__link):not(#_),
+:where(.kodza-header-announcement__sign):not(#_),
+:where(.kodza-header-announcement__cta):not(#_),
+:where(.kodza-header-announcement__toggle):not(#_),
+:where(.kodza-header-announcement__message a:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-header-announcement__socials a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-header-announcement__list):not(#_),
+:where(.kodza-header-announcement__item):not(#_),
+:where(.kodza-header-announcement__more):not(#_),
+:where(.kodza-header-announcement__socials):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-header-announcement__action):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-header-announcement:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-announcement__strip:not(#_),
+.kodza-header-announcement__news:not(#_),
+.kodza-header-announcement__x:not(#_),
+.kodza-header-announcement__end:not(#_),
+.kodza-header-announcement__lines:not(#_),
+.kodza-header-announcement__label:not(#_),
+.kodza-header-announcement__say:not(#_),
+.kodza-header-announcement__index:not(#_),
+.kodza-header-announcement__mask:not(#_),
+.kodza-header-announcement__word:not(#_),
+.kodza-header-announcement__info:not(#_),
+.kodza-header-announcement__message span:where(:not([class*="kodza-"])):not(#_),
+.kodza-header-announcement__logo span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-header-announcement__message:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-announcement__dismiss:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-header-announcement__logo:not(#_) {
+  border: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-announcement__menu:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-announcement__links:not(#_),
+.kodza-header-announcement__links li:where(:not([class*="kodza-"]):not(.kodza-header-announcement__links [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-announcement__link:not(#_) {
+  border: revert;
+  list-style: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-announcement__sign:not(#_) {
+  border: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-announcement__cta:not(#_) {
+  border: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-announcement__toggle:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-header-announcement__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-header-announcement__item:not(#_) {
+  border: revert;
+  border-radius: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-header-announcement__more:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-header-announcement__action:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-header-announcement__socials:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-header-announcement__message a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-announcement__logo svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-announcement__socials a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-announcement__message:not(#_):where(:not([hidden])),
+.kodza-header-announcement__more:not(#_):where(:not([hidden])),
+.kodza-header-announcement__message a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-header-announcement__socials a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-header-announcement__message:not(#_):where([hidden]),
+.kodza-header-announcement__more:not(#_):where([hidden]),
+.kodza-header-announcement__message a:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-header-announcement__socials a:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-header-announcement__x:not(#_)::before,
+.kodza-header-announcement__x:not(#_)::after,
+.kodza-header-announcement__link:not(#_)::after,
+.kodza-header-announcement__lines:not(#_)::before,
+.kodza-header-announcement__lines:not(#_)::after,
+.kodza-header-announcement__item:not(#_)::before,
+.kodza-header-announcement__index:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-header-announcement:not(#_) {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  padding: 0;
+  background: var(--kz-header-announcement-bg);
+  color: var(--kz-header-announcement-fg);
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.kodza-header-announcement__fold > *:not(#_) {
+  transition: translate var(--kz-header-announcement-fold) cubic-bezier(0.65, 0, 0.35, 1),
+    opacity calc(var(--kz-header-announcement-fold) * 0.6);
+}
+
+.kodza-header-announcement__strip.is-dismissed .kodza-header-announcement__fold > *:not(#_) {
+  translate: 0 -10px;
+  opacity: 0;
+}
+
+.kodza-header-announcement__message:not(#_) {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: var(--kz-header-announcement-strip-height);
+  letter-spacing: -0.005em;
+  text-align: center;
+}
+
+.kodza-header-announcement__message a:not(#_) {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-header-announcement__message a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-announcement-strip-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-announcement__dismiss:not(#_) {
+  position: relative;
+  display: block;
+  grid-column: 3;
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--kz-header-announcement-strip-muted);
+  cursor: pointer;
+  transition: color 0.2s,
+    background-color 0.2s,
+    translate var(--kz-header-announcement-fold) cubic-bezier(0.65, 0, 0.35, 1),
+    opacity calc(var(--kz-header-announcement-fold) * 0.6);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .kodza-header-announcement__dismiss:hover:not(#_) {
+    background: color-mix(in srgb, var(--kz-header-announcement-strip-fg) 12%, transparent);
+    color: var(--kz-header-announcement-strip-fg);
+  }
+}
+
+.kodza-header-announcement__dismiss:focus-visible:not(#_) {
+  color: var(--kz-header-announcement-strip-fg);
+  outline: 2px solid var(--kz-header-announcement-strip-fg);
+  outline-offset: 0;
+}
+
+.kodza-header-announcement__logo:not(#_) {
+  display: inline-flex;
+  margin: 0;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-header-announcement__logo svg:not(#_) {
+  display: block;
+}
+
+.kodza-header-announcement__menu:not(#_) {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-header-announcement__links:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-announcement__links > li:not(#_) {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-announcement__link:not(#_) {
+  position: relative;
+  display: inline-flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: 8px;
+  color: var(--kz-header-announcement-muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.kodza-header-announcement__link:hover:not(#_),
+.kodza-header-announcement__link:focus-visible:not(#_),
+.kodza-header-announcement__link[aria-current="page"]:not(#_) {
+  color: var(--kz-header-announcement-fg);
+}
+
+.kodza-header-announcement__link:focus-visible:not(#_),
+.kodza-header-announcement__logo:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-announcement-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-announcement__sign:not(#_) {
+  display: inline-flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: var(--kz-header-announcement-muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.kodza-header-announcement__sign:hover:not(#_) {
+  color: var(--kz-header-announcement-fg);
+}
+
+.kodza-header-announcement__sign:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-announcement-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-announcement__cta:not(#_) {
+  display: inline-flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-announcement-ink);
+  color: var(--kz-header-announcement-on-ink);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-header-announcement__cta:hover:not(#_) {
+    background: color-mix(in srgb, var(--kz-header-announcement-ink) 84%, transparent);
+  }
+}
+
+.kodza-header-announcement__cta:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-announcement-ink);
+  outline-offset: 3px;
+}
+
+.kodza-header-announcement__toggle:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-header-announcement-soft);
+  color: var(--kz-header-announcement-fg);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-announcement__toggle:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-announcement-fg);
+  outline-offset: 3px;
+}
+
+.kodza-header-announcement__list:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 28px 0;
+}
+
+.kodza-header-announcement__item:not(#_) {
+  position: relative;
+  display: grid;
+  margin: 0;
+  padding: 14px 0 10px;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.kodza-header-announcement__info p:not(#_) {
+  margin: 0;
+}
+
+.kodza-header-announcement__action:not(#_) {
+  display: inline-flex;
+  box-sizing: border-box;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-announcement-menu-fg);
+  color: var(--kz-header-announcement-menu-bg);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.kodza-header-announcement__action:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-announcement-menu-fg);
+  outline-offset: 3px;
+}
+
+.kodza-header-announcement__socials:not(#_) {
+  display: flex;
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--kz-header-announcement-menu-muted);
+}
+
+.kodza-header-announcement__socials a:not(#_) {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.kodza-header-announcement__socials a:hover:not(#_) {
+  color: var(--kz-header-announcement-menu-fg);
+}
+
+.kodza-header-announcement__socials a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-announcement-menu-fg);
+  outline-offset: 4px;
+}
+
+@container (max-width: 899px) {
+  .kodza-header-announcement__menu:not(#_) {
+    display: none;
+  }
+}
+
+@container (min-width: 900px) {
+  .kodza-header-announcement__toggle:not(#_) {
+    display: none;
+  }
+}
+
+@container (max-width: 519px) {
+  .kodza-header-announcement__sign:not(#_),
+  .kodza-header-announcement__cta:not(#_) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-header-announcement__fold > *:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-header-announcement__panel *:where(nav, a, p):not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

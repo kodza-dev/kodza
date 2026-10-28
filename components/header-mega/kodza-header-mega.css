@@ -1,0 +1,2075 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Header Mega
+   A whole site header: logo, links, a call to action, and one panel under the bar for the big
+   menus. From one link to the next the panel doesn't close: it changes shape and slides, the
+   old columns leave on the side you come from as the new ones come in from the other, and a
+   soft pill glides along the bar under the pointer. Below 900 px wide the links give way to a
+   Menu button and a drawer with levels, built from the same links (or from your own list).
+   Everything is tuned with the --kz-header-mega-* variables (--kz-header-mega-menu-* for the
+   drawer). */
+.kodza-header-mega {
+  --kz-header-mega-bg: transparent;
+  --kz-header-mega-fg: #0a0a0a;
+  --kz-header-mega-muted: rgba(10, 10, 10, 0.62);
+  --kz-header-mega-soft: rgba(10, 10, 10, 0.06); /* the pill under the pointer, the card */
+  --kz-header-mega-surface: #ffffff; /* the panel */
+  --kz-header-mega-border: rgba(10, 10, 10, 0.1);
+  --kz-header-mega-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  --kz-header-mega-ink: #0a0a0a; /* the call to action */
+  --kz-header-mega-on-ink: #ffffff;
+  --kz-header-mega-height: 72px;
+  --kz-header-mega-width: 1200px; /* the row, centred */
+  --kz-header-mega-pad: 24px;
+  --kz-header-mega-gap: 8px; /* between the bar and the panel */
+  --kz-header-mega-radius: 14px;
+  --kz-header-mega-duration: 0.45s; /* the panel changing shape, the pill gliding */
+  --kz-header-mega-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-header-mega-menu-bg: #0a0a0a; /* the drawer, below 900 px */
+  --kz-header-mega-menu-fg: #f2f2f0;
+  --kz-header-mega-menu-muted: rgba(242, 242, 240, 0.62);
+  --kz-header-mega-menu-rule: rgba(242, 242, 240, 0.14);
+  --kz-header-mega-menu-ink: rgba(10, 10, 10, 0.06); /* the Menu button */
+  --kz-header-mega-menu-on-ink: #0a0a0a;
+  --kz-header-mega-menu-gap: 10px; /* between the drawer and the edges of the screen */
+  --kz-header-mega-menu-radius: 20px;
+  --kz-header-mega-menu-pad: clamp(20px, 6cqw, 28px);
+  --kz-header-mega-menu-width: min(440px, calc(100cqw - 2 * var(--kz-header-mega-menu-gap)));
+  --kz-header-mega-menu-size: clamp(24px, calc(2.6cqh + 14px), 34px);
+  --kz-header-mega-menu-shade: 0.5; /* how dark the page gets under the drawer */
+  --kz-header-mega-menu-shadow: 0 24px 64px -16px rgba(0, 0, 0, 0.5);
+  --kz-header-mega-menu-duration: 0.8s;
+  --kz-header-mega-menu-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  position: relative;
+  z-index: 60;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--kz-header-mega-bg);
+  color: var(--kz-header-mega-fg);
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: inline-size;
+}
+
+.kodza-header-mega__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  max-width: var(--kz-header-mega-width);
+  height: var(--kz-header-mega-height);
+  margin: 0 auto;
+  padding: 0 var(--kz-header-mega-pad);
+}
+
+.kodza-header-mega__logo {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  margin: 0 20px 0 0;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-header-mega__logo svg {
+  display: block;
+  flex: none;
+  fill: currentColor;
+}
+
+/* The bar's links. The list and its items stay static: the panel and the pill are placed
+   against the header itself */
+.kodza-header-mega__menu,
+.kodza-header-mega__spot {
+  position: static;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-header-mega__links {
+  position: static;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-mega__spot {
+  list-style: none;
+}
+
+.kodza-header-mega__trigger,
+.kodza-header-mega__top,
+.kodza-header-mega__sign {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--kz-header-mega-muted);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-mega__trigger:hover,
+.kodza-header-mega__top:hover,
+.kodza-header-mega__sign:hover,
+.kodza-header-mega__trigger[aria-expanded="true"],
+.kodza-header-mega__trigger:focus-visible,
+.kodza-header-mega__top:focus-visible,
+.kodza-header-mega__sign:focus-visible,
+.kodza-header-mega__trigger.is-current,
+.kodza-header-mega__top[aria-current="page"] {
+  color: var(--kz-header-mega-fg);
+}
+
+.kodza-header-mega__trigger:focus-visible,
+.kodza-header-mega__top:focus-visible,
+.kodza-header-mega__sign:focus-visible,
+.kodza-header-mega__logo:focus-visible {
+  outline: 2px solid var(--kz-header-mega-fg);
+  outline-offset: 2px;
+}
+
+/* A small chevron that turns over while its panel is open */
+.kodza-header-mega__caret {
+  flex: none;
+  box-sizing: border-box;
+  width: 7px;
+  height: 7px;
+  margin: -4px 0 0 1px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  rotate: 45deg;
+  transition: rotate 0.45s cubic-bezier(0.22, 1, 0.36, 1), translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-mega__trigger[aria-expanded="true"] .kodza-header-mega__caret {
+  rotate: 225deg;
+  translate: 0 4px;
+}
+
+/* The section you are in: a dot under its name */
+.kodza-header-mega__trigger.is-current::after,
+.kodza-header-mega__top[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  translate: -50% 0;
+}
+
+.kodza-header-mega__trigger.is-current::after {
+  left: calc(50% - 6.5px); /* under the word, not the chevron */
+}
+
+.kodza-header-mega__end {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 0 auto;
+}
+
+.kodza-header-mega__cta {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-mega-ink);
+  color: var(--kz-header-mega-on-ink);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-header-mega__cta:hover {
+    background: color-mix(in srgb, var(--kz-header-mega-ink) 84%, transparent);
+  }
+}
+
+.kodza-header-mega__cta:focus-visible {
+  outline: 2px solid var(--kz-header-mega-ink);
+  outline-offset: 3px;
+}
+
+/* The pill that glides along the bar, from the link under the pointer to the next, and back to
+   the one whose panel is open */
+.kodza-header-mega__glide {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--kz-header-mega-soft);
+  clip-path: inset(0 100% 100% 0 round 999px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kodza-header-mega.is-ready .kodza-header-mega__glide {
+  transition: clip-path var(--kz-header-mega-duration) var(--kz-header-mega-ease), opacity 0.25s;
+}
+
+.kodza-header-mega__glide.is-on {
+  opacity: 1;
+}
+
+/* The one panel: its box changes shape from a menu to the next, and the menu on show is cut to
+   that box */
+.kodza-header-mega__drop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  box-sizing: border-box;
+  width: 0;
+  height: 0;
+  border-radius: var(--kz-header-mega-radius);
+  background: var(--kz-header-mega-surface);
+  box-shadow: 0 0 0 1px var(--kz-header-mega-border), var(--kz-header-mega-shadow);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* The way down from the bar: the pointer crosses the gap without leaving the menu */
+.kodza-header-mega__drop::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  height: var(--kz-header-mega-gap);
+  pointer-events: auto;
+}
+
+.kodza-header-mega__pane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  display: block;
+  box-sizing: border-box;
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 8px;
+  color: var(--kz-header-mega-fg);
+}
+
+.kodza-header-mega__pane[hidden] {
+  display: none;
+}
+
+.kodza-header-mega__inner {
+  display: flex;
+  gap: 4px;
+}
+
+.kodza-header-mega__col {
+  display: grid;
+  flex: 0 1 auto;
+  align-content: start;
+  width: 256px;
+  min-width: 0;
+}
+
+.kodza-header-mega__label {
+  margin: 0;
+  padding: 10px 12px 6px;
+  color: var(--kz-header-mega-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+.kodza-header-mega__entry {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-header-mega__entry:hover {
+    background: var(--kz-header-mega-soft);
+  }
+}
+
+.kodza-header-mega__entry:focus-visible,
+.kodza-header-mega__card:focus-visible {
+  outline: 2px solid var(--kz-header-mega-fg);
+  outline-offset: -2px;
+}
+
+.kodza-header-mega__name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+/* The page you are on */
+.kodza-header-mega__entry[aria-current="page"] .kodza-header-mega__name::after {
+  content: "";
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.kodza-header-mega__line {
+  display: block;
+  color: var(--kz-header-mega-muted);
+  font-size: 13px;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.kodza-header-mega__card {
+  display: grid;
+  flex: none;
+  align-content: start;
+  gap: 10px;
+  box-sizing: border-box;
+  width: 248px;
+  margin: 0 0 0 4px;
+  padding: 8px 8px 14px;
+  border-radius: 10px;
+  background: var(--kz-header-mega-soft);
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-header-mega__media {
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+  border-radius: 6px;
+}
+
+.kodza-header-mega__media img {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+  transition: scale 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .kodza-header-mega__card:hover .kodza-header-mega__media img {
+    scale: 1.04;
+  }
+}
+
+.kodza-header-mega__tag,
+.kodza-header-mega__headline {
+  display: block;
+  padding: 0 4px;
+}
+
+.kodza-header-mega__tag {
+  color: var(--kz-header-mega-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.kodza-header-mega__headline {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* ---------- The drawer, below 900 px (Multi-Level Menu) ---------- */
+.kodza-header-mega__toggle,
+.kodza-header-mega__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-mega__toggle {
+  background: var(--kz-header-mega-menu-ink);
+  color: var(--kz-header-mega-menu-on-ink);
+}
+
+.kodza-header-mega__close {
+  background: var(--kz-header-mega-menu-fg);
+  color: var(--kz-header-mega-menu-bg);
+}
+
+.kodza-header-mega__toggle:focus-visible {
+  outline: 2px solid var(--kz-header-mega-fg);
+  outline-offset: 3px;
+}
+
+.kodza-header-mega__close:focus-visible,
+.kodza-header-mega__more a:focus-visible {
+  outline: 2px solid var(--kz-header-mega-menu-fg);
+  outline-offset: 4px;
+}
+
+/* Two lines on the button: they cross as the drawer comes in, and Close arrives with them
+   crossed, in the same place */
+.kodza-header-mega__lines,
+.kodza-header-mega__cross {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 8px;
+}
+
+.kodza-header-mega__lines::before,
+.kodza-header-mega__lines::after,
+.kodza-header-mega__cross::before,
+.kodza-header-mega__cross::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  /* On its own layer: drawn the same way at rest and while turning, so no snap at the end */
+  will-change: transform;
+}
+
+.kodza-header-mega__lines::before,
+.kodza-header-mega__cross::before {
+  top: 0;
+}
+
+.kodza-header-mega__lines::after,
+.kodza-header-mega__cross::after {
+  top: 6px; /* whole pixels: both lines sit on the pixel grid the same way */
+}
+
+.kodza-header-mega__lines::before,
+.kodza-header-mega__lines::after {
+  transition: clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Whole at rest, as an inset: the pointer slides it to a shorter one (from none it would jump) */
+.kodza-header-mega__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-header-mega__toggle:hover .kodza-header-mega__lines::after {
+  clip-path: inset(0 45% 0 0);
+}
+
+.kodza-header-mega__toggle[aria-expanded="true"] .kodza-header-mega__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-header-mega__cross::before {
+  translate: 0 3px;
+  rotate: 45deg;
+}
+
+.kodza-header-mega__cross::after {
+  translate: 0 -3px;
+  rotate: -45deg;
+}
+
+/* The word rolls in from below its mask */
+.kodza-header-mega__say {
+  display: grid;
+  margin: -3px 0;
+  padding: 3px 0;
+  overflow: hidden;
+}
+
+.kodza-header-mega__say > span {
+  display: block;
+}
+
+/* The whole screen while it is open: the dimmed page, and the drawer over it */
+.kodza-header-mega__panel {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--kz-header-mega-menu-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: size;
+  -webkit-font-smoothing: antialiased;
+}
+
+.kodza-header-mega__panel[hidden] {
+  display: none;
+}
+
+.kodza-header-mega__panel:focus {
+  outline: none;
+}
+
+/* A click on the dimmed page closes it */
+.kodza-header-mega__shade {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, var(--kz-header-mega-menu-shade));
+  cursor: pointer;
+}
+
+/* The drawer, off the edges of the screen (and below the WordPress admin bar) */
+.kodza-header-mega__sheet {
+  position: absolute;
+  top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--kz-header-mega-menu-gap));
+  right: var(--kz-header-mega-menu-gap);
+  bottom: var(--kz-header-mega-menu-gap);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  box-sizing: border-box;
+  width: var(--kz-header-mega-menu-width);
+  overflow: hidden;
+  border-radius: var(--kz-header-mega-menu-radius);
+  background: var(--kz-header-mega-menu-bg);
+  color: var(--kz-header-mega-menu-fg);
+  box-shadow: var(--kz-header-mega-menu-shadow);
+}
+
+.kodza-header-mega__panel.is-left .kodza-header-mega__sheet {
+  right: auto;
+  left: var(--kz-header-mega-menu-gap);
+}
+
+.kodza-header-mega__bar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px 14px 0;
+}
+
+.kodza-header-mega__panel.is-left .kodza-header-mega__bar {
+  justify-content: flex-start;
+}
+
+/* The row on top: the name of the level you are in, and from the second level on the way back */
+.kodza-header-mega__back {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 48px;
+  margin: 8px 0 0;
+  padding: 0 var(--kz-header-mega-menu-pad);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--kz-header-mega-menu-fg);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-mega__back:disabled {
+  color: var(--kz-header-mega-menu-muted);
+  opacity: 1;
+  cursor: default;
+}
+
+.kodza-header-mega__back:focus-visible {
+  outline: none;
+}
+
+.kodza-header-mega__arrow {
+  position: absolute;
+  top: 50%;
+  left: var(--kz-header-mega-menu-pad);
+  width: 16px;
+  height: 12px;
+  opacity: 0;
+  translate: -8px -50%;
+  transition: opacity 0.15s, translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-mega__arrow::before,
+.kodza-header-mega__arrow::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+}
+
+.kodza-header-mega__arrow::before {
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  margin-top: -0.75px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+.kodza-header-mega__arrow::after {
+  left: 1px;
+  box-sizing: border-box;
+  width: 7px;
+  height: 7px;
+  border-bottom: 1.5px solid currentColor;
+  border-left: 1.5px solid currentColor;
+  translate: 0 -50%;
+  rotate: 45deg;
+}
+
+.kodza-header-mega__title {
+  display: block;
+  margin: -3px 0 -6px;
+  padding: 3px 0 6px;
+  overflow: hidden;
+  transition: translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The level names are stacked in one cell: the old one rolls up as the new one comes in */
+.kodza-header-mega__heading {
+  display: grid;
+}
+
+.kodza-header-mega__heading > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+/* The arrow comes in from the left once the name has started to make room for it */
+.kodza-header-mega__back.is-deep .kodza-header-mega__arrow {
+  opacity: 1;
+  translate: 0 -50%;
+  transition: opacity 0.3s 0.1s, translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-mega__back.is-deep .kodza-header-mega__title {
+  translate: 26px 0;
+}
+
+@media (hover: hover) {
+  .kodza-header-mega__back.is-deep:hover .kodza-header-mega__arrow {
+    translate: -3px -50%;
+  }
+}
+
+.kodza-header-mega__back:focus-visible .kodza-header-mega__heading {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+/* The levels, one over the other in the same cell: the drawer keeps its size */
+.kodza-header-mega__nav {
+  display: grid;
+  align-content: start;
+  min-height: 0;
+  padding: 4px var(--kz-header-mega-menu-pad) 8px;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+}
+
+.kodza-header-mega__list {
+  grid-area: 1 / 1;
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-mega__list[hidden] {
+  display: none;
+}
+
+.kodza-header-mega__item {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A hairline under each row, drawn from the left as the rows come in */
+.kodza-header-mega__item::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: var(--kz-header-mega-menu-rule);
+  transform-origin: left;
+}
+
+.kodza-header-mega__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 14px 0 13px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The mask has the size of its word, so its room for descenders (g, j, p, q, y) and its step
+   aside are measured on the word */
+.kodza-header-mega__mask {
+  display: block;
+  min-width: 0;
+  margin: -0.06em 0 -0.22em;
+  padding: 0.06em 0 0.22em;
+  overflow: hidden;
+  font-size: var(--kz-header-mega-menu-size);
+  transition: translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-mega__word {
+  display: block;
+  font-size: var(--kz-header-mega-menu-size);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+}
+
+/* On the right of a row: how many links a level holds and its chevron, or a dot on the way to
+   the current page */
+.kodza-header-mega__meta {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  color: var(--kz-header-mega-menu-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  transition: color 0.25s;
+}
+
+.kodza-header-mega__link.is-current .kodza-header-mega__meta::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kz-header-mega-menu-fg);
+}
+
+.kodza-header-mega__branch .kodza-header-mega__meta::after {
+  content: "";
+  box-sizing: border-box;
+  width: 7px;
+  height: 7px;
+  margin-right: 3px;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  rotate: 45deg;
+  transition: translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Pointed at (by a mouse: a tap must not leave it stuck): the word steps aside, the count
+   lights up and the chevron leans in. A row's focus does the same, and is drawn on its word */
+@media (hover: hover) {
+  .kodza-header-mega__link:hover .kodza-header-mega__mask {
+    translate: 0.14em 0;
+  }
+
+  .kodza-header-mega__link:hover .kodza-header-mega__meta {
+    color: var(--kz-header-mega-menu-fg);
+  }
+
+  .kodza-header-mega__branch:hover .kodza-header-mega__meta::after {
+    translate: 3px 0;
+  }
+}
+
+.kodza-header-mega__link:focus-visible .kodza-header-mega__mask {
+  translate: 0.14em 0;
+}
+
+.kodza-header-mega__link:focus-visible .kodza-header-mega__meta {
+  color: var(--kz-header-mega-menu-fg);
+}
+
+.kodza-header-mega__branch:focus-visible .kodza-header-mega__meta::after {
+  translate: 3px 0;
+}
+
+.kodza-header-mega__link:focus-visible .kodza-header-mega__word {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.12em;
+}
+
+.kodza-header-mega__foot {
+  display: grid;
+  gap: 12px;
+  padding: 20px var(--kz-header-mega-menu-pad) 24px;
+}
+
+.kodza-header-mega__foot p {
+  margin: 0;
+}
+
+.kodza-header-mega__more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 20px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.kodza-header-mega__more a {
+  border-radius: 2px;
+  color: var(--kz-header-mega-menu-fg);
+  text-decoration: none;
+}
+
+.kodza-header-mega__more a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* The call to action, a pill again in the drawer */
+.kodza-header-mega__more .kodza-header-mega__start {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-mega-menu-fg);
+  color: var(--kz-header-mega-menu-bg);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.kodza-header-mega__more .kodza-header-mega__start:hover {
+  text-decoration: none;
+}
+
+.kodza-header-mega__small {
+  color: var(--kz-header-mega-menu-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+/* Below 900 px the links make way for the Menu button and its drawer; below 520 px the call to
+   action goes into the drawer too. Last in the file, so they win over each part's display */
+@container (max-width: 899px) {
+  .kodza-header-mega__menu,
+  .kodza-header-mega__sign {
+    display: none;
+  }
+}
+
+@container (min-width: 900px) {
+  .kodza-header-mega__toggle {
+    display: none;
+  }
+}
+
+@container (max-width: 519px) {
+  .kodza-header-mega__row {
+    padding: 0 16px;
+  }
+
+  .kodza-header-mega__cta {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-header-mega__toggle *,
+  .kodza-header-mega__toggle *::before,
+  .kodza-header-mega__toggle *::after,
+  .kodza-header-mega__caret,
+  .kodza-header-mega__glide,
+  .kodza-header-mega__media img,
+  .kodza-header-mega__arrow,
+  .kodza-header-mega__title,
+  .kodza-header-mega__mask,
+  .kodza-header-mega__meta,
+  .kodza-header-mega__meta::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Dark site: light words, a dark panel, and the drawer is paper
+.kodza-header-mega {
+  --kz-header-mega-fg: #f2f2f0;
+  --kz-header-mega-muted: rgba(242, 242, 240, 0.62);
+  --kz-header-mega-soft: rgba(255, 255, 255, 0.08);
+  --kz-header-mega-surface: #161616;
+  --kz-header-mega-border: rgba(255, 255, 255, 0.12);
+  --kz-header-mega-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+  --kz-header-mega-ink: #f2f2f0;
+  --kz-header-mega-on-ink: #0a0a0a;
+  --kz-header-mega-menu-bg: #f2f2f0;
+  --kz-header-mega-menu-fg: #0a0a0a;
+  --kz-header-mega-menu-muted: rgba(10, 10, 10, 0.62);
+  --kz-header-mega-menu-rule: rgba(10, 10, 10, 0.12);
+  --kz-header-mega-menu-ink: rgba(255, 255, 255, 0.08);
+  --kz-header-mega-menu-on-ink: #f2f2f0;
+}
+*/
+
+/* kodza-guard 082d3102586c — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-header-mega__logo):not(#_),
+:where(.kodza-header-mega__trigger):not(#_),
+:where(.kodza-header-mega__card):not(#_),
+:where(.kodza-header-mega__top):not(#_),
+:where(.kodza-header-mega__sign):not(#_),
+:where(.kodza-header-mega__cta):not(#_),
+:where(.kodza-header-mega__toggle):not(#_),
+:where(.kodza-header-mega__close):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-header-mega__entry):not(#_) {
+  outline: revert;
+  background-color: revert;
+  background-image: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-header-mega__panel):not(#_),
+:where(.kodza-header-mega__back):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-header-mega__start):not(#_),
+:where(.kodza-header-mega__more a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  text-underline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-header-mega:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__logo:not(#_) {
+  border: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__menu:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__links:not(#_),
+.kodza-header-mega__spot:not(#_),
+.kodza-header-mega__item:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__trigger:not(#_) {
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-header-mega__inner:not(#_),
+.kodza-header-mega__col:not(#_),
+.kodza-header-mega__name:not(#_),
+.kodza-header-mega__line:not(#_),
+.kodza-header-mega__media:not(#_),
+.kodza-header-mega__tag:not(#_),
+.kodza-header-mega__headline:not(#_),
+.kodza-header-mega__glide:not(#_),
+.kodza-header-mega__end:not(#_),
+.kodza-header-mega__lines:not(#_),
+.kodza-header-mega__shade:not(#_),
+.kodza-header-mega__bar:not(#_),
+.kodza-header-mega__cross:not(#_),
+.kodza-header-mega__say:not(#_),
+.kodza-header-mega__arrow:not(#_),
+.kodza-header-mega__title:not(#_),
+.kodza-header-mega__heading:not(#_),
+.kodza-header-mega__mask:not(#_),
+.kodza-header-mega__word:not(#_),
+.kodza-header-mega__meta:not(#_),
+.kodza-header-mega__foot:not(#_),
+.kodza-header-mega__logo span:where(:not([class*="kodza-"])):not(#_),
+.kodza-header-mega__say span:where(:not([class*="kodza-"])):not(#_),
+.kodza-header-mega__heading span:where(:not([class*="kodza-"])):not(#_),
+.kodza-header-mega__meta span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-header-mega__label:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__entry:not(#_) {
+  border: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__card:not(#_) {
+  border: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__top:not(#_),
+.kodza-header-mega__sign:not(#_) {
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__cta:not(#_) {
+  border: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__toggle:not(#_),
+.kodza-header-mega__close:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-header-mega__panel:not(#_) {
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+.kodza-header-mega__back:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-header-mega__nav:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__branch:not(#_) {
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-header-mega__link:not(#_) {
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__more:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__start:not(#_) {
+  border: revert;
+  margin: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__small:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__logo svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__media img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__more a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-mega__label:not(#_):where(:not([hidden])),
+.kodza-header-mega__small:not(#_):where(:not([hidden])),
+.kodza-header-mega__more a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-header-mega__label:not(#_):where([hidden]),
+.kodza-header-mega__small:not(#_):where([hidden]),
+.kodza-header-mega__more a:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-header-mega__trigger:not(#_)::after,
+.kodza-header-mega__top:not(#_)::after,
+.kodza-header-mega__drop:not(#_)::before,
+.kodza-header-mega__name:not(#_)::after,
+.kodza-header-mega__lines:not(#_)::before,
+.kodza-header-mega__lines:not(#_)::after,
+.kodza-header-mega__cross:not(#_)::before,
+.kodza-header-mega__cross:not(#_)::after,
+.kodza-header-mega__arrow:not(#_)::before,
+.kodza-header-mega__item:not(#_)::after,
+.kodza-header-mega__meta:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-header-mega:not(#_) {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  padding: 0;
+  background: var(--kz-header-mega-bg);
+  color: var(--kz-header-mega-fg);
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.kodza-header-mega__logo:not(#_) {
+  display: inline-flex;
+  margin: 0 20px 0 0;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-header-mega__logo svg:not(#_) {
+  display: block;
+}
+
+.kodza-header-mega__menu:not(#_),
+.kodza-header-mega__spot:not(#_) {
+  position: static;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-header-mega__links:not(#_) {
+  position: static;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-mega__spot:not(#_) {
+  list-style: none;
+}
+
+.kodza-header-mega__trigger:not(#_) {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--kz-header-mega-muted);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-mega__top:not(#_),
+.kodza-header-mega__sign:not(#_) {
+  position: relative;
+  display: inline-flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--kz-header-mega-muted);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.kodza-header-mega__trigger:hover:not(#_),
+.kodza-header-mega__trigger[aria-expanded="true"]:not(#_),
+.kodza-header-mega__trigger:focus-visible:not(#_),
+.kodza-header-mega__trigger.is-current:not(#_) {
+  color: var(--kz-header-mega-fg);
+}
+
+.kodza-header-mega__top:hover:not(#_),
+.kodza-header-mega__sign:hover:not(#_),
+.kodza-header-mega__top:focus-visible:not(#_),
+.kodza-header-mega__sign:focus-visible:not(#_),
+.kodza-header-mega__top[aria-current="page"]:not(#_) {
+  color: var(--kz-header-mega-fg);
+}
+
+.kodza-header-mega__trigger:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-mega-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-mega__top:focus-visible:not(#_),
+.kodza-header-mega__sign:focus-visible:not(#_),
+.kodza-header-mega__logo:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-mega-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-mega__trigger.is-current:not(#_)::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  translate: -50% 0;
+}
+
+.kodza-header-mega__trigger.is-current:not(#_)::after {
+  left: calc(50% - 6.5px);
+}
+
+.kodza-header-mega__cta:not(#_) {
+  display: inline-flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-mega-ink);
+  color: var(--kz-header-mega-on-ink);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-header-mega__cta:hover:not(#_) {
+    background: color-mix(in srgb, var(--kz-header-mega-ink) 84%, transparent);
+  }
+}
+
+.kodza-header-mega__cta:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-mega-ink);
+  outline-offset: 3px;
+}
+
+.kodza-header-mega__label:not(#_) {
+  margin: 0;
+  padding: 10px 12px 6px;
+  color: var(--kz-header-mega-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+.kodza-header-mega__entry:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-header-mega__entry:hover:not(#_) {
+    background: var(--kz-header-mega-soft);
+  }
+}
+
+.kodza-header-mega__entry:focus-visible:not(#_),
+.kodza-header-mega__card:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-mega-fg);
+  outline-offset: -2px;
+}
+
+.kodza-header-mega__card:not(#_) {
+  display: grid;
+  box-sizing: border-box;
+  margin: 0 0 0 4px;
+  padding: 8px 8px 14px;
+  border-radius: 10px;
+  background: var(--kz-header-mega-soft);
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-header-mega__media img:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+  transition: scale 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-mega__toggle:not(#_),
+.kodza-header-mega__close:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-mega__toggle:not(#_) {
+  background: var(--kz-header-mega-menu-ink);
+  color: var(--kz-header-mega-menu-on-ink);
+}
+
+.kodza-header-mega__close:not(#_) {
+  background: var(--kz-header-mega-menu-fg);
+  color: var(--kz-header-mega-menu-bg);
+}
+
+.kodza-header-mega__toggle:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-mega-fg);
+  outline-offset: 3px;
+}
+
+.kodza-header-mega__close:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-mega-menu-fg);
+  outline-offset: 4px;
+}
+
+.kodza-header-mega__more a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-mega-menu-fg);
+  outline-offset: 4px;
+}
+
+.kodza-header-mega__panel:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-header-mega__back:not(#_) {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 48px;
+  margin: 8px 0 0;
+  padding: 0 var(--kz-header-mega-menu-pad);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--kz-header-mega-menu-fg);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-mega__back:disabled:not(#_) {
+  color: var(--kz-header-mega-menu-muted);
+  opacity: 1;
+  cursor: default;
+}
+
+.kodza-header-mega__back:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-header-mega__nav:not(#_) {
+  display: grid;
+  padding: 4px var(--kz-header-mega-menu-pad) 8px;
+}
+
+.kodza-header-mega__list:not(#_) {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-mega__list[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-header-mega__item:not(#_) {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-mega__link:not(#_) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 14px 0 13px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-mega__foot p:not(#_) {
+  margin: 0;
+}
+
+.kodza-header-mega__more:not(#_) {
+  display: flex;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.kodza-header-mega__more a:not(#_) {
+  border-radius: 2px;
+  color: var(--kz-header-mega-menu-fg);
+  text-decoration: none;
+}
+
+.kodza-header-mega__more a:hover:not(#_) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-header-mega__more .kodza-header-mega__start:not(#_) {
+  display: inline-flex;
+  box-sizing: border-box;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-mega-menu-fg);
+  color: var(--kz-header-mega-menu-bg);
+  line-height: 1;
+}
+
+.kodza-header-mega__more .kodza-header-mega__start:hover:not(#_) {
+  text-decoration: none;
+}
+
+.kodza-header-mega__small:not(#_) {
+  color: var(--kz-header-mega-menu-muted);
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+@container (max-width: 899px) {
+  .kodza-header-mega__menu:not(#_),
+  .kodza-header-mega__sign:not(#_) {
+    display: none;
+  }
+}
+
+@container (min-width: 900px) {
+  .kodza-header-mega__toggle:not(#_) {
+    display: none;
+  }
+}
+
+@container (max-width: 519px) {
+  .kodza-header-mega__cta:not(#_) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-header-mega__media img:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

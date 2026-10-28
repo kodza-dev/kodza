@@ -1,0 +1,1457 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Header Overlay
+   The header that sits on your hero photo: white, no background. When the hero goes, a solid
+   bar comes down from the top like a blind, and the text turns to ink along its edge: an ink
+   copy of the row is cut to the blind's shape, so nothing ever changes colour at once. Scroll
+   back to the hero and it all rolls away. Below 900 px the links give way to a Menu button and
+   a full-screen curtain (Fullscreen Menu), written from the same links.
+   Put it right before the hero; the hero is found on its own, or name it with
+   data-hero="…". Mark the wrapper of your site with data-header-overlay-page, or name it with
+   data-page="…" (the wrapper of most WordPress themes is found on its own).
+   Everything is tuned with the --kz-header-overlay-* variables (--kz-header-overlay-menu-* for
+   the curtain). */
+.kodza-header-overlay {
+  /* Over the hero */
+  --kz-header-overlay-fg: #ffffff;
+  --kz-header-overlay-muted: rgba(255, 255, 255, 0.78);
+  --kz-header-overlay-soft: rgba(255, 255, 255, 0.16); /* the Menu button */
+  --kz-header-overlay-cta-bg: #ffffff;
+  --kz-header-overlay-cta-fg: #0a0a0a;
+  --kz-header-overlay-veil: rgba(0, 0, 0, 0.32); /* a shade at the top of the photo, so white reads */
+  /* Once the hero is gone */
+  --kz-header-overlay-solid-bg: #f2f2f0;
+  --kz-header-overlay-solid-fg: #0a0a0a;
+  --kz-header-overlay-solid-muted: rgba(10, 10, 10, 0.62);
+  --kz-header-overlay-solid-soft: rgba(10, 10, 10, 0.06);
+  --kz-header-overlay-solid-rule: rgba(10, 10, 10, 0.1);
+  --kz-header-overlay-solid-cta-bg: #0a0a0a;
+  --kz-header-overlay-solid-cta-fg: #ffffff;
+  --kz-header-overlay-top: var(--wp-admin--admin-bar--height, 0px); /* below the WordPress admin bar */
+  --kz-header-overlay-height: 76px;
+  --kz-header-overlay-width: 1200px; /* the row, centred */
+  --kz-header-overlay-pad: 24px;
+  --kz-header-overlay-duration: 0.7s; /* the blind */
+  --kz-header-overlay-ease: cubic-bezier(0.33, 1, 0.68, 1); /* off at once: it answers the scroll */
+  /* The curtain, below 900 px */
+  --kz-header-overlay-menu-bg: #0a0a0a;
+  --kz-header-overlay-menu-fg: #f2f2f0;
+  --kz-header-overlay-menu-muted: rgba(242, 242, 240, 0.62);
+  --kz-header-overlay-menu-top: calc(var(--wp-admin--admin-bar--height, 0px) + 18px); /* Close lands on Menu on its own; this is where it goes if Menu is somewhere else */
+  --kz-header-overlay-menu-side: 24px;
+  --kz-header-overlay-menu-size: clamp(40px, min(10cqw + 12px, calc((100cqh - 230px) / 5.3)), 132px);
+  --kz-header-overlay-menu-curve: 1; /* how far the edge bends on the way; 0 = a straight edge */
+  --kz-header-overlay-menu-shade: 0.5; /* how dark the page gets under it */
+  --kz-header-overlay-menu-depth: 0.94; /* the page's size once covered */
+  --kz-header-overlay-menu-duration: 1s;
+  --kz-header-overlay-menu-ease: cubic-bezier(0.76, 0, 0.24, 1);
+  --kz-header-overlay-page: auto; /* the page colour while it backs off; auto = the first background above it */
+
+  /* It takes no room: the hero starts right under it, at the top of the page */
+  position: sticky;
+  top: var(--kz-header-overlay-top);
+  z-index: 50;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: inline-size;
+}
+
+.kodza-header-overlay__bar {
+  position: relative;
+  display: block;
+  height: var(--kz-header-overlay-height);
+  margin: 0;
+  padding: 0;
+}
+
+/* A shade at the top of the photo, gone with the blind */
+.kodza-header-overlay__veil {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: block;
+  height: calc(var(--kz-header-overlay-height) * 1.8);
+  background: linear-gradient(var(--kz-header-overlay-veil), transparent);
+  pointer-events: none;
+  transition: opacity var(--kz-header-overlay-duration) var(--kz-header-overlay-ease);
+}
+
+/* The blind: a solid bar that slides down from the top, its hairline on its edge */
+.kodza-header-overlay__blind {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.kodza-header-overlay__fill {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: var(--kz-header-overlay-solid-bg);
+  box-shadow: inset 0 -1px 0 var(--kz-header-overlay-solid-rule);
+  transform: translateY(-100%);
+  transition: transform var(--kz-header-overlay-duration) var(--kz-header-overlay-ease);
+}
+
+/* The row, and its ink copy (written by the script) on top of it. The copy shows above the
+   blind's edge, the row below it: both clips move with the blind, on the same clock */
+.kodza-header-overlay__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  box-sizing: border-box;
+  max-width: var(--kz-header-overlay-width);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 var(--kz-header-overlay-pad);
+  color: var(--kz-header-overlay-fg);
+  clip-path: inset(0 0 0 0);
+  transition: clip-path var(--kz-header-overlay-duration) var(--kz-header-overlay-ease);
+}
+
+.kodza-header-overlay__row--ink {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  clip-path: inset(0 0 100% 0);
+  pointer-events: none;
+}
+
+.kodza-header-overlay__row--ink,
+.kodza-header-overlay.is-solid .kodza-header-overlay__row {
+  --kz-header-overlay-fg: var(--kz-header-overlay-solid-fg);
+  --kz-header-overlay-muted: var(--kz-header-overlay-solid-muted);
+  --kz-header-overlay-soft: var(--kz-header-overlay-solid-soft);
+  --kz-header-overlay-cta-bg: var(--kz-header-overlay-solid-cta-bg);
+  --kz-header-overlay-cta-fg: var(--kz-header-overlay-solid-cta-fg);
+}
+
+/* Past the hero: the blind is down, the copy shows whole, the white row is cut away */
+.kodza-header-overlay.is-down .kodza-header-overlay__fill {
+  transform: translateY(0%);
+}
+
+.kodza-header-overlay.is-down .kodza-header-overlay__veil {
+  opacity: 0;
+}
+
+.kodza-header-overlay.is-down .kodza-header-overlay__row {
+  clip-path: inset(100% 0 0 0);
+}
+
+.kodza-header-overlay.is-down .kodza-header-overlay__row--ink {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Once it has landed, the row itself takes the ink (the copy can't be pointed at or focused) */
+.kodza-header-overlay.is-solid .kodza-header-overlay__row {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-header-overlay.is-solid .kodza-header-overlay__row--ink {
+  visibility: hidden;
+}
+
+/* Swapped in one frame, with nothing easing */
+.kodza-header-overlay.is-swap .kodza-header-overlay__bar *,
+.kodza-header-overlay.is-swap .kodza-header-overlay__bar *::before,
+.kodza-header-overlay.is-swap .kodza-header-overlay__bar *::after {
+  transition: none;
+}
+
+.kodza-header-overlay__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  height: 40px;
+  margin: 0;
+  border-radius: 6px;
+  color: var(--kz-header-overlay-fg);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-header-overlay__logo svg {
+  display: block;
+  flex: none;
+  fill: currentColor;
+}
+
+.kodza-header-overlay__logo:focus-visible {
+  outline: 2px solid var(--kz-header-overlay-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-overlay__menu {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-header-overlay__links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-overlay__links > li {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A line draws itself under the link pointed at, from the left, and leaves to the right */
+.kodza-header-overlay__item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: 8px;
+  color: var(--kz-header-overlay-muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.kodza-header-overlay__item::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 9px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-overlay__item[aria-current="page"],
+.kodza-header-overlay__item:focus-visible {
+  color: var(--kz-header-overlay-fg);
+}
+
+.kodza-header-overlay__item:focus-visible {
+  outline: 2px solid var(--kz-header-overlay-fg);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .kodza-header-overlay__item:hover {
+    color: var(--kz-header-overlay-fg);
+  }
+
+  .kodza-header-overlay__item:hover::after {
+    transform: scaleX(1);
+    transform-origin: 0% 50%;
+  }
+}
+
+.kodza-header-overlay__item[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+.kodza-header-overlay__end {
+  display: flex;
+  grid-column: 3;
+  align-items: center;
+  justify-self: end;
+  gap: 8px;
+  margin: 0;
+}
+
+.kodza-header-overlay__cta {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-overlay-cta-bg);
+  color: var(--kz-header-overlay-cta-fg);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-header-overlay__cta:hover {
+    background: color-mix(in srgb, var(--kz-header-overlay-cta-bg) 86%, transparent);
+  }
+}
+
+.kodza-header-overlay__cta:focus-visible {
+  outline: 2px solid var(--kz-header-overlay-fg);
+  outline-offset: 2px;
+}
+
+/* The Menu button, and Close on the curtain */
+.kodza-header-overlay__toggle,
+.kodza-header-overlay__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-overlay__toggle {
+  background: var(--kz-header-overlay-soft);
+  color: var(--kz-header-overlay-fg);
+}
+
+.kodza-header-overlay__close {
+  background: var(--kz-header-overlay-menu-fg);
+  color: var(--kz-header-overlay-menu-bg);
+}
+
+.kodza-header-overlay__toggle:focus-visible {
+  outline: 2px solid var(--kz-header-overlay-fg);
+  outline-offset: 3px;
+}
+
+.kodza-header-overlay__close:focus-visible,
+.kodza-header-overlay__info a:focus-visible {
+  outline: 2px solid var(--kz-header-overlay-menu-fg);
+  outline-offset: 4px;
+}
+
+/* A link's focus is drawn on its word, so it rises with it instead of waiting there as an empty box */
+.kodza-header-overlay__link:focus-visible {
+  outline: none;
+}
+
+.kodza-header-overlay__link:focus-visible .kodza-header-overlay__word {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.12em;
+}
+
+/* Two lines on the button: they meet and cross as the curtain comes, and Close takes them
+   over crossed, in the same place */
+.kodza-header-overlay__lines,
+.kodza-header-overlay__cross {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 8px;
+}
+
+.kodza-header-overlay__lines::before,
+.kodza-header-overlay__lines::after,
+.kodza-header-overlay__cross::before,
+.kodza-header-overlay__cross::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  /* On its own layer: drawn the same way at rest and while turning, so no snap at the end */
+  will-change: transform;
+}
+
+.kodza-header-overlay__lines::before,
+.kodza-header-overlay__cross::before {
+  top: 0;
+}
+
+.kodza-header-overlay__lines::after,
+.kodza-header-overlay__cross::after {
+  top: 6px; /* whole pixels: both lines sit on the pixel grid the same way */
+}
+
+/* The script turns them on the same clock as the curtain: when its edge goes over the button,
+   Close shows the lines exactly as they were, and closing plays it backwards */
+.kodza-header-overlay__lines::before,
+.kodza-header-overlay__lines::after {
+  transition: clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Whole at rest, as an inset: the pointer slides it to a shorter one (from none it would jump) */
+.kodza-header-overlay__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-header-overlay__toggle:hover .kodza-header-overlay__lines::after {
+  clip-path: inset(0 45% 0 0);
+}
+
+.kodza-header-overlay__toggle[aria-expanded="true"] .kodza-header-overlay__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-header-overlay__cross::before {
+  translate: 0 3px;
+  rotate: 45deg;
+}
+
+.kodza-header-overlay__cross::after {
+  translate: 0 -3px;
+  rotate: -45deg;
+}
+
+/* The word rolls in from below its mask */
+.kodza-header-overlay__say {
+  display: grid;
+  margin: -3px 0;
+  padding: 3px 0;
+  overflow: hidden;
+}
+
+.kodza-header-overlay__say > span {
+  display: block;
+}
+
+/* The menu: over the whole screen, on top of everything while it is open */
+.kodza-header-overlay__panel {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--kz-header-overlay-menu-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: size;
+  -webkit-font-smoothing: antialiased;
+}
+
+.kodza-header-overlay__panel[hidden] {
+  display: none;
+}
+
+.kodza-header-overlay__panel:focus {
+  outline: none;
+}
+
+.kodza-header-overlay__shade,
+.kodza-header-overlay__curtain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.kodza-header-overlay__shade {
+  background: rgba(0, 0, 0, var(--kz-header-overlay-menu-shade));
+  /* Around the page once it has backed off: darker than the page, so its edge reads */
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.82);
+}
+
+.kodza-header-overlay__curtain {
+  background: var(--kz-header-overlay-menu-bg);
+}
+
+/* The bend under the curtain: as deep as the curtain is fast, flat once it lands */
+.kodza-header-overlay__edge {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: calc(var(--kz-header-overlay-menu-curve) * min(22cqh, 32cqw, 200px)); /* a phone gets a gentler bend */
+  margin-top: -1px;
+  overflow: visible;
+  fill: var(--kz-header-overlay-menu-bg);
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+/* What the curtain carries: it scrolls on its own on a short screen */
+.kodza-header-overlay__body {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+}
+
+.kodza-header-overlay__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: var(--kz-header-overlay-menu-top) var(--kz-header-overlay-menu-side) 0;
+}
+
+.kodza-header-overlay__label,
+.kodza-header-overlay__index,
+.kodza-header-overlay__small {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-header-overlay-menu-muted);
+}
+
+.kodza-header-overlay__label {
+  margin: 0;
+}
+
+/* The links, big, at the bottom left; the contact column at the bottom right */
+.kodza-header-overlay__stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(190px, 21cqw, 280px);
+  align-items: end;
+  gap: 32px clamp(32px, 6cqw, 96px);
+  padding: 32px var(--kz-header-overlay-menu-side) clamp(20px, 4cqh, 36px);
+}
+
+.kodza-header-overlay__nav {
+  display: grid;
+  justify-items: start;
+}
+
+.kodza-header-overlay__link {
+  display: grid;
+  grid-template-columns: max-content auto;
+  align-items: start;
+  column-gap: calc(var(--kz-header-overlay-menu-size) * 0.1);
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The mask has the size of its word, so its room for descenders (g, j, p, q, y) is measured
+   on the word */
+.kodza-header-overlay__mask {
+  display: block;
+  margin: -0.06em 0 -0.22em;
+  padding: 0.06em 0 0.22em;
+  overflow: hidden;
+  font-size: var(--kz-header-overlay-menu-size);
+}
+
+.kodza-header-overlay__word {
+  display: block;
+  font-size: var(--kz-header-overlay-menu-size);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+}
+
+.kodza-header-overlay__index {
+  padding-top: calc(var(--kz-header-overlay-menu-size) * 0.1);
+  transition: color 0.25s;
+}
+
+/* Pointed at: the other links step back, its number lights up */
+.kodza-header-overlay__nav:hover .kodza-header-overlay__link:not(:hover),
+.kodza-header-overlay__nav:has(.kodza-header-overlay__link:focus-visible) .kodza-header-overlay__link:not(:focus-visible) {
+  opacity: 0.35;
+}
+
+.kodza-header-overlay__link:hover .kodza-header-overlay__index,
+.kodza-header-overlay__link:focus-visible .kodza-header-overlay__index {
+  color: var(--kz-header-overlay-menu-fg);
+}
+
+.kodza-header-overlay__info {
+  display: grid;
+  gap: 22px;
+  padding-bottom: calc(var(--kz-header-overlay-menu-size) * 0.08);
+}
+
+.kodza-header-overlay__info p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.kodza-header-overlay__group {
+  display: grid;
+  gap: 6px;
+}
+
+/* One line of an address */
+.kodza-header-overlay__line {
+  display: block;
+}
+
+.kodza-header-overlay__info a {
+  color: var(--kz-header-overlay-menu-fg);
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-header-overlay__info a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-header-overlay__socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+/* A phone: the links, then the contact column under them */
+@container (max-width: 720px) {
+  .kodza-header-overlay__stage {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: end;
+    gap: 40px;
+  }
+
+  .kodza-header-overlay__info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 16px;
+    padding-bottom: 0;
+  }
+}
+
+/* Under 900 px the links give way to the Menu button; under 520 px the call to action waits in
+   the curtain */
+@container (max-width: 899px) {
+  .kodza-header-overlay__menu {
+    display: none;
+  }
+}
+
+@container (min-width: 900px) {
+  .kodza-header-overlay__toggle {
+    display: none;
+  }
+}
+
+@container (max-width: 519px) {
+  .kodza-header-overlay__row {
+    padding: 0 16px;
+  }
+
+  .kodza-header-overlay__cta {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-header-overlay__veil,
+  .kodza-header-overlay__fill,
+  .kodza-header-overlay__row,
+  .kodza-header-overlay__item,
+  .kodza-header-overlay__item::after,
+  .kodza-header-overlay__cta,
+  .kodza-header-overlay__toggle *,
+  .kodza-header-overlay__toggle *::before,
+  .kodza-header-overlay__toggle *::after,
+  .kodza-header-overlay__link,
+  .kodza-header-overlay__index {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* kodza-guard f863eb59fa9f — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-header-overlay__logo):not(#_),
+:where(.kodza-header-overlay__toggle):not(#_) {
+  outline: revert;
+  transition: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-header-overlay__menu):not(#_),
+:where(.kodza-header-overlay__links):not(#_),
+:where(.kodza-header-overlay__logo svg:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-header-overlay__links li:where(:not([class*="kodza-"]):not(.kodza-header-overlay__links [class*="kodza-"] *))):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-header-overlay__item):not(#_),
+:where(.kodza-header-overlay__cta):not(#_),
+:where(.kodza-header-overlay__close):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-header-overlay__panel):not(#_),
+:where(.kodza-header-overlay__link):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-header-overlay__group a:where(:not([class*="kodza-"]):not(.kodza-header-overlay__group [class*="kodza-"] *))):not(#_),
+:where(.kodza-header-overlay__socials a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  text-underline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-header-overlay:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-overlay__bar:not(#_),
+.kodza-header-overlay__veil:not(#_),
+.kodza-header-overlay__blind:not(#_),
+.kodza-header-overlay__fill:not(#_),
+.kodza-header-overlay__end:not(#_),
+.kodza-header-overlay__lines:not(#_),
+.kodza-header-overlay__shade:not(#_),
+.kodza-header-overlay__curtain:not(#_),
+.kodza-header-overlay__body:not(#_),
+.kodza-header-overlay__head:not(#_),
+.kodza-header-overlay__cross:not(#_),
+.kodza-header-overlay__say:not(#_),
+.kodza-header-overlay__stage:not(#_),
+.kodza-header-overlay__mask:not(#_),
+.kodza-header-overlay__word:not(#_),
+.kodza-header-overlay__index:not(#_),
+.kodza-header-overlay__info:not(#_),
+.kodza-header-overlay__group:not(#_),
+.kodza-header-overlay__line:not(#_),
+.kodza-header-overlay__logo span:where(:not([class*="kodza-"])):not(#_),
+.kodza-header-overlay__say span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-header-overlay__logo:not(#_) {
+  border: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-overlay__menu:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-overlay__links:not(#_),
+.kodza-header-overlay__links li:where(:not([class*="kodza-"]):not(.kodza-header-overlay__links [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-overlay__item:not(#_) {
+  border: revert;
+  list-style: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-overlay__cta:not(#_) {
+  border: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-overlay__toggle:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-header-overlay__panel:not(#_) {
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+.kodza-header-overlay__edge:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-overlay__label:not(#_),
+.kodza-header-overlay__small:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-overlay__close:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-header-overlay__nav:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-overlay__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-overlay__socials:not(#_),
+.kodza-header-overlay__group p:where(:not([class*="kodza-"]):not(.kodza-header-overlay__group [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-overlay__logo svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-overlay__group a:where(:not([class*="kodza-"]):not(.kodza-header-overlay__group [class*="kodza-"] *)):not(#_),
+.kodza-header-overlay__socials a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-overlay__label:not(#_):where(:not([hidden])),
+.kodza-header-overlay__small:not(#_):where(:not([hidden])),
+.kodza-header-overlay__group p:where(:not([class*="kodza-"]):not(.kodza-header-overlay__group [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-header-overlay__group a:where(:not([class*="kodza-"]):not(.kodza-header-overlay__group [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-header-overlay__socials a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-header-overlay__label:not(#_):where([hidden]),
+.kodza-header-overlay__small:not(#_):where([hidden]),
+.kodza-header-overlay__group p:where(:not([class*="kodza-"]):not(.kodza-header-overlay__group [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-header-overlay__group a:where(:not([class*="kodza-"]):not(.kodza-header-overlay__group [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-header-overlay__socials a:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-header-overlay__item:not(#_)::after,
+.kodza-header-overlay__lines:not(#_)::before,
+.kodza-header-overlay__lines:not(#_)::after,
+.kodza-header-overlay__cross:not(#_)::before,
+.kodza-header-overlay__cross:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-header-overlay:not(#_) {
+  position: sticky;
+  display: block;
+  box-sizing: border-box;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.kodza-header-overlay.is-swap .kodza-header-overlay__bar *:not(#_),
+.kodza-header-overlay.is-swap .kodza-header-overlay__bar *:not(#_)::before,
+.kodza-header-overlay.is-swap .kodza-header-overlay__bar *:not(#_)::after {
+  transition: none;
+}
+
+.kodza-header-overlay__logo:not(#_) {
+  display: inline-flex;
+  margin: 0;
+  border-radius: 6px;
+  color: var(--kz-header-overlay-fg);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-header-overlay__logo svg:not(#_) {
+  display: block;
+}
+
+.kodza-header-overlay__logo:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-overlay-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-overlay__menu:not(#_) {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-header-overlay__links:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-overlay__links > li:not(#_) {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-overlay__item:not(#_) {
+  position: relative;
+  display: inline-flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: 8px;
+  color: var(--kz-header-overlay-muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.kodza-header-overlay__item[aria-current="page"]:not(#_),
+.kodza-header-overlay__item:focus-visible:not(#_) {
+  color: var(--kz-header-overlay-fg);
+}
+
+.kodza-header-overlay__item:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-overlay-fg);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .kodza-header-overlay__item:hover:not(#_) {
+    color: var(--kz-header-overlay-fg);
+  }
+}
+
+.kodza-header-overlay__cta:not(#_) {
+  display: inline-flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-overlay-cta-bg);
+  color: var(--kz-header-overlay-cta-fg);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-header-overlay__cta:hover:not(#_) {
+    background: color-mix(in srgb, var(--kz-header-overlay-cta-bg) 86%, transparent);
+  }
+}
+
+.kodza-header-overlay__cta:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-overlay-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-overlay__toggle:not(#_),
+.kodza-header-overlay__close:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-overlay__toggle:not(#_) {
+  background: var(--kz-header-overlay-soft);
+  color: var(--kz-header-overlay-fg);
+}
+
+.kodza-header-overlay__close:not(#_) {
+  background: var(--kz-header-overlay-menu-fg);
+  color: var(--kz-header-overlay-menu-bg);
+}
+
+.kodza-header-overlay__toggle:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-overlay-fg);
+  outline-offset: 3px;
+}
+
+.kodza-header-overlay__close:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-overlay-menu-fg);
+  outline-offset: 4px;
+}
+
+.kodza-header-overlay__info a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-overlay-menu-fg);
+  outline-offset: 4px;
+}
+
+.kodza-header-overlay__link:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-header-overlay__panel:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-header-overlay__edge:not(#_) {
+  position: absolute;
+  display: block;
+  margin-top: -1px;
+}
+
+.kodza-header-overlay__label:not(#_),
+.kodza-header-overlay__small:not(#_) {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-header-overlay-menu-muted);
+}
+
+.kodza-header-overlay__label:not(#_) {
+  margin: 0;
+}
+
+.kodza-header-overlay__nav:not(#_) {
+  display: grid;
+}
+
+.kodza-header-overlay__link:not(#_) {
+  display: grid;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-overlay__info p:not(#_) {
+  margin: 0;
+}
+
+.kodza-header-overlay__info a:not(#_) {
+  color: var(--kz-header-overlay-menu-fg);
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-header-overlay__info a:hover:not(#_) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-header-overlay__socials:not(#_) {
+  display: flex;
+}
+
+@container (max-width: 899px) {
+  .kodza-header-overlay__menu:not(#_) {
+    display: none;
+  }
+}
+
+@container (min-width: 900px) {
+  .kodza-header-overlay__toggle:not(#_) {
+    display: none;
+  }
+}
+
+@container (max-width: 519px) {
+  .kodza-header-overlay__cta:not(#_) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-header-overlay__item:not(#_),
+  .kodza-header-overlay__cta:not(#_),
+  .kodza-header-overlay__link:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

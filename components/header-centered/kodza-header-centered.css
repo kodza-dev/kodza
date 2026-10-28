@@ -1,0 +1,1725 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Header Centered
+   A restaurant's header: the name in the middle, the links on either side, Book a table at the
+   end. Above them, a thin line in mono with the address and whether it's open now, worked out
+   from your hours in your time zone. Scroll down and that line fades away, the bar tightens and
+   the name shrinks, all at once and gently; scroll back to the top and it all comes back. Below
+   900 px the links give way to a Menu button and a full-screen curtain (Fullscreen Menu),
+   written from the same links.
+   The hours go in data-hours ("mon closed; tue-thu 12:00-14:30, 19:00-22:30; …") and the time
+   zone in data-timezone. Mark the wrapper of your site with data-header-centered-page, or name
+   it with data-page="…" (the wrapper of most WordPress themes is found on its own).
+   Everything is tuned with the --kz-header-centered-* variables (--kz-header-centered-menu-* for
+   the curtain). */
+.kodza-header-centered {
+  --kz-header-centered-bg: #f2f2f0;
+  --kz-header-centered-fg: #0a0a0a;
+  --kz-header-centered-muted: rgba(10, 10, 10, 0.62);
+  --kz-header-centered-soft: rgba(10, 10, 10, 0.06); /* the Menu button */
+  --kz-header-centered-rule: rgba(10, 10, 10, 0.1);
+  --kz-header-centered-cta-bg: #0a0a0a;
+  --kz-header-centered-cta-fg: #ffffff;
+  --kz-header-centered-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-header-centered-top: var(--wp-admin--admin-bar--height, 0px); /* below the WordPress admin bar */
+  --kz-header-centered-strip: 36px; /* the line with the address and the hours */
+  --kz-header-centered-height: 84px; /* the bar at the top of the page */
+  --kz-header-centered-compact: 64px; /* the bar once you scroll */
+  --kz-header-centered-shrink: 0.74; /* the name's size once you scroll */
+  --kz-header-centered-phone-height: 68px; /* the same three, below 900 px */
+  --kz-header-centered-phone-compact: 56px;
+  --kz-header-centered-phone-shrink: 0.84;
+  --kz-header-centered-after: 40px; /* how far you scroll before it tightens */
+  --kz-header-centered-width: 1200px; /* the row, centred */
+  --kz-header-centered-pad: 24px;
+  --kz-header-centered-duration: 0.6s;
+  --kz-header-centered-ease: cubic-bezier(0.33, 1, 0.68, 1);
+  /* The curtain, below 900 px */
+  --kz-header-centered-menu-bg: #0a0a0a;
+  --kz-header-centered-menu-fg: #f2f2f0;
+  --kz-header-centered-menu-muted: rgba(242, 242, 240, 0.62);
+  --kz-header-centered-menu-top: calc(var(--wp-admin--admin-bar--height, 0px) + 18px); /* Close lands on Menu on its own; this is where it goes if Menu is somewhere else */
+  --kz-header-centered-menu-side: 24px;
+  --kz-header-centered-menu-size: clamp(40px, min(10cqw + 12px, calc((100cqh - 230px) / 5.3)), 132px);
+  --kz-header-centered-menu-curve: 1; /* how far the edge bends on the way; 0 = a straight edge */
+  --kz-header-centered-menu-shade: 0.5; /* how dark the page gets under it */
+  --kz-header-centered-menu-depth: 0.94; /* the page's size once covered */
+  --kz-header-centered-menu-duration: 1s;
+  --kz-header-centered-menu-ease: cubic-bezier(0.76, 0, 0.24, 1);
+  --kz-header-centered-page: auto; /* the page colour while it backs off; auto = the first background above it */
+
+  /* It keeps its full height while it tightens (the bar slides up inside it), so the page
+     under it never jumps; what it leaves free lets the pointer through */
+  position: sticky;
+  top: var(--kz-header-centered-top);
+  z-index: 50;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: clip;
+  pointer-events: none;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: inline-size;
+}
+
+/* Where the header starts in the page (written by the script): it tells how far you scrolled */
+.kodza-header-centered__mark {
+  display: block;
+  height: 1px;
+  margin: 0 0 -1px;
+  padding: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.kodza-header-centered__frame {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  pointer-events: auto;
+  transition: transform var(--kz-header-centered-duration) var(--kz-header-centered-ease);
+}
+
+.kodza-header-centered__panel {
+  pointer-events: auto;
+}
+
+/* Once you scroll: the line goes up and out, and the bar with it, as far as it tightens */
+.kodza-header-centered.is-compact .kodza-header-centered__frame {
+  transform: translateY(calc(-1 * (var(--kz-header-centered-strip) + var(--kz-header-centered-height) - var(--kz-header-centered-compact))));
+}
+
+/* The line on top: the address, and whether it's open */
+.kodza-header-centered__strip {
+  display: block;
+  box-sizing: border-box;
+  height: var(--kz-header-centered-strip);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--kz-header-centered-bg);
+  box-shadow: inset 0 -1px 0 var(--kz-header-centered-rule);
+  color: var(--kz-header-centered-muted);
+  font-family: var(--kz-header-centered-mono);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.kodza-header-centered__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+  max-width: var(--kz-header-centered-width);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 var(--kz-header-centered-pad);
+  transition:
+    opacity var(--kz-header-centered-duration) var(--kz-header-centered-ease),
+    transform var(--kz-header-centered-duration) var(--kz-header-centered-ease),
+    visibility 0s;
+}
+
+/* It fades and lifts a little as the bar slides over it */
+.kodza-header-centered.is-compact .kodza-header-centered__inner {
+  opacity: 0;
+  transform: translateY(-6px);
+  visibility: hidden;
+  transition:
+    opacity var(--kz-header-centered-duration) var(--kz-header-centered-ease),
+    transform var(--kz-header-centered-duration) var(--kz-header-centered-ease),
+    visibility 0s var(--kz-header-centered-duration);
+}
+
+.kodza-header-centered__where {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 2px;
+  color: var(--kz-header-centered-muted);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-header-centered__where:hover {
+    color: var(--kz-header-centered-fg);
+  }
+}
+
+.kodza-header-centered__where:focus-visible {
+  outline: 2px solid var(--kz-header-centered-fg);
+  outline-offset: 2px;
+}
+
+/* Open now, or when it opens: the words roll when they change */
+.kodza-header-centered__status {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  margin: 0;
+  color: var(--kz-header-centered-fg);
+  font-family: var(--kz-header-centered-mono);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+/* Filled while it's open, a ring while it's closed: the words say it too */
+.kodza-header-centered__dot {
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+}
+
+.kodza-header-centered__dot::before,
+.kodza-header-centered__dot::after {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  background: currentColor;
+}
+
+.kodza-header-centered__dot::before {
+  transform: scale(0);
+  transition: transform 0.45s var(--kz-header-centered-ease);
+}
+
+/* While it's open, a soft ring leaves the dot, again and again */
+.kodza-header-centered__dot::after {
+  opacity: 0;
+}
+
+.kodza-header-centered__status.is-open .kodza-header-centered__dot::before {
+  transform: none;
+}
+
+/* The words and the minutes each roll in their own window */
+.kodza-header-centered__text,
+.kodza-header-centered__num {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.kodza-header-centered__text {
+  min-width: 0;
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+
+.kodza-header-centered__num {
+  box-sizing: content-box;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-header-centered__text > span,
+.kodza-header-centered__num > span {
+  display: block;
+}
+
+/* What leaves stops sizing its window, so the width only follows the new words */
+.kodza-header-centered__text > .is-leaving,
+.kodza-header-centered__num > .is-leaving {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* The bar: its top slides out of sight as it tightens, so only what's left of it shows */
+.kodza-header-centered__bar {
+  display: block;
+  box-sizing: border-box;
+  height: var(--kz-header-centered-height);
+  margin: 0;
+  padding: 0;
+  background: var(--kz-header-centered-bg);
+  box-shadow: inset 0 -1px 0 var(--kz-header-centered-rule);
+}
+
+/* Links on the left, the name in the middle (truly in the middle, whatever the sides hold),
+   the rest on the right */
+.kodza-header-centered__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  box-sizing: border-box;
+  max-width: var(--kz-header-centered-width);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 var(--kz-header-centered-pad);
+  color: var(--kz-header-centered-fg);
+  transition: transform var(--kz-header-centered-duration) var(--kz-header-centered-ease);
+}
+
+/* …and the row comes down half as far, to stay in the middle of what shows */
+.kodza-header-centered.is-compact .kodza-header-centered__row {
+  transform: translateY(calc((var(--kz-header-centered-height) - var(--kz-header-centered-compact)) / 2));
+}
+
+.kodza-header-centered__row > .kodza-header-centered__links {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: start;
+  margin-left: -14px; /* the first word lines up with the address above */
+}
+
+.kodza-header-centered__logo {
+  display: inline-flex;
+  grid-column: 2;
+  grid-row: 1;
+  align-items: center;
+  justify-self: center;
+  height: 44px;
+  margin: 0;
+  padding: 0 4px;
+  border-radius: 6px;
+  color: var(--kz-header-centered-fg);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform var(--kz-header-centered-duration) var(--kz-header-centered-ease);
+}
+
+.kodza-header-centered.is-compact .kodza-header-centered__logo {
+  transform: scale(var(--kz-header-centered-shrink));
+}
+
+.kodza-header-centered__logo:focus-visible {
+  outline: 2px solid var(--kz-header-centered-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-centered__end {
+  display: flex;
+  grid-column: 3;
+  grid-row: 1;
+  align-items: center;
+  justify-self: end;
+  gap: 8px;
+  margin: 0;
+}
+
+.kodza-header-centered__links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-centered__links > li {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A line draws itself under the link pointed at, from the left, and leaves to the right */
+.kodza-header-centered__item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: 8px;
+  color: var(--kz-header-centered-muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.kodza-header-centered__item::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 9px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-centered__item[aria-current="page"],
+.kodza-header-centered__item:focus-visible {
+  color: var(--kz-header-centered-fg);
+}
+
+.kodza-header-centered__item:focus-visible {
+  outline: 2px solid var(--kz-header-centered-fg);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .kodza-header-centered__item:hover {
+    color: var(--kz-header-centered-fg);
+  }
+
+  .kodza-header-centered__item:hover::after {
+    transform: scaleX(1);
+    transform-origin: 0% 50%;
+  }
+}
+
+.kodza-header-centered__item[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+.kodza-header-centered__cta {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0 0 0 6px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-centered-cta-bg);
+  color: var(--kz-header-centered-cta-fg);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-header-centered__cta:hover {
+    background: color-mix(in srgb, var(--kz-header-centered-cta-bg) 86%, transparent);
+  }
+}
+
+.kodza-header-centered__cta:focus-visible {
+  outline: 2px solid var(--kz-header-centered-fg);
+  outline-offset: 2px;
+}
+
+/* The Menu button, and Close on the curtain */
+.kodza-header-centered__toggle,
+.kodza-header-centered__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-centered__toggle {
+  background: var(--kz-header-centered-soft);
+  color: var(--kz-header-centered-fg);
+}
+
+.kodza-header-centered__close {
+  background: var(--kz-header-centered-menu-fg);
+  color: var(--kz-header-centered-menu-bg);
+}
+
+.kodza-header-centered__toggle:focus-visible {
+  outline: 2px solid var(--kz-header-centered-fg);
+  outline-offset: 3px;
+}
+
+.kodza-header-centered__close:focus-visible,
+.kodza-header-centered__info a:focus-visible {
+  outline: 2px solid var(--kz-header-centered-menu-fg);
+  outline-offset: 4px;
+}
+
+/* A link's focus is drawn on its word, so it rises with it instead of waiting there as an empty box */
+.kodza-header-centered__link:focus-visible {
+  outline: none;
+}
+
+.kodza-header-centered__link:focus-visible .kodza-header-centered__word {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.12em;
+}
+
+/* Two lines on the button: they meet and cross as the curtain comes, and Close takes them
+   over crossed, in the same place */
+.kodza-header-centered__lines,
+.kodza-header-centered__cross {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 8px;
+}
+
+.kodza-header-centered__lines::before,
+.kodza-header-centered__lines::after,
+.kodza-header-centered__cross::before,
+.kodza-header-centered__cross::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  /* On its own layer: drawn the same way at rest and while turning, so no snap at the end */
+  will-change: transform;
+}
+
+.kodza-header-centered__lines::before,
+.kodza-header-centered__cross::before {
+  top: 0;
+}
+
+.kodza-header-centered__lines::after,
+.kodza-header-centered__cross::after {
+  top: 6px; /* whole pixels: both lines sit on the pixel grid the same way */
+}
+
+/* The script turns them on the same clock as the curtain: when its edge goes over the button,
+   Close shows the lines exactly as they were, and closing plays it backwards */
+.kodza-header-centered__lines::before,
+.kodza-header-centered__lines::after {
+  transition: clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Whole at rest, as an inset: the pointer slides it to a shorter one (from none it would jump) */
+.kodza-header-centered__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-header-centered__toggle:hover .kodza-header-centered__lines::after {
+  clip-path: inset(0 45% 0 0);
+}
+
+.kodza-header-centered__toggle[aria-expanded="true"] .kodza-header-centered__lines::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-header-centered__cross::before {
+  translate: 0 3px;
+  rotate: 45deg;
+}
+
+.kodza-header-centered__cross::after {
+  translate: 0 -3px;
+  rotate: -45deg;
+}
+
+/* The word rolls in from below its mask */
+.kodza-header-centered__say {
+  display: grid;
+  margin: -3px 0;
+  padding: 3px 0;
+  overflow: hidden;
+}
+
+.kodza-header-centered__say > span {
+  display: block;
+}
+
+/* The menu: over the whole screen, on top of everything while it is open */
+.kodza-header-centered__panel {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--kz-header-centered-menu-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+  container-type: size;
+  -webkit-font-smoothing: antialiased;
+}
+
+.kodza-header-centered__panel[hidden] {
+  display: none;
+}
+
+.kodza-header-centered__panel:focus {
+  outline: none;
+}
+
+.kodza-header-centered__shade,
+.kodza-header-centered__curtain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.kodza-header-centered__shade {
+  background: rgba(0, 0, 0, var(--kz-header-centered-menu-shade));
+  /* Around the page once it has backed off: darker than the page, so its edge reads */
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.82);
+}
+
+.kodza-header-centered__curtain {
+  background: var(--kz-header-centered-menu-bg);
+}
+
+/* The bend under the curtain: as deep as the curtain is fast, flat once it lands */
+.kodza-header-centered__edge {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: calc(var(--kz-header-centered-menu-curve) * min(22cqh, 32cqw, 200px)); /* a phone gets a gentler bend */
+  margin-top: -1px;
+  overflow: visible;
+  fill: var(--kz-header-centered-menu-bg);
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+/* What the curtain carries: it scrolls on its own on a short screen */
+.kodza-header-centered__body {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+}
+
+.kodza-header-centered__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: var(--kz-header-centered-menu-top) var(--kz-header-centered-menu-side) 0;
+}
+
+.kodza-header-centered__label,
+.kodza-header-centered__index,
+.kodza-header-centered__small {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-header-centered-menu-muted);
+}
+
+.kodza-header-centered__label {
+  margin: 0;
+}
+
+/* The links, big, at the bottom left; the contact column at the bottom right */
+.kodza-header-centered__stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(190px, 21cqw, 280px);
+  align-items: end;
+  gap: 32px clamp(32px, 6cqw, 96px);
+  padding: 32px var(--kz-header-centered-menu-side) clamp(20px, 4cqh, 36px);
+}
+
+.kodza-header-centered__nav {
+  display: grid;
+  justify-items: start;
+}
+
+.kodza-header-centered__link {
+  display: grid;
+  grid-template-columns: max-content auto;
+  align-items: start;
+  column-gap: calc(var(--kz-header-centered-menu-size) * 0.1);
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The mask has the size of its word, so its room for descenders (g, j, p, q, y) is measured
+   on the word */
+.kodza-header-centered__mask {
+  display: block;
+  margin: -0.06em 0 -0.22em;
+  padding: 0.06em 0 0.22em;
+  overflow: hidden;
+  font-size: var(--kz-header-centered-menu-size);
+}
+
+.kodza-header-centered__word {
+  display: block;
+  font-size: var(--kz-header-centered-menu-size);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+}
+
+.kodza-header-centered__index {
+  padding-top: calc(var(--kz-header-centered-menu-size) * 0.1);
+  transition: color 0.25s;
+}
+
+/* Pointed at: the other links step back, its number lights up */
+.kodza-header-centered__nav:hover .kodza-header-centered__link:not(:hover),
+.kodza-header-centered__nav:has(.kodza-header-centered__link:focus-visible) .kodza-header-centered__link:not(:focus-visible) {
+  opacity: 0.35;
+}
+
+.kodza-header-centered__link:hover .kodza-header-centered__index,
+.kodza-header-centered__link:focus-visible .kodza-header-centered__index {
+  color: var(--kz-header-centered-menu-fg);
+}
+
+.kodza-header-centered__info {
+  display: grid;
+  gap: 22px;
+  padding-bottom: calc(var(--kz-header-centered-menu-size) * 0.08);
+}
+
+.kodza-header-centered__info p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.kodza-header-centered__group {
+  display: grid;
+  gap: 6px;
+}
+
+/* One line of an address */
+.kodza-header-centered__line {
+  display: block;
+}
+
+.kodza-header-centered__info a {
+  color: var(--kz-header-centered-menu-fg);
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-header-centered__info a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-header-centered__socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+/* A phone: the links, then the contact column under them */
+@container (max-width: 720px) {
+  .kodza-header-centered__stage {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: end;
+    gap: 40px;
+  }
+
+  .kodza-header-centered__info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 16px;
+    padding-bottom: 0;
+  }
+}
+
+/* The hours on the curtain, in its colours */
+.kodza-header-centered__info .kodza-header-centered__status {
+  color: var(--kz-header-centered-menu-fg);
+  font-size: 13px;
+}
+
+/* Under 900 px the links wait in the curtain: Book a table on the left, the name in the
+   middle, Menu on the right */
+@container (max-width: 899px) {
+  .kodza-header-centered__frame {
+    --kz-header-centered-height: var(--kz-header-centered-phone-height);
+    --kz-header-centered-compact: var(--kz-header-centered-phone-compact);
+    --kz-header-centered-shrink: var(--kz-header-centered-phone-shrink);
+  }
+
+  .kodza-header-centered__links {
+    display: none;
+  }
+
+  .kodza-header-centered__row {
+    gap: 8px;
+  }
+
+  .kodza-header-centered__end {
+    display: contents;
+  }
+
+  .kodza-header-centered__cta {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    margin: 0;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+
+  .kodza-header-centered__toggle {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .kodza-header-centered__logo {
+    font-size: 24px;
+  }
+}
+
+@container (min-width: 900px) {
+  .kodza-header-centered__toggle {
+    display: none;
+  }
+}
+
+/* A phone: the hours alone on the line, in the middle */
+@container (max-width: 519px) {
+  .kodza-header-centered__frame {
+    --kz-header-centered-pad: 16px;
+  }
+
+  .kodza-header-centered__where {
+    display: none;
+  }
+
+  .kodza-header-centered__inner {
+    justify-content: center;
+  }
+}
+
+/* Too narrow for three: the call to action waits in the curtain */
+@container (max-width: 359px) {
+  .kodza-header-centered__cta {
+    display: none;
+  }
+}
+
+/* At the first look, it takes its place without easing (the page may load half-way down) */
+.kodza-header-centered.is-still .kodza-header-centered__frame,
+.kodza-header-centered.is-still .kodza-header-centered__inner,
+.kodza-header-centered.is-still .kodza-header-centered__row,
+.kodza-header-centered.is-still .kodza-header-centered__logo {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-header-centered__status.is-open .kodza-header-centered__dot::after {
+    animation: kodza-header-centered-breathe 2.4s var(--kz-header-centered-ease) infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-header-centered__frame,
+  .kodza-header-centered__inner,
+  .kodza-header-centered__row,
+  .kodza-header-centered__logo,
+  .kodza-header-centered__dot::before,
+  .kodza-header-centered__where,
+  .kodza-header-centered__item,
+  .kodza-header-centered__item::after,
+  .kodza-header-centered__cta,
+  .kodza-header-centered__toggle *,
+  .kodza-header-centered__toggle *::before,
+  .kodza-header-centered__toggle *::after,
+  .kodza-header-centered__link,
+  .kodza-header-centered__index {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@keyframes kodza-header-centered-breathe {
+  0% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+/* kodza-guard 355a76f4e191 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-header-centered__where):not(#_),
+:where(.kodza-header-centered__logo):not(#_),
+:where(.kodza-header-centered__cta):not(#_),
+:where(.kodza-header-centered__toggle):not(#_),
+:where(.kodza-header-centered__close):not(#_) {
+  outline: revert;
+  position: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-header-centered__status):not(#_),
+:where(.kodza-header-centered__row):not(#_),
+:where(.kodza-header-centered__links):not(#_),
+:where(.kodza-header-centered__label):not(#_),
+:where(.kodza-header-centered__nav):not(#_),
+:where(.kodza-header-centered__small):not(#_),
+:where(.kodza-header-centered__links li:where(:not([class*="kodza-"]):not(.kodza-header-centered__links [class*="kodza-"] *))):not(#_),
+:where(.kodza-header-centered__group p:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *))):not(#_) {
+  position: revert;
+}
+
+:where(.kodza-header-centered__item):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-header-centered__panel):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-header-centered__link):not(#_) {
+  outline: revert;
+  position: revert;
+}
+
+:where(.kodza-header-centered__group a:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *))):not(#_) {
+  outline: revert;
+  position: revert;
+  outline-offset: revert;
+  text-underline-offset: revert;
+}
+
+:where(.kodza-header-centered__where):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-header-centered__where):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-header-centered:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__frame:not(#_),
+.kodza-header-centered__text:not(#_),
+.kodza-header-centered__end:not(#_),
+.kodza-header-centered__lines:not(#_),
+.kodza-header-centered__shade:not(#_),
+.kodza-header-centered__curtain:not(#_),
+.kodza-header-centered__body:not(#_),
+.kodza-header-centered__head:not(#_),
+.kodza-header-centered__cross:not(#_),
+.kodza-header-centered__say:not(#_),
+.kodza-header-centered__stage:not(#_),
+.kodza-header-centered__mask:not(#_),
+.kodza-header-centered__word:not(#_),
+.kodza-header-centered__index:not(#_),
+.kodza-header-centered__info:not(#_),
+.kodza-header-centered__group:not(#_),
+.kodza-header-centered__line:not(#_),
+.kodza-header-centered__text span:where(:not([class*="kodza-"])):not(#_),
+.kodza-header-centered__say span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-header-centered__where:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__status:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__row:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__links:not(#_),
+.kodza-header-centered__links li:where(:not([class*="kodza-"]):not(.kodza-header-centered__links [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__item:not(#_) {
+  border: revert;
+  list-style: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__logo:not(#_) {
+  border: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__cta:not(#_) {
+  border: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__toggle:not(#_),
+.kodza-header-centered__close:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-header-centered__panel:not(#_) {
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+.kodza-header-centered__edge:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__label:not(#_),
+.kodza-header-centered__small:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__nav:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__group p:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__group a:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-header-centered__label:not(#_):where(:not([hidden])),
+.kodza-header-centered__small:not(#_):where(:not([hidden])),
+.kodza-header-centered__group p:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-header-centered__group a:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-header-centered__label:not(#_):where([hidden]),
+.kodza-header-centered__small:not(#_):where([hidden]),
+.kodza-header-centered__group p:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-header-centered__group a:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-header-centered__dot:not(#_)::before,
+.kodza-header-centered__dot:not(#_)::after,
+.kodza-header-centered__item:not(#_)::after,
+.kodza-header-centered__lines:not(#_)::before,
+.kodza-header-centered__lines:not(#_)::after,
+.kodza-header-centered__cross:not(#_)::before,
+.kodza-header-centered__cross:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-header-centered:not(#_) {
+  position: sticky;
+  display: block;
+  box-sizing: border-box;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.kodza-header-centered__where:not(#_) {
+  border-radius: 2px;
+  color: var(--kz-header-centered-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-header-centered__where:hover:not(#_) {
+    color: var(--kz-header-centered-fg);
+  }
+}
+
+.kodza-header-centered__where:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-centered-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-centered__status:not(#_) {
+  display: inline-flex;
+  max-width: 100%;
+  margin: 0;
+  color: var(--kz-header-centered-fg);
+  font-family: var(--kz-header-centered-mono);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.kodza-header-centered__text > .is-leaving:not(#_) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.kodza-header-centered__num > .is-leaving:not(#_) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.kodza-header-centered__row:not(#_) {
+  display: grid;
+  box-sizing: border-box;
+  max-width: var(--kz-header-centered-width);
+  margin: 0 auto;
+  padding: 0 var(--kz-header-centered-pad);
+  color: var(--kz-header-centered-fg);
+  transition: transform var(--kz-header-centered-duration) var(--kz-header-centered-ease);
+}
+
+.kodza-header-centered__row > .kodza-header-centered__links:not(#_) {
+  margin-left: -14px;
+}
+
+.kodza-header-centered__logo:not(#_) {
+  display: inline-flex;
+  margin: 0;
+  padding: 0 4px;
+  border-radius: 6px;
+  color: var(--kz-header-centered-fg);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  text-decoration: none;
+  transition: transform var(--kz-header-centered-duration) var(--kz-header-centered-ease);
+}
+
+.kodza-header-centered__logo:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-centered-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-centered__links:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-centered__links > li:not(#_) {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-header-centered__item:not(#_) {
+  position: relative;
+  display: inline-flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: 8px;
+  color: var(--kz-header-centered-muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.kodza-header-centered__item[aria-current="page"]:not(#_),
+.kodza-header-centered__item:focus-visible:not(#_) {
+  color: var(--kz-header-centered-fg);
+}
+
+.kodza-header-centered__item:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-centered-fg);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .kodza-header-centered__item:hover:not(#_) {
+    color: var(--kz-header-centered-fg);
+  }
+}
+
+.kodza-header-centered__cta:not(#_) {
+  display: inline-flex;
+  box-sizing: border-box;
+  margin: 0 0 0 6px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-header-centered-cta-bg);
+  color: var(--kz-header-centered-cta-fg);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-header-centered__cta:hover:not(#_) {
+    background: color-mix(in srgb, var(--kz-header-centered-cta-bg) 86%, transparent);
+  }
+}
+
+.kodza-header-centered__cta:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-centered-fg);
+  outline-offset: 2px;
+}
+
+.kodza-header-centered__toggle:not(#_),
+.kodza-header-centered__close:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-header-centered__toggle:not(#_) {
+  background: var(--kz-header-centered-soft);
+  color: var(--kz-header-centered-fg);
+}
+
+.kodza-header-centered__close:not(#_) {
+  background: var(--kz-header-centered-menu-fg);
+  color: var(--kz-header-centered-menu-bg);
+}
+
+.kodza-header-centered__toggle:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-centered-fg);
+  outline-offset: 3px;
+}
+
+.kodza-header-centered__close:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-centered-menu-fg);
+  outline-offset: 4px;
+}
+
+.kodza-header-centered__info a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-header-centered-menu-fg);
+  outline-offset: 4px;
+}
+
+.kodza-header-centered__link:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-header-centered__panel:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-header-centered__edge:not(#_) {
+  position: absolute;
+  display: block;
+  margin-top: -1px;
+}
+
+.kodza-header-centered__label:not(#_),
+.kodza-header-centered__small:not(#_) {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-header-centered-menu-muted);
+}
+
+.kodza-header-centered__label:not(#_) {
+  margin: 0;
+}
+
+.kodza-header-centered__nav:not(#_) {
+  display: grid;
+}
+
+.kodza-header-centered__link:not(#_) {
+  display: grid;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-header-centered__info p:not(#_) {
+  margin: 0;
+}
+
+.kodza-header-centered__info a:not(#_) {
+  color: var(--kz-header-centered-menu-fg);
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.kodza-header-centered__info a:hover:not(#_) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-header-centered__info .kodza-header-centered__status:not(#_) {
+  color: var(--kz-header-centered-menu-fg);
+  font-size: 13px;
+}
+
+@container (max-width: 899px) {
+  .kodza-header-centered__links:not(#_) {
+    display: none;
+  }
+}
+
+@container (max-width: 899px) {
+  .kodza-header-centered__cta:not(#_) {
+    margin: 0;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+}
+
+@container (max-width: 899px) {
+  .kodza-header-centered__toggle:not(#_) {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+  }
+}
+
+@container (max-width: 899px) {
+  .kodza-header-centered__logo:not(#_) {
+    font-size: 24px;
+  }
+}
+
+@container (min-width: 900px) {
+  .kodza-header-centered__toggle:not(#_) {
+    display: none;
+  }
+}
+
+@container (max-width: 519px) {
+  .kodza-header-centered__where:not(#_) {
+    display: none;
+  }
+}
+
+@container (max-width: 359px) {
+  .kodza-header-centered__cta:not(#_) {
+    display: none;
+  }
+}
+
+.kodza-header-centered.is-still .kodza-header-centered__row:not(#_),
+.kodza-header-centered.is-still .kodza-header-centered__logo:not(#_) {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-header-centered__row:not(#_),
+  .kodza-header-centered__logo:not(#_),
+  .kodza-header-centered__where:not(#_),
+  .kodza-header-centered__item:not(#_),
+  .kodza-header-centered__cta:not(#_),
+  .kodza-header-centered__link:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
