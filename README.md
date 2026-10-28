@@ -47,6 +47,21 @@ Rather keep it on your machine? `npx -y kodza-mcp` runs the same server locally 
 
 Read-only: it hands out code and never touches your project. It counts which components get fetched, and by which assistant; nothing you type is kept.
 
+## Six of them
+
+Picked from the 142. Each picture runs its demo on kodza.dev, each name opens its files.
+
+<p>
+<a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
+<a href="https://kodza.dev/components/hero-showcase/"><img src="https://kodza.dev/anim/hero-showcase/og.jpg" alt="Hero Showcase" width="32%"></a>
+<a href="https://kodza.dev/components/topographic-lines/"><img src="https://kodza.dev/anim/topographic-lines/og.jpg" alt="Topographic Lines" width="32%"></a>
+<a href="https://kodza.dev/components/button-fill/"><img src="https://kodza.dev/anim/button-fill/og.jpg" alt="Fill Button" width="32%"></a>
+<a href="https://kodza.dev/components/date-picker/"><img src="https://kodza.dev/anim/date-picker/og.jpg" alt="Date Picker" width="32%"></a>
+<a href="https://kodza.dev/components/hover-list-preview/"><img src="https://kodza.dev/anim/hover-list-preview/og.jpg" alt="Hover List Preview" width="32%"></a>
+</p>
+
+[Trapdoor Menu](components/trapdoor-menu/) · [Hero Showcase](components/hero-showcase/) · [Topographic Lines](components/topographic-lines/) · [Fill Button](components/button-fill/) · [Date Picker](components/date-picker/) · [Hover List Preview](components/hover-list-preview/)
+
 ## Or take the files
 
 Each folder in [`components/`](components/) is one component: the HTML, the CSS and, when it needs one, the JS. Link the CSS, paste the HTML, load the JS. It lands in a bare HTML page, WordPress, Shopify or React, because it's just code.
