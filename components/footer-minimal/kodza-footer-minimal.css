@@ -1,0 +1,705 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Footer Minimal
+   The footer that takes no room: one line with the logo, the ©, three links and Back to top. On
+   hover, a line comes in under a link from the left and leaves by the right, and the arrow of
+   Back to top rolls up. On phones, two centred lines: the logo and the links, then the rest.
+   Everything is tuned with the --kz-footer-minimal-* variables. */
+.kodza-footer-minimal {
+  --kz-footer-minimal-bg: #ffffff;
+  --kz-footer-minimal-fg: #0a0a0a;
+  --kz-footer-minimal-muted: rgba(10, 10, 10, 0.62);
+  --kz-footer-minimal-line: rgba(10, 10, 10, 0.1);
+  --kz-footer-minimal-soft: rgba(10, 10, 10, 0.05); /* Back to top, under the pointer */
+  --kz-footer-minimal-width: 1200px; /* the line, centred */
+  --kz-footer-minimal-pad: 24px;
+  --kz-footer-minimal-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-footer-minimal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--kz-footer-minimal-line);
+  background: var(--kz-footer-minimal-bg);
+  color: var(--kz-footer-minimal-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+  container: kodza-footer-minimal / inline-size;
+}
+
+/* Centred by its margins (no margin: auto, which some browsers read late) */
+.kodza-footer-minimal__inner {
+  display: flex;
+  align-items: center;
+  gap: 12px 20px;
+  box-sizing: border-box;
+  margin: 0 max(0px, calc((100% - var(--kz-footer-minimal-width)) / 2));
+  padding-top: 22px;
+  padding-bottom: 22px;
+  padding-left: max(var(--kz-footer-minimal-pad), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-footer-minimal-pad), env(safe-area-inset-right, 0px));
+}
+
+.kodza-footer-minimal__logo {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-footer-minimal__logo svg {
+  display: block;
+  flex: none;
+  fill: currentColor;
+}
+
+/* A hairline between the logo and the © */
+.kodza-footer-minimal__copy {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 20px;
+  margin: 0;
+  font-family: var(--kz-footer-minimal-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--kz-footer-minimal-muted);
+  white-space: nowrap;
+}
+
+.kodza-footer-minimal__copy::before {
+  content: "";
+  flex: none;
+  width: 1px;
+  height: 14px;
+  background: var(--kz-footer-minimal-line);
+}
+
+.kodza-footer-minimal__nav {
+  margin-left: auto;
+  min-width: 0;
+}
+
+.kodza-footer-minimal__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-minimal__links li {
+  margin: 0;
+  padding: 0;
+}
+
+/* Links: the line grows from the left, and shrinks away to the right */
+.kodza-footer-minimal__link {
+  color: var(--kz-footer-minimal-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  text-decoration: none;
+  white-space: nowrap;
+  background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
+  transition: background-size 0.4s var(--kz-footer-minimal-ease), color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .kodza-footer-minimal__link:hover {
+    color: var(--kz-footer-minimal-fg);
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
+}
+
+/* Back to top: a pill, and an arrow that rolls up (the next one waits under it) */
+.kodza-footer-minimal__top {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  margin-left: 4px;
+  padding: 0 12px 0 14px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--kz-footer-minimal-line);
+  color: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-footer-minimal__arrow {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  width: 12px;
+  height: 12px;
+  overflow: clip;
+}
+
+.kodza-footer-minimal__arrow svg {
+  display: block;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.45s var(--kz-footer-minimal-ease);
+}
+
+@media (hover: hover) {
+  .kodza-footer-minimal__top:hover {
+    background-color: var(--kz-footer-minimal-soft);
+  }
+
+  .kodza-footer-minimal__top:hover .kodza-footer-minimal__arrow svg {
+    transform: translateY(-100%);
+  }
+}
+
+.kodza-footer-minimal__logo:focus-visible,
+.kodza-footer-minimal__link:focus-visible,
+.kodza-footer-minimal__top:focus-visible {
+  outline: 2px solid var(--kz-footer-minimal-fg);
+  outline-offset: 3px;
+}
+
+.kodza-footer-minimal__link:focus-visible {
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-footer-minimal__link,
+  .kodza-footer-minimal__arrow svg {
+    transition: none;
+  }
+}
+
+/* Phones: two centred lines, the logo and the links, then the © and Back to top. An empty item
+   the width of the line breaks it (the row gap counts twice around it, hence half of it); on a
+   very narrow screen a line wraps again instead of running out */
+@container kodza-footer-minimal (max-width: 640px) {
+  .kodza-footer-minimal__inner {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 8px;
+    column-gap: 20px;
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .kodza-footer-minimal__inner::after {
+    content: "";
+    order: 1;
+    flex: 0 0 100%;
+  }
+
+  .kodza-footer-minimal__nav {
+    margin-left: 0;
+  }
+
+  .kodza-footer-minimal__copy {
+    order: 2;
+  }
+
+  .kodza-footer-minimal__copy::before {
+    display: none;
+  }
+
+  .kodza-footer-minimal__top {
+    order: 2;
+    margin-left: 0;
+  }
+}
+
+/* kodza-guard 439744504171 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-footer-minimal__logo):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-footer-minimal__link):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-footer-minimal__top):not(#_) {
+  outline: revert;
+  background-color: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-footer-minimal:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-minimal__logo:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-minimal__copy:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-minimal__year:not(#_),
+.kodza-footer-minimal__arrow:not(#_),
+.kodza-footer-minimal__logo span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-footer-minimal__nav:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-minimal__links:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-minimal__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-minimal__top:not(#_) {
+  border: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  background-image: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-minimal__logo svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-minimal__links li:where(:not([class*="kodza-"]):not(.kodza-footer-minimal__links [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-minimal__arrow svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-minimal__nav:not(#_):where(:not([hidden])),
+.kodza-footer-minimal__link:not(#_):where(:not([hidden])),
+.kodza-footer-minimal__links li:where(:not([class*="kodza-"]):not(.kodza-footer-minimal__links [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-footer-minimal__nav:not(#_):where([hidden]),
+.kodza-footer-minimal__link:not(#_):where([hidden]),
+.kodza-footer-minimal__links li:where(:not([class*="kodza-"]):not(.kodza-footer-minimal__links [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-footer-minimal__copy:not(#_)::before,
+.kodza-footer-minimal__inner:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-footer-minimal:not(#_) {
+  display: block;
+  box-sizing: border-box;
+  padding: 0;
+  border-top: 1px solid var(--kz-footer-minimal-line);
+  background: var(--kz-footer-minimal-bg);
+  color: var(--kz-footer-minimal-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.kodza-footer-minimal__logo:not(#_) {
+  display: inline-flex;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-footer-minimal__logo svg:not(#_) {
+  display: block;
+}
+
+.kodza-footer-minimal__copy:not(#_) {
+  display: inline-flex;
+  margin: 0;
+  font-family: var(--kz-footer-minimal-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--kz-footer-minimal-muted);
+}
+
+.kodza-footer-minimal__nav:not(#_) {
+  margin-left: auto;
+}
+
+.kodza-footer-minimal__links:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-minimal__links li:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-footer-minimal__link:not(#_) {
+  color: var(--kz-footer-minimal-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
+  transition: background-size 0.4s var(--kz-footer-minimal-ease), color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .kodza-footer-minimal__link:hover:not(#_) {
+    color: var(--kz-footer-minimal-fg);
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
+}
+
+.kodza-footer-minimal__top:not(#_) {
+  display: inline-flex;
+  margin-left: 4px;
+  padding: 0 12px 0 14px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--kz-footer-minimal-line);
+  color: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-footer-minimal__arrow svg:not(#_) {
+  display: block;
+  transition: transform 0.45s var(--kz-footer-minimal-ease);
+}
+
+@media (hover: hover) {
+  .kodza-footer-minimal__top:hover:not(#_) {
+    background-color: var(--kz-footer-minimal-soft);
+  }
+}
+
+.kodza-footer-minimal__logo:focus-visible:not(#_),
+.kodza-footer-minimal__link:focus-visible:not(#_),
+.kodza-footer-minimal__top:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-footer-minimal-fg);
+  outline-offset: 3px;
+}
+
+.kodza-footer-minimal__link:focus-visible:not(#_) {
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-footer-minimal__link:not(#_),
+  .kodza-footer-minimal__arrow svg:not(#_) {
+    transition: none;
+  }
+}
+
+@container kodza-footer-minimal (max-width: 640px) {
+  .kodza-footer-minimal__nav:not(#_) {
+    margin-left: 0;
+  }
+}
+
+@container kodza-footer-minimal (max-width: 640px) {
+  .kodza-footer-minimal__top:not(#_) {
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,1176 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Footer Contact
+   The footer of a freelance or a small studio: the email address, set across the whole width of
+   the footer, ink edge to ink edge. A click copies it and the line under it rolls to "Copied.
+   Talk soon.", next to Open mail app. Above, the local time to the minute and when you're
+   booking; below, the networks in big rows whose name rolls up on hover.
+   Everything is tuned with the --kz-footer-contact-* variables. */
+.kodza-footer-contact {
+  --kz-footer-contact-bg: #ffffff;
+  --kz-footer-contact-fg: #0a0a0a;
+  --kz-footer-contact-muted: rgba(10, 10, 10, 0.62);
+  --kz-footer-contact-line: rgba(10, 10, 10, 0.1);
+  --kz-footer-contact-width: 1200px; /* the content, centred */
+  --kz-footer-contact-pad: 24px;
+  --kz-footer-contact-weight: 500; /* the address */
+  --kz-footer-contact-tracking: -0.05em;
+  --kz-footer-contact-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-footer-contact-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--kz-footer-contact-line);
+  background: var(--kz-footer-contact-bg);
+  color: var(--kz-footer-contact-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+  container: kodza-footer-contact / inline-size;
+}
+
+/* Centred by its margins (no margin: auto, which some browsers read late) */
+.kodza-footer-contact__inner {
+  box-sizing: border-box;
+  margin: 0 max(0px, calc((100% - var(--kz-footer-contact-width)) / 2));
+  padding-top: clamp(40px, 5vw, 64px);
+  padding-bottom: 28px;
+  padding-left: max(var(--kz-footer-contact-pad), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-footer-contact-pad), env(safe-area-inset-right, 0px));
+}
+
+.kodza-footer-contact__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 32px;
+}
+
+.kodza-footer-contact__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  margin: 0 auto 0 0;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-footer-contact__logo svg {
+  display: block;
+  flex: none;
+  fill: currentColor;
+}
+
+.kodza-footer-contact__here,
+.kodza-footer-contact__open,
+.kodza-footer-contact__copy {
+  margin: 0;
+  font-family: var(--kz-footer-contact-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 20px;
+  color: var(--kz-footer-contact-muted);
+  white-space: nowrap;
+}
+
+/* The minutes roll in their own window */
+.kodza-footer-contact__time {
+  display: inline-grid;
+  overflow: hidden;
+  vertical-align: top;
+  color: var(--kz-footer-contact-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-footer-contact__time > span,
+.kodza-footer-contact__said > span {
+  grid-area: 1 / 1;
+  justify-self: start;
+}
+
+.kodza-footer-contact__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Taking work: a dot, and a ring that keeps leaving it */
+.kodza-footer-contact__dot {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--kz-footer-contact-fg);
+}
+
+.kodza-footer-contact__dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--kz-footer-contact-fg);
+  opacity: 0;
+  animation: kodza-footer-contact-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes kodza-footer-contact-ping {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+.kodza-footer-contact__lead {
+  max-width: 30em;
+  margin: clamp(48px, 6.5vw, 88px) 0 0;
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+  color: var(--kz-footer-contact-muted);
+  text-wrap: pretty;
+}
+
+/* The address is a button: it copies. The box is the ink of the letters, from the top of the
+   tallest to the bottom of the lowest, and the script sets the size that fills the width */
+.kodza-footer-contact__email {
+  appearance: none;
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: clamp(16px, 2vw, 28px) 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kodza-footer-contact__address {
+  display: flow-root;
+  height: var(--kz-footer-contact-height, auto);
+  font-size: var(--kz-footer-contact-size, 9cqi);
+  font-weight: var(--kz-footer-contact-weight);
+  line-height: 1.2;
+  letter-spacing: var(--kz-footer-contact-tracking);
+  white-space: nowrap;
+}
+
+.kodza-footer-contact__ink {
+  display: block;
+  margin-top: calc(var(--kz-footer-contact-lift, 0px) * -1);
+  margin-left: calc(var(--kz-footer-contact-shift, 0px) * -1);
+}
+
+/* Empty, it sits on the baseline: the script reads the line from it */
+.kodza-footer-contact__base-line {
+  display: inline-block;
+}
+
+.kodza-footer-contact__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Under the address, a line that inks from the left while the pointer is on it, and stays inked
+   while it says Copied */
+.kodza-footer-contact__under {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-top: clamp(16px, 2vw, 28px);
+  padding-top: 14px;
+  border-top: 1px solid var(--kz-footer-contact-line);
+  background: linear-gradient(var(--kz-footer-contact-fg), var(--kz-footer-contact-fg)) no-repeat 100% 0 / 0 1px;
+  background-origin: border-box;
+  transition: background-size 0.6s var(--kz-footer-contact-ease);
+}
+
+.kodza-footer-contact.is-copied .kodza-footer-contact__under {
+  background-position: 0 0;
+  background-size: 100% 1px;
+}
+
+.kodza-footer-contact__said {
+  display: inline-grid;
+  overflow: hidden;
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--kz-footer-contact-muted);
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.kodza-footer-contact__said > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kodza-footer-contact__said svg {
+  display: block;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-footer-contact.is-copied .kodza-footer-contact__said {
+  color: var(--kz-footer-contact-fg);
+}
+
+.kodza-footer-contact__mail {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  text-decoration: none;
+}
+
+/* An arrow that leaves by the top right while the next one comes in from the bottom left */
+.kodza-footer-contact__go {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  overflow: clip;
+}
+
+.kodza-footer-contact__go svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.45s var(--kz-footer-contact-ease);
+}
+
+.kodza-footer-contact__go svg + svg {
+  transform: translate(-100%, 100%);
+}
+
+/* The networks, in big rows. The name has its twin under it (a shadow): on hover both go up */
+.kodza-footer-contact__socials {
+  margin: clamp(56px, 7vw, 96px) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--kz-footer-contact-line);
+}
+
+.kodza-footer-contact__socials li {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-footer-contact__social {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: clamp(14px, 1.6vw, 20px) 0;
+  border-bottom: 1px solid var(--kz-footer-contact-line);
+  color: inherit;
+  text-decoration: none;
+  background: linear-gradient(var(--kz-footer-contact-fg), var(--kz-footer-contact-fg)) no-repeat 100% 100% / 0 1px;
+  background-origin: border-box;
+  transition: background-size 0.6s var(--kz-footer-contact-ease);
+}
+
+.kodza-footer-contact__name {
+  display: block;
+  min-width: 0;
+  height: 1.2em;
+  overflow: clip;
+  font-size: clamp(28px, 3.6vw, 48px);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+}
+
+.kodza-footer-contact__name > span {
+  display: block;
+  text-shadow: 0 1.2em currentColor;
+  transition: transform 0.55s var(--kz-footer-contact-ease);
+}
+
+.kodza-footer-contact__handle {
+  font-family: var(--kz-footer-contact-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  line-height: 20px;
+  color: var(--kz-footer-contact-muted);
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.kodza-footer-contact__social .kodza-footer-contact__go {
+  width: 16px;
+  height: 16px;
+}
+
+.kodza-footer-contact__base {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 32px;
+  padding-top: 20px;
+}
+
+.kodza-footer-contact__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-contact__row li {
+  margin: 0;
+  padding: 0;
+}
+
+/* Links: the line grows from the left, and shrinks away to the right */
+.kodza-footer-contact__link {
+  color: var(--kz-footer-contact-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
+  transition: background-size 0.4s var(--kz-footer-contact-ease), color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .kodza-footer-contact__email:hover + .kodza-footer-contact__under,
+  .kodza-footer-contact__social:hover {
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
+
+  .kodza-footer-contact__email:hover + .kodza-footer-contact__under {
+    background-position: 0 0;
+  }
+
+  .kodza-footer-contact__email:hover + .kodza-footer-contact__under .kodza-footer-contact__said,
+  .kodza-footer-contact__social:hover .kodza-footer-contact__handle,
+  .kodza-footer-contact__link:hover {
+    color: var(--kz-footer-contact-fg);
+  }
+
+  .kodza-footer-contact__social:hover .kodza-footer-contact__name > span {
+    transform: translateY(-1.2em);
+  }
+
+  .kodza-footer-contact__mail:hover .kodza-footer-contact__go svg:first-child,
+  .kodza-footer-contact__social:hover .kodza-footer-contact__go svg:first-child {
+    transform: translate(100%, -100%);
+  }
+
+  .kodza-footer-contact__mail:hover .kodza-footer-contact__go svg + svg,
+  .kodza-footer-contact__social:hover .kodza-footer-contact__go svg + svg {
+    transform: none;
+  }
+
+  .kodza-footer-contact__link:hover {
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
+}
+
+/* From the keyboard, a row shows what the pointer would */
+.kodza-footer-contact__social:focus-visible .kodza-footer-contact__name > span {
+  transform: translateY(-1.2em);
+}
+
+.kodza-footer-contact__social:focus-visible .kodza-footer-contact__handle {
+  color: var(--kz-footer-contact-fg);
+}
+
+.kodza-footer-contact__logo:focus-visible,
+.kodza-footer-contact__email:focus-visible,
+.kodza-footer-contact__mail:focus-visible,
+.kodza-footer-contact__social:focus-visible,
+.kodza-footer-contact__link:focus-visible {
+  outline: 2px solid var(--kz-footer-contact-fg);
+  outline-offset: 3px;
+}
+
+.kodza-footer-contact__email:focus-visible {
+  outline-offset: 8px;
+}
+
+.kodza-footer-contact__social:focus-visible {
+  border-radius: 4px;
+}
+
+.kodza-footer-contact__link:focus-visible {
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-footer-contact__under,
+  .kodza-footer-contact__said,
+  .kodza-footer-contact__go svg,
+  .kodza-footer-contact__social,
+  .kodza-footer-contact__name > span,
+  .kodza-footer-contact__handle,
+  .kodza-footer-contact__link {
+    transition: none;
+  }
+
+  .kodza-footer-contact__dot::after {
+    animation: none;
+  }
+}
+
+/* Phones: the time and the booking line share a row under the logo, the names come down a size */
+@container kodza-footer-contact (max-width: 600px) {
+  .kodza-footer-contact__meta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+  }
+
+  .kodza-footer-contact__logo {
+    grid-column: 1 / -1;
+    justify-self: start;
+    margin: 0 0 8px;
+  }
+
+  .kodza-footer-contact__name {
+    font-size: 26px;
+  }
+
+  .kodza-footer-contact__social {
+    gap: 12px;
+  }
+
+  .kodza-footer-contact__base {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* kodza-guard bc3a1ce989cc — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-footer-contact__logo):not(#_),
+:where(.kodza-footer-contact__email):not(#_),
+:where(.kodza-footer-contact__mail):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-footer-contact__social):not(#_),
+:where(.kodza-footer-contact__link):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-footer-contact:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-contact__meta:not(#_),
+.kodza-footer-contact__time:not(#_),
+.kodza-footer-contact__zone:not(#_),
+.kodza-footer-contact__dot:not(#_),
+.kodza-footer-contact__sr:not(#_),
+.kodza-footer-contact__address:not(#_),
+.kodza-footer-contact__ink:not(#_),
+.kodza-footer-contact__base-line:not(#_),
+.kodza-footer-contact__under:not(#_),
+.kodza-footer-contact__go:not(#_),
+.kodza-footer-contact__name:not(#_),
+.kodza-footer-contact__handle:not(#_),
+.kodza-footer-contact__base:not(#_),
+.kodza-footer-contact__year:not(#_),
+.kodza-footer-contact__logo span:where(:not([class*="kodza-"])):not(#_),
+.kodza-footer-contact__time span:where(:not([class*="kodza-"])):not(#_),
+.kodza-footer-contact__said span:where(:not([class*="kodza-"])):not(#_),
+.kodza-footer-contact__name span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-footer-contact__logo:not(#_) {
+  border: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-contact__here:not(#_),
+.kodza-footer-contact__open:not(#_),
+.kodza-footer-contact__copy:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-contact__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-contact__email:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-footer-contact__said:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-contact__mail:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-contact__socials:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-contact__social:not(#_) {
+  margin: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-top-width: revert;
+  border-right-width: revert;
+  border-left-width: revert;
+  border-top-style: revert;
+  border-right-style: revert;
+  border-left-style: revert;
+  border-top-color: revert;
+  border-right-color: revert;
+  border-left-color: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-contact__row:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-contact__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-contact__logo svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-footer-contact__said svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-contact__go svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-contact__socials li:where(:not([class*="kodza-"]):not(.kodza-footer-contact__socials [class*="kodza-"] *)):not(#_),
+.kodza-footer-contact__row li:where(:not([class*="kodza-"]):not(.kodza-footer-contact__row [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-contact__here:not(#_):where(:not([hidden])),
+.kodza-footer-contact__lead:not(#_):where(:not([hidden])),
+.kodza-footer-contact__socials:not(#_):where(:not([hidden])),
+.kodza-footer-contact__copy:not(#_):where(:not([hidden])),
+.kodza-footer-contact__link:not(#_):where(:not([hidden])),
+.kodza-footer-contact__socials li:where(:not([class*="kodza-"]):not(.kodza-footer-contact__socials [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-footer-contact__row li:where(:not([class*="kodza-"]):not(.kodza-footer-contact__row [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-footer-contact__here:not(#_):where([hidden]),
+.kodza-footer-contact__lead:not(#_):where([hidden]),
+.kodza-footer-contact__socials:not(#_):where([hidden]),
+.kodza-footer-contact__copy:not(#_):where([hidden]),
+.kodza-footer-contact__link:not(#_):where([hidden]),
+.kodza-footer-contact__socials li:where(:not([class*="kodza-"]):not(.kodza-footer-contact__socials [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-footer-contact__row li:where(:not([class*="kodza-"]):not(.kodza-footer-contact__row [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-footer-contact__dot:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-footer-contact:not(#_) {
+  display: block;
+  box-sizing: border-box;
+  padding: 0;
+  border-top: 1px solid var(--kz-footer-contact-line);
+  background: var(--kz-footer-contact-bg);
+  color: var(--kz-footer-contact-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.kodza-footer-contact__logo:not(#_) {
+  display: inline-flex;
+  margin: 0 auto 0 0;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-footer-contact__logo svg:not(#_) {
+  display: block;
+}
+
+.kodza-footer-contact__here:not(#_),
+.kodza-footer-contact__open:not(#_),
+.kodza-footer-contact__copy:not(#_) {
+  margin: 0;
+  font-family: var(--kz-footer-contact-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 20px;
+  color: var(--kz-footer-contact-muted);
+}
+
+.kodza-footer-contact__open:not(#_) {
+  display: inline-flex;
+}
+
+.kodza-footer-contact__lead:not(#_) {
+  max-width: 30em;
+  margin: clamp(48px, 6.5vw, 88px) 0 0;
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+  color: var(--kz-footer-contact-muted);
+}
+
+.kodza-footer-contact__email:not(#_) {
+  appearance: none;
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: clamp(16px, 2vw, 28px) 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kodza-footer-contact__said:not(#_) {
+  display: inline-grid;
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--kz-footer-contact-muted);
+  transition: color 0.2s ease;
+}
+
+.kodza-footer-contact__said svg:not(#_) {
+  display: block;
+}
+
+.kodza-footer-contact.is-copied .kodza-footer-contact__said:not(#_) {
+  color: var(--kz-footer-contact-fg);
+}
+
+.kodza-footer-contact__mail:not(#_) {
+  display: inline-flex;
+  border-radius: 4px;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  text-decoration: none;
+}
+
+.kodza-footer-contact__go svg:not(#_) {
+  position: absolute;
+  display: block;
+  transition: transform 0.45s var(--kz-footer-contact-ease);
+}
+
+.kodza-footer-contact__socials:not(#_) {
+  margin: clamp(56px, 7vw, 96px) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--kz-footer-contact-line);
+}
+
+.kodza-footer-contact__socials li:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-footer-contact__social:not(#_) {
+  display: grid;
+  padding: clamp(14px, 1.6vw, 20px) 0;
+  border-bottom: 1px solid var(--kz-footer-contact-line);
+  color: inherit;
+  text-decoration: none;
+  background: linear-gradient(var(--kz-footer-contact-fg), var(--kz-footer-contact-fg)) no-repeat 100% 100% / 0 1px;
+  transition: background-size 0.6s var(--kz-footer-contact-ease);
+}
+
+.kodza-footer-contact__row:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-contact__row li:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-footer-contact__link:not(#_) {
+  color: var(--kz-footer-contact-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
+  transition: background-size 0.4s var(--kz-footer-contact-ease), color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .kodza-footer-contact__email:hover + .kodza-footer-contact__under .kodza-footer-contact__said:not(#_),
+  .kodza-footer-contact__link:hover:not(#_) {
+    color: var(--kz-footer-contact-fg);
+  }
+}
+
+@media (hover: hover) {
+  .kodza-footer-contact__link:hover:not(#_) {
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
+}
+
+.kodza-footer-contact__logo:focus-visible:not(#_),
+.kodza-footer-contact__mail:focus-visible:not(#_),
+.kodza-footer-contact__social:focus-visible:not(#_),
+.kodza-footer-contact__link:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-footer-contact-fg);
+  outline-offset: 3px;
+}
+
+.kodza-footer-contact__email:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-footer-contact-fg);
+  outline-offset: 3px;
+}
+
+.kodza-footer-contact__email:focus-visible:not(#_) {
+  outline-offset: 8px;
+}
+
+.kodza-footer-contact__social:focus-visible:not(#_) {
+  border-radius: 4px;
+}
+
+.kodza-footer-contact__link:focus-visible:not(#_) {
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-footer-contact__said:not(#_),
+  .kodza-footer-contact__go svg:not(#_),
+  .kodza-footer-contact__social:not(#_),
+  .kodza-footer-contact__link:not(#_) {
+    transition: none;
+  }
+}
+
+@container kodza-footer-contact (max-width: 600px) {
+  .kodza-footer-contact__logo:not(#_) {
+    margin: 0 0 8px;
+  }
+}

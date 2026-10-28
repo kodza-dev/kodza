@@ -49,7 +49,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 148. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 154. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -76,7 +76,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-148 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+154 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
 
 ### Buttons
 
@@ -310,6 +310,17 @@ Written like it's going live tomorrow. Because it probably is.
 | [Header Mega](components/header-mega/) | A full site header whose mega menus share one panel: from a link to the next it changes shape and slides instead of closing, a soft pill follows the pointer, and below 900 px the links become a drawer with levels. | [Demo](https://kodza.dev/components/header-mega/) |
 | [Header Overlay](components/header-overlay/) | A transparent header over the hero photo: once the hero passes under it, a solid bar comes down and the text turns dark along its edge; below 900 px, a full-screen menu. | [Demo](https://kodza.dev/components/header-overlay/) |
 | [Header Shop](components/header-shop/) | A shop header: the name, the categories, a search that opens over them, the account and a bag whose count rolls when something is added. Below 900 px, a menu the page steps aside for. | [Demo](https://kodza.dev/components/header-shop/) |
+
+### Footer
+
+| Component | What it does | |
+| --- | --- | --- |
+| [Footer Columns](components/footer-columns/) | A site footer: the logo and a line, up to five columns of links under mono titles, a bottom row with the year, legal pages and Back to top; under a link, a line comes in from the left. | [Demo](https://kodza.dev/components/footer-columns/) |
+| [Footer Contact](components/footer-contact/) | A freelance or studio footer: the email address across the whole width, copied on a click while the line under it rolls to Copied, the local time to the minute, the networks in big rows. | [Demo](https://kodza.dev/components/footer-contact/) |
+| [Footer Minimal](components/footer-minimal/) | A one-line site footer: the logo, the ©, three links and Back to top, whose arrow rolls up on hover and which scrolls up smoothly; on phones, two centred lines. | [Demo](https://kodza.dev/components/footer-minimal/) |
+| [Footer Shop](components/footer-shop/) | A shop footer: four promises with icons, a newsletter field whose button rolls to Subscribed, columns that fold on phones, a country and currency menu, the payment methods. | [Demo](https://kodza.dev/components/footer-shop/) |
+| [Footer Venue](components/footer-venue/) | A footer for a place with opening hours: address and Directions, the week with today under an ink pill, a status worked out at the place's own time that rolls when it changes, the phone and Book. | [Demo](https://kodza.dev/components/footer-venue/) |
+| [Footer Wordmark](components/footer-wordmark/) | A site footer that waits under the page: its content rises slower than the scroll while a shade lifts off it, and the brand name is set across the whole width, ink edge to ink edge, its letters rising from their masks. | [Demo](https://kodza.dev/components/footer-wordmark/) |
 
 ## About this repository
 

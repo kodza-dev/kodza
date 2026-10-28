@@ -1,0 +1,1382 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Footer Venue
+   The end of a restaurant's site, or a café's, a hotel's, a shop's: the name and Book a table,
+   then where to find it, the week of hours and how to call. The status works out, at the place's
+   own time, whether it's open, and its words roll when they change. Today's row sits under an ink
+   pill. On phones the week folds to today, and All hours unfolds it around it.
+   Everything is tuned with the --kz-footer-venue-* variables. */
+.kodza-footer-venue {
+  --kz-footer-venue-bg: #ffffff;
+  --kz-footer-venue-fg: #0a0a0a;
+  --kz-footer-venue-muted: rgba(10, 10, 10, 0.62);
+  --kz-footer-venue-line: rgba(10, 10, 10, 0.1);
+  --kz-footer-venue-width: 1200px; /* the content, centred */
+  --kz-footer-venue-pad: 24px;
+  --kz-footer-venue-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-footer-venue-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--kz-footer-venue-line);
+  background: var(--kz-footer-venue-bg);
+  color: var(--kz-footer-venue-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+  container: kodza-footer-venue / inline-size;
+}
+
+/* Centred by its margins (no margin: auto, which some browsers read late) */
+.kodza-footer-venue__inner {
+  box-sizing: border-box;
+  margin: 0 max(0px, calc((100% - var(--kz-footer-venue-width)) / 2));
+  padding-top: clamp(56px, 6vw, 80px);
+  padding-bottom: 28px;
+  padding-left: max(var(--kz-footer-venue-pad), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-footer-venue-pad), env(safe-area-inset-right, 0px));
+}
+
+/* The name and Book a table */
+.kodza-footer-venue__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px 32px;
+  padding-bottom: clamp(40px, 5vw, 56px);
+  border-bottom: 1px solid var(--kz-footer-venue-line);
+}
+
+.kodza-footer-venue__brand {
+  min-width: 0;
+}
+
+.kodza-footer-venue__logo {
+  display: inline-block;
+  margin: 0;
+  border-radius: 6px;
+  color: inherit;
+  font-size: clamp(40px, 5.6vw, 64px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  text-decoration: none;
+}
+
+.kodza-footer-venue__pitch {
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-footer-venue-muted);
+}
+
+.kodza-footer-venue__book {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-footer-venue-fg);
+  color: var(--kz-footer-venue-bg);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-footer-venue__book:hover {
+    background: color-mix(in srgb, var(--kz-footer-venue-fg) 86%, transparent);
+  }
+}
+
+.kodza-footer-venue__main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 48px clamp(32px, 5vw, 80px);
+  padding-top: clamp(40px, 5vw, 56px);
+}
+
+.kodza-footer-venue__block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.kodza-footer-venue__label,
+.kodza-footer-venue__copy {
+  margin: 0;
+  font-family: var(--kz-footer-venue-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--kz-footer-venue-muted);
+}
+
+.kodza-footer-venue__label {
+  margin-bottom: 16px;
+}
+
+.kodza-footer-venue__address {
+  margin: 0;
+  font-size: 15px;
+  font-style: normal;
+  line-height: 1.55;
+}
+
+.kodza-footer-venue__address span {
+  display: block;
+}
+
+/* Links: the line grows from the left, and shrinks away to the right */
+.kodza-footer-venue__link,
+.kodza-footer-venue__go,
+.kodza-footer-venue__phone {
+  color: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
+  transition: background-size 0.4s var(--kz-footer-venue-ease), color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .kodza-footer-venue__link:hover,
+  .kodza-footer-venue__go:hover,
+  .kodza-footer-venue__phone:hover {
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
+}
+
+/* Directions: its arrow leaves to the top right, and the next one comes in from the bottom left */
+.kodza-footer-venue__go {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-weight: 500;
+}
+
+.kodza-footer-venue__arrow {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  overflow: clip;
+}
+
+.kodza-footer-venue__arrow svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.45s var(--kz-footer-venue-ease);
+}
+
+.kodza-footer-venue__arrow svg + svg {
+  transform: translate(-100%, 100%);
+}
+
+@media (hover: hover) {
+  .kodza-footer-venue__go:hover .kodza-footer-venue__arrow svg {
+    transform: translate(100%, -100%);
+  }
+
+  .kodza-footer-venue__go:hover .kodza-footer-venue__arrow svg + svg {
+    transform: none;
+  }
+}
+
+/* Open now, or when it opens: the words roll when they change */
+.kodza-footer-venue__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  margin: 0 0 14px;
+  font-family: var(--kz-footer-venue-mono);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+/* Filled while it's open, a ring while it's closed: the words say it too */
+.kodza-footer-venue__dot {
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+}
+
+.kodza-footer-venue__dot::before,
+.kodza-footer-venue__dot::after {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  background: currentColor;
+}
+
+.kodza-footer-venue__dot::before {
+  transform: scale(0);
+  transition: transform 0.45s var(--kz-footer-venue-ease);
+}
+
+/* While it's open, a soft ring leaves the dot, again and again */
+.kodza-footer-venue__dot::after {
+  opacity: 0;
+}
+
+.kodza-footer-venue__status.is-open .kodza-footer-venue__dot::before {
+  transform: none;
+}
+
+/* The words and the minutes each roll in their own window */
+.kodza-footer-venue__text,
+.kodza-footer-venue__num {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.kodza-footer-venue__text {
+  min-width: 0;
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+
+.kodza-footer-venue__num {
+  box-sizing: content-box;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-footer-venue__text > span,
+.kodza-footer-venue__num > span {
+  display: block;
+}
+
+/* What leaves stops sizing its window, so the width only follows the new words */
+.kodza-footer-venue__text > .is-leaving,
+.kodza-footer-venue__num > .is-leaving {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* The week: as wide as its longest row, so the pill is the same on every day */
+.kodza-footer-venue__window {
+  position: relative;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: 100%;
+}
+
+.kodza-footer-venue__week {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-venue__day {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  padding: 5px 0;
+  font-size: 14px;
+  line-height: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-footer-venue__name {
+  flex: none;
+  min-width: 3em;
+  font-weight: 500;
+}
+
+.kodza-footer-venue__times {
+  min-width: 0;
+  color: var(--kz-footer-venue-muted);
+}
+
+.kodza-footer-venue__times time {
+  font: inherit;
+}
+
+/* Today: an ink pill a little wider than the row, and in it the week again, in the paper colour */
+.kodza-footer-venue__pill {
+  position: absolute;
+  top: 0;
+  left: -12px;
+  right: -12px;
+  display: none;
+  height: var(--kz-footer-venue-today-h, 0px);
+  border-radius: 999px;
+  background: var(--kz-footer-venue-fg);
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  transform: translateY(var(--kz-footer-venue-today-y, 0px));
+}
+
+.kodza-footer-venue.has-today .kodza-footer-venue__pill {
+  display: block;
+}
+
+.kodza-footer-venue__ghost {
+  position: absolute;
+  top: 0;
+  left: 12px;
+  width: calc(100% - 24px);
+  color: var(--kz-footer-venue-bg);
+  transform: translateY(calc(-1 * var(--kz-footer-venue-today-y, 0px)));
+}
+
+.kodza-footer-venue__ghost .kodza-footer-venue__times {
+  color: inherit;
+}
+
+/* All hours: only on phones, once the script has folded the week */
+.kodza-footer-venue__all {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  margin: 10px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.kodza-footer-venue__all svg {
+  display: block;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.45s var(--kz-footer-venue-ease);
+}
+
+.kodza-footer-venue.is-all .kodza-footer-venue__all svg {
+  transform: rotate(180deg);
+}
+
+.kodza-footer-venue__phone {
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-footer-venue__block .kodza-footer-venue__link {
+  margin-top: 6px;
+  font-size: 15px;
+}
+
+.kodza-footer-venue__note {
+  max-width: 22em;
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--kz-footer-venue-muted);
+  text-wrap: pretty;
+}
+
+.kodza-footer-venue__base {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 32px;
+  margin-top: clamp(56px, 7vw, 96px);
+  padding-top: 20px;
+  border-top: 1px solid var(--kz-footer-venue-line);
+}
+
+.kodza-footer-venue__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-venue__row li {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-footer-venue__row .kodza-footer-venue__link {
+  font-size: 13px;
+  color: var(--kz-footer-venue-muted);
+}
+
+@media (hover: hover) {
+  .kodza-footer-venue__row .kodza-footer-venue__link:hover {
+    color: var(--kz-footer-venue-fg);
+  }
+}
+
+.kodza-footer-venue__logo:focus-visible,
+.kodza-footer-venue__book:focus-visible,
+.kodza-footer-venue__link:focus-visible,
+.kodza-footer-venue__go:focus-visible,
+.kodza-footer-venue__phone:focus-visible,
+.kodza-footer-venue__all:focus-visible {
+  outline: 2px solid var(--kz-footer-venue-fg);
+  outline-offset: 3px;
+}
+
+.kodza-footer-venue__link:focus-visible,
+.kodza-footer-venue__go:focus-visible,
+.kodza-footer-venue__phone:focus-visible {
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-footer-venue__status.is-open .kodza-footer-venue__dot::after {
+    animation: kodza-footer-venue-breathe 2.4s var(--kz-footer-venue-ease) infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-footer-venue__book,
+  .kodza-footer-venue__link,
+  .kodza-footer-venue__go,
+  .kodza-footer-venue__phone,
+  .kodza-footer-venue__arrow svg,
+  .kodza-footer-venue__dot::before,
+  .kodza-footer-venue__all svg {
+    transition: none;
+  }
+}
+
+@keyframes kodza-footer-venue-breathe {
+  0% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+/* Tablets: the hours take the full row, where and who go side by side under them */
+@container kodza-footer-venue (max-width: 900px) {
+  .kodza-footer-venue__main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kodza-footer-venue__block:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+}
+
+/* Phones: one column, and the week folds to today */
+@container kodza-footer-venue (max-width: 600px) {
+  .kodza-footer-venue__main {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+
+  .kodza-footer-venue__block:nth-child(2) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .kodza-footer-venue.is-ready .kodza-footer-venue__all {
+    display: inline-flex;
+  }
+
+  .kodza-footer-venue.is-ready:not(.is-all) .kodza-footer-venue__window {
+    height: var(--kz-footer-venue-today-h, auto);
+  }
+
+  .kodza-footer-venue.is-ready:not(.is-all) .kodza-footer-venue__window,
+  .kodza-footer-venue.is-folding .kodza-footer-venue__window {
+    overflow-x: visible;
+    overflow-y: clip;
+  }
+
+  .kodza-footer-venue.is-ready:not(.is-all) .kodza-footer-venue__window > * {
+    translate: 0 calc(-1 * var(--kz-footer-venue-today-y, 0px));
+  }
+
+  .kodza-footer-venue__base {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* kodza-guard 6d30168a95b4 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-footer-venue):not(#_),
+:where(.kodza-footer-venue__pitch):not(#_),
+:where(.kodza-footer-venue__label):not(#_),
+:where(.kodza-footer-venue__address):not(#_),
+:where(.kodza-footer-venue__status):not(#_),
+:where(.kodza-footer-venue__day):not(#_),
+:where(.kodza-footer-venue__note):not(#_),
+:where(.kodza-footer-venue__copy):not(#_),
+:where(.kodza-footer-venue__row):not(#_),
+:where(.kodza-footer-venue__times time:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-footer-venue__all svg:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-footer-venue__row li:where(:not([class*="kodza-"]):not(.kodza-footer-venue__row [class*="kodza-"] *))):not(#_) {
+  position: revert;
+}
+
+:where(.kodza-footer-venue__logo):not(#_),
+:where(.kodza-footer-venue__book):not(#_),
+:where(.kodza-footer-venue__all):not(#_) {
+  outline: revert;
+  position: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-footer-venue__go):not(#_),
+:where(.kodza-footer-venue__phone):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  position: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-footer-venue__week):not(#_) {
+  position: revert;
+  color: revert;
+}
+
+:where(.kodza-footer-venue__link):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  position: revert;
+  margin-top: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-footer-venue:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__head:not(#_),
+.kodza-footer-venue__brand:not(#_),
+.kodza-footer-venue__main:not(#_),
+.kodza-footer-venue__block:not(#_),
+.kodza-footer-venue__arrow:not(#_),
+.kodza-footer-venue__text:not(#_),
+.kodza-footer-venue__name:not(#_),
+.kodza-footer-venue__times:not(#_),
+.kodza-footer-venue__pill:not(#_),
+.kodza-footer-venue__base:not(#_),
+.kodza-footer-venue__year:not(#_),
+.kodza-footer-venue__address span:where(:not([class*="kodza-"])):not(#_),
+.kodza-footer-venue__text span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-footer-venue__logo:not(#_) {
+  border: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__pitch:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__book:not(#_) {
+  border: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__label:not(#_),
+.kodza-footer-venue__copy:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__address:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__go:not(#_) {
+  border: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__status:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__week:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__day:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__all:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-footer-venue__phone:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__link:not(#_) {
+  border: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__note:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__row:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__arrow svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-footer-venue__all svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__times time:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__row li:where(:not([class*="kodza-"]):not(.kodza-footer-venue__row [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-venue__pitch:not(#_):where(:not([hidden])),
+.kodza-footer-venue__label:not(#_):where(:not([hidden])),
+.kodza-footer-venue__address:not(#_):where(:not([hidden])),
+.kodza-footer-venue__week:not(#_):where(:not([hidden])),
+.kodza-footer-venue__phone:not(#_):where(:not([hidden])),
+.kodza-footer-venue__link:not(#_):where(:not([hidden])),
+.kodza-footer-venue__note:not(#_):where(:not([hidden])),
+.kodza-footer-venue__copy:not(#_):where(:not([hidden])),
+.kodza-footer-venue__times time:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-footer-venue__row li:where(:not([class*="kodza-"]):not(.kodza-footer-venue__row [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-footer-venue__pitch:not(#_):where([hidden]),
+.kodza-footer-venue__label:not(#_):where([hidden]),
+.kodza-footer-venue__address:not(#_):where([hidden]),
+.kodza-footer-venue__week:not(#_):where([hidden]),
+.kodza-footer-venue__phone:not(#_):where([hidden]),
+.kodza-footer-venue__link:not(#_):where([hidden]),
+.kodza-footer-venue__note:not(#_):where([hidden]),
+.kodza-footer-venue__copy:not(#_):where([hidden]),
+.kodza-footer-venue__times time:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-footer-venue__row li:where(:not([class*="kodza-"]):not(.kodza-footer-venue__row [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-footer-venue__dot:not(#_)::before,
+.kodza-footer-venue__dot:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-footer-venue:not(#_) {
+  display: block;
+  box-sizing: border-box;
+  padding: 0;
+  border-top: 1px solid var(--kz-footer-venue-line);
+  background: var(--kz-footer-venue-bg);
+  color: var(--kz-footer-venue-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.kodza-footer-venue__logo:not(#_) {
+  display: inline-block;
+  margin: 0;
+  border-radius: 6px;
+  color: inherit;
+  font-size: clamp(40px, 5.6vw, 64px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  text-decoration: none;
+}
+
+.kodza-footer-venue__pitch:not(#_) {
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-footer-venue-muted);
+}
+
+.kodza-footer-venue__book:not(#_) {
+  display: inline-flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kz-footer-venue-fg);
+  color: var(--kz-footer-venue-bg);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+@media (hover: hover) {
+  .kodza-footer-venue__book:hover:not(#_) {
+    background: color-mix(in srgb, var(--kz-footer-venue-fg) 86%, transparent);
+  }
+}
+
+.kodza-footer-venue__label:not(#_),
+.kodza-footer-venue__copy:not(#_) {
+  margin: 0;
+  font-family: var(--kz-footer-venue-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--kz-footer-venue-muted);
+}
+
+.kodza-footer-venue__label:not(#_) {
+  margin-bottom: 16px;
+}
+
+.kodza-footer-venue__address:not(#_) {
+  margin: 0;
+  font-size: 15px;
+  font-style: normal;
+  line-height: 1.55;
+}
+
+.kodza-footer-venue__link:not(#_),
+.kodza-footer-venue__go:not(#_),
+.kodza-footer-venue__phone:not(#_) {
+  color: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
+  transition: background-size 0.4s var(--kz-footer-venue-ease), color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .kodza-footer-venue__link:hover:not(#_),
+  .kodza-footer-venue__go:hover:not(#_),
+  .kodza-footer-venue__phone:hover:not(#_) {
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
+}
+
+.kodza-footer-venue__go:not(#_) {
+  display: inline-flex;
+  margin-top: 14px;
+  font-weight: 500;
+}
+
+.kodza-footer-venue__arrow svg:not(#_) {
+  position: absolute;
+  display: block;
+  transition: transform 0.45s var(--kz-footer-venue-ease);
+}
+
+.kodza-footer-venue__status:not(#_) {
+  display: inline-flex;
+  max-width: 100%;
+  margin: 0 0 14px;
+  font-family: var(--kz-footer-venue-mono);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.kodza-footer-venue__text > .is-leaving:not(#_) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.kodza-footer-venue__num > .is-leaving:not(#_) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.kodza-footer-venue__week:not(#_) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-venue__day:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 5px 0;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.kodza-footer-venue__times time:not(#_) {
+  font: inherit;
+}
+
+.kodza-footer-venue__ghost:not(#_) {
+  position: absolute;
+  color: var(--kz-footer-venue-bg);
+}
+
+.kodza-footer-venue__all:not(#_) {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  margin: 10px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.kodza-footer-venue__all svg:not(#_) {
+  display: block;
+  transition: transform 0.45s var(--kz-footer-venue-ease);
+}
+
+.kodza-footer-venue__phone:not(#_) {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.kodza-footer-venue__block .kodza-footer-venue__link:not(#_) {
+  margin-top: 6px;
+  font-size: 15px;
+}
+
+.kodza-footer-venue__note:not(#_) {
+  max-width: 22em;
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--kz-footer-venue-muted);
+}
+
+.kodza-footer-venue__row:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-venue__row li:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-footer-venue__row .kodza-footer-venue__link:not(#_) {
+  font-size: 13px;
+  color: var(--kz-footer-venue-muted);
+}
+
+@media (hover: hover) {
+  .kodza-footer-venue__row .kodza-footer-venue__link:hover:not(#_) {
+    color: var(--kz-footer-venue-fg);
+  }
+}
+
+.kodza-footer-venue__logo:focus-visible:not(#_),
+.kodza-footer-venue__book:focus-visible:not(#_),
+.kodza-footer-venue__link:focus-visible:not(#_),
+.kodza-footer-venue__go:focus-visible:not(#_),
+.kodza-footer-venue__phone:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-footer-venue-fg);
+  outline-offset: 3px;
+}
+
+.kodza-footer-venue__all:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-footer-venue-fg);
+  outline-offset: 3px;
+}
+
+.kodza-footer-venue__link:focus-visible:not(#_),
+.kodza-footer-venue__go:focus-visible:not(#_),
+.kodza-footer-venue__phone:focus-visible:not(#_) {
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-footer-venue__book:not(#_),
+  .kodza-footer-venue__link:not(#_),
+  .kodza-footer-venue__go:not(#_),
+  .kodza-footer-venue__phone:not(#_),
+  .kodza-footer-venue__arrow svg:not(#_),
+  .kodza-footer-venue__all svg:not(#_) {
+    transition: none;
+  }
+}
+
+@container kodza-footer-venue (max-width: 600px) {
+  .kodza-footer-venue.is-ready .kodza-footer-venue__all:not(#_) {
+    display: inline-flex;
+  }
+}

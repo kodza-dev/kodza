@@ -1,0 +1,657 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Footer Wordmark
+   The footer that waits under the page. As you reach it, its content rises slower than the scroll
+   and a veil of ink lifts off it; at the very bottom, the name is set across the whole width, ink
+   edge to ink edge, and it rises from its masks: letter by letter, word by word or in one piece
+   (data-split on the name). No position: fixed: the content moves inside its own clipped box, so
+   nothing slides under the theme.
+   Everything is tuned with the --kz-footer-wordmark-* variables. */
+.kodza-footer-wordmark {
+  --kz-footer-wordmark-bg: #0a0a0a;
+  --kz-footer-wordmark-fg: #f2f2f0;
+  --kz-footer-wordmark-muted: rgba(242, 242, 240, 0.62);
+  --kz-footer-wordmark-line: rgba(242, 242, 240, 0.16);
+  --kz-footer-wordmark-veil: #0a0a0a;
+  --kz-footer-wordmark-shade: 0.85; /* the veil when the footer starts to show; 0 = none */
+  --kz-footer-wordmark-depth: 0.55; /* how far behind the page it waits: 0 scrolls in as usual, 1 stays put */
+  --kz-footer-wordmark-pad-top: clamp(56px, 7vw, 104px);
+  --kz-footer-wordmark-gutter: clamp(16px, 4vw, 40px);
+  --kz-footer-wordmark-weight: 600;
+  --kz-footer-wordmark-tracking: -0.05em;
+  --kz-footer-wordmark-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-footer-wordmark-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--kz-footer-wordmark-bg);
+  color: var(--kz-footer-wordmark-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+  container: kodza-footer-wordmark / inline-size;
+}
+
+/* The box the content moves in: it never shows past the top of the footer */
+.kodza-footer-wordmark__stage {
+  position: relative;
+  overflow: clip;
+}
+
+.kodza-footer-wordmark__inner {
+  box-sizing: border-box;
+  padding-top: var(--kz-footer-wordmark-pad-top);
+  padding-bottom: var(--kz-footer-wordmark-gutter);
+  padding-left: max(var(--kz-footer-wordmark-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-footer-wordmark-gutter), env(safe-area-inset-right, 0px));
+}
+
+.kodza-footer-wordmark__top {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.5fr);
+  gap: 40px clamp(24px, 3vw, 48px);
+}
+
+.kodza-footer-wordmark__group {
+  min-width: 0;
+}
+
+.kodza-footer-wordmark__group--end {
+  justify-self: end;
+  text-align: right;
+}
+
+.kodza-footer-wordmark__label,
+.kodza-footer-wordmark__legal,
+.kodza-footer-wordmark__note {
+  margin: 0;
+  font-family: var(--kz-footer-wordmark-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--kz-footer-wordmark-muted);
+}
+
+.kodza-footer-wordmark__label {
+  margin-bottom: 16px;
+}
+
+.kodza-footer-wordmark__links {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-wordmark__links li {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-footer-wordmark__link,
+.kodza-footer-wordmark__address {
+  font-family: var(--kz-footer-wordmark-mono);
+  font-size: 13.5px;
+  font-style: normal;
+  line-height: 1.6;
+}
+
+.kodza-footer-wordmark__address {
+  display: grid;
+  margin: 0;
+}
+
+/* Links: a line draws itself in from the left, and goes back the same way */
+.kodza-footer-wordmark__link,
+.kodza-footer-wordmark__mail {
+  color: inherit;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 1px;
+  transition: background-size 0.4s var(--kz-footer-wordmark-ease);
+}
+
+.kodza-footer-wordmark__mail {
+  display: inline;
+  font-size: clamp(20px, 2.2vw, 30px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+  background-size: 0 1.5px;
+}
+
+.kodza-footer-wordmark__note {
+  margin-top: 12px;
+}
+
+@media (hover: hover) {
+  .kodza-footer-wordmark__link:hover {
+    background-size: 100% 1px;
+  }
+
+  .kodza-footer-wordmark__mail:hover {
+    background-size: 100% 1.5px;
+  }
+}
+
+.kodza-footer-wordmark__link:focus-visible,
+.kodza-footer-wordmark__mail:focus-visible {
+  outline: 2px solid var(--kz-footer-wordmark-fg);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.kodza-footer-wordmark__base {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-top: clamp(48px, 6vw, 88px);
+  padding-top: 18px;
+  border-top: 1px solid var(--kz-footer-wordmark-line);
+}
+
+.kodza-footer-wordmark__links--row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+}
+
+.kodza-footer-wordmark__links--row .kodza-footer-wordmark__link {
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+/* The name: the script fills in the size and the four measures below, so the ink of the first
+   letter starts on the left edge, the last one ends on the right edge and the box stops at the
+   bottom of the ink. Without the script, a size that comes close. flow-root keeps the word's
+   negative margin inside the box instead of merging it with the margin above */
+.kodza-footer-wordmark__name {
+  display: flow-root;
+  height: var(--kz-footer-wordmark-height, auto);
+  margin: clamp(32px, 4.5vw, 64px) 0 0;
+  padding: 0;
+  font-size: var(--kz-footer-wordmark-size, 23cqi);
+  font-weight: var(--kz-footer-wordmark-weight);
+  line-height: 1.2;
+  letter-spacing: var(--kz-footer-wordmark-tracking);
+  white-space: nowrap;
+  color: var(--kz-footer-wordmark-fg);
+}
+
+/* Pulled up to the ink, its empty top would cover the links above it: clicks go through it */
+.kodza-footer-wordmark__word {
+  display: flex;
+  pointer-events: none;
+  margin-top: calc(var(--kz-footer-wordmark-lift, 0px) * -1);
+  margin-left: calc(var(--kz-footer-wordmark-shift, 0px) * -1);
+}
+
+/* Each letter is its own mask, cut under the ink: it rises from the bottom of the footer. Only
+   the height is clipped, so the tight tracking never shaves the side of a glyph */
+.kodza-footer-wordmark__letter {
+  display: block;
+  flex: none;
+  height: var(--kz-footer-wordmark-mask, auto);
+  overflow-x: visible;
+  overflow-y: clip;
+  white-space: pre;
+}
+
+.kodza-footer-wordmark__glyph {
+  display: inline-block;
+}
+
+/* Empty, it sits on the baseline: the script reads the line from it */
+.kodza-footer-wordmark__base-line {
+  display: inline-block;
+}
+
+/* The ink the page casts: the script lifts it as the footer comes in */
+.kodza-footer-wordmark__veil {
+  position: absolute;
+  inset: 0;
+  background: var(--kz-footer-wordmark-veil);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* With the script, the letters wait under their masks until the name is called */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-footer-wordmark.is-live:not(.is-called) .kodza-footer-wordmark__glyph {
+    transform: translateY(105%);
+  }
+}
+
+@container kodza-footer-wordmark (max-width: 760px) {
+  .kodza-footer-wordmark__top {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 36px 24px;
+  }
+
+  .kodza-footer-wordmark__group--end {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: start;
+    text-align: left;
+  }
+}
+
+/* kodza-guard ead02da2c06e — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-footer-wordmark__link):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+  letter-spacing: revert;
+}
+
+:where(.kodza-footer-wordmark__mail):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-footer-wordmark:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-wordmark__stage:not(#_),
+.kodza-footer-wordmark__top:not(#_),
+.kodza-footer-wordmark__base:not(#_),
+.kodza-footer-wordmark__year:not(#_),
+.kodza-footer-wordmark__word:not(#_),
+.kodza-footer-wordmark__letter:not(#_),
+.kodza-footer-wordmark__glyph:not(#_),
+.kodza-footer-wordmark__base-line:not(#_),
+.kodza-footer-wordmark__veil:not(#_),
+.kodza-footer-wordmark__address span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-footer-wordmark__group:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-wordmark__label:not(#_),
+.kodza-footer-wordmark__note:not(#_),
+.kodza-footer-wordmark__legal:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-wordmark__links:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-wordmark__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-wordmark__address:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-weight: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-wordmark__mail:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-wordmark__name:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-wordmark__links li:where(:not([class*="kodza-"]):not(.kodza-footer-wordmark__links [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-wordmark__group:not(#_):where(:not([hidden])),
+.kodza-footer-wordmark__label:not(#_):where(:not([hidden])),
+.kodza-footer-wordmark__link:not(#_):where(:not([hidden])),
+.kodza-footer-wordmark__note:not(#_):where(:not([hidden])),
+.kodza-footer-wordmark__legal:not(#_):where(:not([hidden])),
+.kodza-footer-wordmark__links li:where(:not([class*="kodza-"]):not(.kodza-footer-wordmark__links [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-footer-wordmark__group:not(#_):where([hidden]),
+.kodza-footer-wordmark__label:not(#_):where([hidden]),
+.kodza-footer-wordmark__link:not(#_):where([hidden]),
+.kodza-footer-wordmark__note:not(#_):where([hidden]),
+.kodza-footer-wordmark__legal:not(#_):where([hidden]),
+.kodza-footer-wordmark__links li:where(:not([class*="kodza-"]):not(.kodza-footer-wordmark__links [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-footer-wordmark:not(#_) {
+  display: block;
+  box-sizing: border-box;
+  padding: 0;
+  background: var(--kz-footer-wordmark-bg);
+  color: var(--kz-footer-wordmark-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.kodza-footer-wordmark__label:not(#_),
+.kodza-footer-wordmark__legal:not(#_),
+.kodza-footer-wordmark__note:not(#_) {
+  margin: 0;
+  font-family: var(--kz-footer-wordmark-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--kz-footer-wordmark-muted);
+}
+
+.kodza-footer-wordmark__label:not(#_) {
+  margin-bottom: 16px;
+}
+
+.kodza-footer-wordmark__links:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-wordmark__links li:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-footer-wordmark__link:not(#_),
+.kodza-footer-wordmark__address:not(#_) {
+  font-family: var(--kz-footer-wordmark-mono);
+  font-size: 13.5px;
+  font-style: normal;
+  line-height: 1.6;
+}
+
+.kodza-footer-wordmark__address:not(#_) {
+  display: grid;
+  margin: 0;
+}
+
+.kodza-footer-wordmark__link:not(#_),
+.kodza-footer-wordmark__mail:not(#_) {
+  color: inherit;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 1px;
+  transition: background-size 0.4s var(--kz-footer-wordmark-ease);
+}
+
+.kodza-footer-wordmark__mail:not(#_) {
+  display: inline;
+  font-size: clamp(20px, 2.2vw, 30px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+}
+
+.kodza-footer-wordmark__note:not(#_) {
+  margin-top: 12px;
+}
+
+@media (hover: hover) {
+  .kodza-footer-wordmark__link:hover:not(#_) {
+    background-size: 100% 1px;
+  }
+}
+
+@media (hover: hover) {
+  .kodza-footer-wordmark__mail:hover:not(#_) {
+    background-size: 100% 1.5px;
+  }
+}
+
+.kodza-footer-wordmark__link:focus-visible:not(#_),
+.kodza-footer-wordmark__mail:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-footer-wordmark-fg);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.kodza-footer-wordmark__links--row:not(#_) {
+  display: flex;
+}
+
+.kodza-footer-wordmark__links--row .kodza-footer-wordmark__link:not(#_) {
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+.kodza-footer-wordmark__name:not(#_) {
+  display: flow-root;
+  margin: clamp(32px, 4.5vw, 64px) 0 0;
+  padding: 0;
+  font-size: var(--kz-footer-wordmark-size, 23cqi);
+  font-weight: var(--kz-footer-wordmark-weight);
+  line-height: 1.2;
+  letter-spacing: var(--kz-footer-wordmark-tracking);
+  color: var(--kz-footer-wordmark-fg);
+}

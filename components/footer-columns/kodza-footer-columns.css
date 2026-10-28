@@ -1,0 +1,761 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Footer Columns
+   The footer you paste everywhere: the logo and a line, up to five columns of links under mono
+   titles, then a bottom row with the year, the legal pages, the networks and Back to top. On
+   hover, a line comes in under a link from the left and leaves by the right, and the arrow of
+   Back to top rolls up. On phones the columns go two by two: nothing is hidden.
+   Everything is tuned with the --kz-footer-columns-* variables. */
+.kodza-footer-columns {
+  --kz-footer-columns-bg: #ffffff;
+  --kz-footer-columns-fg: #0a0a0a;
+  --kz-footer-columns-muted: rgba(10, 10, 10, 0.62);
+  --kz-footer-columns-line: rgba(10, 10, 10, 0.1);
+  --kz-footer-columns-soft: rgba(10, 10, 10, 0.05); /* Back to top, under the pointer */
+  --kz-footer-columns-width: 1200px; /* the content, centred */
+  --kz-footer-columns-pad: 24px;
+  --kz-footer-columns-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-footer-columns-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--kz-footer-columns-line);
+  background: var(--kz-footer-columns-bg);
+  color: var(--kz-footer-columns-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+  container: kodza-footer-columns / inline-size;
+}
+
+/* Centred by its margins (no margin: auto, which some browsers read late) */
+.kodza-footer-columns__inner {
+  box-sizing: border-box;
+  margin: 0 max(0px, calc((100% - var(--kz-footer-columns-width)) / 2));
+  padding-top: clamp(56px, 6vw, 80px);
+  padding-bottom: 28px;
+  padding-left: max(var(--kz-footer-columns-pad), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-footer-columns-pad), env(safe-area-inset-right, 0px));
+}
+
+.kodza-footer-columns__main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 48px clamp(32px, 5vw, 80px);
+}
+
+.kodza-footer-columns__brand {
+  min-width: 0;
+}
+
+/* Pulled up so the name sits on the line of the column titles */
+.kodza-footer-columns__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  margin: -11px 0 0;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-footer-columns__logo svg {
+  display: block;
+  flex: none;
+  fill: currentColor;
+}
+
+.kodza-footer-columns__pitch {
+  max-width: 24em;
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-footer-columns-muted);
+  text-wrap: pretty;
+}
+
+/* As many columns as you write, up to five on a row */
+.kodza-footer-columns__nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(112px, 100%), 1fr));
+  gap: 40px 24px;
+  min-width: 0;
+}
+
+.kodza-footer-columns__col {
+  min-width: 0;
+}
+
+.kodza-footer-columns__title,
+.kodza-footer-columns__copy {
+  margin: 0;
+  font-family: var(--kz-footer-columns-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--kz-footer-columns-muted);
+}
+
+.kodza-footer-columns__title {
+  margin-bottom: 16px;
+}
+
+.kodza-footer-columns__links,
+.kodza-footer-columns__row {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-columns__links {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+}
+
+.kodza-footer-columns__links li,
+.kodza-footer-columns__row li {
+  margin: 0;
+  padding: 0;
+}
+
+/* Links: the line grows from the left, and shrinks away to the right */
+.kodza-footer-columns__link {
+  color: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
+  transition: background-size 0.4s var(--kz-footer-columns-ease), color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .kodza-footer-columns__link:hover {
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
+}
+
+.kodza-footer-columns__base {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  margin-top: clamp(56px, 7vw, 96px);
+  padding-top: 20px;
+  border-top: 1px solid var(--kz-footer-columns-line);
+}
+
+.kodza-footer-columns__legal,
+.kodza-footer-columns__end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+}
+
+.kodza-footer-columns__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.kodza-footer-columns__row .kodza-footer-columns__link {
+  font-size: 13px;
+  color: var(--kz-footer-columns-muted);
+}
+
+@media (hover: hover) {
+  .kodza-footer-columns__row .kodza-footer-columns__link:hover {
+    color: var(--kz-footer-columns-fg);
+  }
+}
+
+/* Back to top: a pill, and an arrow that rolls up (the next one waits under it) */
+.kodza-footer-columns__top {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px 0 14px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--kz-footer-columns-line);
+  color: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-footer-columns__arrow {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  width: 12px;
+  height: 12px;
+  overflow: clip;
+}
+
+.kodza-footer-columns__arrow svg {
+  display: block;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.45s var(--kz-footer-columns-ease);
+}
+
+@media (hover: hover) {
+  .kodza-footer-columns__top:hover {
+    background-color: var(--kz-footer-columns-soft);
+  }
+
+  .kodza-footer-columns__top:hover .kodza-footer-columns__arrow svg {
+    transform: translateY(-100%);
+  }
+}
+
+.kodza-footer-columns__logo:focus-visible,
+.kodza-footer-columns__link:focus-visible,
+.kodza-footer-columns__top:focus-visible {
+  outline: 2px solid var(--kz-footer-columns-fg);
+  outline-offset: 3px;
+}
+
+.kodza-footer-columns__link:focus-visible {
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-footer-columns__link,
+  .kodza-footer-columns__arrow svg {
+    transition: none;
+  }
+}
+
+/* The brand goes on top of the columns */
+@container kodza-footer-columns (max-width: 960px) {
+  .kodza-footer-columns__main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Phones: the columns two by two, the bottom row stacked */
+@container kodza-footer-columns (max-width: 600px) {
+  .kodza-footer-columns__nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 36px 16px;
+  }
+
+  .kodza-footer-columns__base {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* kodza-guard a5e492b73fa0 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-footer-columns__logo):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-footer-columns__link):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-footer-columns__top):not(#_) {
+  outline: revert;
+  background-color: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-footer-columns:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-columns__main:not(#_),
+.kodza-footer-columns__brand:not(#_),
+.kodza-footer-columns__col:not(#_),
+.kodza-footer-columns__base:not(#_),
+.kodza-footer-columns__legal:not(#_),
+.kodza-footer-columns__year:not(#_),
+.kodza-footer-columns__end:not(#_),
+.kodza-footer-columns__arrow:not(#_),
+.kodza-footer-columns__logo span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-footer-columns__logo:not(#_) {
+  border: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-columns__pitch:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-columns__nav:not(#_),
+.kodza-footer-columns__logo svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-columns__title:not(#_),
+.kodza-footer-columns__copy:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-columns__links:not(#_),
+.kodza-footer-columns__row:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-columns__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-columns__top:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-image: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-columns__links li:where(:not([class*="kodza-"]):not(.kodza-footer-columns__links [class*="kodza-"] *)):not(#_),
+.kodza-footer-columns__row li:where(:not([class*="kodza-"]):not(.kodza-footer-columns__row [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-columns__arrow svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-columns__pitch:not(#_):where(:not([hidden])),
+.kodza-footer-columns__title:not(#_):where(:not([hidden])),
+.kodza-footer-columns__link:not(#_):where(:not([hidden])),
+.kodza-footer-columns__copy:not(#_):where(:not([hidden])),
+.kodza-footer-columns__links li:where(:not([class*="kodza-"]):not(.kodza-footer-columns__links [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-footer-columns__row li:where(:not([class*="kodza-"]):not(.kodza-footer-columns__row [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-footer-columns__pitch:not(#_):where([hidden]),
+.kodza-footer-columns__title:not(#_):where([hidden]),
+.kodza-footer-columns__link:not(#_):where([hidden]),
+.kodza-footer-columns__copy:not(#_):where([hidden]),
+.kodza-footer-columns__links li:where(:not([class*="kodza-"]):not(.kodza-footer-columns__links [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-footer-columns__row li:where(:not([class*="kodza-"]):not(.kodza-footer-columns__row [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-footer-columns:not(#_) {
+  display: block;
+  box-sizing: border-box;
+  padding: 0;
+  border-top: 1px solid var(--kz-footer-columns-line);
+  background: var(--kz-footer-columns-bg);
+  color: var(--kz-footer-columns-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.kodza-footer-columns__logo:not(#_) {
+  display: inline-flex;
+  margin: -11px 0 0;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-footer-columns__logo svg:not(#_) {
+  display: block;
+}
+
+.kodza-footer-columns__pitch:not(#_) {
+  max-width: 24em;
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-footer-columns-muted);
+}
+
+.kodza-footer-columns__nav:not(#_) {
+  display: grid;
+}
+
+.kodza-footer-columns__title:not(#_),
+.kodza-footer-columns__copy:not(#_) {
+  margin: 0;
+  font-family: var(--kz-footer-columns-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--kz-footer-columns-muted);
+}
+
+.kodza-footer-columns__title:not(#_) {
+  margin-bottom: 16px;
+}
+
+.kodza-footer-columns__links:not(#_),
+.kodza-footer-columns__row:not(#_) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-columns__links:not(#_) {
+  display: grid;
+}
+
+.kodza-footer-columns__links li:not(#_),
+.kodza-footer-columns__row li:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-footer-columns__link:not(#_) {
+  color: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
+  transition: background-size 0.4s var(--kz-footer-columns-ease), color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .kodza-footer-columns__link:hover:not(#_) {
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
+}
+
+.kodza-footer-columns__row:not(#_) {
+  display: flex;
+}
+
+.kodza-footer-columns__row .kodza-footer-columns__link:not(#_) {
+  font-size: 13px;
+  color: var(--kz-footer-columns-muted);
+}
+
+@media (hover: hover) {
+  .kodza-footer-columns__row .kodza-footer-columns__link:hover:not(#_) {
+    color: var(--kz-footer-columns-fg);
+  }
+}
+
+.kodza-footer-columns__top:not(#_) {
+  display: inline-flex;
+  padding: 0 12px 0 14px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--kz-footer-columns-line);
+  color: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.kodza-footer-columns__arrow svg:not(#_) {
+  display: block;
+  transition: transform 0.45s var(--kz-footer-columns-ease);
+}
+
+@media (hover: hover) {
+  .kodza-footer-columns__top:hover:not(#_) {
+    background-color: var(--kz-footer-columns-soft);
+  }
+}
+
+.kodza-footer-columns__logo:focus-visible:not(#_),
+.kodza-footer-columns__link:focus-visible:not(#_),
+.kodza-footer-columns__top:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-footer-columns-fg);
+  outline-offset: 3px;
+}
+
+.kodza-footer-columns__link:focus-visible:not(#_) {
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-footer-columns__link:not(#_),
+  .kodza-footer-columns__arrow svg:not(#_) {
+    transition: none;
+  }
+}

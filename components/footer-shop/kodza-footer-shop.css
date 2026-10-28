@@ -1,0 +1,2080 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Footer Shop
+   The footer of an online shop, where the last doubts get answered: a row of promises (returns,
+   shipping, payment, a human), the letter in a text field whose button rolls Subscribe, Sending,
+   Subscribed, the columns, then a country and currency menu that unrolls upwards and the payment
+   methods in mono. On phones the columns fold into accordions; without the script they stay open,
+   two by two. Each promise has its icon beside the claim; kodza-footer-shop--big-icons on the root
+   makes it big, above the claim.
+   Everything is tuned with the --kz-footer-shop-* variables. */
+.kodza-footer-shop {
+  --kz-footer-shop-bg: #ffffff;
+  --kz-footer-shop-fg: #0a0a0a;
+  --kz-footer-shop-muted: rgba(10, 10, 10, 0.62);
+  --kz-footer-shop-line: rgba(10, 10, 10, 0.1);
+  --kz-footer-shop-edge: rgba(10, 10, 10, 0.16); /* the field and the country button */
+  --kz-footer-shop-edge-hover: rgba(10, 10, 10, 0.32);
+  --kz-footer-shop-soft: rgba(10, 10, 10, 0.05); /* the highlight in the menu, a done button */
+  --kz-footer-shop-raised: #ffffff; /* the field and the menu */
+  --kz-footer-shop-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  --kz-footer-shop-width: 1200px; /* the content, centred */
+  --kz-footer-shop-pad: 24px;
+  --kz-footer-shop-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-footer-shop-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--kz-footer-shop-line);
+  background: var(--kz-footer-shop-bg);
+  color: var(--kz-footer-shop-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+  container: kodza-footer-shop / inline-size;
+}
+
+/* Centred by its margins (no margin: auto, which some browsers read late) */
+.kodza-footer-shop__inner {
+  box-sizing: border-box;
+  margin: 0 max(0px, calc((100% - var(--kz-footer-shop-width)) / 2));
+  padding-top: clamp(48px, 5vw, 64px);
+  padding-bottom: 28px;
+  padding-left: max(var(--kz-footer-shop-pad), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-footer-shop-pad), env(safe-area-inset-right, 0px));
+}
+
+.kodza-footer-shop__promises,
+.kodza-footer-shop__links,
+.kodza-footer-shop__row,
+.kodza-footer-shop__places,
+.kodza-footer-shop__pay {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-shop__promises li,
+.kodza-footer-shop__links li,
+.kodza-footer-shop__row li,
+.kodza-footer-shop__places li {
+  margin: 0;
+  padding: 0;
+}
+
+/* The promises: each one links to its page */
+.kodza-footer-shop__promises {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 32px clamp(24px, 3vw, 40px);
+  margin-bottom: clamp(48px, 6vw, 72px);
+  padding-bottom: clamp(40px, 5vw, 56px);
+  border-bottom: 1px solid var(--kz-footer-shop-line);
+}
+
+.kodza-footer-shop__promises li {
+  min-width: 0;
+}
+
+.kodza-footer-shop__promise {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  justify-items: start;
+  gap: 4px 10px;
+  border-radius: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The icon sits beside the claim, on its first line; the small print goes under the claim */
+.kodza-footer-shop__icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  margin: 0.5px 0 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Big icons: the icon stands above the claim, the claim and its small print get the whole width */
+.kodza-footer-shop--big-icons .kodza-footer-shop__promise {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.kodza-footer-shop--big-icons .kodza-footer-shop__icon {
+  width: 44px;
+  height: 44px;
+  margin: 0 0 14px;
+  stroke-width: 1.1;
+}
+
+.kodza-footer-shop--big-icons .kodza-footer-shop__small {
+  grid-column: auto;
+}
+
+.kodza-footer-shop__claim {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.kodza-footer-shop__small {
+  grid-column: 2;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--kz-footer-shop-muted);
+  text-wrap: pretty;
+}
+
+.kodza-footer-shop__main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr);
+  gap: 48px clamp(32px, 5vw, 80px);
+}
+
+.kodza-footer-shop__brand {
+  min-width: 0;
+}
+
+/* Pulled up so the name sits on the line of the column titles */
+.kodza-footer-shop__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  margin: -11px 0 0;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-footer-shop__logo svg {
+  display: block;
+  flex: none;
+  fill: currentColor;
+}
+
+.kodza-footer-shop__pitch {
+  max-width: 24em;
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-footer-shop-muted);
+  text-wrap: pretty;
+}
+
+/* The letter: the box of Text Field, with the button inside it */
+.kodza-footer-shop__form {
+  max-width: 440px;
+  margin: 28px 0 0;
+  padding: 0;
+}
+
+.kodza-footer-shop__box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 56px;
+  margin: 0;
+  padding: 0 8px 0 0;
+  border-radius: 12px;
+  background: var(--kz-footer-shop-raised);
+  box-shadow: inset 0 0 0 1px var(--kz-footer-shop-edge);
+  transition: box-shadow 0.25s ease;
+}
+
+@media (hover: hover) {
+  .kodza-footer-shop__box:hover {
+    box-shadow: inset 0 0 0 1px var(--kz-footer-shop-edge-hover);
+  }
+}
+
+.kodza-footer-shop__box:has(.kodza-footer-shop__input:focus) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-footer-shop-fg), 0 0 0 4px var(--kz-footer-shop-soft);
+}
+
+.kodza-footer-shop__box:has(.kodza-footer-shop__input[aria-invalid="true"]) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-footer-shop-fg);
+}
+
+.kodza-footer-shop__box:has(.kodza-footer-shop__input[aria-invalid="true"]:focus) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-footer-shop-fg), 0 0 0 4px var(--kz-footer-shop-soft);
+}
+
+.kodza-footer-shop__field {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  align-self: stretch;
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 9px 16px;
+  cursor: text;
+}
+
+.kodza-footer-shop__input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  outline: none;
+}
+
+/* The label: inside the box at rest, folded up above the text once focused or filled */
+.kodza-footer-shop__label {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  color: var(--kz-footer-shop-muted);
+  font-size: 15px;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transform-origin: left top;
+  transition: transform 0.35s var(--kz-footer-shop-ease);
+}
+
+.kodza-footer-shop__input:focus ~ .kodza-footer-shop__label,
+.kodza-footer-shop__input:not(:placeholder-shown) ~ .kodza-footer-shop__label {
+  transform: translateY(-18px) scale(0.8);
+}
+
+/* The button: its word rolls (the old one goes up, the new one comes from below) and its width
+   follows */
+.kodza-footer-shop__send {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-footer-shop-fg);
+  color: var(--kz-footer-shop-bg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.35s ease, color 0.35s ease, opacity 0.2s ease;
+}
+
+@media (hover: hover) {
+  .kodza-footer-shop__send:hover {
+    opacity: 0.86;
+  }
+}
+
+.kodza-footer-shop__say {
+  display: inline-grid;
+  overflow: hidden;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.kodza-footer-shop__say > span {
+  display: inline-flex;
+  grid-area: 1 / 1;
+  justify-self: start;
+  align-items: center;
+  gap: 6px;
+}
+
+.kodza-footer-shop__tick {
+  display: block;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: kodza-footer-shop-tick 0.4s var(--kz-footer-shop-ease) 0.35s forwards;
+}
+
+@keyframes kodza-footer-shop-tick {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.kodza-footer-shop__form.is-sending .kodza-footer-shop__send {
+  cursor: progress;
+}
+
+.kodza-footer-shop__form.is-done .kodza-footer-shop__send {
+  background: var(--kz-footer-shop-soft);
+  color: var(--kz-footer-shop-fg);
+  opacity: 1;
+  cursor: default;
+}
+
+/* The line under the box: the hint, an error or Done, one in place of the other */
+.kodza-footer-shop__note {
+  display: grid;
+  margin: 10px 0 0;
+  padding: 0 2px;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--kz-footer-shop-muted);
+}
+
+.kodza-footer-shop__hint,
+.kodza-footer-shop__error,
+.kodza-footer-shop__done {
+  grid-area: 1 / 1;
+  transition: opacity 0.25s ease, transform 0.4s var(--kz-footer-shop-ease);
+}
+
+.kodza-footer-shop__error,
+.kodza-footer-shop__done {
+  color: var(--kz-footer-shop-fg);
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.kodza-footer-shop__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.kodza-footer-shop__error::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-footer-shop__form.is-error .kodza-footer-shop__hint,
+.kodza-footer-shop__form.is-done .kodza-footer-shop__hint {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.kodza-footer-shop__form.is-error .kodza-footer-shop__error,
+.kodza-footer-shop__form.is-done .kodza-footer-shop__done {
+  opacity: 1;
+  transform: none;
+}
+
+/* The columns */
+.kodza-footer-shop__nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr));
+  gap: 40px 24px;
+  min-width: 0;
+}
+
+.kodza-footer-shop__col {
+  min-width: 0;
+}
+
+.kodza-footer-shop__title,
+.kodza-footer-shop__copy {
+  margin: 0;
+  font-family: var(--kz-footer-shop-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--kz-footer-shop-muted);
+}
+
+.kodza-footer-shop__title {
+  margin-bottom: 16px;
+}
+
+/* Made by the script, for phones: the title becomes the button of its accordion */
+.kodza-footer-shop__fold {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 52px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kodza-footer-shop__plus {
+  position: relative;
+  flex: none;
+  width: 12px;
+  height: 12px;
+}
+
+.kodza-footer-shop__plus::before,
+.kodza-footer-shop__plus::after {
+  content: "";
+  position: absolute;
+  top: 5.25px;
+  left: 0;
+  width: 12px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  transition: transform 0.4s var(--kz-footer-shop-ease);
+}
+
+.kodza-footer-shop__plus::after {
+  transform: rotate(90deg);
+}
+
+.kodza-footer-shop__col.is-open .kodza-footer-shop__plus::after {
+  transform: rotate(0deg);
+}
+
+.kodza-footer-shop__links {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+}
+
+/* Links: the line grows from the left, and shrinks away to the right */
+.kodza-footer-shop__link,
+.kodza-footer-shop__claim {
+  background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
+  transition: background-size 0.4s var(--kz-footer-shop-ease), color 0.2s ease;
+}
+
+.kodza-footer-shop__link {
+  color: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .kodza-footer-shop__link:hover,
+  .kodza-footer-shop__promise:hover .kodza-footer-shop__claim {
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
+}
+
+/* The bottom row */
+.kodza-footer-shop__base {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  margin-top: clamp(56px, 7vw, 96px);
+  padding-top: 20px;
+  border-top: 1px solid var(--kz-footer-shop-line);
+}
+
+.kodza-footer-shop__legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+}
+
+.kodza-footer-shop__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.kodza-footer-shop__row .kodza-footer-shop__link {
+  font-size: 13px;
+  color: var(--kz-footer-shop-muted);
+}
+
+@media (hover: hover) {
+  .kodza-footer-shop__row .kodza-footer-shop__link:hover {
+    color: var(--kz-footer-shop-fg);
+  }
+}
+
+/* Country and currency: a button, and a list of links that unrolls upwards (downwards when there
+   is no room above) */
+.kodza-footer-shop__region {
+  position: relative;
+  z-index: 0;
+  display: inline-flex;
+  transition: z-index 0s linear 0.35s;
+}
+
+.kodza-footer-shop__region.is-open {
+  z-index: 20;
+  transition-delay: 0s;
+}
+
+.kodza-footer-shop__picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 10px 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-footer-shop-edge);
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.kodza-footer-shop__region.is-open .kodza-footer-shop__picker {
+  box-shadow: inset 0 0 0 1px var(--kz-footer-shop-edge-hover);
+}
+
+@media (hover: hover) {
+  .kodza-footer-shop__picker:hover {
+    box-shadow: inset 0 0 0 1px var(--kz-footer-shop-edge-hover);
+  }
+}
+
+.kodza-footer-shop__globe,
+.kodza-footer-shop__chevron {
+  display: block;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: var(--kz-footer-shop-muted);
+}
+
+.kodza-footer-shop__globe {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.25;
+}
+
+.kodza-footer-shop__chevron {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.5;
+  transition: transform 0.35s var(--kz-footer-shop-ease);
+}
+
+.kodza-footer-shop__region.is-open .kodza-footer-shop__chevron {
+  transform: rotate(180deg);
+}
+
+.kodza-footer-shop__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-footer-shop__value {
+  display: inline-grid;
+  overflow: hidden;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.kodza-footer-shop__value > span {
+  grid-area: 1 / 1;
+  justify-self: start;
+}
+
+.kodza-footer-shop__places {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: max(100%, 240px);
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--kz-footer-shop-raised);
+  box-shadow: 0 0 0 1px var(--kz-footer-shop-line), var(--kz-footer-shop-shadow);
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(100% 0 0 0 round 14px);
+  transform: translateY(4px);
+  transition: clip-path 0.35s var(--kz-footer-shop-ease), transform 0.35s var(--kz-footer-shop-ease), opacity 0.2s ease, visibility 0s linear 0.35s;
+}
+
+.kodza-footer-shop__region.is-open .kodza-footer-shop__places {
+  visibility: visible;
+  opacity: 1;
+  clip-path: inset(-60px -40px -40px -40px round 14px);
+  transform: none;
+  transition-delay: 0s;
+}
+
+.kodza-footer-shop__region.is-below .kodza-footer-shop__places {
+  top: calc(100% + 8px);
+  bottom: auto;
+  clip-path: inset(0 0 100% 0 round 14px);
+  transform: translateY(-4px);
+}
+
+.kodza-footer-shop__region.is-below.is-open .kodza-footer-shop__places {
+  clip-path: inset(-40px -40px -60px -40px round 14px);
+  transform: none;
+}
+
+.kodza-footer-shop__region.is-end .kodza-footer-shop__places {
+  right: 0;
+  left: auto;
+}
+
+/* The highlight that glides from one country to the next */
+.kodza-footer-shop__places .kodza-footer-shop__glide {
+  position: absolute;
+  top: 0;
+  left: 6px;
+  right: 6px;
+  height: var(--kz-footer-shop-hl-h, 36px);
+  border-radius: 8px;
+  background: var(--kz-footer-shop-soft);
+  opacity: var(--kz-footer-shop-hl-on, 0);
+  transform: translateY(var(--kz-footer-shop-hl-y, 0px));
+  pointer-events: none;
+}
+
+.kodza-footer-shop__region.is-open .kodza-footer-shop__glide {
+  transition: transform 0.22s ease, opacity 0.15s ease;
+}
+
+.kodza-footer-shop__place {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  box-sizing: border-box;
+  height: 36px;
+  padding: 0 10px 0 32px;
+  border-radius: 8px;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.kodza-footer-shop__place:focus {
+  outline: none;
+}
+
+.kodza-footer-shop__currency {
+  font-family: var(--kz-footer-shop-mono);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--kz-footer-shop-muted);
+}
+
+.kodza-footer-shop__place[aria-current="true"]::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* The payment methods, in mono, a dot between two */
+.kodza-footer-shop__pay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 0;
+  font-family: var(--kz-footer-shop-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--kz-footer-shop-muted);
+}
+
+.kodza-footer-shop__pay li {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-footer-shop__pay li + li::before {
+  content: "";
+  flex: none;
+  width: 3px;
+  height: 3px;
+  margin: 0 10px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.kodza-footer-shop__promise:focus-visible,
+.kodza-footer-shop__logo:focus-visible,
+.kodza-footer-shop__link:focus-visible,
+.kodza-footer-shop__send:focus-visible,
+.kodza-footer-shop__picker:focus-visible,
+.kodza-footer-shop__fold:focus-visible {
+  outline: 2px solid var(--kz-footer-shop-fg);
+  outline-offset: 3px;
+}
+
+.kodza-footer-shop__link:focus-visible {
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-footer-shop__box,
+  .kodza-footer-shop__label,
+  .kodza-footer-shop__send,
+  .kodza-footer-shop__hint,
+  .kodza-footer-shop__error,
+  .kodza-footer-shop__done,
+  .kodza-footer-shop__plus::before,
+  .kodza-footer-shop__plus::after,
+  .kodza-footer-shop__link,
+  .kodza-footer-shop__claim,
+  .kodza-footer-shop__picker,
+  .kodza-footer-shop__chevron,
+  .kodza-footer-shop__places,
+  .kodza-footer-shop__region.is-open .kodza-footer-shop__glide {
+    transition: none;
+  }
+
+  .kodza-footer-shop__tick {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* The brand goes on top of the columns */
+@container kodza-footer-shop (max-width: 960px) {
+  .kodza-footer-shop__main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container kodza-footer-shop (max-width: 760px) {
+  .kodza-footer-shop__promises {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 16px;
+  }
+}
+
+/* Two narrow columns: a big icon gets a little smaller */
+@container kodza-footer-shop (max-width: 520px) {
+  .kodza-footer-shop--big-icons .kodza-footer-shop__icon {
+    width: 36px;
+    height: 36px;
+    margin: 0 0 10px;
+  }
+}
+
+/* Phones: the columns fold into accordions (two by two without the script), the bottom row
+   stacks */
+@container kodza-footer-shop (max-width: 600px) {
+  .kodza-footer-shop__nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 36px 16px;
+  }
+
+  .kodza-footer-shop.is-ready .kodza-footer-shop__nav {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--kz-footer-shop-line);
+  }
+
+  .kodza-footer-shop.is-ready .kodza-footer-shop__col {
+    border-bottom: 1px solid var(--kz-footer-shop-line);
+  }
+
+  .kodza-footer-shop.is-ready .kodza-footer-shop__title {
+    display: none;
+  }
+
+  .kodza-footer-shop.is-ready .kodza-footer-shop__fold {
+    display: flex;
+  }
+
+  .kodza-footer-shop.is-ready .kodza-footer-shop__links {
+    gap: 0;
+  }
+
+  .kodza-footer-shop.is-ready .kodza-footer-shop__links li {
+    padding: 6px 0;
+  }
+
+  .kodza-footer-shop.is-ready .kodza-footer-shop__links li:last-child {
+    padding-bottom: 18px;
+  }
+
+  .kodza-footer-shop.is-ready .kodza-footer-shop__links .kodza-footer-shop__link {
+    font-size: 15px;
+  }
+
+  .kodza-footer-shop.is-ready .kodza-footer-shop__col:not(.is-open) .kodza-footer-shop__links {
+    height: 0;
+    overflow: clip;
+    visibility: hidden;
+  }
+
+  .kodza-footer-shop.is-ready .kodza-footer-shop__col.is-moving .kodza-footer-shop__links {
+    overflow: clip;
+  }
+
+  .kodza-footer-shop__base {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* kodza-guard 08dbe65b77f5 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-footer-shop__promise):not(#_),
+:where(.kodza-footer-shop__logo):not(#_),
+:where(.kodza-footer-shop__send):not(#_),
+:where(.kodza-footer-shop__fold):not(#_),
+:where(.kodza-footer-shop__picker):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-footer-shop__nav):not(#_) {
+  border-top-width: revert;
+  border-top-style: revert;
+  border-top-color: revert;
+}
+
+:where(.kodza-footer-shop__link):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-footer-shop__glide):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-footer-shop__place):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-footer-shop__title):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-footer-shop__title):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-footer-shop:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__promises:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-top-width: revert;
+  border-right-width: revert;
+  border-left-width: revert;
+  border-top-style: revert;
+  border-right-style: revert;
+  border-left-style: revert;
+  border-top-color: revert;
+  border-right-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__promise:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__icon:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__claim:not(#_),
+.kodza-footer-shop__small:not(#_),
+.kodza-footer-shop__main:not(#_),
+.kodza-footer-shop__brand:not(#_),
+.kodza-footer-shop__form:not(#_),
+.kodza-footer-shop__label:not(#_),
+.kodza-footer-shop__say:not(#_),
+.kodza-footer-shop__hint:not(#_),
+.kodza-footer-shop__error:not(#_),
+.kodza-footer-shop__done:not(#_),
+.kodza-footer-shop__col:not(#_),
+.kodza-footer-shop__plus:not(#_),
+.kodza-footer-shop__base:not(#_),
+.kodza-footer-shop__legal:not(#_),
+.kodza-footer-shop__region:not(#_),
+.kodza-footer-shop__sr:not(#_),
+.kodza-footer-shop__value:not(#_),
+.kodza-footer-shop__country:not(#_),
+.kodza-footer-shop__currency:not(#_),
+.kodza-footer-shop__year:not(#_),
+.kodza-footer-shop__logo span:where(:not([class*="kodza-"])):not(#_),
+.kodza-footer-shop__say span:where(:not([class*="kodza-"])):not(#_),
+.kodza-footer-shop__value span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-footer-shop__logo:not(#_) {
+  border: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__pitch:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__field:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__input:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-footer-shop__send:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-footer-shop__note:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__nav:not(#_) {
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__title:not(#_),
+.kodza-footer-shop__copy:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__fold:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-footer-shop__links:not(#_),
+.kodza-footer-shop__row:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__picker:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-footer-shop__globe:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__chevron:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__places:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__glide:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__place:not(#_) {
+  border: revert;
+  margin: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__pay:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__promises li:where(:not([class*="kodza-"]):not(.kodza-footer-shop__promises [class*="kodza-"] *)):not(#_),
+.kodza-footer-shop__links li:where(:not([class*="kodza-"]):not(.kodza-footer-shop__links [class*="kodza-"] *)):not(#_),
+.kodza-footer-shop__places li:where(:not([class*="kodza-"]):not(.kodza-footer-shop__places [class*="kodza-"] *)):not(#_),
+.kodza-footer-shop__row li:where(:not([class*="kodza-"]):not(.kodza-footer-shop__row [class*="kodza-"] *)):not(#_),
+.kodza-footer-shop__pay li:where(:not([class*="kodza-"]):not(.kodza-footer-shop__pay [class*="kodza-"] *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__logo svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-footer-shop__pitch:not(#_):where(:not([hidden])),
+.kodza-footer-shop__input:not(#_):where(:not([hidden])),
+.kodza-footer-shop__link:not(#_):where(:not([hidden])),
+.kodza-footer-shop__glide:not(#_):where(:not([hidden])),
+.kodza-footer-shop__copy:not(#_):where(:not([hidden])),
+.kodza-footer-shop__promises li:where(:not([class*="kodza-"]):not(.kodza-footer-shop__promises [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-footer-shop__links li:where(:not([class*="kodza-"]):not(.kodza-footer-shop__links [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-footer-shop__places li:where(:not([class*="kodza-"]):not(.kodza-footer-shop__places [class*="kodza-"] *)):not(#_):where(:not([hidden])),
+.kodza-footer-shop__row li:where(:not([class*="kodza-"]):not(.kodza-footer-shop__row [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-footer-shop__pitch:not(#_):where([hidden]),
+.kodza-footer-shop__input:not(#_):where([hidden]),
+.kodza-footer-shop__link:not(#_):where([hidden]),
+.kodza-footer-shop__glide:not(#_):where([hidden]),
+.kodza-footer-shop__copy:not(#_):where([hidden]),
+.kodza-footer-shop__promises li:where(:not([class*="kodza-"]):not(.kodza-footer-shop__promises [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-footer-shop__links li:where(:not([class*="kodza-"]):not(.kodza-footer-shop__links [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-footer-shop__places li:where(:not([class*="kodza-"]):not(.kodza-footer-shop__places [class*="kodza-"] *)):not(#_):where([hidden]),
+.kodza-footer-shop__row li:where(:not([class*="kodza-"]):not(.kodza-footer-shop__row [class*="kodza-"] *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-footer-shop__error:not(#_)::before,
+.kodza-footer-shop__plus:not(#_)::before,
+.kodza-footer-shop__plus:not(#_)::after,
+.kodza-footer-shop__place:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-footer-shop:not(#_) {
+  display: block;
+  box-sizing: border-box;
+  padding: 0;
+  border-top: 1px solid var(--kz-footer-shop-line);
+  background: var(--kz-footer-shop-bg);
+  color: var(--kz-footer-shop-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.kodza-footer-shop__promises:not(#_),
+.kodza-footer-shop__links:not(#_),
+.kodza-footer-shop__row:not(#_),
+.kodza-footer-shop__places:not(#_),
+.kodza-footer-shop__pay:not(#_) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-footer-shop__promises li:not(#_),
+.kodza-footer-shop__links li:not(#_),
+.kodza-footer-shop__row li:not(#_),
+.kodza-footer-shop__places li:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-footer-shop__promises:not(#_) {
+  display: grid;
+  margin-bottom: clamp(48px, 6vw, 72px);
+  padding-bottom: clamp(40px, 5vw, 56px);
+  border-bottom: 1px solid var(--kz-footer-shop-line);
+}
+
+.kodza-footer-shop__promise:not(#_) {
+  display: grid;
+  border-radius: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-footer-shop__icon:not(#_) {
+  display: block;
+  margin: 0.5px 0 0;
+}
+
+.kodza-footer-shop--big-icons .kodza-footer-shop__icon:not(#_) {
+  margin: 0 0 14px;
+}
+
+.kodza-footer-shop__logo:not(#_) {
+  display: inline-flex;
+  margin: -11px 0 0;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.kodza-footer-shop__logo svg:not(#_) {
+  display: block;
+}
+
+.kodza-footer-shop__pitch:not(#_) {
+  max-width: 24em;
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-footer-shop-muted);
+}
+
+.kodza-footer-shop__field:not(#_) {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 0 9px 16px;
+}
+
+.kodza-footer-shop__input:not(#_) {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  outline: none;
+}
+
+.kodza-footer-shop__send:not(#_) {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kz-footer-shop-fg);
+  color: var(--kz-footer-shop-bg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.35s ease, color 0.35s ease, opacity 0.2s ease;
+}
+
+@media (hover: hover) {
+  .kodza-footer-shop__send:hover:not(#_) {
+    opacity: 0.86;
+  }
+}
+
+.kodza-footer-shop__form.is-sending .kodza-footer-shop__send:not(#_) {
+  cursor: progress;
+}
+
+.kodza-footer-shop__form.is-done .kodza-footer-shop__send:not(#_) {
+  background: var(--kz-footer-shop-soft);
+  color: var(--kz-footer-shop-fg);
+  opacity: 1;
+  cursor: default;
+}
+
+.kodza-footer-shop__note:not(#_) {
+  display: grid;
+  margin: 10px 0 0;
+  padding: 0 2px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--kz-footer-shop-muted);
+}
+
+.kodza-footer-shop__nav:not(#_) {
+  display: grid;
+}
+
+.kodza-footer-shop__title:not(#_),
+.kodza-footer-shop__copy:not(#_) {
+  margin: 0;
+  font-family: var(--kz-footer-shop-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--kz-footer-shop-muted);
+}
+
+.kodza-footer-shop__title:not(#_) {
+  margin-bottom: 16px;
+}
+
+.kodza-footer-shop__fold:not(#_) {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 52px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kodza-footer-shop__links:not(#_) {
+  display: grid;
+}
+
+.kodza-footer-shop__link:not(#_) {
+  background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
+  transition: background-size 0.4s var(--kz-footer-shop-ease), color 0.2s ease;
+}
+
+.kodza-footer-shop__link:not(#_) {
+  color: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .kodza-footer-shop__link:hover:not(#_) {
+    background-position: 0 100%;
+    background-size: 100% 1px;
+  }
+}
+
+.kodza-footer-shop__row:not(#_) {
+  display: flex;
+}
+
+.kodza-footer-shop__row .kodza-footer-shop__link:not(#_) {
+  font-size: 13px;
+  color: var(--kz-footer-shop-muted);
+}
+
+@media (hover: hover) {
+  .kodza-footer-shop__row .kodza-footer-shop__link:hover:not(#_) {
+    color: var(--kz-footer-shop-fg);
+  }
+}
+
+.kodza-footer-shop__picker:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 10px 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-footer-shop-edge);
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.kodza-footer-shop__region.is-open .kodza-footer-shop__picker:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-footer-shop-edge-hover);
+}
+
+@media (hover: hover) {
+  .kodza-footer-shop__picker:hover:not(#_) {
+    box-shadow: inset 0 0 0 1px var(--kz-footer-shop-edge-hover);
+  }
+}
+
+.kodza-footer-shop__globe:not(#_),
+.kodza-footer-shop__chevron:not(#_) {
+  display: block;
+  color: var(--kz-footer-shop-muted);
+}
+
+.kodza-footer-shop__chevron:not(#_) {
+  transition: transform 0.35s var(--kz-footer-shop-ease);
+}
+
+.kodza-footer-shop__places:not(#_) {
+  position: absolute;
+  display: flex;
+  box-sizing: border-box;
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--kz-footer-shop-raised);
+  box-shadow: 0 0 0 1px var(--kz-footer-shop-line), var(--kz-footer-shop-shadow);
+  transition: clip-path 0.35s var(--kz-footer-shop-ease), transform 0.35s var(--kz-footer-shop-ease), opacity 0.2s ease, visibility 0s linear 0.35s;
+}
+
+.kodza-footer-shop__region.is-open .kodza-footer-shop__places:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-footer-shop__places .kodza-footer-shop__glide:not(#_) {
+  position: absolute;
+  border-radius: 8px;
+  background: var(--kz-footer-shop-soft);
+}
+
+.kodza-footer-shop__region.is-open .kodza-footer-shop__glide:not(#_) {
+  transition: transform 0.22s ease, opacity 0.15s ease;
+}
+
+.kodza-footer-shop__place:not(#_) {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  padding: 0 10px 0 32px;
+  border-radius: 8px;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.kodza-footer-shop__place:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-footer-shop__pay:not(#_) {
+  display: flex;
+  font-family: var(--kz-footer-shop-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--kz-footer-shop-muted);
+}
+
+.kodza-footer-shop__pay li:not(#_) {
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-footer-shop__promise:focus-visible:not(#_),
+.kodza-footer-shop__logo:focus-visible:not(#_),
+.kodza-footer-shop__link:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-footer-shop-fg);
+  outline-offset: 3px;
+}
+
+.kodza-footer-shop__send:focus-visible:not(#_),
+.kodza-footer-shop__picker:focus-visible:not(#_),
+.kodza-footer-shop__fold:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-footer-shop-fg);
+  outline-offset: 3px;
+}
+
+.kodza-footer-shop__link:focus-visible:not(#_) {
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-footer-shop__send:not(#_),
+  .kodza-footer-shop__picker:not(#_) {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-footer-shop__link:not(#_),
+  .kodza-footer-shop__chevron:not(#_),
+  .kodza-footer-shop__places:not(#_),
+  .kodza-footer-shop__region.is-open .kodza-footer-shop__glide:not(#_) {
+    transition: none;
+  }
+}
+
+@container kodza-footer-shop (max-width: 520px) {
+  .kodza-footer-shop--big-icons .kodza-footer-shop__icon:not(#_) {
+    margin: 0 0 10px;
+  }
+}
+
+@container kodza-footer-shop (max-width: 600px) {
+  .kodza-footer-shop.is-ready .kodza-footer-shop__nav:not(#_) {
+    border-top: 1px solid var(--kz-footer-shop-line);
+  }
+}
+
+@container kodza-footer-shop (max-width: 600px) {
+  .kodza-footer-shop.is-ready .kodza-footer-shop__title:not(#_) {
+    display: none;
+  }
+}
+
+@container kodza-footer-shop (max-width: 600px) {
+  .kodza-footer-shop.is-ready .kodza-footer-shop__fold:not(#_) {
+    display: flex;
+  }
+}
+
+@container kodza-footer-shop (max-width: 600px) {
+  .kodza-footer-shop.is-ready .kodza-footer-shop__links li:not(#_) {
+    padding: 6px 0;
+  }
+}
+
+@container kodza-footer-shop (max-width: 600px) {
+  .kodza-footer-shop.is-ready .kodza-footer-shop__links li:last-child:not(#_) {
+    padding-bottom: 18px;
+  }
+}
+
+@container kodza-footer-shop (max-width: 600px) {
+  .kodza-footer-shop.is-ready .kodza-footer-shop__links .kodza-footer-shop__link:not(#_) {
+    font-size: 15px;
+  }
+}
