@@ -1,0 +1,727 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Curtain Transition
+   A page transition between two real pages (cross-document View Transitions). On a click a
+   panel of ink rises over the page you leave, the name of the next page comes up from its mask,
+   then the panel lifts off the top onto the new page, which plays its arrival: the label, the
+   title rising line by line, the image settling from a zoom, the rest in a cascade (mark them with
+   data-enter="label", "title", "image", or just data-enter). The name is the page's
+   data-page-name, or the first part of the page title. Going back plays it in reverse: the curtain
+   comes down and leaves by the bottom. Modifiers: --curved (its leading edge bows as it moves),
+   --from-top. Without the API (Firefox) or with reduced motion, navigation stays plain. Tuned
+   with the --kz-curtain-transition-* variables, on .kodza-curtain-transition (or on html, for the
+   pages without the section). */
+.kodza-curtain-transition {
+  --kz-curtain-transition-duration: 1.2s; /* the whole curtain: up, a beat on the name, off */
+  --kz-curtain-transition-ease: cubic-bezier(0.76, 0, 0.24, 1);
+  --kz-curtain-transition-ink: #0a0a0a; /* the panel */
+  --kz-curtain-transition-ink-fg: #f2f2f0; /* the name on it */
+  --kz-curtain-transition-way: 1; /* 1: up from the bottom, -1: down from the top */
+  --kz-curtain-transition-curve: 0px; /* how far its leading edge bows */
+  --kz-curtain-transition-enter-delay: 0.8s; /* the arrival starts as the curtain lifts off it */
+  --kz-curtain-transition-enter-ease: cubic-bezier(0.2, 0.8, 0.1, 1);
+  --kz-curtain-transition-bg: #f2f2f0;
+  --kz-curtain-transition-fg: #0a0a0a;
+  --kz-curtain-transition-muted: rgba(10, 10, 10, 0.62);
+  --kz-curtain-transition-line: rgba(10, 10, 10, 0.12);
+  --kz-curtain-transition-image-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-curtain-transition-side: 24px;
+
+  box-sizing: border-box;
+  padding: 64px var(--kz-curtain-transition-side) 72px;
+  background: var(--kz-curtain-transition-bg);
+  color: var(--kz-curtain-transition-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.kodza-curtain-transition--curved {
+  --kz-curtain-transition-curve: calc(140px * var(--kz-radius-scale, 1));
+}
+
+.kodza-curtain-transition--from-top {
+  --kz-curtain-transition-way: -1;
+}
+
+/* ---------- The curtain: drawn by the browser between two documents ---------- */
+@view-transition {
+  navigation: auto;
+}
+
+/* The script marks the page (kodza-curtain-transition-on); without it, a page with the section still swaps */
+:is(html.kodza-curtain-transition-on, html:has(.kodza-curtain-transition):not(.kodza-page-engine))::view-transition {
+  background: var(--kz-curtain-transition-backdrop, var(--kz-curtain-transition-ink, #0a0a0a));
+}
+
+:is(html.kodza-curtain-transition-on, html:has(.kodza-curtain-transition):not(.kodza-page-engine))::view-transition-group(root) {
+  animation: none;
+}
+
+:is(html.kodza-curtain-transition-on, html:has(.kodza-curtain-transition):not(.kodza-page-engine))::view-transition-old(root),
+:is(html.kodza-curtain-transition-on, html:has(.kodza-curtain-transition):not(.kodza-page-engine))::view-transition-new(root),
+html.kodza-curtain-transition-on::view-transition-new(kodza-curtain-transition-panel),
+html.kodza-curtain-transition-on::view-transition-new(kodza-curtain-transition-name) {
+  mix-blend-mode: normal;
+  animation-duration: var(--kz-curtain-transition-duration, 1.2s);
+  animation-timing-function: var(--kz-curtain-transition-ease, cubic-bezier(0.76, 0, 0.24, 1));
+  animation-delay: calc(var(--kz-curtain-transition-at, 0) * var(--kz-curtain-transition-duration, 1.2s) * -1); /* an interrupted curtain goes on from where it was */
+  animation-fill-mode: both;
+}
+
+/* The page you leave is pushed a little by the panel, and goes once it is covered... */
+:is(html.kodza-curtain-transition-on, html:has(.kodza-curtain-transition):not(.kodza-page-engine))::view-transition-old(root) {
+  animation-name: kodza-curtain-transition-leave;
+}
+
+/* ...the next one is there when the panel lifts off it, and settles as it is uncovered */
+:is(html.kodza-curtain-transition-on, html:has(.kodza-curtain-transition):not(.kodza-page-engine))::view-transition-new(root) {
+  animation-name: kodza-curtain-transition-arrive;
+}
+
+/* The panel and the name, above everything (the header too: the curtain covers the screen) */
+html.kodza-curtain-transition-on::view-transition-group(kodza-curtain-transition-panel) {
+  z-index: 50;
+  animation: none;
+}
+
+html.kodza-curtain-transition-on::view-transition-group(kodza-curtain-transition-name) {
+  z-index: 51;
+  overflow: clip; /* its mask: the name rises from behind its own edge */
+  animation: none;
+}
+
+html.kodza-curtain-transition-on::view-transition-new(kodza-curtain-transition-panel) {
+  animation-name: kodza-curtain-transition-panel;
+}
+
+html.kodza-curtain-transition-on::view-transition-new(kodza-curtain-transition-name) {
+  animation-name: kodza-curtain-transition-name;
+}
+
+/* Back: the same curtain played backwards, so it comes down and leaves by the bottom */
+:is(html.kodza-curtain-transition-on, html:has(.kodza-curtain-transition):not(.kodza-page-engine)).kodza-curtain-transition-back::view-transition-old(root) {
+  animation-name: kodza-curtain-transition-arrive;
+  animation-direction: reverse;
+}
+
+:is(html.kodza-curtain-transition-on, html:has(.kodza-curtain-transition):not(.kodza-page-engine)).kodza-curtain-transition-back::view-transition-new(root) {
+  animation-name: kodza-curtain-transition-leave;
+  animation-direction: reverse;
+}
+
+html.kodza-curtain-transition-on.kodza-curtain-transition-back::view-transition-new(kodza-curtain-transition-panel),
+html.kodza-curtain-transition-on.kodza-curtain-transition-back::view-transition-new(kodza-curtain-transition-name) {
+  animation-direction: reverse;
+}
+
+/* The header stays: the script names it on both pages, the new one is shown from the start */
+:is(html.kodza-curtain-transition-on, html:has(.kodza-curtain-transition):not(.kodza-page-engine))::view-transition-group(*.kodza-curtain-transition-stay) {
+  animation: none;
+}
+
+:is(html.kodza-curtain-transition-on, html:has(.kodza-curtain-transition):not(.kodza-page-engine))::view-transition-old(*.kodza-curtain-transition-stay) {
+  animation: none;
+  opacity: 0;
+}
+
+/* It fills its group: Firefox keeps the proportions of its first capture, so a header that
+   widens while the page changes (a pill growing back to full width) would grow taller with it */
+:is(html.kodza-curtain-transition-on, html:has(.kodza-curtain-transition):not(.kodza-page-engine))::view-transition-new(*.kodza-curtain-transition-stay) {
+  height: 100%;
+  mix-blend-mode: normal;
+  animation: none;
+}
+
+/* Off screen at both ends (0–4 %, 92–100 %): it is only drawn while the transition runs. Its
+   leading edge bows while it moves (--curved) and is flat when it covers the page; on the way
+   off, the bow passes to the edge that trails */
+@keyframes kodza-curtain-transition-panel {
+  0%,
+  4% {
+    transform: translateY(calc(100% * var(--kz-curtain-transition-way, 1)));
+    clip-path: inset(0 round 50% 50% 50% 50% / calc(var(--kz-curtain-transition-curve, 0px) * (1 + var(--kz-curtain-transition-way, 1)) / 2) calc(var(--kz-curtain-transition-curve, 0px) * (1 + var(--kz-curtain-transition-way, 1)) / 2) calc(var(--kz-curtain-transition-curve, 0px) * (1 - var(--kz-curtain-transition-way, 1)) / 2) calc(var(--kz-curtain-transition-curve, 0px) * (1 - var(--kz-curtain-transition-way, 1)) / 2));
+  }
+
+  40%,
+  56% {
+    transform: none;
+    clip-path: inset(0 round 50% 50% 50% 50% / 0px 0px 0px 0px);
+  }
+
+  92%,
+  100% {
+    transform: translateY(calc(-100% * var(--kz-curtain-transition-way, 1)));
+    clip-path: inset(0 round 50% 50% 50% 50% / calc(var(--kz-curtain-transition-curve, 0px) * (1 - var(--kz-curtain-transition-way, 1)) / 2) calc(var(--kz-curtain-transition-curve, 0px) * (1 - var(--kz-curtain-transition-way, 1)) / 2) calc(var(--kz-curtain-transition-curve, 0px) * (1 + var(--kz-curtain-transition-way, 1)) / 2) calc(var(--kz-curtain-transition-curve, 0px) * (1 + var(--kz-curtain-transition-way, 1)) / 2));
+  }
+}
+
+/* The name: up from its mask once the panel is nearly there, a beat, then away the same way */
+@keyframes kodza-curtain-transition-name {
+  0%,
+  30% {
+    transform: translateY(calc(110% * var(--kz-curtain-transition-way, 1)));
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  48%,
+  60% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0.64, 0, 0.78, 0);
+  }
+
+  72%,
+  100% {
+    transform: translateY(calc(-110% * var(--kz-curtain-transition-way, 1)));
+  }
+}
+
+/* The two pages trade places under the panel, at 48 %, when it covers the whole screen */
+@keyframes kodza-curtain-transition-leave {
+  0% {
+    transform: none;
+  }
+
+  40% {
+    transform: translateY(calc(-6% * var(--kz-curtain-transition-way, 1)));
+    opacity: 1;
+  }
+
+  48%,
+  100% {
+    transform: translateY(calc(-6% * var(--kz-curtain-transition-way, 1)));
+    opacity: 0;
+    animation-timing-function: steps(1, start);
+  }
+}
+
+@keyframes kodza-curtain-transition-arrive {
+  0%,
+  48% {
+    transform: translateY(calc(8% * var(--kz-curtain-transition-way, 1)));
+    opacity: 0;
+    animation-timing-function: steps(1, end);
+  }
+
+  48.01%,
+  56% {
+    transform: translateY(calc(8% * var(--kz-curtain-transition-way, 1)));
+    opacity: 1;
+  }
+
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* The panel itself: put on the page by the script, drawn only while a transition runs */
+.kodza-curtain-transition__curtain {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  align-items: center;
+  justify-content: center;
+  background: var(--kz-curtain-transition-ink, #0a0a0a);
+  pointer-events: none;
+  view-transition-name: kodza-curtain-transition-panel;
+}
+
+html.kodza-curtain-transition-cover:active-view-transition .kodza-curtain-transition__curtain {
+  display: flex;
+}
+
+.kodza-curtain-transition__name {
+  display: block;
+  max-width: 90vw;
+  margin: 0;
+  padding: 0.08em 0.06em 0.16em; /* room for the descenders, inside its mask */
+  color: var(--kz-curtain-transition-ink-fg, #f2f2f0);
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(40px, 7vw, 112px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, none);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  view-transition-name: kodza-curtain-transition-name;
+}
+
+/* ---------- The arrival: hidden from the first paint, until the script plays it ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  html.kodza-curtain-transition-enter .kodza-curtain-transition [data-enter] {
+    opacity: 0;
+    animation: kodza-curtain-transition-failsafe 0.5s 2.5s both; /* no script: the page shows anyway */
+  }
+}
+
+@keyframes kodza-curtain-transition-failsafe {
+  to {
+    opacity: 1;
+  }
+}
+
+/* The title, cut into words by the script: each one rises from behind its own edge */
+.kodza-curtain-transition__mask {
+  display: inline-block;
+  vertical-align: top;
+  margin-bottom: -0.16em;
+  padding-bottom: 0.16em; /* room for the descenders, inside the mask */
+}
+
+.kodza-curtain-transition.is-entering .kodza-curtain-transition__mask {
+  clip-path: inset(-0.3em -0.2em 0 -0.2em); /* open above, for the accents */
+}
+
+.kodza-curtain-transition__word {
+  display: inline-block;
+}
+
+/* ---------- The section: a case study opening ---------- */
+.kodza-curtain-transition__label,
+.kodza-curtain-transition__facts dt,
+.kodza-curtain-transition__media figcaption {
+  margin: 0;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-curtain-transition-muted);
+}
+
+.kodza-curtain-transition__label {
+  margin-bottom: 24px;
+}
+
+.kodza-curtain-transition__split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 32px 64px;
+}
+
+.kodza-curtain-transition__title {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(44px, 6.6vw, 96px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.95;
+  letter-spacing: var(--kz-font-display-tracking, -0.055em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+}
+
+.kodza-curtain-transition__intro {
+  display: grid;
+  gap: 32px;
+  padding-bottom: 6px;
+}
+
+.kodza-curtain-transition__lead {
+  max-width: 30em;
+  margin: 0;
+  color: var(--kz-curtain-transition-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.kodza-curtain-transition__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-curtain-transition__facts > div {
+  padding-top: 12px;
+  border-top: 1px solid var(--kz-curtain-transition-line);
+}
+
+.kodza-curtain-transition__facts dd {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.kodza-curtain-transition__media {
+  margin: 56px 0 0;
+}
+
+.kodza-curtain-transition__frame {
+  overflow: hidden;
+  aspect-ratio: 21 / 9;
+  border-radius: var(--kz-curtain-transition-image-radius);
+  background: var(--kz-curtain-transition-line);
+}
+
+.kodza-curtain-transition__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  object-fit: cover;
+}
+
+.kodza-curtain-transition__media figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+@media (max-width: 860px) {
+  .kodza-curtain-transition {
+    padding-top: 48px;
+  }
+
+  .kodza-curtain-transition__split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-curtain-transition__media {
+    margin-top: 40px;
+  }
+
+  .kodza-curtain-transition__frame {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 480px) {
+  .kodza-curtain-transition__media figcaption span + span {
+    display: none;
+  }
+}
+
+/* Reduced motion: plain navigation, the page straight away */
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+/* kodza-guard ef349d1265ff — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-curtain-transition__label:not(#_),
+.kodza-curtain-transition__facts dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-curtain-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-curtain-transition__media figcaption:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-curtain-transition__media :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-curtain-transition__split:not(#_),
+.kodza-curtain-transition__mask:not(#_),
+.kodza-curtain-transition__word:not(#_),
+.kodza-curtain-transition__intro:not(#_),
+.kodza-curtain-transition__frame:not(#_),
+.kodza-curtain-transition__facts div:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-curtain-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-curtain-transition__media span:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-curtain-transition__media :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-curtain-transition__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-curtain-transition__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-curtain-transition__facts:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-curtain-transition__media:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-curtain-transition__image:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-curtain-transition__facts dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-curtain-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-curtain-transition__label:not(#_):where(:not([hidden])),
+.kodza-curtain-transition__title:not(#_):where(:not([hidden])),
+.kodza-curtain-transition__lead:not(#_):where(:not([hidden])),
+.kodza-curtain-transition__media:not(#_):where(:not([hidden])),
+.kodza-curtain-transition__facts dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-curtain-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-curtain-transition__facts dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-curtain-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-curtain-transition__label:not(#_):where([hidden]),
+.kodza-curtain-transition__title:not(#_):where([hidden]),
+.kodza-curtain-transition__lead:not(#_):where([hidden]),
+.kodza-curtain-transition__media:not(#_):where([hidden]),
+.kodza-curtain-transition__facts dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-curtain-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-curtain-transition__facts dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-curtain-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-curtain-transition__label:not(#_),
+.kodza-curtain-transition__facts dt:not(#_),
+.kodza-curtain-transition__media figcaption:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-curtain-transition-muted);
+}
+
+.kodza-curtain-transition__label:not(#_) {
+  margin-bottom: 24px;
+}
+
+.kodza-curtain-transition__title:not(#_) {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(44px, 6.6vw, 96px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.95;
+  letter-spacing: var(--kz-font-display-tracking, -0.055em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-curtain-transition__lead:not(#_) {
+  max-width: 30em;
+  margin: 0;
+  color: var(--kz-curtain-transition-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+}
+
+.kodza-curtain-transition__facts:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-curtain-transition__facts dd:not(#_) {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.kodza-curtain-transition__media:not(#_) {
+  margin: 56px 0 0;
+}
+
+.kodza-curtain-transition__image:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-curtain-transition__media figcaption:not(#_) {
+  display: flex;
+  margin-top: 12px;
+}
+
+@media (max-width: 860px) {
+  .kodza-curtain-transition__media:not(#_) {
+    margin-top: 40px;
+  }
+}

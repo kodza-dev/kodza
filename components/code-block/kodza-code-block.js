@@ -1,10 +1,12 @@
 // Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license
 // Kodza — Code Block
 // Highlights the code in weight and light (js, css, html, shell; anything else stays plain),
-// splits it into numbered lines, marks the lines of data-highlight, and copies it: the
-// whole code, or a terminal's commands only (no prompt, no output). Copy rolls to Copied.
+// splits it into numbered lines, marks the lines of data-highlight, folds the lines of
+// data-fold under a row that opens them, and copies it: the whole code, or a terminal's
+// commands only (no prompt, no output). Copy rolls to Copied.
 (() => {
   const SELECTOR = '.kodza-code';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const RULES = {
     js: [
       ['c', /\/\/[^\n]*|\/\*[\s\S]*?\*\//y],
@@ -105,7 +107,70 @@
       if (marked.has(i + 1)) line.classList.add('is-marked');
       if (!line.childNodes.length) line.append('​');
     });
-    code.replaceChildren(...lines);
+
+    // Folded lines (data-fold="12-40"): a row takes their place, Show rolls to Hide and they
+    // unroll under it. Copy still takes them. Folded, they are out of the line count: the row
+    // counts them, so the lines after it keep their numbers. data-fold-label names what is
+    // folded, one name per range ("theme guard": Show theme guard · 1,058 lines)
+    const names = (pre.dataset.foldLabel || '').split(',').map((name) => name.trim());
+    const folds = (pre.dataset.fold || '').split(',')
+      .map((part, i) => {
+        const [a, b = a] = part.split('-').map(Number);
+        return [a, Math.min(b, lines.length), names[i] || ''];
+      })
+      .filter(([a, b]) => a >= 1 && b >= a)
+      .sort((x, y) => x[0] - y[0])
+      .filter(([a], i, all) => !i || a > all[i - 1][1]);
+    const nodes = [];
+    let done = 0;
+    folds.forEach(([a, b, name]) => {
+      const size = b - a + 1;
+      const lineCount = `${size.toLocaleString('en-US')} ${size === 1 ? 'line' : 'lines'}`;
+      const count = name ? `${name} · ${lineCount}` : lineCount;
+      const spoken = name ? `${name}, ${lineCount}` : lineCount;
+      const row = document.createElement('button');
+      const body = document.createElement('span');
+      row.type = 'button';
+      row.className = 'kodza-code__unfold';
+      row.innerHTML = '<span class="kodza-code__chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" /></svg></span><span class="kodza-code__words"><span>Show</span><span>Hide</span></span>';
+      row.append(` ${count}`);
+      body.className = 'kodza-code__fold';
+      body.append(...lines.slice(a - 1, b));
+      const set = (open, animate) => {
+        const from = body.hidden ? 0 : Math.min(body.offsetHeight, innerHeight);
+        body.getAnimations().forEach((animation) => animation.cancel());
+        row.setAttribute('aria-expanded', open);
+        row.setAttribute('aria-label', `${open ? 'Hide' : 'Show'} ${spoken}`);
+        const fold = () => {
+          body.hidden = !open;
+          row.style.counterIncrement = open ? 'none' : `kodza-code-line ${size}`;
+        };
+        if (open) fold();
+        if (!animate) return open || fold();
+        // In a block that scrolls (--kz-code-max-height), a row near its bottom edge would open
+        // out of sight: the code scrolls up instead, and the lines come in from below. The line
+        // before the row stops on the top edge, so no line is left cut in half above it
+        const box = pre.getBoundingClientRect();
+        const at = (row.previousElementSibling || row).getBoundingClientRect();
+        if (open && pre.scrollHeight > pre.clientHeight && box.bottom - at.bottom < 160) {
+          const scale = box.height / pre.offsetHeight || 1;
+          pre.scrollBy({ top: (at.top - box.top) / scale, behavior: reduce.matches ? 'auto' : 'smooth' });
+          return;
+        }
+        if (reduce.matches) return open || fold();
+        // Only the height a screen can show is animated: the rest is below it either way
+        const to = open ? Math.min(body.offsetHeight, innerHeight) : 0;
+        body.animate([{ height: `${from}px` }, { height: `${to}px` }], {
+          duration: open ? 520 : 420,
+          easing: open ? 'cubic-bezier(0.22, 1, 0.36, 1)' : 'cubic-bezier(0.65, 0, 0.35, 1)',
+        }).finished.then(() => open || fold(), () => {});
+      };
+      set(false, false);
+      row.addEventListener('click', () => set(row.getAttribute('aria-expanded') !== 'true', true), { signal });
+      nodes.push(...lines.slice(done, a - 1), row, body);
+      done = b;
+    });
+    code.replaceChildren(...nodes, ...lines.slice(done));
 
     // Copy: the code, or a terminal's commands only
     const text = lang === 'shell'

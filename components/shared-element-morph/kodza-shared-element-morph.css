@@ -1,0 +1,724 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Shared Element Morph
+   A page transition between two real pages (cross-document View Transitions). The image (or
+   title) you click in a list grows into its place on the next page while the new page comes in
+   over the one you leave, and plays its arrival: the label, the title rising line by line, the
+   rest in a cascade (mark them with data-enter="label", "title", or just data-enter). Mark both
+   ends of the trip with data-page-morph: the same value on the card and on the page it opens,
+   or leave it empty (the card's link and the page's own address then pair them). Going back,
+   it shrinks into its card while the arrival plays in reverse. The trip is seamless when the card keeps the whole width of its
+   picture (a card as wide as the picture, in proportions, or wider) and the page's frame is wider
+   still: the 3:2 cards and the 21:9 frame here. Without the API (Firefox) or with reduced
+   motion, navigation stays plain. Tuned with the --kz-shared-element-morph-* variables, on .kodza-shared-element-morph
+   (or on html, for the pages without the section). */
+.kodza-shared-element-morph {
+  --kz-shared-element-morph-duration: 0.8s; /* the trip of the image, and the pages trading places */
+  --kz-shared-element-morph-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --kz-shared-element-morph-radius: calc(16px * var(--kz-radius-scale, 1)); /* its corners on the way */
+  --kz-shared-element-morph-backdrop: transparent; /* between the two pages: your page colour shows through */
+  --kz-shared-element-morph-enter-delay: 0.24s; /* the arrival starts while the image is on its way */
+  --kz-shared-element-morph-enter-ease: cubic-bezier(0.2, 0.8, 0.1, 1);
+  --kz-shared-element-morph-bg: #f2f2f0;
+  --kz-shared-element-morph-fg: #0a0a0a;
+  --kz-shared-element-morph-muted: rgba(10, 10, 10, 0.62);
+  --kz-shared-element-morph-line: rgba(10, 10, 10, 0.12);
+  --kz-shared-element-morph-image-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-shared-element-morph-side: 24px;
+
+  box-sizing: border-box;
+  padding: 64px var(--kz-shared-element-morph-side) 72px;
+  background: var(--kz-shared-element-morph-bg);
+  color: var(--kz-shared-element-morph-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+/* ---------- The morph: drawn by the browser between two documents ---------- */
+@view-transition {
+  navigation: auto;
+}
+
+/* The script marks the page (kodza-shared-element-morph-on); without it, a page with the section still swaps */
+:is(html.kodza-shared-element-morph-on, html:has(.kodza-shared-element-morph):not(.kodza-page-engine))::view-transition {
+  background: var(--kz-shared-element-morph-backdrop, transparent);
+}
+
+:is(html.kodza-shared-element-morph-on, html:has(.kodza-shared-element-morph):not(.kodza-page-engine))::view-transition-group(root) {
+  animation: none;
+}
+
+:is(html.kodza-shared-element-morph-on, html:has(.kodza-shared-element-morph):not(.kodza-page-engine))::view-transition-old(root),
+:is(html.kodza-shared-element-morph-on, html:has(.kodza-shared-element-morph):not(.kodza-page-engine))::view-transition-new(root),
+html.kodza-shared-element-morph-on::view-transition-group(*.kodza-shared-element-morph-item),
+html.kodza-shared-element-morph-on::view-transition-old(*.kodza-shared-element-morph-item),
+html.kodza-shared-element-morph-on::view-transition-new(*.kodza-shared-element-morph-item) {
+  mix-blend-mode: normal;
+  animation-duration: var(--kz-shared-element-morph-duration, 0.8s);
+  animation-timing-function: var(--kz-shared-element-morph-ease, cubic-bezier(0.65, 0, 0.35, 1));
+  animation-delay: calc(var(--kz-shared-element-morph-at, 0) * var(--kz-shared-element-morph-duration, 0.8s) * -1); /* an interrupted morph goes on from where it was */
+  animation-fill-mode: both;
+}
+
+/* The page you leave holds still, the next one comes in over it, behind the image: never a
+   moment where both are see-through. Back too: the image always flies (into its card, this time) */
+:is(html.kodza-shared-element-morph-on, html:has(.kodza-shared-element-morph):not(.kodza-page-engine))::view-transition-old(root) {
+  animation-name: none;
+}
+
+:is(html.kodza-shared-element-morph-on, html:has(.kodza-shared-element-morph):not(.kodza-page-engine))::view-transition-new(root) {
+  animation-name: kodza-shared-element-morph-arrive;
+}
+
+/* The image, above the pages and under the header. Its group moves and resizes (the browser
+   animates it from one box to the other); inside, its corners stay round and the picture
+   keeps its proportions, cropped like an object-fit: cover */
+html.kodza-shared-element-morph-on::view-transition-group(*.kodza-shared-element-morph-item) {
+  z-index: 40;
+}
+
+html.kodza-shared-element-morph-on::view-transition-image-pair(*.kodza-shared-element-morph-item) {
+  overflow: clip;
+  border-radius: var(--kz-shared-element-morph-radius, calc(16px * var(--kz-radius-scale, 1)));
+}
+
+/* The picture you clicked stays until its box has nearly the next one's shape, then the new one
+   shows over it: a card and a wide picture never trade crops at the click. Going back, the card
+   frames like the wide picture from the start, so it takes over in the first third */
+html.kodza-shared-element-morph-on::view-transition-old(*.kodza-shared-element-morph-item),
+html.kodza-shared-element-morph-on::view-transition-new(*.kodza-shared-element-morph-item) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+html.kodza-shared-element-morph-on::view-transition-old(*.kodza-shared-element-morph-item) {
+  animation-name: none;
+}
+
+html.kodza-shared-element-morph-on::view-transition-new(*.kodza-shared-element-morph-item) {
+  animation-name: kodza-shared-element-morph-show;
+  animation-timing-function: ease-in-out;
+}
+
+html.kodza-shared-element-morph-on.kodza-shared-element-morph-back::view-transition-new(*.kodza-shared-element-morph-item) {
+  animation-name: kodza-shared-element-morph-show-early;
+  animation-timing-function: ease-out;
+}
+
+/* Nothing to pair it with on the next page: it leaves with its page, or arrives with it */
+html.kodza-shared-element-morph-on::view-transition-old(*.kodza-shared-element-morph-item):only-child {
+  animation-name: kodza-shared-element-morph-leave;
+  animation-timing-function: var(--kz-shared-element-morph-ease, cubic-bezier(0.65, 0, 0.35, 1));
+}
+
+html.kodza-shared-element-morph-on::view-transition-new(*.kodza-shared-element-morph-item):only-child {
+  animation-name: kodza-shared-element-morph-arrive;
+}
+
+/* Back, the arrival plays in reverse (the script names each part, its kind and rank): the rest
+   drops away, last part first, the title sinks into its masks line by line from the bottom, the
+   label goes last. The next page waits until they are gone: the two texts never mix */
+html.kodza-shared-element-morph-on::view-transition-group(*.kodza-shared-element-morph-out) {
+  animation: none;
+}
+
+html.kodza-shared-element-morph-on::view-transition-old(*.kodza-shared-element-morph-out) {
+  --kz-shared-element-morph-drop: 16px;
+  animation: kodza-shared-element-morph-drop calc(var(--kz-shared-element-morph-duration, 0.8s) * 0.25) cubic-bezier(0.65, 0, 0.35, 1) both;
+  animation-delay: calc(var(--kz-shared-element-morph-duration, 0.8s) * (0.03 * var(--kz-shared-element-morph-i, 0) - var(--kz-shared-element-morph-at, 0)));
+}
+
+html.kodza-shared-element-morph-on::view-transition-old(*.kodza-shared-element-morph-out-word) {
+  animation-name: kodza-shared-element-morph-sink;
+  animation-timing-function: cubic-bezier(0.32, 0, 0.67, 0);
+  animation-duration: calc(var(--kz-shared-element-morph-duration, 0.8s) * 0.32);
+  animation-delay: calc(var(--kz-shared-element-morph-duration, 0.8s) * (0.06 + 0.04 * var(--kz-shared-element-morph-i, 0) - var(--kz-shared-element-morph-at, 0)));
+}
+
+html.kodza-shared-element-morph-on::view-transition-old(*.kodza-shared-element-morph-out-label) {
+  --kz-shared-element-morph-drop: 8px;
+  animation-duration: calc(var(--kz-shared-element-morph-duration, 0.8s) * 0.2);
+  animation-delay: calc(var(--kz-shared-element-morph-duration, 0.8s) * (0.26 - var(--kz-shared-element-morph-at, 0)));
+}
+
+html.kodza-shared-element-morph-on::view-transition-old(*.kodza-shared-element-morph-out-i1) { --kz-shared-element-morph-i: 1; }
+html.kodza-shared-element-morph-on::view-transition-old(*.kodza-shared-element-morph-out-i2) { --kz-shared-element-morph-i: 2; }
+html.kodza-shared-element-morph-on::view-transition-old(*.kodza-shared-element-morph-out-i3) { --kz-shared-element-morph-i: 3; }
+html.kodza-shared-element-morph-on::view-transition-old(*.kodza-shared-element-morph-out-i4) { --kz-shared-element-morph-i: 4; }
+html.kodza-shared-element-morph-on::view-transition-old(*.kodza-shared-element-morph-out-i5) { --kz-shared-element-morph-i: 5; }
+
+html.kodza-shared-element-morph-on.kodza-shared-element-morph-back::view-transition-new(root) {
+  animation-name: kodza-shared-element-morph-arrive-late;
+}
+
+/* The header stays: the script names it on both pages, the new one is shown from the start */
+:is(html.kodza-shared-element-morph-on, html:has(.kodza-shared-element-morph):not(.kodza-page-engine))::view-transition-group(*.kodza-shared-element-morph-stay) {
+  z-index: 50;
+  animation: none;
+}
+
+:is(html.kodza-shared-element-morph-on, html:has(.kodza-shared-element-morph):not(.kodza-page-engine))::view-transition-old(*.kodza-shared-element-morph-stay) {
+  animation: none;
+  opacity: 0;
+}
+
+/* It fills its group: Firefox keeps the proportions of its first capture, so a header that
+   widens while the page changes (a pill growing back to full width) would grow taller with it */
+:is(html.kodza-shared-element-morph-on, html:has(.kodza-shared-element-morph):not(.kodza-page-engine))::view-transition-new(*.kodza-shared-element-morph-stay) {
+  height: 100%;
+  mix-blend-mode: normal;
+  animation: none;
+}
+
+@keyframes kodza-shared-element-morph-leave {
+  0% {
+    opacity: 1;
+  }
+
+  45%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The window stays put while the word drops through it: open above (accents) and on the sides */
+@keyframes kodza-shared-element-morph-sink {
+  from {
+    transform: none;
+    clip-path: inset(-50% -50% 0 -50%);
+  }
+
+  to {
+    transform: translateY(130%);
+    clip-path: inset(-180% -50% 130% -50%);
+  }
+}
+
+@keyframes kodza-shared-element-morph-drop {
+  to {
+    opacity: 0;
+    transform: translateY(var(--kz-shared-element-morph-drop, 16px));
+  }
+}
+
+@keyframes kodza-shared-element-morph-arrive-late {
+  0%,
+  40% {
+    opacity: 0;
+  }
+
+  75%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes kodza-shared-element-morph-arrive {
+  0%,
+  10% {
+    opacity: 0;
+  }
+
+  55%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes kodza-shared-element-morph-show {
+  0%,
+  50% {
+    opacity: 0;
+  }
+
+  75%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes kodza-shared-element-morph-show-early {
+  0% {
+    opacity: 0;
+  }
+
+  30%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ---------- The arrival: hidden from the first paint, until the script plays it ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  html.kodza-shared-element-morph-enter .kodza-shared-element-morph [data-enter] {
+    opacity: 0;
+    animation: kodza-shared-element-morph-failsafe 0.5s 2.5s both; /* no script: the page shows anyway */
+  }
+}
+
+@keyframes kodza-shared-element-morph-failsafe {
+  to {
+    opacity: 1;
+  }
+}
+
+/* The title, cut into words by the script: each one rises from behind its own edge */
+.kodza-shared-element-morph__mask {
+  display: inline-block;
+  vertical-align: top;
+  margin-bottom: -0.16em;
+  padding-bottom: 0.16em; /* room for the descenders, inside the mask */
+}
+
+.kodza-shared-element-morph.is-entering .kodza-shared-element-morph__mask {
+  clip-path: inset(-0.3em -0.2em 0 -0.2em); /* open above, for the accents */
+}
+
+.kodza-shared-element-morph__word {
+  display: inline-block;
+}
+
+/* ---------- The section: a case study opening ---------- */
+.kodza-shared-element-morph__label,
+.kodza-shared-element-morph__facts dt,
+.kodza-shared-element-morph__media figcaption {
+  margin: 0;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-shared-element-morph-muted);
+}
+
+.kodza-shared-element-morph__label {
+  margin-bottom: 24px;
+}
+
+.kodza-shared-element-morph__split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 32px 64px;
+}
+
+.kodza-shared-element-morph__title {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(44px, 6.6vw, 96px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.95;
+  letter-spacing: var(--kz-font-display-tracking, -0.055em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+}
+
+.kodza-shared-element-morph__intro {
+  display: grid;
+  gap: 32px;
+  padding-bottom: 6px;
+}
+
+.kodza-shared-element-morph__lead {
+  max-width: 30em;
+  margin: 0;
+  color: var(--kz-shared-element-morph-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.kodza-shared-element-morph__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-shared-element-morph__facts > div {
+  padding-top: 12px;
+  border-top: 1px solid var(--kz-shared-element-morph-line);
+}
+
+.kodza-shared-element-morph__facts dd {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.kodza-shared-element-morph__media {
+  margin: 56px 0 0;
+}
+
+.kodza-shared-element-morph__frame {
+  overflow: hidden;
+  aspect-ratio: 21 / 9;
+  border-radius: var(--kz-shared-element-morph-image-radius);
+  background: var(--kz-shared-element-morph-line);
+}
+
+.kodza-shared-element-morph__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  object-fit: cover;
+}
+
+.kodza-shared-element-morph__media figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+@media (max-width: 860px) {
+  .kodza-shared-element-morph {
+    padding-top: 48px;
+  }
+
+  .kodza-shared-element-morph__split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-shared-element-morph__media {
+    margin-top: 40px;
+  }
+
+  .kodza-shared-element-morph__frame {
+    aspect-ratio: 3 / 2;
+  }
+}
+
+@media (max-width: 480px) {
+  .kodza-shared-element-morph__media figcaption span + span {
+    display: none;
+  }
+}
+
+/* Reduced motion: plain navigation, the page straight away */
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+/* kodza-guard 315023110a5b — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-shared-element-morph__label:not(#_),
+.kodza-shared-element-morph__facts dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-shared-element-morph__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-shared-element-morph__media figcaption:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-shared-element-morph__media :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-shared-element-morph__split:not(#_),
+.kodza-shared-element-morph__intro:not(#_),
+.kodza-shared-element-morph__frame:not(#_),
+.kodza-shared-element-morph__facts div:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-shared-element-morph__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-shared-element-morph__media span:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-shared-element-morph__media :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-shared-element-morph__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-shared-element-morph__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-shared-element-morph__facts:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-shared-element-morph__media:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-shared-element-morph__image:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-shared-element-morph__facts dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-shared-element-morph__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-shared-element-morph__label:not(#_):where(:not([hidden])),
+.kodza-shared-element-morph__title:not(#_):where(:not([hidden])),
+.kodza-shared-element-morph__lead:not(#_):where(:not([hidden])),
+.kodza-shared-element-morph__media:not(#_):where(:not([hidden])),
+.kodza-shared-element-morph__facts dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-shared-element-morph__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-shared-element-morph__facts dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-shared-element-morph__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-shared-element-morph__label:not(#_):where([hidden]),
+.kodza-shared-element-morph__title:not(#_):where([hidden]),
+.kodza-shared-element-morph__lead:not(#_):where([hidden]),
+.kodza-shared-element-morph__media:not(#_):where([hidden]),
+.kodza-shared-element-morph__facts dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-shared-element-morph__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-shared-element-morph__facts dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-shared-element-morph__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-shared-element-morph__label:not(#_),
+.kodza-shared-element-morph__facts dt:not(#_),
+.kodza-shared-element-morph__media figcaption:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-shared-element-morph-muted);
+}
+
+.kodza-shared-element-morph__label:not(#_) {
+  margin-bottom: 24px;
+}
+
+.kodza-shared-element-morph__title:not(#_) {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(44px, 6.6vw, 96px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.95;
+  letter-spacing: var(--kz-font-display-tracking, -0.055em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-shared-element-morph__lead:not(#_) {
+  max-width: 30em;
+  margin: 0;
+  color: var(--kz-shared-element-morph-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+}
+
+.kodza-shared-element-morph__facts:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-shared-element-morph__facts dd:not(#_) {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.kodza-shared-element-morph__media:not(#_) {
+  margin: 56px 0 0;
+}
+
+.kodza-shared-element-morph__image:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-shared-element-morph__media figcaption:not(#_) {
+  display: flex;
+  margin-top: 12px;
+}
+
+@media (max-width: 860px) {
+  .kodza-shared-element-morph__media:not(#_) {
+    margin-top: 40px;
+  }
+}

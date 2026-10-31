@@ -2,7 +2,7 @@
 
 [![Code Block, live on kodza.dev](https://kodza.dev/anim/code-block/og.jpg)](https://kodza.dev/components/code-block/)
 
-Code to read and copy: file name, line numbers, highlighted lines and a monochrome syntax in weight and light. Copy rolls to Copied; a terminal copies its commands only.
+Code to read and copy: file name, line numbers, highlighted and folded lines, a monochrome syntax in weight and light. Copy rolls to Copied and takes everything, folded lines too; a terminal copies its commands only.
 
 **[Live demo](https://kodza.dev/components/code-block/)** · Data display · HTML, CSS, JS · No dependencies
 
@@ -10,9 +10,9 @@ Code to read and copy: file name, line numbers, highlighted lines and a monochro
 
 | File | Size | What it is |
 | --- | ---: | --- |
-| [`kodza-code-block.html`](kodza-code-block.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-code-block.css`](kodza-code-block.css) | 10.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-code-block.js`](kodza-code-block.js) | 8.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-code-block.html`](kodza-code-block.html) | 2.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
+| [`kodza-code-block.css`](kodza-code-block.css) | 14.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-code-block.js`](kodza-code-block.js) | 12.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -56,7 +56,7 @@ CSS variables, set on `.kodza-code` itself:
 | `--kz-code-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Modifiers: `.kodza-code--terminal`
-- Attributes: `data-highlight` (e.g. `4-6`), `data-lang` (e.g. `js`, `shell`)
+- Attributes: `data-fold` (e.g. `8-20`), `data-fold-label` (e.g. `theme guard`), `data-highlight` (e.g. `4-6`), `data-lang` (e.g. `js`, `shell`, `css`)
 
 ## Dark mode
 

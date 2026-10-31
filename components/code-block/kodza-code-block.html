@@ -22,3 +22,31 @@ document.querySelectorAll('.kodza-fill-button').forEach((button) =&gt; {
 &gt; cloned kodza/button-fill#main to my-button
 $ open my-button/index.html</code></pre>
 </figure>
+
+<figure class="kodza-code">
+  <figcaption class="kodza-code__head">
+    <span class="kodza-code__file">fill-button.css</span>
+    <button class="kodza-code__copy" type="button"><span class="kodza-code__words"><span>Copy</span><span>Copied</span></span></button>
+  </figcaption>
+  <pre class="kodza-code__pre" data-lang="css" data-fold="8-20" data-fold-label="theme guard"><code>.kodza-fill-button {
+  --kz-fill-duration: 0.65s;
+  --kz-fill-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* kodza-guard — generated, do not edit.
+   Keeps the theme's own CSS off the button. */
+.kodza-fill-button:not(#_) {
+  box-sizing: revert;
+  appearance: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-fill-button__content:not(#_),
+.kodza-fill-button__label:not(#_),
+.kodza-fill-button__fill:not(#_) {
+  box-sizing: revert;
+}</code></pre>
+</figure>

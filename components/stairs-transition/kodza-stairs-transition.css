@@ -1,0 +1,691 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Stairs Transition
+   A page transition between two real pages (cross-document View Transitions). On a click five
+   bands of ink climb over the page you leave one after the other, like a staircase, then step
+   off the top in the same order onto the new page, which plays its arrival: the label, the
+   title rising line by line, the image settling from a zoom, the rest in a cascade (mark them with
+   data-enter="label", "title", "image", or just data-enter). Going back plays it in reverse:
+   the staircase starts from the other edge and comes down. Modifier: --from-top. Without the
+   API (Firefox) or with reduced motion, navigation stays plain. Tuned with the
+   --kz-stairs-transition-* variables, on .kodza-stairs-transition (or on html, for the pages
+   without the section). */
+.kodza-stairs-transition {
+  --kz-stairs-transition-duration: 1.2s; /* the whole staircase, first band up to last band off */
+  --kz-stairs-transition-stagger: 0.05s; /* from one band to the next */
+  --kz-stairs-transition-ease: cubic-bezier(0.76, 0, 0.24, 1);
+  --kz-stairs-transition-ink: #0a0a0a; /* the bands */
+  --kz-stairs-transition-way: 1; /* 1: up from the bottom, -1: down from the top */
+  --kz-stairs-transition-enter-delay: 0.8s; /* the arrival starts as the bands step off it */
+  --kz-stairs-transition-enter-ease: cubic-bezier(0.2, 0.8, 0.1, 1);
+  --kz-stairs-transition-bg: #f2f2f0;
+  --kz-stairs-transition-fg: #0a0a0a;
+  --kz-stairs-transition-muted: rgba(10, 10, 10, 0.62);
+  --kz-stairs-transition-line: rgba(10, 10, 10, 0.12);
+  --kz-stairs-transition-image-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-stairs-transition-side: 24px;
+
+  box-sizing: border-box;
+  padding: 64px var(--kz-stairs-transition-side) 72px;
+  background: var(--kz-stairs-transition-bg);
+  color: var(--kz-stairs-transition-fg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.kodza-stairs-transition--from-top {
+  --kz-stairs-transition-way: -1;
+}
+
+/* ---------- The staircase: drawn by the browser between two documents ---------- */
+@view-transition {
+  navigation: auto;
+}
+
+/* The script marks the page (kodza-stairs-transition-on); without it, a page with the section still swaps */
+:is(html.kodza-stairs-transition-on, html:has(.kodza-stairs-transition):not(.kodza-page-engine))::view-transition {
+  background: var(--kz-stairs-transition-backdrop, var(--kz-stairs-transition-ink, #0a0a0a));
+}
+
+:is(html.kodza-stairs-transition-on, html:has(.kodza-stairs-transition):not(.kodza-page-engine))::view-transition-group(root) {
+  animation: none;
+}
+
+:is(html.kodza-stairs-transition-on, html:has(.kodza-stairs-transition):not(.kodza-page-engine))::view-transition-old(root),
+:is(html.kodza-stairs-transition-on, html:has(.kodza-stairs-transition):not(.kodza-page-engine))::view-transition-new(root) {
+  mix-blend-mode: normal;
+  animation-duration: var(--kz-stairs-transition-duration, 1.2s);
+  animation-timing-function: var(--kz-stairs-transition-ease, cubic-bezier(0.76, 0, 0.24, 1));
+  animation-delay: calc(var(--kz-stairs-transition-at, 0) * var(--kz-stairs-transition-duration, 1.2s) * -1); /* an interrupted staircase goes on from where it was */
+  animation-fill-mode: both;
+}
+
+/* The page you leave drifts a little as the bands climb, and goes once they all cover it... */
+:is(html.kodza-stairs-transition-on, html:has(.kodza-stairs-transition):not(.kodza-page-engine))::view-transition-old(root) {
+  animation-name: kodza-stairs-transition-leave;
+}
+
+/* ...the next one is there when they step off it, and settles as it is uncovered */
+:is(html.kodza-stairs-transition-on, html:has(.kodza-stairs-transition):not(.kodza-page-engine))::view-transition-new(root) {
+  animation-name: kodza-stairs-transition-arrive;
+}
+
+/* Back: the same staircase played backwards, from the other edge and down */
+:is(html.kodza-stairs-transition-on, html:has(.kodza-stairs-transition):not(.kodza-page-engine)).kodza-stairs-transition-back::view-transition-old(root) {
+  animation-name: kodza-stairs-transition-arrive;
+  animation-direction: reverse;
+}
+
+:is(html.kodza-stairs-transition-on, html:has(.kodza-stairs-transition):not(.kodza-page-engine)).kodza-stairs-transition-back::view-transition-new(root) {
+  animation-name: kodza-stairs-transition-leave;
+  animation-direction: reverse;
+}
+
+/* The bands, above everything (the header too: the staircase covers the screen). Each one is
+   the same climb, a stagger later than the one on its left; all five cover the page from 47 %
+   to 53 % of the duration, when the pages trade places */
+html.kodza-stairs-transition-on::view-transition-group(*.kodza-stairs-transition-band) {
+  z-index: 50;
+  animation: none;
+}
+
+html.kodza-stairs-transition-on::view-transition-new(*.kodza-stairs-transition-band) {
+  mix-blend-mode: normal;
+  animation: kodza-stairs-transition-band calc(var(--kz-stairs-transition-duration, 1.2s) - 4 * var(--kz-stairs-transition-stagger, 0.05s)) var(--kz-stairs-transition-ease, cubic-bezier(0.76, 0, 0.24, 1)) both;
+  animation-delay: calc(var(--kz-stairs-transition-step, 0) * var(--kz-stairs-transition-stagger, 0.05s) - var(--kz-stairs-transition-at, 0) * var(--kz-stairs-transition-duration, 1.2s));
+}
+
+html.kodza-stairs-transition-on.kodza-stairs-transition-back::view-transition-new(*.kodza-stairs-transition-band) {
+  animation-direction: reverse;
+}
+
+/* Which step each band is: from the left going, from the right coming back */
+html.kodza-stairs-transition-on::view-transition-new(kodza-stairs-transition-band-2) { --kz-stairs-transition-step: 1; }
+html.kodza-stairs-transition-on::view-transition-new(kodza-stairs-transition-band-3) { --kz-stairs-transition-step: 2; }
+html.kodza-stairs-transition-on::view-transition-new(kodza-stairs-transition-band-4) { --kz-stairs-transition-step: 3; }
+html.kodza-stairs-transition-on::view-transition-new(kodza-stairs-transition-band-5) { --kz-stairs-transition-step: 4; }
+html.kodza-stairs-transition-on.kodza-stairs-transition-back::view-transition-new(kodza-stairs-transition-band-1) { --kz-stairs-transition-step: 4; }
+html.kodza-stairs-transition-on.kodza-stairs-transition-back::view-transition-new(kodza-stairs-transition-band-2) { --kz-stairs-transition-step: 3; }
+html.kodza-stairs-transition-on.kodza-stairs-transition-back::view-transition-new(kodza-stairs-transition-band-3) { --kz-stairs-transition-step: 2; }
+html.kodza-stairs-transition-on.kodza-stairs-transition-back::view-transition-new(kodza-stairs-transition-band-4) { --kz-stairs-transition-step: 1; }
+html.kodza-stairs-transition-on.kodza-stairs-transition-back::view-transition-new(kodza-stairs-transition-band-5) { --kz-stairs-transition-step: 0; }
+
+/* The header stays: the script names it on both pages, the new one is shown from the start */
+:is(html.kodza-stairs-transition-on, html:has(.kodza-stairs-transition):not(.kodza-page-engine))::view-transition-group(*.kodza-stairs-transition-stay) {
+  animation: none;
+}
+
+:is(html.kodza-stairs-transition-on, html:has(.kodza-stairs-transition):not(.kodza-page-engine))::view-transition-old(*.kodza-stairs-transition-stay) {
+  animation: none;
+  opacity: 0;
+}
+
+/* It fills its group: Firefox keeps the proportions of its first capture, so a header that
+   widens while the page changes (a pill growing back to full width) would grow taller with it */
+:is(html.kodza-stairs-transition-on, html:has(.kodza-stairs-transition):not(.kodza-page-engine))::view-transition-new(*.kodza-stairs-transition-stay) {
+  height: 100%;
+  mix-blend-mode: normal;
+  animation: none;
+}
+
+/* One band: off screen at both ends, it covers its column from 36 % to 64 % of its own climb */
+@keyframes kodza-stairs-transition-band {
+  0% {
+    transform: translateY(calc(100% * var(--kz-stairs-transition-way, 1)));
+  }
+
+  36%,
+  64% {
+    transform: none;
+  }
+
+  100% {
+    transform: translateY(calc(-100% * var(--kz-stairs-transition-way, 1)));
+  }
+}
+
+/* The two pages trade places under the bands, at half time, when all five cover the screen */
+@keyframes kodza-stairs-transition-leave {
+  0% {
+    transform: none;
+  }
+
+  44% {
+    transform: translateY(calc(-4% * var(--kz-stairs-transition-way, 1)));
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    transform: translateY(calc(-4% * var(--kz-stairs-transition-way, 1)));
+    opacity: 0;
+    animation-timing-function: steps(1, start);
+  }
+}
+
+@keyframes kodza-stairs-transition-arrive {
+  0%,
+  50% {
+    transform: translateY(calc(6% * var(--kz-stairs-transition-way, 1)));
+    opacity: 0;
+    animation-timing-function: steps(1, end);
+  }
+
+  50.01%,
+  56% {
+    transform: translateY(calc(6% * var(--kz-stairs-transition-way, 1)));
+    opacity: 1;
+  }
+
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* The bands themselves: put on the page by the script, drawn only while a transition runs */
+.kodza-stairs-transition__stairs {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+}
+
+html.kodza-stairs-transition-cover:active-view-transition .kodza-stairs-transition__stairs {
+  display: flex;
+}
+
+.kodza-stairs-transition__band {
+  display: block;
+  flex: 1 1 0;
+  margin-right: -1px; /* each one a pixel over the next: no seam while they cover the page */
+  background: var(--kz-stairs-transition-ink, #0a0a0a);
+  view-transition-class: kodza-stairs-transition-band;
+}
+
+.kodza-stairs-transition__band:last-child {
+  margin-right: 0;
+}
+
+.kodza-stairs-transition__band:nth-child(1) { view-transition-name: kodza-stairs-transition-band-1; }
+.kodza-stairs-transition__band:nth-child(2) { view-transition-name: kodza-stairs-transition-band-2; }
+.kodza-stairs-transition__band:nth-child(3) { view-transition-name: kodza-stairs-transition-band-3; }
+.kodza-stairs-transition__band:nth-child(4) { view-transition-name: kodza-stairs-transition-band-4; }
+.kodza-stairs-transition__band:nth-child(5) { view-transition-name: kodza-stairs-transition-band-5; }
+
+/* ---------- The arrival: hidden from the first paint, until the script plays it ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  html.kodza-stairs-transition-enter .kodza-stairs-transition [data-enter] {
+    opacity: 0;
+    animation: kodza-stairs-transition-failsafe 0.5s 2.5s both; /* no script: the page shows anyway */
+  }
+}
+
+@keyframes kodza-stairs-transition-failsafe {
+  to {
+    opacity: 1;
+  }
+}
+
+/* The title, cut into words by the script: each one rises from behind its own edge */
+.kodza-stairs-transition__mask {
+  display: inline-block;
+  vertical-align: top;
+  margin-bottom: -0.16em;
+  padding-bottom: 0.16em; /* room for the descenders, inside the mask */
+}
+
+.kodza-stairs-transition.is-entering .kodza-stairs-transition__mask {
+  clip-path: inset(-0.3em -0.2em 0 -0.2em); /* open above, for the accents */
+}
+
+.kodza-stairs-transition__word {
+  display: inline-block;
+}
+
+/* ---------- The section: a case study opening ---------- */
+.kodza-stairs-transition__label,
+.kodza-stairs-transition__facts dt,
+.kodza-stairs-transition__media figcaption {
+  margin: 0;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-stairs-transition-muted);
+}
+
+.kodza-stairs-transition__label {
+  margin-bottom: 24px;
+}
+
+.kodza-stairs-transition__split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 32px 64px;
+}
+
+.kodza-stairs-transition__title {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(44px, 6.6vw, 96px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.95;
+  letter-spacing: var(--kz-font-display-tracking, -0.055em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+}
+
+.kodza-stairs-transition__intro {
+  display: grid;
+  gap: 32px;
+  padding-bottom: 6px;
+}
+
+.kodza-stairs-transition__lead {
+  max-width: 30em;
+  margin: 0;
+  color: var(--kz-stairs-transition-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.kodza-stairs-transition__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-stairs-transition__facts > div {
+  padding-top: 12px;
+  border-top: 1px solid var(--kz-stairs-transition-line);
+}
+
+.kodza-stairs-transition__facts dd {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.kodza-stairs-transition__media {
+  margin: 56px 0 0;
+}
+
+.kodza-stairs-transition__frame {
+  overflow: hidden;
+  aspect-ratio: 21 / 9;
+  border-radius: var(--kz-stairs-transition-image-radius);
+  background: var(--kz-stairs-transition-line);
+}
+
+.kodza-stairs-transition__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  object-fit: cover;
+}
+
+.kodza-stairs-transition__media figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+@media (max-width: 860px) {
+  .kodza-stairs-transition {
+    padding-top: 48px;
+  }
+
+  .kodza-stairs-transition__split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-stairs-transition__media {
+    margin-top: 40px;
+  }
+
+  .kodza-stairs-transition__frame {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 480px) {
+  .kodza-stairs-transition__media figcaption span + span {
+    display: none;
+  }
+}
+
+/* Reduced motion: plain navigation, the page straight away */
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+/* kodza-guard 9e5b4c54e659 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-stairs-transition__label:not(#_),
+.kodza-stairs-transition__facts dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-stairs-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-stairs-transition__media figcaption:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-stairs-transition__media :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-stairs-transition__split:not(#_),
+.kodza-stairs-transition__mask:not(#_),
+.kodza-stairs-transition__word:not(#_),
+.kodza-stairs-transition__intro:not(#_),
+.kodza-stairs-transition__frame:not(#_),
+.kodza-stairs-transition__facts div:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-stairs-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-stairs-transition__media span:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-stairs-transition__media :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-stairs-transition__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-stairs-transition__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-stairs-transition__facts:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-stairs-transition__media:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-stairs-transition__image:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-stairs-transition__facts dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-stairs-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-stairs-transition__label:not(#_):where(:not([hidden])),
+.kodza-stairs-transition__title:not(#_):where(:not([hidden])),
+.kodza-stairs-transition__lead:not(#_):where(:not([hidden])),
+.kodza-stairs-transition__media:not(#_):where(:not([hidden])),
+.kodza-stairs-transition__facts dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-stairs-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-stairs-transition__facts dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-stairs-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-stairs-transition__label:not(#_):where([hidden]),
+.kodza-stairs-transition__title:not(#_):where([hidden]),
+.kodza-stairs-transition__lead:not(#_):where([hidden]),
+.kodza-stairs-transition__media:not(#_):where([hidden]),
+.kodza-stairs-transition__facts dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-stairs-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-stairs-transition__facts dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-stairs-transition__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-stairs-transition__label:not(#_),
+.kodza-stairs-transition__facts dt:not(#_),
+.kodza-stairs-transition__media figcaption:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--kz-stairs-transition-muted);
+}
+
+.kodza-stairs-transition__label:not(#_) {
+  margin-bottom: 24px;
+}
+
+.kodza-stairs-transition__title:not(#_) {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(44px, 6.6vw, 96px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.95;
+  letter-spacing: var(--kz-font-display-tracking, -0.055em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-stairs-transition__lead:not(#_) {
+  max-width: 30em;
+  margin: 0;
+  color: var(--kz-stairs-transition-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.5;
+}
+
+.kodza-stairs-transition__facts:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-stairs-transition__facts dd:not(#_) {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.kodza-stairs-transition__media:not(#_) {
+  margin: 56px 0 0;
+}
+
+.kodza-stairs-transition__image:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-stairs-transition__media figcaption:not(#_) {
+  display: flex;
+  margin-top: 12px;
+}
+
+@media (max-width: 860px) {
+  .kodza-stairs-transition__media:not(#_) {
+    margin-top: 40px;
+  }
+}

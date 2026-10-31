@@ -51,7 +51,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 154. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 159. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -78,7 +78,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-154 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+159 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
 
 ### Buttons
 
@@ -189,7 +189,7 @@ Written like it's going live tomorrow. Because it probably is.
 | [Accordion](components/accordion-component/) | Questions that open on their answer, on a native <details>: the panel opens at its real height, the answer rises, the plus turns into a minus. One open at a time if you like. | [Demo](https://kodza.dev/components/accordion-component/) |
 | [Avatar](components/avatar/) | Initials or a picture in four sizes, a status told by a shape (full, ring, bar, faded), and a group that spreads when you come near, the face you point at saying its name. | [Demo](https://kodza.dev/components/avatar/) |
 | [Badge](components/badge/) | Small labels: soft, solid, live, mono and a count that rolls. Remove a tag and it shrinks away while its neighbours glide to their new place, across lines too. | [Demo](https://kodza.dev/components/badge/) |
-| [Code Block](components/code-block/) | Code to read and copy: file name, line numbers, highlighted lines and a monochrome syntax in weight and light. Copy rolls to Copied; a terminal copies its commands only. | [Demo](https://kodza.dev/components/code-block/) |
+| [Code Block](components/code-block/) | Code to read and copy: file name, line numbers, highlighted and folded lines, a monochrome syntax in weight and light. Copy rolls to Copied and takes everything, folded lines too; a terminal copies its commands only. | [Demo](https://kodza.dev/components/code-block/) |
 | [Countdown](components/event-day-counter/) | A live countdown to a date: every digit that changes falls out of its window as the next one drops in, and at zero the figures step aside for your message. Large or inline. | [Demo](https://kodza.dev/components/event-day-counter/) |
 | [Counter](components/counter-animation/) | A figure that rolls into place like an odometer when it comes into view: digits on the right spin more and land last, a zero takes a full turn. Readable without the script. | [Demo](https://kodza.dev/components/counter-animation/) |
 | [Filter Transitions](components/filter-transitions/) | A filterable grid: the ink pill slides to the filter, leaving cards step back, the others glide to their new place and the new ones arrive in turn. | [Demo](https://kodza.dev/components/filter-transitions/) |
@@ -277,8 +277,13 @@ Written like it's going live tomorrow. Because it probably is.
 
 | Component | What it does | |
 | --- | --- | --- |
+| [Curtain Transition](components/curtain-transition/) | Between two real pages, an ink panel rises with the name of the next page, then lifts off onto it. Back plays it in reverse. Curved edge or from the top. Chrome, Edge, Safari. | [Demo](https://kodza.dev/components/curtain-transition/) |
 | [Landing Reveal](components/landing-reveal/) | A preloader that counts the files your hero really needs while its images rise onto a pile. At 100 the hero image comes up last and grows into place, then the title rises. Click or any key skips. No GSAP. | [Demo](https://kodza.dev/components/landing-reveal/) |
+| [Logo Collapse](components/logo-collapse/) | The logo fills the screen while the page loads, then flies into the header as the screen rolls up. Its line tracks the real load. Any click or key skips it; data-once plays it once per visit. | [Demo](https://kodza.dev/components/logo-collapse/) |
 | [Page Lift](components/page-lift/) | Between two real pages, the one you leave recedes as the next rises over it on a rounded edge. The header stays, back plays it in reverse. Chrome, Edge, Safari; Firefox loads plainly for now. No GSAP. | [Demo](https://kodza.dev/components/page-lift/) |
+| [Shared Element Morph](components/shared-element-morph/) | Between two real pages, the picture you click grows into its place on the next page while the rest of it plays its entrance. Back, it shrinks into its card. Chrome, Edge, Safari. | [Demo](https://kodza.dev/components/shared-element-morph/) |
+| [Soft Swap](components/soft-swap/) | Between two real pages, the one you leave fades out drifting up while the next slides in from just below, and the header stays put. CSS only, no script. Chrome, Edge, Safari; Firefox loads plainly for now. | [Demo](https://kodza.dev/components/soft-swap/) |
+| [Stairs Transition](components/stairs-transition/) | Between two real pages, five ink bands climb over the page like a staircase, then step off onto the next one. Back starts from the other edge. Chrome, Edge, Safari. | [Demo](https://kodza.dev/components/stairs-transition/) |
 
 ### Hero
 
