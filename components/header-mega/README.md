@@ -11,8 +11,8 @@ A full site header whose mega menus share one panel: from a link to the next it 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-mega.html`](kodza-header-mega.html) | 7.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-mega.css`](kodza-header-mega.css) | 48.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-header-mega.js`](kodza-header-mega.js) | 55.4 KB | The script. One copy per page runs every instance. |
+| [`kodza-header-mega.css`](kodza-header-mega.css) | 49.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-mega.js`](kodza-header-mega.js) | 56.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -61,7 +61,7 @@ CSS variables, set on `.kodza-header-mega` itself:
 | `--kz-header-mega-width` | `1200px` | the row, centred |
 | `--kz-header-mega-pad` | `24px` |  |
 | `--kz-header-mega-gap` | `8px` | between the bar and the panel |
-| `--kz-header-mega-radius` | `14px` |  |
+| `--kz-header-mega-radius` | `calc(14px * var(--kz-radius-scale, 1))` |  |
 | `--kz-header-mega-duration` | `0.45s` | the panel changing shape, the pill gliding |
 | `--kz-header-mega-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-header-mega-menu-bg` | `#0a0a0a` | the drawer, below 900 px |
@@ -71,10 +71,10 @@ CSS variables, set on `.kodza-header-mega` itself:
 | `--kz-header-mega-menu-ink` | `rgba(10, 10, 10, 0.06)` | the Menu button |
 | `--kz-header-mega-menu-on-ink` | `#0a0a0a` |  |
 | `--kz-header-mega-menu-gap` | `10px` | between the drawer and the edges of the screen |
-| `--kz-header-mega-menu-radius` | `20px` |  |
+| `--kz-header-mega-menu-radius` | `calc(20px * var(--kz-radius-scale, 1))` |  |
 | `--kz-header-mega-menu-pad` | `clamp(20px, 6cqw, 28px)` |  |
 | `--kz-header-mega-menu-width` | `min(440px, calc(100cqw - 2 * var(--kz-header-mega-menu-gap)))` |  |
-| `--kz-header-mega-menu-size` | `clamp(24px, calc(2.6cqh + 14px), 34px)` |  |
+| `--kz-header-mega-menu-size` | `calc(clamp(24px, calc(2.6cqh + 14px), 34px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-header-mega-menu-shade` | `0.5` | how dark the page gets under the drawer |
 | `--kz-header-mega-menu-shadow` | `0 24px 64px -16px rgba(0, 0, 0, 0.5)` |  |
 | `--kz-header-mega-menu-duration` | `0.8s` |  |

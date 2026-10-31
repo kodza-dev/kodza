@@ -11,8 +11,8 @@ A guided tour: the page dims, a spotlight cuts out each element and glides to th
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-product-tour.html`](kodza-product-tour.html) | 0.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-product-tour.css`](kodza-product-tour.css) | 11.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-product-tour.js`](kodza-product-tour.js) | 12.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-product-tour.css`](kodza-product-tour.css) | 12.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-product-tour.js`](kodza-product-tour.js) | 13.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -57,7 +57,7 @@ CSS variables, set on `.kodza-tour` itself:
 | `--kz-tour-dim` | `rgba(10, 10, 10, 0.55)` |  |
 | `--kz-tour-ring` | `rgba(255, 255, 255, 0.9)` |  |
 | `--kz-tour-pad` | `6px` |  |
-| `--kz-tour-radius` | `12px` |  |
+| `--kz-tour-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-tour-ease` | `cubic-bezier(0.65, 0, 0.35, 1)` |  |
 
 - Attributes: `data-scope` (e.g. `.demo-app`), `data-target` (e.g. `.demo-search`, `.demo-new`, `.demo-project`, `.demo-avatar`), `data-title` (e.g. `Search everything`, `Start a project`, `Your projects live here`, `That's you`)

@@ -11,8 +11,8 @@ A shop header: the name, the categories, a search that opens over them, the acco
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-shop.html`](kodza-header-shop.html) | 3.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-shop.css`](kodza-header-shop.css) | 45.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-header-shop.js`](kodza-header-shop.js) | 39.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-header-shop.css`](kodza-header-shop.css) | 47.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-shop.js`](kodza-header-shop.js) | 40.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -66,7 +66,7 @@ CSS variables, set on `.kodza-header-shop` itself:
 | `--kz-header-shop-menu-top` | `calc(var(--wp-admin--admin-bar--height, 0px) + 20px)` | Close lands on Menu on its own; this is where it goes if Menu is somewhere else |
 | `--kz-header-shop-menu-side` | `24px` |  |
 | `--kz-header-shop-menu-width` | `min(clamp(340px, 40cqw, 560px), calc(100cqw - 56px))` |  |
-| `--kz-header-shop-menu-size` | `clamp(36px, min(4.6cqw + 8px, calc((100cqh - 300px) / 6.6)), 72px)` |  |
+| `--kz-header-shop-menu-size` | `calc(clamp(36px, min(4.6cqw + 8px, calc((100cqh - 300px) / 6.6)), 72px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-header-shop-menu-depth` | `0.88` | the page's size once it has stepped aside |
 | `--kz-header-shop-menu-shadow` | `0 32px 80px -24px rgba(0, 0, 0, 0.45)` |  |
 | `--kz-header-shop-menu-shade` | `0.5` | how dark the page gets when the menu slides over it |

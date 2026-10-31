@@ -11,8 +11,8 @@ A big title with a small picture set between two words. On scroll the scene pins
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-expand.html`](kodza-hero-expand.html) | 2.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-expand.css`](kodza-hero-expand.css) | 19.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-expand.js`](kodza-hero-expand.js) | 14.7 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-expand.css`](kodza-hero-expand.css) | 20.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-expand.js`](kodza-hero-expand.js) | 15.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -62,7 +62,7 @@ CSS variables, set on `.kodza-hero-expand` itself:
 | `--kz-hero-expand-top` | `0px` | height of a fixed site header: the scene pins under it |
 | `--kz-hero-expand-distance` | `200svh` | how long the scene stays pinned |
 | `--kz-hero-expand-crop` | `16%` | on a tall screen, how far the picture rises above it: its top (sky) stays out of view |
-| `--kz-hero-expand-mono` | `"Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace` |  |
+| `--kz-hero-expand-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace)` |  |
 | `--kz-hero-expand-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 ## Dark mode

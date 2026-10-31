@@ -11,8 +11,8 @@ A burger drawer for menus with levels: each sub-menu slides in over the last, th
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-multi-level-menu.html`](kodza-multi-level-menu.html) | 2.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-multi-level-menu.css`](kodza-multi-level-menu.css) | 24.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-multi-level-menu.js`](kodza-multi-level-menu.js) | 39.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-multi-level-menu.css`](kodza-multi-level-menu.css) | 24.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-multi-level-menu.js`](kodza-multi-level-menu.js) | 40.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -55,10 +55,10 @@ CSS variables, set on `.kodza-multi-level` itself:
 | `--kz-multi-level-ink` | `#0a0a0a` | the Menu button, on the page |
 | `--kz-multi-level-on-ink` | `#ffffff` |  |
 | `--kz-multi-level-gap` | `10px` | between the drawer and the edges of the screen |
-| `--kz-multi-level-radius` | `20px` |  |
+| `--kz-multi-level-radius` | `calc(20px * var(--kz-radius-scale, 1))` |  |
 | `--kz-multi-level-pad` | `clamp(20px, 6cqw, 28px)` |  |
 | `--kz-multi-level-width` | `min(440px, calc(100cqw - 2 * var(--kz-multi-level-gap)))` |  |
-| `--kz-multi-level-size` | `clamp(24px, calc(2.6cqh + 14px), 34px)` |  |
+| `--kz-multi-level-size` | `calc(clamp(24px, calc(2.6cqh + 14px), 34px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-multi-level-shade` | `0.5` | how dark the page gets under the drawer |
 | `--kz-multi-level-shadow` | `0 24px 64px -16px rgba(0, 0, 0, 0.5)` |  |
 | `--kz-multi-level-duration` | `0.8s` |  |

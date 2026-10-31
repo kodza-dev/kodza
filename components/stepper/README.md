@@ -11,8 +11,8 @@ A flow in four steps: the line fills, a check draws itself on each finished step
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-stepper.html`](kodza-stepper.html) | 2.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-stepper.css`](kodza-stepper.css) | 16.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-stepper.js`](kodza-stepper.js) | 8.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-stepper.css`](kodza-stepper.css) | 16.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-stepper.js`](kodza-stepper.js) | 9.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

@@ -11,8 +11,8 @@ Three plans in one block, the featured one inked and lifted out. Switch to yearl
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-pricing-plans.html`](kodza-pricing-plans.html) | 2.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-pricing-plans.css`](kodza-pricing-plans.css) | 18.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-pricing-plans.js`](kodza-pricing-plans.js) | 7.7 KB | The script. One copy per page runs every instance. |
+| [`kodza-pricing-plans.css`](kodza-pricing-plans.css) | 19.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-pricing-plans.js`](kodza-pricing-plans.js) | 8.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -55,12 +55,13 @@ CSS variables, set on `.kodza-pricing` itself:
 | `--kz-price-featured-fg` | `#ffffff` |  |
 | `--kz-price-featured-muted` | `rgba(255, 255, 255, 0.62)` |  |
 | `--kz-price-featured-border` | `rgba(255, 255, 255, 0.14)` |  |
-| `--kz-price-radius` | `16px` |  |
+| `--kz-price-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-price-pad` | `28px` |  |
 | `--kz-price-lift` | `12px` |  |
 | `--kz-price-duration` | `0.6s` |  |
 | `--kz-price-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
-| `--kz-price-mono` | `ui-monospace, "SF Mono", Menlo, monospace` |  |
+| `--kz-price-mono` | `var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace)` |  |
+| `--kz-price-align` | `center` | the switch: flex-start on a page set on its left edge |
 
 - Attributes: `data-monthly` (e.g. `0`, `no card needed`, `12`, `billed monthly`, `39`), `data-period` (e.g. `monthly`, `yearly`), `data-symbol`, `data-yearly` (e.g. `0`, `no card needed`, `10`, `€120 billed yearly`, `32`, `€384 billed yearly`)
 

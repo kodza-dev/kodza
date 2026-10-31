@@ -11,8 +11,8 @@ Bones drawn from the content itself, one shine across them all. When it loads, a
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-skeleton-loader.html`](kodza-skeleton-loader.html) | 1.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-skeleton-loader.css`](kodza-skeleton-loader.css) | 14.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-skeleton-loader.js`](kodza-skeleton-loader.js) | 10.5 KB | The script. One copy per page runs every instance. |
+| [`kodza-skeleton-loader.css`](kodza-skeleton-loader.css) | 14.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-skeleton-loader.js`](kodza-skeleton-loader.js) | 11.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -53,7 +53,7 @@ CSS variables, set on `.kodza-skeleton` itself:
 | `--kz-skel-bone` | `#ededeb` |  |
 | `--kz-skel-shine` | `rgba(255, 255, 255, 0.85)` |  |
 | `--kz-skel-speed` | `1.6s` |  |
-| `--kz-skel-radius` | `16px` |  |
+| `--kz-skel-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-skel-pad` | `28px` |  |
 
 - Modifiers: `.kodza-skeleton--card`, `.kodza-skeleton--list`

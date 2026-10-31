@@ -12,7 +12,7 @@ A button whose label rolls up letter by letter on hover, and keeps rolling the s
 | --- | ---: | --- |
 | [`kodza-button-slide.html`](kodza-button-slide.html) | 0.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-button-slide.css`](kodza-button-slide.css) | 5.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-button-slide.js`](kodza-button-slide.js) | 4.2 KB | The script. One copy per page runs every instance. |
+| [`kodza-button-slide.js`](kodza-button-slide.js) | 5.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -51,7 +51,7 @@ CSS variables, set on `.kodza-roll-button` itself:
 | `--kz-roll-border` | `transparent` |  |
 | `--kz-roll-height` | `52px` |  |
 | `--kz-roll-pad-x` | `28px` |  |
-| `--kz-roll-radius` | `999px` |  |
+| `--kz-roll-radius` | `var(--kz-radius-pill, 999px)` |  |
 | `--kz-roll-duration` | `0.55s` |  |
 | `--kz-roll-stagger` | `16ms` |  |
 | `--kz-roll-ease` | `cubic-bezier(0.76, 0, 0.24, 1)` |  |

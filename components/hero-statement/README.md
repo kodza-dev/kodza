@@ -11,8 +11,8 @@ A studio statement set very large over a mono line with the city, a live local t
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-statement.html`](kodza-hero-statement.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-statement.css`](kodza-hero-statement.css) | 13.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-statement.js`](kodza-hero-statement.js) | 6.9 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-statement.css`](kodza-hero-statement.css) | 14.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-statement.js`](kodza-hero-statement.js) | 7.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -55,7 +55,7 @@ CSS variables, set on `.kodza-hero-statement` itself:
 | `--kz-hero-statement-top` | `clamp(96px, 13vw, 200px)` |  |
 | `--kz-hero-statement-bottom` | `clamp(28px, 3.5vw, 44px)` |  |
 | `--kz-hero-statement-gutter` | `clamp(16px, 4vw, 40px)` |  |
-| `--kz-hero-statement-mono` | `"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace` |  |
+| `--kz-hero-statement-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-hero-statement-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-hero-statement-glide` | `cubic-bezier(0.6, 0, 0.1, 1)` |  |
 | `--kz-hero-statement-soft-ease` | `cubic-bezier(0.25, 1, 0.5, 1)` |  |

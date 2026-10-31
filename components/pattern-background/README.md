@@ -11,8 +11,8 @@ A hero framed by its own pattern: the grid lines up on your content, four hairli
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-pattern-background.html`](kodza-pattern-background.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-pattern-background.css`](kodza-pattern-background.css) | 23.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-pattern-background.js`](kodza-pattern-background.js) | 9.4 KB | The script. One copy per page runs every instance. |
+| [`kodza-pattern-background.css`](kodza-pattern-background.css) | 24.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-pattern-background.js`](kodza-pattern-background.js) | 10.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

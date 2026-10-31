@@ -12,7 +12,7 @@ Wrap an article and every picture in it opens large: it grows from its own place
 | --- | ---: | --- |
 | [`kodza-lightbox.html`](kodza-lightbox.html) | 0.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-lightbox.css`](kodza-lightbox.css) | 11.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-lightbox.js`](kodza-lightbox.js) | 13.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-lightbox.js`](kodza-lightbox.js) | 14.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -52,7 +52,7 @@ CSS variables, set on `.kodza-lightbox` itself:
 | `--kz-lightbox-fg` | `#ffffff` |  |
 | `--kz-lightbox-muted` | `rgba(255, 255, 255, 0.62)` |  |
 | `--kz-lightbox-soft` | `rgba(255, 255, 255, 0.1)` |  |
-| `--kz-lightbox-radius` | `12px` |  |
+| `--kz-lightbox-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-lightbox-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Attributes: `data-full` (e.g. `https://kodza.dev/media/kz-steps-2400.webp`, `https://kodza.dev/media/kz-arch-2400.webp`, `https://kodza.dev/media/kz-columns-2400.webp`), `data-no-lightbox`, `data-step`

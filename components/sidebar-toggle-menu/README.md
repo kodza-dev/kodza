@@ -11,8 +11,8 @@ A side panel that slides in over the page, then big links rise one by one. A rea
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-sidebar-toggle-menu.html`](kodza-sidebar-toggle-menu.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-sidebar-toggle-menu.css`](kodza-sidebar-toggle-menu.css) | 13.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-sidebar-toggle-menu.js`](kodza-sidebar-toggle-menu.js) | 7.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-sidebar-toggle-menu.css`](kodza-sidebar-toggle-menu.css) | 13.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-sidebar-toggle-menu.js`](kodza-sidebar-toggle-menu.js) | 8.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -56,7 +56,7 @@ CSS variables, set on `.kodza-sidebar` itself:
 | `--kz-sidebar-on-ink` | `#ffffff` |  |
 | `--kz-sidebar-backdrop` | `rgba(10, 10, 10, 0.32)` |  |
 | `--kz-sidebar-width` | `496px` |  |
-| `--kz-sidebar-size` | `clamp(34px, 5vw, 48px)` |  |
+| `--kz-sidebar-size` | `calc(clamp(34px, 5vw, 48px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-sidebar-duration` | `0.7s` |  |
 | `--kz-sidebar-ease` | `cubic-bezier(0.76, 0, 0.24, 1)` |  |
 | `--kz-sidebar-rise` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

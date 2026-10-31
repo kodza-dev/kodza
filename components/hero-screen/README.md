@@ -11,8 +11,8 @@ A centred title and its buttons over a screenshot of the product, leaning back i
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-screen.html`](kodza-hero-screen.html) | 2.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-screen.css`](kodza-hero-screen.css) | 18.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-screen.js`](kodza-hero-screen.js) | 13.9 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-screen.css`](kodza-hero-screen.css) | 18.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-screen.js`](kodza-hero-screen.js) | 14.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -62,15 +62,15 @@ CSS variables, set on `.kodza-hero-screen` itself:
 | `--kz-hero-screen-width` | `1240px` |  |
 | `--kz-hero-screen-gutter` | `clamp(16px, 4vw, 40px)` |  |
 | `--kz-hero-screen-pad-y` | `clamp(20px, 3svh, 40px)` |  |
-| `--kz-hero-screen-size` | `clamp(36px, min(6.4cqi, 9.4svh), 96px)` | the title lines |
+| `--kz-hero-screen-size` | `calc(clamp(36px, min(6.4cqi, 9.4svh), 96px) * var(--kz-font-display-scale, 1))` | the title lines |
 | `--kz-hero-screen-ratio` | `1.6` | the screenshot's width / height |
 | `--kz-hero-screen-tilt` | `24deg` | how far the screen leans back at rest |
 | `--kz-hero-screen-shrink` | `0.86` | its scale at rest: it grows to full size |
 | `--kz-hero-screen-depth` | `1600px` | the perspective: shorter is stronger |
-| `--kz-hero-screen-radius` | `18px` |  |
+| `--kz-hero-screen-radius` | `calc(18px * var(--kz-radius-scale, 1))` |  |
 | `--kz-hero-screen-top` | `0px` | height of a fixed site header: the scene pins under it |
 | `--kz-hero-screen-distance` | `140svh` | how long the scene holds |
-| `--kz-hero-screen-mono` | `"Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace` |  |
+| `--kz-hero-screen-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace)` |  |
 | `--kz-hero-screen-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 ## Dark mode

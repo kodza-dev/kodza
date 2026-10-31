@@ -2,7 +2,7 @@
 
 [![Textarea, live on kodza.dev](https://kodza.dev/anim/textarea/og.jpg)](https://kodza.dev/components/textarea/)
 
-A textarea whose label folds up, whose height eases to fit the text, and whose ring fills as you near the limit, with the characters left in the last fifth.
+A textarea whose label folds up, whose height eases to fit the text, and whose ring fills from the first character as you near the limit, with the characters left in the last fifth.
 
 **[Live demo](https://kodza.dev/components/textarea/)** · Forms · HTML, CSS, JS · No dependencies
 
@@ -11,8 +11,8 @@ A textarea whose label folds up, whose height eases to fit the text, and whose r
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-textarea.html`](kodza-textarea.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-textarea.css`](kodza-textarea.css) | 11.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-textarea.js`](kodza-textarea.js) | 6.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-textarea.css`](kodza-textarea.css) | 12.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-textarea.js`](kodza-textarea.js) | 7.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -53,9 +53,10 @@ CSS variables, set on `.kodza-textarea` itself:
 | `--kz-textarea-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
 | `--kz-textarea-soft` | `rgba(10, 10, 10, 0.06)` |  |
 | `--kz-textarea-error` | `#0a0a0a` |  |
-| `--kz-textarea-radius` | `12px` |  |
+| `--kz-textarea-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-textarea-pad` | `16px` |  |
 | `--kz-textarea-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
+| `--kz-textarea-width` | `var(--kz-field-width, 460px)` |  |
 
 - Attributes: `data-error` (e.g. `Ten characters at least. Bugs need context.`), `data-max` (e.g. `280`)
 

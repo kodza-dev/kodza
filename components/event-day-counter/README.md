@@ -11,8 +11,8 @@ A live countdown to a date: every digit that changes falls out of its window as 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-event-day-counter.html`](kodza-event-day-counter.html) | 1.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-event-day-counter.css`](kodza-event-day-counter.css) | 6.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-event-day-counter.js`](kodza-event-day-counter.js) | 7.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-event-day-counter.css`](kodza-event-day-counter.css) | 7.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-event-day-counter.js`](kodza-event-day-counter.js) | 8.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -50,7 +50,7 @@ CSS variables, set on `.kodza-countdown` itself:
 | `--kz-countdown-muted` | `rgba(10, 10, 10, 0.62)` |  |
 | `--kz-countdown-soft` | `rgba(10, 10, 10, 0.07)` |  |
 | `--kz-countdown-chip` | `#ffffff` |  |
-| `--kz-countdown-size` | `clamp(44px, 7vw, 84px)` |  |
+| `--kz-countdown-size` | `calc(clamp(44px, 7vw, 84px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-countdown-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Modifiers: `.kodza-countdown--inline`

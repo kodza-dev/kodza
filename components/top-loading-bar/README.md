@@ -12,7 +12,7 @@ The thin line at the top of the screen while a page loads: it creeps in shrinkin
 | --- | ---: | --- |
 | [`kodza-top-loading-bar.html`](kodza-top-loading-bar.html) | 0.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-top-loading-bar.css`](kodza-top-loading-bar.css) | 2.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-top-loading-bar.js`](kodza-top-loading-bar.js) | 6.2 KB | The script. One copy per page runs every instance. |
+| [`kodza-top-loading-bar.js`](kodza-top-loading-bar.js) | 7.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

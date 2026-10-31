@@ -11,8 +11,8 @@ A floating glass pill that clears the top of the page, frosts as you scroll, ste
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-scroll-header.html`](kodza-scroll-header.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-scroll-header.css`](kodza-scroll-header.css) | 21.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-scroll-header.js`](kodza-scroll-header.js) | 10.5 KB | The script. One copy per page runs every instance. |
+| [`kodza-scroll-header.css`](kodza-scroll-header.css) | 23.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-scroll-header.js`](kodza-scroll-header.js) | 12.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -66,9 +66,10 @@ CSS variables, set on `.kodza-scroll-header` itself:
 | `--kz-header-dark-on-ink` | `#0a0a0a` |  |
 | `--kz-header-top` | `12px` |  |
 | `--kz-header-height` | `60px` |  |
+| `--kz-header-overlap` | `0px` | how far the next section goes up under the pill (--overlay: its height) |
 | `--kz-header-max` | `1080px` |  |
 | `--kz-header-max-scrolled` | `var(--kz-header-max)` |  |
-| `--kz-header-radius` | `22px` |  |
+| `--kz-header-radius` | `calc(22px * var(--kz-radius-scale, 1))` |  |
 | `--kz-header-duration` | `0.5s` |  |
 | `--kz-header-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-header-hide-after` | `600px` |  |
@@ -77,7 +78,7 @@ CSS variables, set on `.kodza-scroll-header` itself:
 | `--kz-header-width-duration` | `0.7s` |  |
 | `--kz-header-width-ease` | `cubic-bezier(0.65, 0, 0.35, 1)` |  |
 
-- Modifiers: `.kodza-scroll-header--keep`, `.kodza-scroll-header--solid`
+- Modifiers: `.kodza-scroll-header--keep`, `.kodza-scroll-header--overlay`, `.kodza-scroll-header--solid`
 - Attributes: `data-header-tone`, `data-tone`
 
 ## Dark mode

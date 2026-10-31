@@ -11,8 +11,8 @@ A menu under the page: the page slides left and shrinks into a card, the menu wa
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-side-reveal-menu.html`](kodza-side-reveal-menu.html) | 2.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-side-reveal-menu.css`](kodza-side-reveal-menu.css) | 18.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-side-reveal-menu.js`](kodza-side-reveal-menu.js) | 30.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-side-reveal-menu.css`](kodza-side-reveal-menu.css) | 20.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-side-reveal-menu.js`](kodza-side-reveal-menu.js) | 31.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -57,7 +57,7 @@ CSS variables, set on `.kodza-side-reveal` itself:
 | `--kz-side-reveal-top` | `calc(var(--wp-admin--admin-bar--height, 0px) + 20px)` | match your header, so Close lands right where Menu was (below the WordPress admin bar) |
 | `--kz-side-reveal-side` | `24px` |  |
 | `--kz-side-reveal-width` | `min(clamp(340px, 40cqw, 560px), calc(100cqw - 56px))` | the menu column; on a phone a strip of the page stays in view |
-| `--kz-side-reveal-size` | `clamp(36px, min(4.6cqw + 8px, calc((100cqh - 300px) / 5.6)), 72px)` |  |
+| `--kz-side-reveal-size` | `calc(clamp(36px, min(4.6cqw + 8px, calc((100cqh - 300px) / 5.6)), 72px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-side-reveal-depth` | `0.88` | the page's size once aside |
 | `--kz-side-reveal-shadow` | `0 32px 80px -24px rgba(0, 0, 0, 0.45)` | under the card, seen on a light menu |
 | `--kz-side-reveal-shade` | `0.5` | without a page: how dark the page gets under the menu |

@@ -11,8 +11,8 @@ A filterable grid: the ink pill slides to the filter, leaving cards step back, t
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-filter-transitions.html`](kodza-filter-transitions.html) | 3.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-filter-transitions.css`](kodza-filter-transitions.css) | 11.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-filter-transitions.js`](kodza-filter-transitions.js) | 9.4 KB | The script. One copy per page runs every instance. |
+| [`kodza-filter-transitions.css`](kodza-filter-transitions.css) | 12.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-filter-transitions.js`](kodza-filter-transitions.js) | 10.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -54,7 +54,7 @@ CSS variables, set on `.kodza-filter` itself:
 | `--kz-filter-on-ink` | `#ffffff` |  |
 | `--kz-filter-columns` | `4` |  |
 | `--kz-filter-gap` | `16px` |  |
-| `--kz-filter-radius` | `16px` |  |
+| `--kz-filter-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-filter-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Attributes: `data-category` (e.g. `buttons`, `text`, `images`, `cards`), `data-filter` (e.g. `all`, `buttons`, `text`, `images`, `cards`)

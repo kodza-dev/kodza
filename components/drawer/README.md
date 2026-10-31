@@ -11,8 +11,8 @@ A panel that slides in from the right, and on phones rises from the bottom as a 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-drawer.html`](kodza-drawer.html) | 1.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-drawer.css`](kodza-drawer.css) | 22.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-drawer.js`](kodza-drawer.js) | 9.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-drawer.css`](kodza-drawer.css) | 23.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-drawer.js`](kodza-drawer.js) | 10.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -57,7 +57,7 @@ CSS variables, set on `.kodza-sheet` itself:
 | `--kz-sheet-on-ink` | `#ffffff` |  |
 | `--kz-sheet-backdrop` | `rgba(10, 10, 10, 0.3)` |  |
 | `--kz-sheet-width` | `420px` |  |
-| `--kz-sheet-radius` | `20px` |  |
+| `--kz-sheet-radius` | `calc(20px * var(--kz-radius-scale, 1))` |  |
 | `--kz-sheet-duration` | `0.55s` |  |
 | `--kz-sheet-ease` | `cubic-bezier(0.32, 0.72, 0, 1)` |  |
 

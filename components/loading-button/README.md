@@ -12,7 +12,7 @@ A button that shows its work: its words roll from Deploy to Deploying while a ri
 | --- | ---: | --- |
 | [`kodza-loading-button.html`](kodza-loading-button.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-loading-button.css`](kodza-loading-button.css) | 8.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-loading-button.js`](kodza-loading-button.js) | 5.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-loading-button.js`](kodza-loading-button.js) | 6.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

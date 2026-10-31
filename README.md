@@ -42,8 +42,10 @@ Rather keep it on your machine? `npx -y kodza-mcp` runs the same server locally 
 
 | Tool | What it does |
 | --- | --- |
-| `search_components` | Finds components by what they do or look like ("button fill hover", "sticky header", "date picker"), or lists a category. |
+| `search_components` | Finds components by what they do or look like ("button fill hover", "sticky header", "date picker"), or lists a category, each with the link to its demo. |
 | `get_component` | One component: its exact HTML, CSS and JS (or the commands to download them), its settings (`--kz-…` variables, modifier classes, `data-` attributes), what each key does, its dark-mode values and how to wire it into a plain page, WordPress, Shopify, React or a Claude artifact. |
+
+Three slash commands too, for when you'd rather not write the request: `build_page`, `replace_element` and `find_component` (Claude Code: `/mcp__kodza__build_page`, VS Code: `/mcp.kodza.build_page`).
 
 Read-only: it hands out code and never touches your project. It counts which components get fetched, and by which assistant; nothing you type is kept.
 
@@ -131,7 +133,7 @@ Written like it's going live tomorrow. Because it probably is.
 | [Star Rating](components/rating-component/) | Real radio buttons drawn as stars: they light up one after the other under the pointer, the word rolls from Meh to Shipped it, and a static score fills in view. | [Demo](https://kodza.dev/components/rating-component/) |
 | [Switch](components/switch-toggle/) | A real checkbox redrawn as a switch: the ink fills the track behind the thumb, the thumb stretches while pressed and springs into place. Labels, toolbars too. | [Demo](https://kodza.dev/components/switch-toggle/) |
 | [Text Field](components/text-field/) | A text field whose label folds up as you type. A button clears it, a check draws itself once it is valid, and the hint gives way to the error. | [Demo](https://kodza.dev/components/text-field/) |
-| [Textarea](components/textarea/) | A textarea whose label folds up, whose height eases to fit the text, and whose ring fills as you near the limit, with the characters left in the last fifth. | [Demo](https://kodza.dev/components/textarea/) |
+| [Textarea](components/textarea/) | A textarea whose label folds up, whose height eases to fit the text, and whose ring fills from the first character as you near the limit, with the characters left in the last fifth. | [Demo](https://kodza.dev/components/textarea/) |
 
 ### Navigation
 

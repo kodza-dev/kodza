@@ -11,8 +11,8 @@ A centred hero with pictures scattered around the title: they open one after the
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-collage.html`](kodza-hero-collage.html) | 2.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-collage.css`](kodza-hero-collage.css) | 16.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-collage.js`](kodza-hero-collage.js) | 8.7 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-collage.css`](kodza-hero-collage.css) | 16.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-collage.js`](kodza-hero-collage.js) | 9.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -54,9 +54,9 @@ CSS variables, set on `.kodza-hero-collage` itself:
 | `--kz-hero-collage-bg` | `transparent` |  |
 | `--kz-hero-collage-height` | `clamp(640px, 54vw, 820px)` |  |
 | `--kz-hero-collage-gutter` | `clamp(16px, 4vw, 40px)` |  |
-| `--kz-hero-collage-radius` | `12px` |  |
+| `--kz-hero-collage-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-hero-collage-drift` | `32px` |  |
-| `--kz-hero-collage-mono` | `"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace` |  |
+| `--kz-hero-collage-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-hero-collage-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 ## Dark mode

@@ -295,8 +295,10 @@
   // event.detail.root (the whole page by default), `kodza:destroy` stops them and puts their
   // markup back. For themes and apps that swap content without a page load. Each running root
   // keeps its markup as written under KODZA, shared by every Kodza script on the page: a Kodza
-  // component inside another one is saved as written, not half-started, and stopped with it.
+  // component inside another one is saved as written, not half-started, and stopped with it. Two
+  // components on one root (a reveal on a stat card) both start, and stop together.
   const KODZA = Symbol.for('kodza');
+  const RUNNING = Symbol.for(`kodza ${SELECTOR}`); // a root this component runs on, for every copy of this script
   const instances = new WeakMap();
   const find = (scope = document) => [scope, ...scope.querySelectorAll(SELECTOR)].filter((el) => el.matches?.(SELECTOR));
   const attrsOf = (el) => [...el.attributes].map((a) => [a.name, a.value]);
@@ -320,15 +322,22 @@
     return copy.innerHTML;
   };
   const init = (scope) => find(scope).forEach((root) => {
-    if (root.classList.contains('is-ready')) return; // already running, maybe from another copy of this script
+    // Already running, maybe from another copy of this script. Marked is-ready with no Kodza component
+    // running on it, a root is a copy of a started one (a cloned slide): it is left as it is
+    if (root[RUNNING] || (root.classList.contains('is-ready') && !root[KODZA])) return;
     // Rendered by React (data-kodza-manual): React starts it, with an init aimed at that markup once
     // it has hydrated it. Any earlier start would change markup React has not taken over yet
     const owner = root.closest('[data-kodza-manual]');
     if (owner && !(scope && owner.contains(scope))) return;
     const controller = new AbortController();
-    const saved = { html: written(root), attrs: attrsOf(root), stop: () => destroy(root) };
-    instances.set(root, { controller, saved });
+    // Another Kodza component already running on this root: its markup as written is kept, and the
+    // two stop together
+    const before = root[KODZA];
+    const saved = { html: before ? before.html : written(root), attrs: before ? before.attrs : attrsOf(root), stop: () => destroy(root) };
+    if (before) before.above = saved;
+    instances.set(root, { controller, saved, before });
     root[KODZA] = saved;
+    root[RUNNING] = true;
     mount(root, controller.signal);
     root.classList.add('is-ready');
   });
@@ -336,10 +345,18 @@
     const instance = instances.get(root);
     if (!instance) return;
     instances.delete(root);
+    instance.saved.above?.stop(); // a Kodza component started after it on the same root stops first
     // The Kodza components running inside it stop first: once its markup is put back, their own
     // script could not find them any more
     root.querySelectorAll('*').forEach((el) => el[KODZA]?.stop());
     instance.controller.abort();
+    delete root[RUNNING];
+    // Started on top of another one: that one stops next, and puts the markup back
+    if (instance.before) {
+      delete instance.before.above;
+      root[KODZA] = instance.before;
+      return instance.before.stop();
+    }
     delete root[KODZA];
     put(root, instance.saved);
   });

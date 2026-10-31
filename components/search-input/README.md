@@ -11,8 +11,8 @@ A search field over a real datalist: suggestions unroll under it, grouped, with 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-search-input.html`](kodza-search-input.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-search-input.css`](kodza-search-input.css) | 14.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-search-input.js`](kodza-search-input.js) | 13.5 KB | The script. One copy per page runs every instance. |
+| [`kodza-search-input.css`](kodza-search-input.css) | 15.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-search-input.js`](kodza-search-input.js) | 14.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -55,7 +55,8 @@ CSS variables, set on `.kodza-search` itself:
 | `--kz-search-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-search-height` | `48px` |  |
 | `--kz-search-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
-| `--kz-search-mono` | `ui-monospace, "SF Mono", Menlo, monospace` |  |
+| `--kz-search-mono` | `var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace)` |  |
+| `--kz-search-width` | `var(--kz-field-width, 440px)` |  |
 
 - Events: `kodza:search`, bubbling from the root
 - On the root element: `root.kodzaSearch` (see the comment at the top of the JS)

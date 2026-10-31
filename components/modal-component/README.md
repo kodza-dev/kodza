@@ -11,8 +11,8 @@ A real dialog that grows out of the button that opened it and goes back into it.
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-modal-component.html`](kodza-modal-component.html) | 2.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-modal-component.css`](kodza-modal-component.css) | 21.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-modal-component.js`](kodza-modal-component.js) | 11.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-modal-component.css`](kodza-modal-component.css) | 22.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-modal-component.js`](kodza-modal-component.js) | 12.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -58,7 +58,7 @@ CSS variables, set on `.kodza-dialog` itself:
 | `--kz-dialog-backdrop` | `rgba(10, 10, 10, 0.3)` |  |
 | `--kz-dialog-shadow` | `0 30px 70px -20px rgba(10, 10, 10, 0.45)` |  |
 | `--kz-dialog-width` | `440px` |  |
-| `--kz-dialog-radius` | `20px` |  |
+| `--kz-dialog-radius` | `calc(20px * var(--kz-radius-scale, 1))` |  |
 | `--kz-dialog-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Modifiers: `.kodza-dialog--alert`

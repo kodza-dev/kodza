@@ -47,7 +47,7 @@ CSS variables, set on `.kodza-spinner` itself:
 | `--kz-spinner-track` | `0.16` |  |
 | `--kz-spinner-tempo` | `1` |  |
 | `--kz-spinner-gap` | `0.6em` |  |
-| `--kz-spinner-mono` | `"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace` |  |
+| `--kz-spinner-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-spinner-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Modifiers: `.kodza-spinner--terminal`

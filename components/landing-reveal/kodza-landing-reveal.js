@@ -16,7 +16,11 @@
   const RISE = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const SWING = 'cubic-bezier(0.65, 0, 0.35, 1)';
   const SEEN = 'kodza-landing-reveal'; // sessionStorage key, for data-once
-  const VARS = ['bg', 'fg', 'muted', 'line', 'card', 'side']; // what the loader takes along when it leaves the hero
+  // What the loader takes along when it leaves the hero: its settings, and the type the site gives it
+  const VARS = [
+    ...['bg', 'fg', 'muted', 'line', 'card', 'side', 'brand', 'brand-blend'].map((name) => `--kz-landing-reveal-${name}`),
+    ...['display', 'display-weight', 'display-scale', 'display-tracking', 'display-case', 'mono'].map((name) => `--kz-font-${name}`),
+  ];
   const HOLD_KEYS = [' ', 'PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
   const BEAT = 600; // one image every 0.6 s: each one is seen, then covered
   const LAST = 820; // the hero image rises onto the pile while the count ends: 100 as it settles
@@ -244,6 +248,7 @@
         fontSize: style.fontSize,
         fontWeight: style.fontWeight,
         letterSpacing: style.letterSpacing,
+        textTransform: style.textTransform,
       });
     };
 
@@ -433,8 +438,9 @@
       playing = end;
       // The loader goes to the end of the page while it plays: a transformed parent cannot trap
       // it, the styles of a theme's content cannot reach it. It takes the hero's settings along
-      VARS.forEach((name) => loader.style.setProperty(`--kz-landing-reveal-${name}`, css(name)));
-      loader.style.fontFamily = getComputedStyle(root).fontFamily;
+      const settings = getComputedStyle(root);
+      VARS.forEach((name) => loader.style.setProperty(name, settings.getPropertyValue(name).trim()));
+      loader.style.fontFamily = settings.fontFamily;
       document.body.append(loader);
       loader.hidden = false;
       fit();
@@ -516,8 +522,10 @@
   // event.detail.root (the whole page by default), `kodza:destroy` stops them and puts their
   // markup back. For themes and apps that swap content without a page load. Each running root
   // keeps its markup as written under KODZA, shared by every Kodza script on the page: a Kodza
-  // component inside another one is saved as written, not half-started, and stopped with it.
+  // component inside another one is saved as written, not half-started, and stopped with it. Two
+  // components on one root (a reveal on a stat card) both start, and stop together.
   const KODZA = Symbol.for('kodza');
+  const RUNNING = Symbol.for(`kodza ${SELECTOR}`); // a root this component runs on, for every copy of this script
   const instances = new WeakMap();
   const find = (scope = document) => [scope, ...scope.querySelectorAll(SELECTOR)].filter((el) => el.matches?.(SELECTOR));
   const attrsOf = (el) => [...el.attributes].map((a) => [a.name, a.value]);
@@ -541,15 +549,22 @@
     return copy.innerHTML;
   };
   const init = (scope) => find(scope).forEach((root) => {
-    if (root.classList.contains('is-ready')) return; // already running, maybe from another copy of this script
+    // Already running, maybe from another copy of this script. Marked is-ready with no Kodza component
+    // running on it, a root is a copy of a started one (a cloned slide): it is left as it is
+    if (root[RUNNING] || (root.classList.contains('is-ready') && !root[KODZA])) return;
     // Rendered by React (data-kodza-manual): React starts it, with an init aimed at that markup once
     // it has hydrated it. Any earlier start would change markup React has not taken over yet
     const owner = root.closest('[data-kodza-manual]');
     if (owner && !(scope && owner.contains(scope))) return;
     const controller = new AbortController();
-    const saved = { html: written(root), attrs: attrsOf(root), stop: () => destroy(root) };
-    instances.set(root, { controller, saved });
+    // Another Kodza component already running on this root: its markup as written is kept, and the
+    // two stop together
+    const before = root[KODZA];
+    const saved = { html: before ? before.html : written(root), attrs: before ? before.attrs : attrsOf(root), stop: () => destroy(root) };
+    if (before) before.above = saved;
+    instances.set(root, { controller, saved, before });
     root[KODZA] = saved;
+    root[RUNNING] = true;
     mount(root, controller.signal);
     root.classList.add('is-ready');
   });
@@ -557,10 +572,18 @@
     const instance = instances.get(root);
     if (!instance) return;
     instances.delete(root);
+    instance.saved.above?.stop(); // a Kodza component started after it on the same root stops first
     // The Kodza components running inside it stop first: once its markup is put back, their own
     // script could not find them any more
     root.querySelectorAll('*').forEach((el) => el[KODZA]?.stop());
     instance.controller.abort();
+    delete root[RUNNING];
+    // Started on top of another one: that one stops next, and puts the markup back
+    if (instance.before) {
+      delete instance.before.above;
+      root[KODZA] = instance.before;
+      return instance.before.stop();
+    }
     delete root[KODZA];
     put(root, instance.saved);
   });

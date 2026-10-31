@@ -242,7 +242,9 @@
       const dot = dots[i];
       const c = dot.offsetLeft + dot.offsetWidth / 2;
       const y = (dotsBox.clientHeight - 6) / 2;
-      return `inset(${y}px ${dotsBox.clientWidth - c - PILL / 2}px ${y}px ${c - PILL / 2}px round 3px)`;
+      // The dot's own corners (a pill unless the site squares them)
+      const round = Math.min(3, parseFloat(getComputedStyle(dot).borderTopLeftRadius) || 0);
+      return `inset(${y}px ${dotsBox.clientWidth - c - PILL / 2}px ${y}px ${c - PILL / 2}px round ${round}px)`;
     };
     const placePill = (i, animate) => {
       if (!pill || i === pillAt) return;
@@ -253,12 +255,13 @@
         // Halfway, the leading edge is nearly there and the trailing one has barely left
         const a = clip(pillAt).match(/[\d.-]+px/g).map(parseFloat);
         const b = to.match(/[\d.-]+px/g).map(parseFloat);
+        const round = b[4] ?? 3;
         const mid = dir > 0 ? [b[0], b[1] + (a[1] - b[1]) * 0.12, b[2], a[3] + (b[3] - a[3]) * 0.25]
           : [b[0], a[1] + (b[1] - a[1]) * 0.25, b[2], b[3] + (a[3] - b[3]) * 0.12];
         pill.getAnimations().forEach((anim) => anim.cancel());
         pill.animate([
           { clipPath: from },
-          { clipPath: `inset(${mid.map((v) => `${v}px`).join(' ')} round 3px)`, offset: 0.5 },
+          { clipPath: `inset(${mid.map((v) => `${v}px`).join(' ')} round ${round}px)`, offset: 0.5 },
           { clipPath: to },
         ], { duration: 560, easing: 'cubic-bezier(0.45, 0, 0.2, 1)' });
       }
@@ -521,8 +524,10 @@
   // event.detail.root (the whole page by default), `kodza:destroy` stops them and puts their
   // markup back. For themes and apps that swap content without a page load. Each running root
   // keeps its markup as written under KODZA, shared by every Kodza script on the page: a Kodza
-  // component inside another one is saved as written, not half-started, and stopped with it.
+  // component inside another one is saved as written, not half-started, and stopped with it. Two
+  // components on one root (a reveal on a stat card) both start, and stop together.
   const KODZA = Symbol.for('kodza');
+  const RUNNING = Symbol.for(`kodza ${SELECTOR}`); // a root this component runs on, for every copy of this script
   const instances = new WeakMap();
   const find = (scope = document) => [scope, ...scope.querySelectorAll(SELECTOR)].filter((el) => el.matches?.(SELECTOR));
   const attrsOf = (el) => [...el.attributes].map((a) => [a.name, a.value]);
@@ -546,15 +551,22 @@
     return copy.innerHTML;
   };
   const init = (scope) => find(scope).forEach((root) => {
-    if (root.classList.contains('is-ready')) return; // already running, maybe from another copy of this script
+    // Already running, maybe from another copy of this script. Marked is-ready with no Kodza component
+    // running on it, a root is a copy of a started one (a cloned slide): it is left as it is
+    if (root[RUNNING] || (root.classList.contains('is-ready') && !root[KODZA])) return;
     // Rendered by React (data-kodza-manual): React starts it, with an init aimed at that markup once
     // it has hydrated it. Any earlier start would change markup React has not taken over yet
     const owner = root.closest('[data-kodza-manual]');
     if (owner && !(scope && owner.contains(scope))) return;
     const controller = new AbortController();
-    const saved = { html: written(root), attrs: attrsOf(root), stop: () => destroy(root) };
-    instances.set(root, { controller, saved });
+    // Another Kodza component already running on this root: its markup as written is kept, and the
+    // two stop together
+    const before = root[KODZA];
+    const saved = { html: before ? before.html : written(root), attrs: before ? before.attrs : attrsOf(root), stop: () => destroy(root) };
+    if (before) before.above = saved;
+    instances.set(root, { controller, saved, before });
     root[KODZA] = saved;
+    root[RUNNING] = true;
     mount(root, controller.signal);
     root.classList.add('is-ready');
   });
@@ -562,10 +574,18 @@
     const instance = instances.get(root);
     if (!instance) return;
     instances.delete(root);
+    instance.saved.above?.stop(); // a Kodza component started after it on the same root stops first
     // The Kodza components running inside it stop first: once its markup is put back, their own
     // script could not find them any more
     root.querySelectorAll('*').forEach((el) => el[KODZA]?.stop());
     instance.controller.abort();
+    delete root[RUNNING];
+    // Started on top of another one: that one stops next, and puts the markup back
+    if (instance.before) {
+      delete instance.before.above;
+      root[KODZA] = instance.before;
+      return instance.before.stop();
+    }
     delete root[KODZA];
     put(root, instance.saved);
   });

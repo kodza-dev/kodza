@@ -11,8 +11,8 @@ Film grain from one inline SVG noise, jumping ten times a second like the next f
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-grain.html`](kodza-grain.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-grain.css`](kodza-grain.css) | 15.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-grain.js`](kodza-grain.js) | 3.9 KB | The script. One copy per page runs every instance. |
+| [`kodza-grain.css`](kodza-grain.css) | 16.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-grain.js`](kodza-grain.js) | 4.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

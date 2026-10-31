@@ -11,7 +11,7 @@ A highlighter stroke that sweeps behind the link text, or a solid block that fli
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hover-link-text-background-reveal.html`](kodza-hover-link-text-background-reveal.html) | 0.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hover-link-text-background-reveal.css`](kodza-hover-link-text-background-reveal.css) | 4.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hover-link-text-background-reveal.css`](kodza-hover-link-text-background-reveal.css) | 4.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

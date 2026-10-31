@@ -11,8 +11,8 @@ Between two real pages, the one you leave recedes as the next rises over it on a
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-page-lift.html`](kodza-page-lift.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-page-lift.css`](kodza-page-lift.css) | 16.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-page-lift.js`](kodza-page-lift.js) | 22.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-page-lift.css`](kodza-page-lift.css) | 18.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-page-lift.js`](kodza-page-lift.js) | 23.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -53,7 +53,7 @@ CSS variables, set on `[data-kodza-page-lift]` itself:
 | `--kz-page-lift-depth` | `0.92` | how far the page you leave recedes |
 | `--kz-page-lift-veil` | `0.55` | and how dark it gets |
 | `--kz-page-lift-rise` | `16%` | the next page starts this far down, under its own top edge |
-| `--kz-page-lift-radius` | `20px` | its top corners, flat once it lands |
+| `--kz-page-lift-radius` | `calc(20px * var(--kz-radius-scale, 1))` | its top corners, flat once it lands |
 | `--kz-page-lift-backdrop` | `#0a0a0a` | behind the page that recedes |
 | `--kz-page-lift-enter-delay` | `0.36s` | the arrival starts while the page is still rising |
 | `--kz-page-lift-enter-ease` | `cubic-bezier(0.2, 0.8, 0.1, 1)` |  |
@@ -62,7 +62,7 @@ CSS variables, set on `[data-kodza-page-lift]` itself:
 | `--kz-page-lift-fg` | `#0a0a0a` |  |
 | `--kz-page-lift-muted` | `rgba(10, 10, 10, 0.62)` |  |
 | `--kz-page-lift-line` | `rgba(10, 10, 10, 0.12)` |  |
-| `--kz-page-lift-image-radius` | `16px` |  |
+| `--kz-page-lift-image-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-page-lift-side` | `24px` |  |
 
 - Attributes: `data-enter` (e.g. `label`, `title`, `image`), `data-kodza-page-lift`, `data-page-back`

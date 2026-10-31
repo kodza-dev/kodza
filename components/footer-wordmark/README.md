@@ -11,8 +11,8 @@ A site footer that waits under the page: its content rises slower than the scrol
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-footer-wordmark.html`](kodza-footer-wordmark.html) | 2.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-footer-wordmark.css`](kodza-footer-wordmark.css) | 17.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-footer-wordmark.js`](kodza-footer-wordmark.js) | 14.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-footer-wordmark.css`](kodza-footer-wordmark.css) | 18.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-footer-wordmark.js`](kodza-footer-wordmark.js) | 15.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -57,9 +57,9 @@ CSS variables, set on `.kodza-footer-wordmark` itself:
 | `--kz-footer-wordmark-depth` | `0.55` | how far behind the page it waits: 0 scrolls in as usual, 1 stays put |
 | `--kz-footer-wordmark-pad-top` | `clamp(56px, 7vw, 104px)` |  |
 | `--kz-footer-wordmark-gutter` | `clamp(16px, 4vw, 40px)` |  |
-| `--kz-footer-wordmark-weight` | `600` |  |
-| `--kz-footer-wordmark-tracking` | `-0.05em` |  |
-| `--kz-footer-wordmark-mono` | `"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace` |  |
+| `--kz-footer-wordmark-weight` | `var(--kz-font-display-weight, 600)` |  |
+| `--kz-footer-wordmark-tracking` | `var(--kz-font-display-tracking, -0.05em)` |  |
+| `--kz-footer-wordmark-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-footer-wordmark-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Attributes: `data-split` (e.g. `chars`)

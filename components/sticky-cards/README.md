@@ -11,8 +11,8 @@ Cards that stack as you scroll, each covered card stepping back and darkening. P
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-sticky-cards.html`](kodza-sticky-cards.html) | 2.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-sticky-cards.css`](kodza-sticky-cards.css) | 7.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-sticky-cards.js`](kodza-sticky-cards.js) | 4.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-sticky-cards.css`](kodza-sticky-cards.css) | 8.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-sticky-cards.js`](kodza-sticky-cards.js) | 5.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -58,7 +58,7 @@ CSS variables, set on `.kodza-stack` itself:
 | `--kz-stack-height` | `72vh` |  |
 | `--kz-stack-gap` | `12vh` |  |
 | `--kz-stack-scale` | `0.08` |  |
-| `--kz-stack-radius` | `16px` |  |
+| `--kz-stack-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-stack-pad` | `28px` |  |
 
 ## Dark mode

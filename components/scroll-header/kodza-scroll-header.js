@@ -35,6 +35,10 @@
     sentinel.className = 'kodza-scroll-header__sentinel';
     sentinel.setAttribute('aria-hidden', 'true');
     root.before(sentinel);
+    // Started without transitions: a page loaded scrolled, or over a dark hero, shows the right
+    // header at once (the class goes at the end of mount)
+    root.classList.add('is-starting');
+    root.classList.toggle('is-scrolled', sentinel.getBoundingClientRect().bottom < 0);
     const observer = new IntersectionObserver(([entry]) => {
       const scrolled = !entry.isIntersecting && entry.boundingClientRect.top < 0;
       root.classList.toggle('is-scrolled', scrolled);
@@ -53,6 +57,7 @@
     const burger = root.querySelector('.kodza-scroll-header__burger');
     const panel = root.querySelector('.kodza-scroll-header__panel-in');
     let fit;
+    let room;
     const words = (node) => [...node.childNodes].map((child) => {
       if (child.nodeType === Node.TEXT_NODE) return child.textContent;
       if (child.nodeType !== Node.ELEMENT_NODE || child.getAttribute('aria-hidden') === 'true') return '';
@@ -70,7 +75,10 @@
       }));
       panel.id = `kodza-scroll-header-${++uid}`;
       burger.setAttribute('aria-controls', panel.id);
+      // The height the open menu takes over the page, given back by the margin under the pill
+      room = () => root.style.setProperty('--kz-header-panel', `${panel.scrollHeight}px`);
       const set = (open) => {
+        if (open) room();
         root.classList.toggle('is-open', open);
         burger.setAttribute('aria-expanded', String(open));
         burger.setAttribute('aria-label', open ? 'Close the menu' : 'Menu');
@@ -106,8 +114,11 @@
       const sizer = new ResizeObserver(() => {
         fit?.();
         hug();
+        if (root.classList.contains('is-open')) room?.();
       });
       [bar, ...bar.children].forEach((el) => sizer.observe(el));
+      fit?.();
+      hug();
       document.fonts?.ready.then(() => !signal.aborted && (fit?.(), hug()));
       signal.addEventListener('abort', () => sizer.disconnect());
     }
@@ -139,14 +150,18 @@
     window.addEventListener('scroll', queue, { passive: true, signal });
     window.addEventListener('resize', queue, { signal });
     readTone(root);
+    root.getBoundingClientRect(); // the start state is drawn without transitions, then they come back
+    root.classList.remove('is-starting');
   }
 
   // Kodza lifecycle, the same in every component: `kodza:init` starts the instances inside
   // event.detail.root (the whole page by default), `kodza:destroy` stops them and puts their
   // markup back. For themes and apps that swap content without a page load. Each running root
   // keeps its markup as written under KODZA, shared by every Kodza script on the page: a Kodza
-  // component inside another one is saved as written, not half-started, and stopped with it.
+  // component inside another one is saved as written, not half-started, and stopped with it. Two
+  // components on one root (a reveal on a stat card) both start, and stop together.
   const KODZA = Symbol.for('kodza');
+  const RUNNING = Symbol.for(`kodza ${SELECTOR}`); // a root this component runs on, for every copy of this script
   const instances = new WeakMap();
   const find = (scope = document) => [scope, ...scope.querySelectorAll(SELECTOR)].filter((el) => el.matches?.(SELECTOR));
   const attrsOf = (el) => [...el.attributes].map((a) => [a.name, a.value]);
@@ -170,15 +185,22 @@
     return copy.innerHTML;
   };
   const init = (scope) => find(scope).forEach((root) => {
-    if (root.classList.contains('is-ready')) return; // already running, maybe from another copy of this script
+    // Already running, maybe from another copy of this script. Marked is-ready with no Kodza component
+    // running on it, a root is a copy of a started one (a cloned slide): it is left as it is
+    if (root[RUNNING] || (root.classList.contains('is-ready') && !root[KODZA])) return;
     // Rendered by React (data-kodza-manual): React starts it, with an init aimed at that markup once
     // it has hydrated it. Any earlier start would change markup React has not taken over yet
     const owner = root.closest('[data-kodza-manual]');
     if (owner && !(scope && owner.contains(scope))) return;
     const controller = new AbortController();
-    const saved = { html: written(root), attrs: attrsOf(root), stop: () => destroy(root) };
-    instances.set(root, { controller, saved });
+    // Another Kodza component already running on this root: its markup as written is kept, and the
+    // two stop together
+    const before = root[KODZA];
+    const saved = { html: before ? before.html : written(root), attrs: before ? before.attrs : attrsOf(root), stop: () => destroy(root) };
+    if (before) before.above = saved;
+    instances.set(root, { controller, saved, before });
     root[KODZA] = saved;
+    root[RUNNING] = true;
     mount(root, controller.signal);
     root.classList.add('is-ready');
   });
@@ -186,10 +208,18 @@
     const instance = instances.get(root);
     if (!instance) return;
     instances.delete(root);
+    instance.saved.above?.stop(); // a Kodza component started after it on the same root stops first
     // The Kodza components running inside it stop first: once its markup is put back, their own
     // script could not find them any more
     root.querySelectorAll('*').forEach((el) => el[KODZA]?.stop());
     instance.controller.abort();
+    delete root[RUNNING];
+    // Started on top of another one: that one stops next, and puts the markup back
+    if (instance.before) {
+      delete instance.before.above;
+      root[KODZA] = instance.before;
+      return instance.before.stop();
+    }
     delete root[KODZA];
     put(root, instance.saved);
   });

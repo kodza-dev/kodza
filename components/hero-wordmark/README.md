@@ -11,8 +11,8 @@ A hero that sets the name across the whole width, ink edge to ink edge: its lett
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-wordmark.html`](kodza-hero-wordmark.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-wordmark.css`](kodza-hero-wordmark.css) | 16.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-wordmark.js`](kodza-hero-wordmark.js) | 10.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-wordmark.css`](kodza-hero-wordmark.css) | 16.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-wordmark.js`](kodza-hero-wordmark.js) | 11.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -56,11 +56,11 @@ CSS variables, set on `.kodza-hero-wordmark` itself:
 | `--kz-hero-wordmark-pad-top` | `clamp(56px, 7vw, 112px)` |  |
 | `--kz-hero-wordmark-gutter` | `clamp(16px, 4vw, 40px)` |  |
 | `--kz-hero-wordmark-gap` | `clamp(10px, 1.2vw, 18px)` |  |
-| `--kz-hero-wordmark-radius` | `16px` |  |
+| `--kz-hero-wordmark-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-hero-wordmark-ratio` | `12 / 5` |  |
-| `--kz-hero-wordmark-weight` | `700` |  |
-| `--kz-hero-wordmark-tracking` | `-0.04em` |  |
-| `--kz-hero-wordmark-mono` | `"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace` |  |
+| `--kz-hero-wordmark-weight` | `var(--kz-font-display-weight, 700)` |  |
+| `--kz-hero-wordmark-tracking` | `var(--kz-font-display-tracking, -0.04em)` |  |
+| `--kz-hero-wordmark-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-hero-wordmark-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 ## Dark mode

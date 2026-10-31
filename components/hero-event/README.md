@@ -11,8 +11,8 @@ An event hero that counts down to the start date in its markup, each digit dropp
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-event.html`](kodza-hero-event.html) | 2.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-event.css`](kodza-hero-event.css) | 23.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-event.js`](kodza-hero-event.js) | 15.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-event.css`](kodza-hero-event.css) | 24.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-event.js`](kodza-hero-event.js) | 16.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -57,10 +57,10 @@ CSS variables, set on `.kodza-hero-event` itself:
 | `--kz-hero-event-gap` | `clamp(32px, 5vw, 80px)` |  |
 | `--kz-hero-event-pad-y` | `clamp(72px, 9vw, 140px)` |  |
 | `--kz-hero-event-gutter` | `clamp(16px, 4vw, 40px)` |  |
-| `--kz-hero-event-radius` | `16px` |  |
+| `--kz-hero-event-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-hero-event-ratio` | `4 / 5` |  |
-| `--kz-hero-event-size` | `clamp(36px, 4.4vw, 60px)` |  |
-| `--kz-hero-event-mono` | `"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace` |  |
+| `--kz-hero-event-size` | `calc(clamp(36px, 4.4vw, 60px) * var(--kz-font-display-scale, 1))` |  |
+| `--kz-hero-event-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-hero-event-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Attributes: `data-unit` (e.g. `days`, `hours`, `minutes`, `seconds`)

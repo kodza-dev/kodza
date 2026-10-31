@@ -11,8 +11,8 @@ Hand-drawn marks that draw themselves on key words when the paragraph shows up: 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-text-highlight.html`](kodza-text-highlight.html) | 0.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-text-highlight.css`](kodza-text-highlight.css) | 4.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-text-highlight.js`](kodza-text-highlight.js) | 8.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-text-highlight.css`](kodza-text-highlight.css) | 3.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-text-highlight.js`](kodza-text-highlight.js) | 9.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

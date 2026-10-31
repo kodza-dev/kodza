@@ -11,8 +11,8 @@ An endless ticker that never jumps, eases to a stop under the pointer and fades 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-scrolling-text-loop.html`](kodza-scrolling-text-loop.html) | 0.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-scrolling-text-loop.css`](kodza-scrolling-text-loop.css) | 2.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-scrolling-text-loop.js`](kodza-scrolling-text-loop.js) | 6.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-scrolling-text-loop.css`](kodza-scrolling-text-loop.css) | 3.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-scrolling-text-loop.js`](kodza-scrolling-text-loop.js) | 7.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

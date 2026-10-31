@@ -11,8 +11,8 @@ A real select, dressed up: the list unrolls from the field, a highlight slides b
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-custom-select.html`](kodza-custom-select.html) | 1.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-custom-select.css`](kodza-custom-select.css) | 20.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-custom-select.js`](kodza-custom-select.js) | 15.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-custom-select.css`](kodza-custom-select.css) | 20.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-custom-select.js`](kodza-custom-select.js) | 16.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -54,10 +54,11 @@ CSS variables, set on `.kodza-select` itself:
 | `--kz-select-soft` | `rgba(10, 10, 10, 0.06)` |  |
 | `--kz-select-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-select-height` | `56px` |  |
-| `--kz-select-radius` | `12px` |  |
+| `--kz-select-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-select-pad` | `16px` |  |
 | `--kz-select-duration` | `0.35s` |  |
 | `--kz-select-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
+| `--kz-select-width` | `var(--kz-field-width, 320px)` |  |
 
 - Modifiers: `.kodza-select--inline`
 

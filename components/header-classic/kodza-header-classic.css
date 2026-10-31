@@ -25,7 +25,7 @@
   --kz-header-classic-menu-line: rgba(242, 242, 240, 0.16);
   --kz-header-classic-menu-top: auto; /* where the shutter starts; auto = the bottom of the header */
   --kz-header-classic-menu-side: 24px;
-  --kz-header-classic-menu-size: clamp(34px, min(10cqw, calc((100cqh - 240px) / 6)), 96px);
+  --kz-header-classic-menu-size: calc(clamp(34px, min(10cqw, calc((100cqh - 240px) / 6)), 96px) * var(--kz-font-display-scale, 1));
   --kz-header-classic-menu-duration: 0.8s;
   --kz-header-classic-menu-ease: cubic-bezier(0.76, 0, 0.24, 1);
 
@@ -65,12 +65,14 @@
   gap: 8px;
   height: 40px;
   margin: 0;
-  border-radius: 6px;
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
   color: inherit;
-  font-size: 18px;
-  font-weight: 600;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(18px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
   line-height: 1;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, inherit);
   text-decoration: none;
 }
 
@@ -110,7 +112,7 @@
   height: 40px;
   margin: 0;
   padding: 0 14px;
-  border-radius: 8px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
   color: var(--kz-header-classic-muted);
   font-size: 15px;
   font-weight: 500;
@@ -151,7 +153,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 1px;
+  border-radius: calc(1px * var(--kz-radius-scale, 1));
   background: var(--kz-header-classic-fg);
   clip-path: inset(0 var(--kz-header-classic-line-right, 100%) 0 0);
 }
@@ -187,7 +189,7 @@
   height: 40px;
   margin: 0;
   padding: 0 18px;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-classic-ink);
   color: var(--kz-header-classic-on-ink);
   font-size: 15px;
@@ -220,7 +222,7 @@
   margin: 0;
   padding: 0 18px 0 16px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-classic-soft);
   color: var(--kz-header-classic-fg);
   font: inherit;
@@ -252,7 +254,7 @@
   left: 0;
   width: 100%;
   height: 1.5px;
-  border-radius: 1px;
+  border-radius: calc(1px * var(--kz-radius-scale, 1));
   background: currentColor;
   /* On its own layer: drawn the same way at rest and while turning, so no snap at the end */
   will-change: transform;
@@ -393,7 +395,8 @@
   outline: none;
 }
 
-.kodza-header-classic__item::before {
+.kodza-header-classic__item::before,
+.kodza-header-classic__item:last-child::after {
   content: "";
   position: absolute;
   inset: 0 0 auto;
@@ -404,12 +407,17 @@
   transition: scale 0.3s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
+/* The last row closes the list with a line under it, so the list is framed top and bottom */
+.kodza-header-classic__item:last-child::after {
+  inset: auto 0 0;
+}
+
 .kodza-header-classic__index {
   display: flex;
   align-items: center;
   gap: 8px;
   padding-top: 0.4em;
-  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
   font-size: 12px;
   line-height: 1.4;
   color: var(--kz-header-classic-menu-muted);
@@ -444,10 +452,12 @@
 
 .kodza-header-classic__word {
   display: block;
+  font-family: var(--kz-font-display, inherit);
   font-size: var(--kz-header-classic-menu-size);
-  font-weight: 500;
+  font-weight: var(--kz-font-display-weight, 500);
   line-height: 0.95;
-  letter-spacing: -0.045em;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
   translate: 0 135%;
   /* Closing: the words drop back into their masks while the shutter rolls up */
   transition: translate 0.32s cubic-bezier(0.65, 0, 0.35, 1);
@@ -476,7 +486,7 @@
   box-sizing: border-box;
   height: 40px;
   padding: 0 18px;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-classic-menu-fg);
   color: var(--kz-header-classic-menu-bg);
   font-size: 15px;
@@ -495,7 +505,7 @@
 .kodza-header-classic__socials {
   display: flex;
   gap: 20px;
-  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
   font-size: 12px;
   line-height: 1.4;
   color: var(--kz-header-classic-menu-muted);
@@ -511,6 +521,11 @@
 .kodza-header-classic__panel.is-open .kodza-header-classic__item::before {
   scale: 1 1;
   transition: scale 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-classic-delay, 0s);
+}
+
+.kodza-header-classic__panel.is-open .kodza-header-classic__item:last-child::after {
+  scale: 1 1;
+  transition: scale 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-classic-delay-end, 0s);
 }
 
 .kodza-header-classic__panel.is-open .kodza-header-classic__index {
@@ -583,6 +598,7 @@
   .kodza-header-classic__panel,
   .kodza-header-classic__panel *,
   .kodza-header-classic__panel *::before,
+  .kodza-header-classic__panel *::after,
   .kodza-header-classic__toggle *,
   .kodza-header-classic__toggle *::before,
   .kodza-header-classic__toggle *::after {
@@ -591,7 +607,7 @@
   }
 }
 
-/* kodza-guard ee4c4f4135dd — generated by Kodza, do not edit.
+/* kodza-guard c0ff77239dc3 — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -660,9 +676,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -702,7 +716,7 @@
 }
 
 .kodza-header-classic__links:not(#_),
-.kodza-header-classic__links li:where(:not([class*="kodza-"]):not(.kodza-header-classic__links [class*="kodza-"] *)):not(#_) {
+.kodza-header-classic__links li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-header-classic__links :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
   border: revert;
   border-radius: revert;
   outline: revert;
@@ -1030,6 +1044,7 @@
 .kodza-header-classic__lines:not(#_)::before,
 .kodza-header-classic__lines:not(#_)::after,
 .kodza-header-classic__item:not(#_)::before,
+.kodza-header-classic__item:not(#_)::after,
 .kodza-header-classic__index:not(#_)::after {
   box-sizing: revert;
 }
@@ -1051,12 +1066,14 @@
 .kodza-header-classic__logo:not(#_) {
   display: inline-flex;
   margin: 0;
-  border-radius: 6px;
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
   color: inherit;
-  font-size: 18px;
-  font-weight: 600;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(18px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
   line-height: 1;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, inherit);
   text-decoration: none;
 }
 
@@ -1090,7 +1107,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0 14px;
-  border-radius: 8px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
   color: var(--kz-header-classic-muted);
   font-size: 15px;
   font-weight: 500;
@@ -1117,7 +1134,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0 18px;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-classic-ink);
   color: var(--kz-header-classic-on-ink);
   font-size: 15px;
@@ -1148,7 +1165,7 @@
   margin: 0;
   padding: 0 18px 0 16px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-classic-soft);
   color: var(--kz-header-classic-fg);
   font: inherit;
@@ -1190,7 +1207,7 @@
   display: inline-flex;
   box-sizing: border-box;
   padding: 0 18px;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-classic-menu-fg);
   color: var(--kz-header-classic-menu-bg);
   font-size: 15px;
@@ -1207,7 +1224,7 @@
 
 .kodza-header-classic__socials:not(#_) {
   display: flex;
-  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
   font-size: 12px;
   line-height: 1.4;
   color: var(--kz-header-classic-menu-muted);

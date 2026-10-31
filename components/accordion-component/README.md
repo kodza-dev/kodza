@@ -11,8 +11,8 @@ Questions that open on their answer, on a native <details>: the panel opens at i
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-accordion-component.html`](kodza-accordion-component.html) | 2.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-accordion-component.css`](kodza-accordion-component.css) | 8.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-accordion-component.js`](kodza-accordion-component.js) | 5.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-accordion-component.css`](kodza-accordion-component.css) | 8.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-accordion-component.js`](kodza-accordion-component.js) | 6.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

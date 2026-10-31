@@ -11,8 +11,8 @@ The cue at the bottom of a hero: an arrow in a ring or a mouse whose wheel rolls
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-scroll-down.html`](kodza-scroll-down.html) | 0.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-scroll-down.css`](kodza-scroll-down.css) | 8.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-scroll-down.js`](kodza-scroll-down.js) | 11.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-scroll-down.css`](kodza-scroll-down.css) | 8.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-scroll-down.js`](kodza-scroll-down.js) | 12.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

@@ -21,7 +21,7 @@
   --kz-header-mega-width: 1200px; /* the row, centred */
   --kz-header-mega-pad: 24px;
   --kz-header-mega-gap: 8px; /* between the bar and the panel */
-  --kz-header-mega-radius: 14px;
+  --kz-header-mega-radius: calc(14px * var(--kz-radius-scale, 1));
   --kz-header-mega-duration: 0.45s; /* the panel changing shape, the pill gliding */
   --kz-header-mega-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --kz-header-mega-menu-bg: #0a0a0a; /* the drawer, below 900 px */
@@ -31,10 +31,10 @@
   --kz-header-mega-menu-ink: rgba(10, 10, 10, 0.06); /* the Menu button */
   --kz-header-mega-menu-on-ink: #0a0a0a;
   --kz-header-mega-menu-gap: 10px; /* between the drawer and the edges of the screen */
-  --kz-header-mega-menu-radius: 20px;
+  --kz-header-mega-menu-radius: calc(20px * var(--kz-radius-scale, 1));
   --kz-header-mega-menu-pad: clamp(20px, 6cqw, 28px);
   --kz-header-mega-menu-width: min(440px, calc(100cqw - 2 * var(--kz-header-mega-menu-gap)));
-  --kz-header-mega-menu-size: clamp(24px, calc(2.6cqh + 14px), 34px);
+  --kz-header-mega-menu-size: calc(clamp(24px, calc(2.6cqh + 14px), 34px) * var(--kz-font-display-scale, 1));
   --kz-header-mega-menu-shade: 0.5; /* how dark the page gets under the drawer */
   --kz-header-mega-menu-shadow: 0 24px 64px -16px rgba(0, 0, 0, 0.5);
   --kz-header-mega-menu-duration: 0.8s;
@@ -73,12 +73,14 @@
   gap: 8px;
   height: 40px;
   margin: 0 20px 0 0;
-  border-radius: 6px;
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
   color: inherit;
-  font-size: 18px;
-  font-weight: 600;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(18px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
   line-height: 1;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, inherit);
   text-decoration: none;
 }
 
@@ -125,7 +127,7 @@
   margin: 0;
   padding: 0 14px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: none;
   color: var(--kz-header-mega-muted);
   font: inherit;
@@ -211,7 +213,7 @@
   height: 40px;
   margin: 0;
   padding: 0 18px;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-mega-ink);
   color: var(--kz-header-mega-on-ink);
   font-size: 15px;
@@ -241,7 +243,7 @@
   inset: 0;
   z-index: 0;
   background: var(--kz-header-mega-soft);
-  clip-path: inset(0 100% 100% 0 round 999px);
+  clip-path: inset(0 100% 100% 0 round var(--kz-radius-pill, 999px));
   opacity: 0;
   pointer-events: none;
 }
@@ -317,7 +319,7 @@
   margin: 0;
   padding: 10px 12px 6px;
   color: var(--kz-header-mega-muted);
-  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
   font-size: 12px;
   font-weight: 400;
   line-height: 1.4;
@@ -329,7 +331,7 @@
   gap: 2px;
   margin: 0;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
   color: inherit;
   text-decoration: none;
   transition: background-color 0.2s;
@@ -384,7 +386,7 @@
   width: 248px;
   margin: 0 0 0 4px;
   padding: 8px 8px 14px;
-  border-radius: 10px;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
   background: var(--kz-header-mega-soft);
   color: inherit;
   text-decoration: none;
@@ -394,7 +396,7 @@
   display: block;
   overflow: hidden;
   aspect-ratio: 3 / 2;
-  border-radius: 6px;
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
 }
 
 .kodza-header-mega__media img {
@@ -421,7 +423,7 @@
 
 .kodza-header-mega__tag {
   color: var(--kz-header-mega-muted);
-  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
   font-size: 12px;
   line-height: 1.2;
 }
@@ -444,7 +446,7 @@
   margin: 0;
   padding: 0 18px 0 16px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   font: inherit;
   font-size: 15px;
   font-weight: 500;
@@ -495,7 +497,7 @@
   left: 0;
   width: 100%;
   height: 1.5px;
-  border-radius: 1px;
+  border-radius: calc(1px * var(--kz-radius-scale, 1));
   background: currentColor;
   /* On its own layer: drawn the same way at rest and while turning, so no snap at the end */
   will-change: transform;
@@ -681,7 +683,7 @@
   width: 100%;
   height: 1.5px;
   margin-top: -0.75px;
-  border-radius: 1px;
+  border-radius: calc(1px * var(--kz-radius-scale, 1));
   background: currentColor;
 }
 
@@ -814,10 +816,12 @@
 
 .kodza-header-mega__word {
   display: block;
+  font-family: var(--kz-font-display, inherit);
   font-size: var(--kz-header-mega-menu-size);
-  font-weight: 500;
+  font-weight: var(--kz-font-display-weight, 500);
   line-height: 0.98;
-  letter-spacing: -0.045em;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
   white-space: nowrap;
 }
 
@@ -829,7 +833,7 @@
   align-items: center;
   gap: 10px;
   color: var(--kz-header-mega-menu-muted);
-  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
   font-size: 12px;
   font-weight: 400;
   line-height: 1;
@@ -911,7 +915,7 @@
 }
 
 .kodza-header-mega__more a {
-  border-radius: 2px;
+  border-radius: calc(2px * var(--kz-radius-scale, 1));
   color: var(--kz-header-mega-menu-fg);
   text-decoration: none;
 }
@@ -929,7 +933,7 @@
   box-sizing: border-box;
   height: 40px;
   padding: 0 18px;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-mega-menu-fg);
   color: var(--kz-header-mega-menu-bg);
   line-height: 1;
@@ -942,7 +946,7 @@
 
 .kodza-header-mega__small {
   color: var(--kz-header-mega-menu-muted);
-  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
   font-size: 12px;
   font-weight: 400;
   line-height: 1.4;
@@ -1010,7 +1014,7 @@
 }
 */
 
-/* kodza-guard 566ae1c1575d — generated by Kodza, do not edit.
+/* kodza-guard 904bf7be7a8e — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -1086,9 +1090,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1676,12 +1678,14 @@
 .kodza-header-mega__logo:not(#_) {
   display: inline-flex;
   margin: 0 20px 0 0;
-  border-radius: 6px;
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
   color: inherit;
-  font-size: 18px;
-  font-weight: 600;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(18px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
   line-height: 1;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, inherit);
   text-decoration: none;
 }
 
@@ -1720,7 +1724,7 @@
   margin: 0;
   padding: 0 14px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: none;
   color: var(--kz-header-mega-muted);
   font: inherit;
@@ -1743,7 +1747,7 @@
   margin: 0;
   padding: 0 14px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: none;
   color: var(--kz-header-mega-muted);
   font: inherit;
@@ -1803,7 +1807,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0 18px;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-mega-ink);
   color: var(--kz-header-mega-on-ink);
   font-size: 15px;
@@ -1829,7 +1833,7 @@
   margin: 0;
   padding: 10px 12px 6px;
   color: var(--kz-header-mega-muted);
-  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
   font-size: 12px;
   font-weight: 400;
   line-height: 1.4;
@@ -1840,7 +1844,7 @@
   display: grid;
   margin: 0;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
   color: inherit;
   text-decoration: none;
   transition: background-color 0.2s;
@@ -1863,7 +1867,7 @@
   box-sizing: border-box;
   margin: 0 0 0 4px;
   padding: 8px 8px 14px;
-  border-radius: 10px;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
   background: var(--kz-header-mega-soft);
   color: inherit;
   text-decoration: none;
@@ -1885,7 +1889,7 @@
   margin: 0;
   padding: 0 18px 0 16px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   font: inherit;
   font-size: 15px;
   font-weight: 500;
@@ -2014,7 +2018,7 @@
 }
 
 .kodza-header-mega__more a:not(#_) {
-  border-radius: 2px;
+  border-radius: calc(2px * var(--kz-radius-scale, 1));
   color: var(--kz-header-mega-menu-fg);
   text-decoration: none;
 }
@@ -2029,7 +2033,7 @@
   display: inline-flex;
   box-sizing: border-box;
   padding: 0 18px;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-mega-menu-fg);
   color: var(--kz-header-mega-menu-bg);
   line-height: 1;
@@ -2041,7 +2045,7 @@
 
 .kodza-header-mega__small:not(#_) {
   color: var(--kz-header-mega-menu-muted);
-  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
   font-size: 12px;
   font-weight: 400;
   line-height: 1.4;

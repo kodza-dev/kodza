@@ -11,7 +11,7 @@ What a list shows when it is empty: a CSS drawing that answers when you come nea
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-empty-state.html`](kodza-empty-state.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-empty-state.css`](kodza-empty-state.css) | 13.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-empty-state.css`](kodza-empty-state.css) | 14.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

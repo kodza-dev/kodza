@@ -12,7 +12,7 @@ A button with real thickness: the face sinks into its base, even the quickest ta
 | --- | ---: | --- |
 | [`kodza-press-button.html`](kodza-press-button.html) | 0.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-press-button.css`](kodza-press-button.css) | 8.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-press-button.js`](kodza-press-button.js) | 6.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-press-button.js`](kodza-press-button.js) | 7.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -51,7 +51,7 @@ CSS variables, set on `.kodza-press-button` itself:
 | `--kz-press-edge` | `#0a0a0a` | the thickness, and the outline of the face |
 | `--kz-press-focus` | `#0a0a0a` |  |
 | `--kz-press-line` | `1.5px` |  |
-| `--kz-press-radius` | `999px` |  |
+| `--kz-press-radius` | `var(--kz-radius-pill, 999px)` |  |
 | `--kz-press-height` | `52px` |  |
 | `--kz-press-pad-x` | `28px` |  |
 | `--kz-press-gap` | `10px` |  |

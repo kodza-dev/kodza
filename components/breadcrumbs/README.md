@@ -11,8 +11,8 @@ A breadcrumb trail that folds its middle behind a "…" button when it would not
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-breadcrumbs.html`](kodza-breadcrumbs.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-breadcrumbs.css`](kodza-breadcrumbs.css) | 9.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-breadcrumbs.js`](kodza-breadcrumbs.js) | 7.9 KB | The script. One copy per page runs every instance. |
+| [`kodza-breadcrumbs.css`](kodza-breadcrumbs.css) | 9.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-breadcrumbs.js`](kodza-breadcrumbs.js) | 8.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

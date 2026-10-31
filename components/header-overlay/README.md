@@ -11,8 +11,8 @@ A transparent header over the hero photo: once the hero passes under it, a solid
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-overlay.html`](kodza-header-overlay.html) | 3.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-overlay.css`](kodza-header-overlay.css) | 37.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-header-overlay.js`](kodza-header-overlay.js) | 37.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-header-overlay.css`](kodza-header-overlay.css) | 39.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-overlay.js`](kodza-header-overlay.js) | 38.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -72,7 +72,7 @@ CSS variables, set on `.kodza-header-overlay` itself:
 | `--kz-header-overlay-menu-muted` | `rgba(242, 242, 240, 0.62)` |  |
 | `--kz-header-overlay-menu-top` | `calc(var(--wp-admin--admin-bar--height, 0px) + 18px)` | Close lands on Menu on its own; this is where it goes if Menu is somewhere else |
 | `--kz-header-overlay-menu-side` | `24px` |  |
-| `--kz-header-overlay-menu-size` | `clamp(40px, min(10cqw + 12px, calc((100cqh - 230px) / 5.3)), 132px)` |  |
+| `--kz-header-overlay-menu-size` | `calc(clamp(40px, min(10cqw + 12px, calc((100cqh - 230px) / 5.3)), 132px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-header-overlay-menu-curve` | `1` | how far the edge bends on the way; 0 = a straight edge |
 | `--kz-header-overlay-menu-shade` | `0.5` | how dark the page gets under it |
 | `--kz-header-overlay-menu-depth` | `0.94` | the page's size once covered |

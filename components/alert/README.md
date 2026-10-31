@@ -11,8 +11,8 @@ A message in the page: note, success, warning or error, told apart by the icon, 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-alert.html`](kodza-alert.html) | 2.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-alert.css`](kodza-alert.css) | 15.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-alert.js`](kodza-alert.js) | 9.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-alert.css`](kodza-alert.css) | 16.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-alert.js`](kodza-alert.js) | 10.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -55,7 +55,7 @@ CSS variables, set on `.kodza-alert` itself:
 | `--kz-alert-error-fg` | `#ffffff` |  |
 | `--kz-alert-error-muted` | `rgba(255, 255, 255, 0.68)` |  |
 | `--kz-alert-error-soft` | `rgba(255, 255, 255, 0.08)` |  |
-| `--kz-alert-radius` | `14px` |  |
+| `--kz-alert-radius` | `calc(14px * var(--kz-radius-scale, 1))` |  |
 | `--kz-alert-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-alert-tone` | `var(--kz-alert-fg)` |  |
 | `--kz-alert-tone-muted` | `var(--kz-alert-muted)` |  |

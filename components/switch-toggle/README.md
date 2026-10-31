@@ -11,7 +11,7 @@ A real checkbox redrawn as a switch: the ink fills the track behind the thumb, t
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-switch-toggle.html`](kodza-switch-toggle.html) | 1.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-switch-toggle.css`](kodza-switch-toggle.css) | 10.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-switch-toggle.css`](kodza-switch-toggle.css) | 10.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -53,6 +53,7 @@ CSS variables, set on `.kodza-switch` itself:
 | `--kz-switch-gap` | `3px` |  |
 | `--kz-switch-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-switch-spring` | `cubic-bezier(0.34, 1.4, 0.64, 1)` |  |
+| `--kz-switch-max-width` | `var(--kz-field-width, 440px)` |  |
 
 - Modifiers: `.kodza-switch--inline`, `.kodza-switch--labels`
 

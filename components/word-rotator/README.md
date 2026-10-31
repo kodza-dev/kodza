@@ -11,8 +11,8 @@ One word of a sentence keeps changing: the next one's letters rise as the old on
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-word-rotator.html`](kodza-word-rotator.html) | 0.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-word-rotator.css`](kodza-word-rotator.css) | 2.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-word-rotator.js`](kodza-word-rotator.js) | 6.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-word-rotator.css`](kodza-word-rotator.css) | 2.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-word-rotator.js`](kodza-word-rotator.js) | 7.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -47,6 +47,7 @@ CSS variables, set on `.kodza-rotator` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-rotator-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
+| `--kz-rotator-color` | `currentColor` | the colour of the sentence; give the word its own here |
 
 - Modifiers: `.kodza-rotator--flip`
 - Attributes: `data-interval`

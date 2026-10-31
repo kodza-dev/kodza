@@ -11,7 +11,7 @@ An editorial card, clickable as a whole through one link: the image drifts close
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-card.html`](kodza-card.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-card.css`](kodza-card.css) | 10.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-card.css`](kodza-card.css) | 11.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -47,7 +47,7 @@ CSS variables, set on `.kodza-card` itself:
 | `--kz-card-muted` | `rgba(10, 10, 10, 0.62)` |  |
 | `--kz-card-border` | `rgba(10, 10, 10, 0.1)` |  |
 | `--kz-card-border-hover` | `rgba(10, 10, 10, 0.32)` |  |
-| `--kz-card-radius` | `16px` |  |
+| `--kz-card-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-card-pad` | `28px` |  |
 | `--kz-card-ratio` | `4 / 3` |  |
 | `--kz-card-duration` | `0.9s` |  |

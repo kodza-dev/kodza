@@ -11,8 +11,8 @@ Lines that draw themselves from their middle when they come into view: a plain r
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-separator.html`](kodza-separator.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-separator.css`](kodza-separator.css) | 5.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-separator.js`](kodza-separator.js) | 4.4 KB | The script. One copy per page runs every instance. |
+| [`kodza-separator.css`](kodza-separator.css) | 5.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-separator.js`](kodza-separator.js) | 5.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

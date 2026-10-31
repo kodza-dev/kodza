@@ -11,8 +11,8 @@ A picture pinned on one side, steps scrolling on the other: each step draws its 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-sticky-steps.html`](kodza-sticky-steps.html) | 1.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-sticky-steps.css`](kodza-sticky-steps.css) | 12.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-sticky-steps.js`](kodza-sticky-steps.js) | 7.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-sticky-steps.css`](kodza-sticky-steps.css) | 13.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-sticky-steps.js`](kodza-sticky-steps.js) | 8.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -55,7 +55,7 @@ CSS variables, set on `.kodza-steps` itself:
 | `--kz-steps-top` | `10vh` |  |
 | `--kz-steps-height` | `80vh` |  |
 | `--kz-steps-step` | `72vh` |  |
-| `--kz-steps-radius` | `20px` |  |
+| `--kz-steps-radius` | `calc(20px * var(--kz-radius-scale, 1))` |  |
 | `--kz-steps-duration` | `1s` |  |
 | `--kz-steps-ease` | `cubic-bezier(0.65, 0, 0.35, 1)` |  |
 | `--kz-steps-out` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

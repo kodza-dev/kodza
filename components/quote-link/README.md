@@ -11,8 +11,8 @@ Select words in an article and a pill offers a link to them: the page's address 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-quote-link.html`](kodza-quote-link.html) | 0.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-quote-link.css`](kodza-quote-link.css) | 13.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-quote-link.js`](kodza-quote-link.js) | 19.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-quote-link.css`](kodza-quote-link.css) | 14.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-quote-link.js`](kodza-quote-link.js) | 20.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

@@ -12,7 +12,7 @@ Four ways for an image to answer the pointer, inside its own frame: a slow zoom,
 | --- | ---: | --- |
 | [`kodza-image-scale.html`](kodza-image-scale.html) | 0.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-image-scale.css`](kodza-image-scale.css) | 5.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-image-scale.js`](kodza-image-scale.js) | 4.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-image-scale.js`](kodza-image-scale.js) | 5.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -47,7 +47,7 @@ CSS variables, set on `.kodza-image-hover--parallax` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-image-ratio` | `4 / 5` |  |
-| `--kz-image-radius` | `4px` |  |
+| `--kz-image-radius` | `calc(4px * var(--kz-radius-scale, 1))` |  |
 | `--kz-image-zoom` | `1.08` |  |
 | `--kz-image-duration` | `1.1s` |  |
 | `--kz-image-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

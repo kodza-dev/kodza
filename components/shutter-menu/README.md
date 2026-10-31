@@ -11,8 +11,8 @@ A menu that comes down under your header like a shutter: each link rises as the 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-shutter-menu.html`](kodza-shutter-menu.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-shutter-menu.css`](kodza-shutter-menu.css) | 15.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-shutter-menu.js`](kodza-shutter-menu.js) | 10.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-shutter-menu.css`](kodza-shutter-menu.css) | 17.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-shutter-menu.js`](kodza-shutter-menu.js) | 11.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -56,7 +56,7 @@ CSS variables, set on `.kodza-shutter` itself:
 | `--kz-shutter-on-ink` | `#ffffff` |  |
 | `--kz-shutter-top` | `auto` | where the shutter starts; auto = the bottom of the header that holds the button |
 | `--kz-shutter-side` | `24px` |  |
-| `--kz-shutter-size` | `clamp(36px, min(9cqw, calc((100cqh - 190px) / 4.9)), 112px)` |  |
+| `--kz-shutter-size` | `calc(clamp(36px, min(9cqw, calc((100cqh - 190px) / 4.9)), 112px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-shutter-duration` | `0.8s` |  |
 | `--kz-shutter-ease` | `cubic-bezier(0.76, 0, 0.24, 1)` |  |
 

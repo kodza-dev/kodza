@@ -11,8 +11,8 @@ A title over a wall of project thumbnails laid back like prints on a table. On s
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-showcase.html`](kodza-hero-showcase.html) | 7.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-showcase.css`](kodza-hero-showcase.css) | 22.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-showcase.js`](kodza-hero-showcase.js) | 17.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-showcase.css`](kodza-hero-showcase.css) | 23.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-showcase.js`](kodza-hero-showcase.js) | 18.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -58,15 +58,15 @@ CSS variables, set on `.kodza-hero-showcase` itself:
 | `--kz-hero-showcase-bg` | `transparent` |  |
 | `--kz-hero-showcase-width` | `1240px` |  |
 | `--kz-hero-showcase-gutter` | `clamp(16px, 4vw, 40px)` |  |
-| `--kz-hero-showcase-size` | `clamp(38px, min(7cqi, 10svh), 104px)` | the title lines |
+| `--kz-hero-showcase-size` | `calc(clamp(38px, min(7cqi, 10svh), 104px) * var(--kz-font-display-scale, 1))` | the title lines |
 | `--kz-hero-showcase-card` | `clamp(150px, min(21cqi, 32svh), 320px)` | a thumbnail's width on the wall |
 | `--kz-hero-showcase-gap` | `clamp(10px, 1.2cqi, 18px)` |  |
-| `--kz-hero-showcase-radius` | `12px` |  |
+| `--kz-hero-showcase-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-hero-showcase-tilt` | `38deg` | how far the wall lies back at rest |
 | `--kz-hero-showcase-depth` | `1600px` | the perspective: shorter is stronger |
 | `--kz-hero-showcase-top` | `0px` | height of a fixed site header: the scene pins under it |
 | `--kz-hero-showcase-distance` | `150svh` | how long the scene holds |
-| `--kz-hero-showcase-mono` | `"Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace` |  |
+| `--kz-hero-showcase-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace)` |  |
 | `--kz-hero-showcase-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 ## Dark mode

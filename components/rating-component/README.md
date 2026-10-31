@@ -11,8 +11,8 @@ Real radio buttons drawn as stars: they light up one after the other under the p
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-rating-component.html`](kodza-rating-component.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-rating-component.css`](kodza-rating-component.css) | 9.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-rating-component.js`](kodza-rating-component.js) | 7.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-rating-component.css`](kodza-rating-component.css) | 9.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-rating-component.js`](kodza-rating-component.js) | 8.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

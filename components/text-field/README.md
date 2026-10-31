@@ -11,8 +11,8 @@ A text field whose label folds up as you type. A button clears it, a check draws
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-text-field.html`](kodza-text-field.html) | 1.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-text-field.css`](kodza-text-field.css) | 15.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-text-field.js`](kodza-text-field.js) | 4.9 KB | The script. One copy per page runs every instance. |
+| [`kodza-text-field.css`](kodza-text-field.css) | 16.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-text-field.js`](kodza-text-field.js) | 5.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -55,7 +55,7 @@ CSS variables, set on `.kodza-field` itself:
 | `--kz-field-error` | `#0a0a0a` |  |
 | `--kz-field-disabled` | `rgba(10, 10, 10, 0.04)` |  |
 | `--kz-field-height` | `56px` |  |
-| `--kz-field-radius` | `12px` |  |
+| `--kz-field-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-field-pad` | `16px` |  |
 | `--kz-field-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 

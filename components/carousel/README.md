@@ -11,8 +11,8 @@ A native scroll-snap carousel that works before the script loads. Then: page but
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-carousel.html`](kodza-carousel.html) | 7.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-carousel.css`](kodza-carousel.css) | 28.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-carousel.js`](kodza-carousel.js) | 25.5 KB | The script. One copy per page runs every instance. |
+| [`kodza-carousel.css`](kodza-carousel.css) | 29.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-carousel.js`](kodza-carousel.js) | 26.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -62,7 +62,7 @@ CSS variables, set on `.kodza-carousel` itself:
 | `--kz-carousel-card` | `#ffffff` |  |
 | `--kz-carousel-border` | `rgba(10, 10, 10, 0.1)` |  |
 | `--kz-carousel-placeholder` | `rgba(10, 10, 10, 0.05)` |  |
-| `--kz-carousel-radius` | `16px` |  |
+| `--kz-carousel-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-carousel-ratio` | `4 / 3` | the picture frame of a card |
 | `--kz-carousel-control` | `40px` |  |
 | `--kz-carousel-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

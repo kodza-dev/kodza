@@ -11,8 +11,8 @@ Hover a link and its word scrambles, then settles from left to right: symbols th
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hover-link-text-shuffle.html`](kodza-hover-link-text-shuffle.html) | 0.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hover-link-text-shuffle.css`](kodza-hover-link-text-shuffle.css) | 3.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hover-link-text-shuffle.js`](kodza-hover-link-text-shuffle.js) | 7.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-hover-link-text-shuffle.css`](kodza-hover-link-text-shuffle.css) | 3.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hover-link-text-shuffle.js`](kodza-hover-link-text-shuffle.js) | 8.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

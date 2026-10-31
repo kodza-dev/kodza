@@ -11,8 +11,8 @@ A site header with a strip of news on top: messages roll and pause on hover or f
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-announcement.html`](kodza-header-announcement.html) | 2.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-announcement.css`](kodza-header-announcement.css) | 43.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-header-announcement.js`](kodza-header-announcement.js) | 17.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-header-announcement.css`](kodza-header-announcement.css) | 44.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-announcement.js`](kodza-header-announcement.js) | 18.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -70,7 +70,7 @@ CSS variables, set on `.kodza-header-announcement` itself:
 | `--kz-header-announcement-menu-line` | `rgba(242, 242, 240, 0.16)` |  |
 | `--kz-header-announcement-menu-top` | `auto` | where the shutter starts; auto = the bottom of the header |
 | `--kz-header-announcement-menu-side` | `24px` |  |
-| `--kz-header-announcement-menu-size` | `clamp(34px, min(10cqw, calc((100cqh - 240px) / 6)), 96px)` |  |
+| `--kz-header-announcement-menu-size` | `calc(clamp(34px, min(10cqw, calc((100cqh - 240px) / 6)), 96px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-header-announcement-menu-duration` | `0.8s` |  |
 | `--kz-header-announcement-menu-ease` | `cubic-bezier(0.76, 0, 0.24, 1)` |  |
 

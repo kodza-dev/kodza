@@ -11,8 +11,8 @@ A shop footer: four promises with icons, a newsletter field whose button rolls t
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-footer-shop.html`](kodza-footer-shop.html) | 8.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-footer-shop.css`](kodza-footer-shop.css) | 50.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-footer-shop.js`](kodza-footer-shop.js) | 17.2 KB | The script. One copy per page runs every instance. |
+| [`kodza-footer-shop.css`](kodza-footer-shop.css) | 54.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-footer-shop.js`](kodza-footer-shop.js) | 18.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -57,7 +57,7 @@ CSS variables, set on `.kodza-footer-shop` itself:
 | `--kz-footer-shop-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-footer-shop-width` | `1200px` | the content, centred |
 | `--kz-footer-shop-pad` | `24px` |  |
-| `--kz-footer-shop-mono` | `"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace` |  |
+| `--kz-footer-shop-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-footer-shop-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Modifiers: `.kodza-footer-shop--big-icons`

@@ -11,7 +11,7 @@ An underline that slides in from the left and leaves through the right, or the r
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hover-link-text-underline.html`](kodza-hover-link-text-underline.html) | 0.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hover-link-text-underline.css`](kodza-hover-link-text-underline.css) | 3.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hover-link-text-underline.css`](kodza-hover-link-text-underline.css) | 4.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

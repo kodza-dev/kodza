@@ -11,8 +11,8 @@ Press Menu and the page swings down on its hinge like a trapdoor, showing the me
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-trapdoor-menu.html`](kodza-trapdoor-menu.html) | 3.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-trapdoor-menu.css`](kodza-trapdoor-menu.css) | 19.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-trapdoor-menu.js`](kodza-trapdoor-menu.js) | 32.5 KB | The script. One copy per page runs every instance. |
+| [`kodza-trapdoor-menu.css`](kodza-trapdoor-menu.css) | 20.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-trapdoor-menu.js`](kodza-trapdoor-menu.js) | 34.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -57,7 +57,7 @@ CSS variables, set on `.kodza-trapdoor` itself:
 | `--kz-trapdoor-page` | `auto` | the page colour while it tips; auto = the first background above it |
 | `--kz-trapdoor-top` | `calc(var(--wp-admin--admin-bar--height, 0px) + 20px)` | match your header, so Close lands right where Menu was (below the WordPress admin bar) |
 | `--kz-trapdoor-side` | `24px` |  |
-| `--kz-trapdoor-size` | `clamp(28px, min(7.4cqw, calc(16cqh - 46px)), 104px)` |  |
+| `--kz-trapdoor-size` | `calc(clamp(28px, min(7.4cqw, calc(16cqh - 46px)), 104px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-trapdoor-angle` | `84deg` | how far the page tips back |
 | `--kz-trapdoor-shade` | `0.6` | how dark it gets on the way down |
 | `--kz-trapdoor-duration` | `1.1s` |  |

@@ -11,7 +11,7 @@ A centred hero with an announcement pill, a headline whose lines rise out of the
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-centered.html`](kodza-hero-centered.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-centered.css`](kodza-hero-centered.css) | 15.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-centered.css`](kodza-hero-centered.css) | 16.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

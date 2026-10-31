@@ -11,8 +11,8 @@ A title sharp over a blurred picture. On scroll the focus moves to the picture, 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-focus.html`](kodza-hero-focus.html) | 3.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-focus.css`](kodza-hero-focus.css) | 21.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-focus.js`](kodza-hero-focus.js) | 22.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-focus.css`](kodza-hero-focus.css) | 22.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-focus.js`](kodza-hero-focus.js) | 23.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -62,7 +62,7 @@ CSS variables, set on `.kodza-hero-focus` itself:
 | `--kz-hero-focus-pad-y` | `clamp(20px, 3vw, 40px)` |  |
 | `--kz-hero-focus-top` | `0px` | height of a fixed site header: the scene pins under it |
 | `--kz-hero-focus-distance` | `200svh` | how long the scene stays pinned |
-| `--kz-hero-focus-mono` | `"Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace` |  |
+| `--kz-hero-focus-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace)` |  |
 | `--kz-hero-focus-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Attributes: `data-place` (e.g. `left`, `below`, `above`), `data-side` (e.g. `right`, `left`)

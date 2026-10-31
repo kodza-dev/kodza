@@ -11,7 +11,7 @@ A cover hero: a full-width picture under a monochrome veil with the title at the
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-cover.html`](kodza-hero-cover.html) | 1.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-cover.css`](kodza-hero-cover.css) | 16.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-cover.css`](kodza-hero-cover.css) | 17.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -53,9 +53,9 @@ CSS variables, set on `.kodza-hero-cover` itself:
 | `--kz-hero-cover-height` | `clamp(560px, 54vw, 800px)` |  |
 | `--kz-hero-cover-gutter` | `clamp(12px, 2vw, 24px)` |  |
 | `--kz-hero-cover-pad` | `clamp(24px, 4.5vw, 64px)` |  |
-| `--kz-hero-cover-radius` | `16px` |  |
+| `--kz-hero-cover-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-hero-cover-position` | `50% 50%` |  |
-| `--kz-hero-cover-mono` | `"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace` |  |
+| `--kz-hero-cover-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-hero-cover-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-hero-cover-glide` | `cubic-bezier(0.6, 0, 0.1, 1)` |  |
 | `--kz-hero-cover-soft-ease` | `cubic-bezier(0.25, 1, 0.5, 1)` |  |

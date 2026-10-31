@@ -19,7 +19,7 @@
   --kz-header-centered-rule: rgba(10, 10, 10, 0.1);
   --kz-header-centered-cta-bg: #0a0a0a;
   --kz-header-centered-cta-fg: #ffffff;
-  --kz-header-centered-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kz-header-centered-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
   --kz-header-centered-top: var(--wp-admin--admin-bar--height, 0px); /* below the WordPress admin bar */
   --kz-header-centered-strip: 36px; /* the line with the address and the hours */
   --kz-header-centered-height: 84px; /* the bar at the top of the page */
@@ -39,7 +39,7 @@
   --kz-header-centered-menu-muted: rgba(242, 242, 240, 0.62);
   --kz-header-centered-menu-top: calc(var(--wp-admin--admin-bar--height, 0px) + 18px); /* Close lands on Menu on its own; this is where it goes if Menu is somewhere else */
   --kz-header-centered-menu-side: 24px;
-  --kz-header-centered-menu-size: clamp(40px, min(10cqw + 12px, calc((100cqh - 230px) / 5.3)), 132px);
+  --kz-header-centered-menu-size: calc(clamp(40px, min(10cqw + 12px, calc((100cqh - 230px) / 5.3)), 132px) * var(--kz-font-display-scale, 1));
   --kz-header-centered-menu-curve: 1; /* how far the edge bends on the way; 0 = a straight edge */
   --kz-header-centered-menu-shade: 0.5; /* how dark the page gets under it */
   --kz-header-centered-menu-depth: 0.94; /* the page's size once covered */
@@ -139,7 +139,7 @@
 .kodza-header-centered__where {
   min-width: 0;
   overflow: hidden;
-  border-radius: 2px;
+  border-radius: calc(2px * var(--kz-radius-scale, 1));
   color: var(--kz-header-centered-muted);
   text-decoration: none;
   text-overflow: ellipsis;
@@ -289,12 +289,14 @@
   height: 44px;
   margin: 0;
   padding: 0 4px;
-  border-radius: 6px;
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
   color: var(--kz-header-centered-fg);
-  font-size: 28px;
-  font-weight: 600;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(28px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
   line-height: 1;
-  letter-spacing: -0.045em;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
   text-decoration: none;
   white-space: nowrap;
   transition: transform var(--kz-header-centered-duration) var(--kz-header-centered-ease);
@@ -344,7 +346,7 @@
   height: 40px;
   margin: 0;
   padding: 0 14px;
-  border-radius: 8px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
   color: var(--kz-header-centered-muted);
   font-size: 15px;
   font-weight: 500;
@@ -362,7 +364,7 @@
   right: 14px;
   bottom: 9px;
   height: 1.5px;
-  border-radius: 1px;
+  border-radius: calc(1px * var(--kz-radius-scale, 1));
   background: currentColor;
   transform: scaleX(0);
   transform-origin: 100% 50%;
@@ -401,7 +403,7 @@
   height: 40px;
   margin: 0 0 0 6px;
   padding: 0 18px;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-centered-cta-bg);
   color: var(--kz-header-centered-cta-fg);
   font-size: 15px;
@@ -435,7 +437,7 @@
   margin: 0;
   padding: 0 18px 0 16px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   font: inherit;
   font-size: 15px;
   font-weight: 500;
@@ -497,7 +499,7 @@
   left: 0;
   width: 100%;
   height: 1.5px;
-  border-radius: 1px;
+  border-radius: calc(1px * var(--kz-radius-scale, 1));
   background: currentColor;
   /* On its own layer: drawn the same way at rest and while turning, so no snap at the end */
   will-change: transform;
@@ -641,7 +643,7 @@
 .kodza-header-centered__label,
 .kodza-header-centered__index,
 .kodza-header-centered__small {
-  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
   font-size: 12px;
   font-weight: 400;
   line-height: 1.4;
@@ -674,7 +676,7 @@
   column-gap: calc(var(--kz-header-centered-menu-size) * 0.1);
   color: inherit;
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
   transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -690,10 +692,12 @@
 
 .kodza-header-centered__word {
   display: block;
+  font-family: var(--kz-font-display, inherit);
   font-size: var(--kz-header-centered-menu-size);
-  font-weight: 500;
+  font-weight: var(--kz-font-display-weight, 500);
   line-height: 0.95;
-  letter-spacing: -0.045em;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
   white-space: nowrap;
 }
 
@@ -737,7 +741,7 @@
 .kodza-header-centered__info a {
   color: var(--kz-header-centered-menu-fg);
   text-decoration: none;
-  border-radius: 2px;
+  border-radius: calc(2px * var(--kz-radius-scale, 1));
 }
 
 .kodza-header-centered__info a:hover {
@@ -810,7 +814,7 @@
   }
 
   .kodza-header-centered__logo {
-    font-size: 24px;
+    font-size: calc(24px * var(--kz-font-display-scale, 1));
   }
 }
 
@@ -889,7 +893,7 @@
   }
 }
 
-/* kodza-guard f2e7306368bc — generated by Kodza, do not edit.
+/* kodza-guard a067fa8d1da3 — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -897,22 +901,43 @@
 /* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
 
 :where(.kodza-header-centered__where):not(#_),
-:where(.kodza-header-centered__item):not(#_),
 :where(.kodza-header-centered__logo):not(#_),
 :where(.kodza-header-centered__cta):not(#_),
 :where(.kodza-header-centered__toggle):not(#_),
 :where(.kodza-header-centered__close):not(#_) {
   outline: revert;
+  position: revert;
   outline-offset: revert;
 }
 
-:where(.kodza-header-centered__panel):not(#_),
-:where(.kodza-header-centered__link):not(#_) {
+:where(.kodza-header-centered__status):not(#_),
+:where(.kodza-header-centered__row):not(#_),
+:where(.kodza-header-centered__links):not(#_),
+:where(.kodza-header-centered__label):not(#_),
+:where(.kodza-header-centered__nav):not(#_),
+:where(.kodza-header-centered__small):not(#_),
+:where(.kodza-header-centered__links li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-header-centered__links :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-header-centered__group p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-header-centered__group :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  position: revert;
+}
+
+:where(.kodza-header-centered__item):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-header-centered__panel):not(#_) {
   outline: revert;
 }
 
-:where(.kodza-header-centered__group a:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *))):not(#_) {
+:where(.kodza-header-centered__link):not(#_) {
   outline: revert;
+  position: revert;
+}
+
+:where(.kodza-header-centered__group a:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-header-centered__group :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  outline: revert;
+  position: revert;
   outline-offset: revert;
   text-underline-offset: revert;
 }
@@ -970,7 +995,6 @@
 .kodza-header-centered__group:not(#_),
 .kodza-header-centered__line:not(#_),
 .kodza-header-centered__text span:where(:not([class*="kodza-"])):not(#_),
-.kodza-header-centered__num span:where(:not([class*="kodza-"])):not(#_),
 .kodza-header-centered__say span:where(:not([class*="kodza-"])):not(#_) {
   box-sizing: revert;
 }
@@ -982,7 +1006,6 @@
   list-style: revert;
   box-sizing: revert;
   float: revert;
-  position: revert;
   background-color: revert;
   background-image: revert;
   box-shadow: revert;
@@ -1013,7 +1036,6 @@
   list-style: revert;
   box-sizing: revert;
   float: revert;
-  position: revert;
   background-color: revert;
   background-image: revert;
   box-shadow: revert;
@@ -1037,7 +1059,6 @@
   text-decoration: revert;
   list-style: revert;
   float: revert;
-  position: revert;
   background-color: revert;
   background-image: revert;
   box-shadow: revert;
@@ -1059,7 +1080,7 @@
 }
 
 .kodza-header-centered__links:not(#_),
-.kodza-header-centered__links li:where(:not([class*="kodza-"]):not(.kodza-header-centered__links [class*="kodza-"] *)):not(#_) {
+.kodza-header-centered__links li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-header-centered__links :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
   border: revert;
   border-radius: revert;
   outline: revert;
@@ -1067,7 +1088,6 @@
   transition: revert;
   box-sizing: revert;
   float: revert;
-  position: revert;
   background-color: revert;
   background-image: revert;
   box-shadow: revert;
@@ -1115,16 +1135,13 @@
   list-style: revert;
   box-sizing: revert;
   float: revert;
-  position: revert;
   background-color: revert;
   background-image: revert;
   box-shadow: revert;
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1136,7 +1153,6 @@
   border: revert;
   list-style: revert;
   float: revert;
-  position: revert;
   box-shadow: revert;
   appearance: revert;
   max-width: revert;
@@ -1157,7 +1173,6 @@
   transition: revert;
   list-style: revert;
   float: revert;
-  position: revert;
   box-shadow: revert;
   appearance: revert;
   max-width: revert;
@@ -1222,7 +1237,6 @@
   list-style: revert;
   box-sizing: revert;
   float: revert;
-  position: revert;
   background-color: revert;
   background-image: revert;
   box-shadow: revert;
@@ -1250,7 +1264,6 @@
   list-style: revert;
   box-sizing: revert;
   float: revert;
-  position: revert;
   background-color: revert;
   background-image: revert;
   box-shadow: revert;
@@ -1280,7 +1293,6 @@
   list-style: revert;
   box-sizing: revert;
   float: revert;
-  position: revert;
   background-color: revert;
   background-image: revert;
   box-shadow: revert;
@@ -1302,7 +1314,7 @@
   vertical-align: revert;
 }
 
-.kodza-header-centered__group p:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *)):not(#_) {
+.kodza-header-centered__group p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-header-centered__group :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
   border: revert;
   padding: revert;
   border-radius: revert;
@@ -1312,7 +1324,6 @@
   list-style: revert;
   box-sizing: revert;
   float: revert;
-  position: revert;
   background-color: revert;
   background-image: revert;
   box-shadow: revert;
@@ -1335,7 +1346,7 @@
   vertical-align: revert;
 }
 
-.kodza-header-centered__group a:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *)):not(#_) {
+.kodza-header-centered__group a:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-header-centered__group :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
   border: revert;
   margin: revert;
   padding: revert;
@@ -1343,7 +1354,6 @@
   list-style: revert;
   box-sizing: revert;
   float: revert;
-  position: revert;
   background-color: revert;
   background-image: revert;
   box-shadow: revert;
@@ -1365,15 +1375,15 @@
 
 .kodza-header-centered__label:not(#_):where(:not([hidden])),
 .kodza-header-centered__small:not(#_):where(:not([hidden])),
-.kodza-header-centered__group p:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *)):not(#_):where(:not([hidden])),
-.kodza-header-centered__group a:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *)):not(#_):where(:not([hidden])) {
+.kodza-header-centered__group p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-header-centered__group :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-header-centered__group a:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-header-centered__group :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
   display: revert;
 }
 
 .kodza-header-centered__label:not(#_):where([hidden]),
 .kodza-header-centered__small:not(#_):where([hidden]),
-.kodza-header-centered__group p:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *)):not(#_):where([hidden]),
-.kodza-header-centered__group a:where(:not([class*="kodza-"]):not(.kodza-header-centered__group [class*="kodza-"] *)):not(#_):where([hidden]) {
+.kodza-header-centered__group p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-header-centered__group :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-header-centered__group a:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-header-centered__group :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
   display: none;
 }
 
@@ -1400,7 +1410,7 @@
 }
 
 .kodza-header-centered__where:not(#_) {
-  border-radius: 2px;
+  border-radius: calc(2px * var(--kz-radius-scale, 1));
   color: var(--kz-header-centered-muted);
   text-decoration: none;
   transition: color 0.2s;
@@ -1428,6 +1438,18 @@
   line-height: 20px;
 }
 
+.kodza-header-centered__text > .is-leaving:not(#_) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.kodza-header-centered__num > .is-leaving:not(#_) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 .kodza-header-centered__row:not(#_) {
   display: grid;
   box-sizing: border-box;
@@ -1446,12 +1468,14 @@
   display: inline-flex;
   margin: 0;
   padding: 0 4px;
-  border-radius: 6px;
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
   color: var(--kz-header-centered-fg);
-  font-size: 28px;
-  font-weight: 600;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(28px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
   line-height: 1;
-  letter-spacing: -0.045em;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
   text-decoration: none;
   transition: transform var(--kz-header-centered-duration) var(--kz-header-centered-ease);
 }
@@ -1481,7 +1505,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0 14px;
-  border-radius: 8px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
   color: var(--kz-header-centered-muted);
   font-size: 15px;
   font-weight: 500;
@@ -1512,7 +1536,7 @@
   box-sizing: border-box;
   margin: 0 0 0 6px;
   padding: 0 18px;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-centered-cta-bg);
   color: var(--kz-header-centered-cta-fg);
   font-size: 15px;
@@ -1544,7 +1568,7 @@
   margin: 0;
   padding: 0 18px 0 16px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--kz-radius-pill, 999px);
   font: inherit;
   font-size: 15px;
   font-weight: 500;
@@ -1596,7 +1620,7 @@
 
 .kodza-header-centered__label:not(#_),
 .kodza-header-centered__small:not(#_) {
-  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
   font-size: 12px;
   font-weight: 400;
   line-height: 1.4;
@@ -1616,7 +1640,7 @@
   display: grid;
   color: inherit;
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
   transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -1627,7 +1651,7 @@
 .kodza-header-centered__info a:not(#_) {
   color: var(--kz-header-centered-menu-fg);
   text-decoration: none;
-  border-radius: 2px;
+  border-radius: calc(2px * var(--kz-radius-scale, 1));
 }
 
 .kodza-header-centered__info a:hover:not(#_) {
@@ -1665,7 +1689,7 @@
 
 @container (max-width: 899px) {
   .kodza-header-centered__logo:not(#_) {
-    font-size: 24px;
+    font-size: calc(24px * var(--kz-font-display-scale, 1));
   }
 }
 

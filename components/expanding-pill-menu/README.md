@@ -11,8 +11,8 @@ A Menu button that grows into the menu around itself: the card widens, then unfo
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-expanding-pill-menu.html`](kodza-expanding-pill-menu.html) | 2.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-expanding-pill-menu.css`](kodza-expanding-pill-menu.css) | 19.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-expanding-pill-menu.js`](kodza-expanding-pill-menu.js) | 32.9 KB | The script. One copy per page runs every instance. |
+| [`kodza-expanding-pill-menu.css`](kodza-expanding-pill-menu.css) | 19.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-expanding-pill-menu.js`](kodza-expanding-pill-menu.js) | 33.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -53,7 +53,7 @@ CSS variables, set on `.kodza-expanding-pill` itself:
 | `--kz-expanding-pill-muted` | `rgba(242, 242, 240, 0.62)` |  |
 | `--kz-expanding-pill-shade` | `rgba(10, 10, 10, 0.2)` | over the page while it is open |
 | `--kz-expanding-pill-width` | `360px` | the card, never wider than the screen minus 12px a side |
-| `--kz-expanding-pill-size` | `34px` | the links |
+| `--kz-expanding-pill-size` | `calc(34px * var(--kz-font-display-scale, 1))` | the links |
 | `--kz-expanding-pill-inset` | `6px` | from the card's edge to Close: the corners stay concentric |
 | `--kz-expanding-pill-duration` | `0.8s` |  |
 | `--kz-expanding-pill-ease` | `cubic-bezier(0.62, 0, 0.22, 1)` |  |

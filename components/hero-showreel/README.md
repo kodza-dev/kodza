@@ -11,8 +11,8 @@ A showreel hero: a muted loop under the title and a Play reel pill that follows 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-showreel.html`](kodza-hero-showreel.html) | 1.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-showreel.css`](kodza-hero-showreel.css) | 28.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-showreel.js`](kodza-hero-showreel.js) | 18.5 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-showreel.css`](kodza-hero-showreel.css) | 29.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-showreel.js`](kodza-hero-showreel.js) | 19.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -60,9 +60,9 @@ CSS variables, set on `.kodza-hero-showreel` itself:
 | `--kz-hero-showreel-height` | `clamp(560px, 54vw, 800px)` |  |
 | `--kz-hero-showreel-gutter` | `clamp(12px, 2vw, 24px)` |  |
 | `--kz-hero-showreel-pad` | `clamp(24px, 4.5vw, 64px)` |  |
-| `--kz-hero-showreel-radius` | `16px` |  |
+| `--kz-hero-showreel-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-hero-showreel-position` | `50% 50%` |  |
-| `--kz-hero-showreel-mono` | `"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace` |  |
+| `--kz-hero-showreel-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-hero-showreel-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-hero-showreel-glide` | `cubic-bezier(0.6, 0, 0.1, 1)` |  |
 | `--kz-hero-showreel-soft-ease` | `cubic-bezier(0.25, 1, 0.5, 1)` |  |

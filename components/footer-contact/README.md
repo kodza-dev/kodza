@@ -11,8 +11,8 @@ A freelance or studio footer: the email address across the whole width, copied o
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-footer-contact.html`](kodza-footer-contact.html) | 3.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-footer-contact.css`](kodza-footer-contact.css) | 29.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-footer-contact.js`](kodza-footer-contact.js) | 12.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-footer-contact.css`](kodza-footer-contact.css) | 31.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-footer-contact.js`](kodza-footer-contact.js) | 14.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -52,9 +52,9 @@ CSS variables, set on `.kodza-footer-contact` itself:
 | `--kz-footer-contact-line` | `rgba(10, 10, 10, 0.1)` |  |
 | `--kz-footer-contact-width` | `1200px` | the content, centred |
 | `--kz-footer-contact-pad` | `24px` |  |
-| `--kz-footer-contact-weight` | `500` | the address |
-| `--kz-footer-contact-tracking` | `-0.05em` |  |
-| `--kz-footer-contact-mono` | `"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace` |  |
+| `--kz-footer-contact-weight` | `var(--kz-font-display-weight, 500)` | the address |
+| `--kz-footer-contact-tracking` | `var(--kz-font-display-tracking, -0.05em)` |  |
+| `--kz-footer-contact-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-footer-contact-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Attributes: `data-copied` (e.g. `Copied. Talk soon.`), `data-copy` (e.g. `hello@pier.example`), `data-failed` (e.g. `This page can't copy. Use the mail app.`), `data-icon`, `data-timezone` (e.g. `Europe/Paris`)

@@ -11,8 +11,8 @@ A studio hero whose headline changes one word at a time: the next word rolls up 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-rotate.html`](kodza-hero-rotate.html) | 3.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-rotate.css`](kodza-hero-rotate.css) | 21.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-rotate.js`](kodza-hero-rotate.js) | 14.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-rotate.css`](kodza-hero-rotate.css) | 22.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-rotate.js`](kodza-hero-rotate.js) | 15.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -57,9 +57,9 @@ CSS variables, set on `.kodza-hero-rotate` itself:
 | `--kz-hero-rotate-gap` | `clamp(32px, 5vw, 80px)` |  |
 | `--kz-hero-rotate-pad-y` | `clamp(72px, 9vw, 140px)` |  |
 | `--kz-hero-rotate-gutter` | `clamp(16px, 4vw, 40px)` |  |
-| `--kz-hero-rotate-radius` | `16px` |  |
+| `--kz-hero-rotate-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-hero-rotate-ratio` | `3 / 2` |  |
-| `--kz-hero-rotate-mono` | `"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace` |  |
+| `--kz-hero-rotate-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-hero-rotate-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Attributes: `data-interval` (e.g. `3600`)

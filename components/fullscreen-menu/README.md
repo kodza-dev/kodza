@@ -11,8 +11,8 @@ A fullscreen menu: a curtain comes down with its edge bending as it moves, the p
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-fullscreen-menu.html`](kodza-fullscreen-menu.html) | 2.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-fullscreen-menu.css`](kodza-fullscreen-menu.css) | 20.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-fullscreen-menu.js`](kodza-fullscreen-menu.js) | 31.4 KB | The script. One copy per page runs every instance. |
+| [`kodza-fullscreen-menu.css`](kodza-fullscreen-menu.css) | 21.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-fullscreen-menu.js`](kodza-fullscreen-menu.js) | 32.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -56,7 +56,7 @@ CSS variables, set on `.kodza-fullscreen` itself:
 | `--kz-fullscreen-page` | `auto` | the page colour while it backs off; auto = the first background above it |
 | `--kz-fullscreen-top` | `calc(var(--wp-admin--admin-bar--height, 0px) + 20px)` | match your header, so Close lands right where Menu was (below the WordPress admin bar) |
 | `--kz-fullscreen-side` | `24px` |  |
-| `--kz-fullscreen-size` | `clamp(40px, min(10cqw + 12px, calc((100cqh - 230px) / 5.3)), 132px)` |  |
+| `--kz-fullscreen-size` | `calc(clamp(40px, min(10cqw + 12px, calc((100cqh - 230px) / 5.3)), 132px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-fullscreen-curve` | `1` | how far the edge bends on the way; 0 = a straight edge |
 | `--kz-fullscreen-shade` | `0.5` | how dark the page gets under it |
 | `--kz-fullscreen-depth` | `0.94` | the page's size once covered |

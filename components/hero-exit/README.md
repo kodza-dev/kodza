@@ -11,8 +11,8 @@ A centred title in two big lines. On scroll the scene holds, the lines part, a p
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-exit.html`](kodza-hero-exit.html) | 1.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-exit.css`](kodza-hero-exit.css) | 18.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-exit.js`](kodza-hero-exit.js) | 15.2 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-exit.css`](kodza-hero-exit.css) | 18.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-exit.js`](kodza-hero-exit.js) | 16.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -58,14 +58,14 @@ CSS variables, set on `.kodza-hero-exit` itself:
 | `--kz-hero-exit-width` | `1240px` |  |
 | `--kz-hero-exit-gutter` | `clamp(16px, 4vw, 40px)` |  |
 | `--kz-hero-exit-pad-y` | `clamp(20px, 2.6vw, 36px)` |  |
-| `--kz-hero-exit-size` | `clamp(44px, min(14cqi, 17svh), 168px)` | the title lines |
+| `--kz-hero-exit-size` | `calc(clamp(44px, min(14cqi, 17svh), 168px) * var(--kz-font-display-scale, 1))` | the title lines |
 | `--kz-hero-exit-focus` | `50% 42%` | the part of the picture the card shows |
 | `--kz-hero-exit-card` | `0.74` | the card's height, as a share of the screen |
 | `--kz-hero-exit-ratio` | `0.8` | the card's width / height |
-| `--kz-hero-exit-radius` | `16px` |  |
+| `--kz-hero-exit-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-hero-exit-top` | `0px` | height of a fixed site header: the scene pins under it |
 | `--kz-hero-exit-distance` | `180svh` | how long the scene holds before the next section comes |
-| `--kz-hero-exit-mono` | `"Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace` |  |
+| `--kz-hero-exit-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace)` |  |
 | `--kz-hero-exit-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 ## Dark mode

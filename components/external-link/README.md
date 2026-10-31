@@ -11,7 +11,7 @@ A link that leaves the site says so: a line of ink runs under the words to the â
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-external-link.html`](kodza-external-link.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-external-link.css`](kodza-external-link.css) | 6.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-external-link.css`](kodza-external-link.css) | 6.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

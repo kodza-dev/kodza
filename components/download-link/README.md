@@ -11,8 +11,8 @@ A download link that shows the file's type and weight beside its words, read fro
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-download-link.html`](kodza-download-link.html) | 0.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-download-link.css`](kodza-download-link.css) | 6.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-download-link.js`](kodza-download-link.js) | 12.2 KB | The script. One copy per page runs every instance. |
+| [`kodza-download-link.css`](kodza-download-link.css) | 6.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-download-link.js`](kodza-download-link.js) | 13.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

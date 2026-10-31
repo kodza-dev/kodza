@@ -11,8 +11,8 @@ A figure that rolls into place like an odometer when it comes into view: digits 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-counter-animation.html`](kodza-counter-animation.html) | 0.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-counter-animation.css`](kodza-counter-animation.css) | 4.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-counter-animation.js`](kodza-counter-animation.js) | 5.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-counter-animation.css`](kodza-counter-animation.css) | 4.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-counter-animation.js`](kodza-counter-animation.js) | 7.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -48,7 +48,7 @@ CSS variables, set on `.kodza-counter` itself:
 | --- | --- | --- |
 | `--kz-counter-fg` | `#0a0a0a` |  |
 | `--kz-counter-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-counter-size` | `clamp(44px, 6vw, 72px)` |  |
+| `--kz-counter-size` | `calc(clamp(44px, 6vw, 72px) * var(--kz-font-display-scale, 1))` |  |
 
 ## Dark mode
 
