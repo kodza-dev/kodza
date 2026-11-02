@@ -8,20 +8,26 @@
 (() => {
   const SELECTOR = '.kodza-upload';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const size = (bytes) => (bytes < 1024 ? `${bytes} B` : bytes < 1048576 ? `${(bytes / 1024).toFixed(0)} KB` : `${Number((bytes / 1048576).toFixed(1))} MB`);
   const tick = '<svg class="kodza-upload__tick" viewBox="0 0 18 18" aria-hidden="true"><path d="M4 9.5l3.2 3 6.8-7.5" pathLength="1"/></svg>';
   const cross = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3 3 9"/></svg>';
 
-  // A word rolls to its new value
-  const roll = (box, text) => {
+  // A word rolls to its new value, at the instance's pace
+  const roll = (box, text, pace = 1) => {
     const prev = box.lastElementChild;
     if (prev && prev.textContent === text) return;
     const span = Object.assign(document.createElement('span'), { textContent: text });
     box.append(span);
     if (!prev) return;
-    if (reduceMotion) return prev.remove();
-    const timing = { duration: 380, easing: ease };
+    if (reduceMotion || !pace) return prev.remove();
+    const timing = { duration: 380 * pace, easing: ease };
     prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
     span.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
   };
@@ -30,6 +36,8 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const input = root.querySelector('.kodza-upload__input');
     const zone = root.querySelector('.kodza-upload__zone');
     const list = root.querySelector('.kodza-upload__list');
@@ -63,8 +71,8 @@
       if (over === prev.classList.contains('is-over')) return;
       const span = over ? Object.assign(document.createElement('span'), { textContent: 'Let go. We have got it.', className: 'is-over' }) : idle.cloneNode(true);
       words.append(span);
-      if (reduceMotion) return prev.remove();
-      const timing = { duration: 380, easing: ease };
+      if (still) return prev.remove();
+      const timing = { duration: 380 * pace, easing: ease };
       prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
       span.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
     };
@@ -107,7 +115,7 @@
       attached.items.clear();
       [...keep.files].forEach((f) => attached.items.add(f));
       input.files = attached.files;
-      setTimeout(() => item.remove(), reduceMotion ? 0 : 450);
+      setTimeout(() => item.remove(), still ? 0 : 450 * pace);
     };
 
     const add = (files) => {
@@ -117,13 +125,13 @@
         const status = item.querySelector('.kodza-upload__status');
         const bar = item.querySelector('.kodza-upload__bar');
         list.append(item);
-        // One after the other: the row opens, then fills
-        setTimeout(() => item.classList.add('is-shown'), reduceMotion ? 0 : 30 + i * 90);
+        // One after the other: the row opens, then fills (the first 30ms let it be laid out closed)
+        setTimeout(() => item.classList.add('is-shown'), still ? 0 : 30 + i * 90 * pace);
         item.querySelector('.kodza-upload__remove').addEventListener('click', () => remove(item, file), { signal });
 
         if (maxBytes && file.size > maxBytes) {
           item.classList.add('is-error');
-          roll(status, `Too big. The limit is ${size(maxBytes)}.`);
+          roll(status, `Too big. The limit is ${size(maxBytes)}.`, pace);
           return;
         }
         attached.items.add(file);
@@ -131,26 +139,26 @@
         const upload = root.kodzaUpload;
         if (typeof upload !== 'function') {
           item.classList.add('is-ready');
-          roll(status, 'Ready');
+          roll(status, 'Ready', pace);
           return;
         }
         let cancelled = false;
         item.kzCancel = () => (cancelled = true);
-        roll(status, '0%');
+        roll(status, '0%', pace);
         upload(file, (fraction) => {
           if (cancelled) return;
           const pct = Math.max(0, Math.min(100, Math.round(fraction * 100)));
           bar.style.setProperty('--kz-progress', pct / 100);
-          roll(status, `${pct}%`);
+          roll(status, `${pct}%`, pace);
         }).then(() => {
           if (cancelled) return;
           bar.style.setProperty('--kz-progress', 1);
           item.classList.add('is-done');
-          roll(status, 'Done');
+          roll(status, 'Done', pace);
         }).catch((error) => {
           if (cancelled) return;
           item.classList.add('is-error');
-          roll(status, error?.message || 'Upload failed. Try again.');
+          roll(status, error?.message || 'Upload failed. Try again.', pace);
         });
       });
       root.dispatchEvent(new CustomEvent('kodza:files', { detail: { files: added }, bubbles: true }));

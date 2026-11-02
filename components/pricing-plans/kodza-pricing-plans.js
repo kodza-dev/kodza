@@ -6,14 +6,21 @@
 (() => {
   const SELECTOR = '.kodza-pricing';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     const buttons = [...root.querySelectorAll('.kodza-pricing__toggle button')];
     const indicator = root.querySelector('.kodza-pricing__indicator');
     const amounts = [...root.querySelectorAll('.kodza-pricing__amount')];
     const style = getComputedStyle(root);
-    const duration = reduceMotion ? 0 : parseFloat(style.getPropertyValue('--kz-price-duration')) * 1000 || 600;
+    const duration = reduceMotion || !pace ? 0 : (parseFloat(style.getPropertyValue('--kz-price-duration')) * 1000 || 600) * pace;
     const ease = style.getPropertyValue('--kz-price-ease').trim() || 'ease';
     const currency = (el) => el.textContent.trim().replace(/[\d\s.,]/g, '') || '€';
 
@@ -45,7 +52,7 @@
           const prev = document.createElement('span');
           prev.textContent = before;
           cell.append(prev, next);
-          const delay = i * 60;
+          const delay = i * 60 * pace;
           prev.animate([{ transform: 'none' }, { transform: 'translateY(-105%)' }], { duration, delay, easing: ease, fill: 'forwards' });
           next.animate([{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration, delay, easing: ease, fill: 'backwards' });
         } else {
@@ -76,7 +83,7 @@
         const text = el.dataset[period] ?? el.dataset.monthly ?? el.textContent;
         if (text === el.textContent) return;
         el.textContent = text;
-        if (animate && duration) el.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: duration * 0.8, delay: 120, easing: ease, fill: 'backwards' });
+        if (animate && duration) el.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: duration * 0.8, delay: 120 * pace, easing: ease, fill: 'backwards' });
       });
     };
 

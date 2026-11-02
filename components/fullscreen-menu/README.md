@@ -11,8 +11,8 @@ A fullscreen menu: a curtain comes down with its edge bending as it moves, the p
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-fullscreen-menu.html`](kodza-fullscreen-menu.html) | 2.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-fullscreen-menu.css`](kodza-fullscreen-menu.css) | 21.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-fullscreen-menu.js`](kodza-fullscreen-menu.js) | 32.9 KB | The script. One copy per page runs every instance. |
+| [`kodza-fullscreen-menu.css`](kodza-fullscreen-menu.css) | 22.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-fullscreen-menu.js`](kodza-fullscreen-menu.js) | 33.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

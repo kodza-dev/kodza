@@ -11,8 +11,8 @@ A shop header: the name, the categories, a search that opens over them, the acco
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-shop.html`](kodza-header-shop.html) | 3.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-shop.css`](kodza-header-shop.css) | 47.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-header-shop.js`](kodza-header-shop.js) | 40.4 KB | The script. One copy per page runs every instance. |
+| [`kodza-header-shop.css`](kodza-header-shop.css) | 51.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-shop.js`](kodza-header-shop.js) | 41.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

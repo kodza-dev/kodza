@@ -7,6 +7,12 @@
 (() => {
   const SELECTOR = '.kodza-multi';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const tick = '<svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7" pathLength="1"/></svg>';
   const cross = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3 3 9"/></svg>';
@@ -14,6 +20,8 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const native = root.querySelector('.kodza-multi__native');
     const label = root.querySelector('.kodza-multi__label');
     if (!native) return;
@@ -98,7 +106,7 @@
       const before = new Map([...field.children].map((el) => [el, el.getBoundingClientRect()]));
       const height = field.offsetHeight;
       change();
-      if (reduceMotion) return;
+      if (still) return;
       // Screen pixels back to the field's own (a parent may be scaled with a transform)
       const k = field.getBoundingClientRect().width / field.offsetWidth || 1;
       [...field.children].forEach((el) => {
@@ -107,15 +115,15 @@
         const b = el.getBoundingClientRect();
         const dx = (a.left - b.left) / k;
         const dy = (a.top - b.top) / k;
-        if (Math.abs(dx) + Math.abs(dy) > 0.5) el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 420, easing: ease });
+        if (Math.abs(dx) + Math.abs(dy) > 0.5) el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 420 * pace, easing: ease });
       });
       const to = field.offsetHeight;
-      if (to !== height) field.animate([{ height: `${height}px` }, { height: `${to}px` }], { duration: 420, easing: ease });
+      if (to !== height) field.animate([{ height: `${height}px` }, { height: `${to}px` }], { duration: 420 * pace, easing: ease });
     };
 
     const makeTag = (entry, fresh) => {
       const tag = document.createElement('span');
-      tag.className = `kodza-multi__tag${fresh && !reduceMotion ? ' is-new' : ''}`;
+      tag.className = `kodza-multi__tag${fresh && !still ? ' is-new' : ''}`;
       tag.append(entry.text);
       const remove = document.createElement('button');
       remove.type = 'button';
@@ -144,8 +152,8 @@
         const tag = entry.tag;
         entry.tag = null;
         const out = () => glide(() => tag.remove());
-        if (reduceMotion) out();
-        else tag.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(0.6)' }], { duration: 160, easing: 'ease-in', fill: 'forwards' }).finished.then(out);
+        if (still) out();
+        else tag.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(0.6)' }], { duration: 160 * pace, easing: 'ease-in', fill: 'forwards' }).finished.then(out);
       }
       live.textContent = `${entry.text} ${on ? 'added' : 'removed'}`;
       native.dispatchEvent(new Event('change', { bubbles: true }));

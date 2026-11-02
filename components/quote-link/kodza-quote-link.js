@@ -14,6 +14,12 @@
   const GAP_TOUCH = 28; // clear of the selection handles
   const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const LETTER = /[\p{L}\p{N}]/u;
   const FIELD = 'input, textarea, select, [contenteditable]:not([contenteditable="false"])';
 
@@ -155,6 +161,8 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     let scope = root;
     if (!root.textContent.trim()) {
       const selector = root.dataset.target || 'article, main, .entry-content';
@@ -245,7 +253,7 @@
       pill.classList.toggle('is-copied', Boolean(word));
       status.textContent = '';
       const to = text.offsetWidth;
-      if (!reduceMotion && from !== to) text.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: 380, easing: EASE });
+      if (!still && from !== to) text.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: 380 * pace, easing: EASE });
     };
 
     const show = (range) => {
@@ -271,7 +279,7 @@
       shown = false;
       if (float.contains(document.activeElement)) pill.blur();
       float.classList.remove('is-shown');
-      later('reset', reset, 200);
+      later('reset', reset, 200 * pace); // once it has faded out
     };
 
     const check = () => {

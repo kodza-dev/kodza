@@ -9,6 +9,12 @@
 (() => {
   const SELECTOR = '.kodza-share';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const RESET_AFTER = 1800;
 
   async function writeText(text) {
@@ -31,6 +37,10 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    // The pace is read once the options are placed (end of mount): read before, the style it
+    // computes would turn their first place into a transition
+    let pace = 1;
+    let still = reduceMotion; // the still path: no motion asked, by the visitor or the site
     const toggle = root.querySelector('.kodza-share__toggle');
     const list = root.querySelector('.kodza-share__options');
     if (!toggle || !list) return;
@@ -117,13 +127,13 @@
       const span = Object.assign(document.createElement('span'), { textContent: text });
       words.append(span);
       if (!prev) return;
-      if (!dir || reduceMotion) return prev.remove();
+      if (!dir || still) return prev.remove();
       // The leaving words step out of the flow: the bubble takes the size of the new ones, and
       // both slide right through its edge, the way the bubble goes
       const before = prev.offsetWidth;
       prev.classList.add('is-leaving');
       const after = span.offsetWidth;
-      const timing = { duration: 260, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+      const timing = { duration: 260 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
       const away = dir === 'up' ? 'translate(-50%, -100%)' : `translateX(calc(-50% - ${dir * ((before + after) / 2 + 2)}px))`;
       const from = dir === 'up' ? 'translateY(100%)' : `translateX(${dir * (after + 2)}px)`;
       const done = () => prev.remove();
@@ -181,7 +191,7 @@
     // While it moves, the tint and the label stay on what they sit on, frame by frame
     const duration = () => {
       const value = getComputedStyle(root).getPropertyValue('--kz-share-duration').trim();
-      return parseFloat(value) * (value.endsWith('ms') ? 1 : 1000) || 600;
+      return (parseFloat(value) * (value.endsWith('ms') ? 1 : 1000) || 600) * pace;
     };
     let resizing = [];
     let follow = 0;
@@ -193,7 +203,7 @@
       toggle.setAttribute('aria-expanded', String(opened));
       if (tinted && tinted !== toggle) tintOff();
       if (!opened) tipOff();
-      if (reduceMotion) return settle();
+      if (still) return settle();
       const easing = getComputedStyle(root).getPropertyValue('--kz-share-unfold').trim() || 'ease-in-out';
       resizing = [toggle, list].map((el, i) => el.animate([{ width: `${from[i]}px` }, { width: `${el.offsetWidth}px` }], { duration: duration(), easing }));
       moving = true;
@@ -333,6 +343,8 @@
         event.preventDefault();
       }, { signal });
     });
+    pace = paceOf(root);
+    still = reduceMotion || !pace;
   }
 
   // Kodza lifecycle, the same in every component: `kodza:init` starts the instances inside

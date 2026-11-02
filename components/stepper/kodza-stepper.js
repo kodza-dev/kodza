@@ -8,9 +8,17 @@
 (() => {
   const SELECTOR = '.kodza-stepper';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const steps = [...root.querySelectorAll('.kodza-stepper__step')];
     const panels = [...root.querySelectorAll('.kodza-stepper__panel:not(.kodza-stepper__done)')];
     const done = root.querySelector('.kodza-stepper__done');
@@ -20,7 +28,7 @@
     const all = [...panels, done].filter(Boolean);
     const labels = { next: next.textContent.trim(), last: next.dataset.last || 'Finish', again: next.dataset.again || 'Start over' };
     const style = getComputedStyle(root);
-    const duration = parseFloat(style.getPropertyValue('--kz-stepper-duration')) * 1000 || 600;
+    const duration = (parseFloat(style.getPropertyValue('--kz-stepper-duration')) * 1000 || 600) * pace;
     const ease = style.getPropertyValue('--kz-stepper-ease').trim() || 'ease';
     root.style.setProperty('--kz-stepper-n', steps.length);
 
@@ -43,7 +51,7 @@
       const span = document.createElement('span');
       span.textContent = text;
       roll.append(span);
-      if (reduceMotion) return prev.remove();
+      if (still) return prev.remove();
       prev.setAttribute('aria-hidden', 'true');
       prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], { duration: duration * 0.8, easing: ease, fill: 'forwards' }).finished.then(() => prev.remove());
       span.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], { duration: duration * 0.8, easing: ease });

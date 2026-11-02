@@ -11,8 +11,8 @@ A panel that slides in from the right, and on phones rises from the bottom as a 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-drawer.html`](kodza-drawer.html) | 1.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-drawer.css`](kodza-drawer.css) | 23.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-drawer.js`](kodza-drawer.js) | 10.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-drawer.css`](kodza-drawer.css) | 25.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-drawer.js`](kodza-drawer.js) | 11.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

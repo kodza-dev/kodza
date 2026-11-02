@@ -8,9 +8,17 @@
 (() => {
   const SELECTOR = '.kodza-split';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const main = root.querySelector('.kodza-split__main');
     const toggle = root.querySelector('.kodza-split__toggle');
     const menu = root.querySelector('.kodza-split__menu');
@@ -74,15 +82,15 @@
       const from = label.offsetWidth;
       const span = Object.assign(document.createElement('span'), { textContent: text });
       label.append(span);
-      if (reduceMotion) return prev.remove();
+      if (still) return prev.remove();
       const to = span.offsetWidth;
-      const timing = { duration: 450, delay: 280, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+      const timing = { duration: 450 * pace, delay: 280 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
       prev.setAttribute('aria-hidden', 'true');
       // (held at its end until the old words are gone: the grid would be as wide as both for a frame.
       // Wider, it opens ahead of the new words so they are not cut on the way in; narrower, it
       // eases in and out so the old ones are not cut before they have left)
       const fitTiming = to > from
-        ? { duration: 300, delay: 140, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+        ? { duration: 300 * pace, delay: 140 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
         : { ...timing, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' };
       const fit = label.animate([{ width: `${from}px` }, { width: `${to}px` }], { ...fitTiming, fill: 'both' });
       // The tint stays tied to its half while the arrow moves: no glide of its own meanwhile
@@ -168,7 +176,7 @@
       root.dispatchEvent(new CustomEvent('kodza:select', { detail: { item, value }, bubbles: true }));
       light(item);
       root.classList.add('is-picking');
-      setTimeout(() => !signal.aborted && close(true), reduceMotion ? 0 : 320);
+      setTimeout(() => !signal.aborted && close(true), still ? 0 : 320 * pace);
     };
 
     [main, toggle].forEach((half) => half.addEventListener('pointerenter', () => tintOn(isOpen() ? toggle : half), { signal }));

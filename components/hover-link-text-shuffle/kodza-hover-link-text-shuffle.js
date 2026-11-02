@@ -10,6 +10,12 @@
   const ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
   const SWAP_EVERY = 45; // a new character every ~45 ms, not every frame
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const pick = (list) => list[Math.floor(Math.random() * list.length)];
 
   // What an unsettled letter shows, for each style
@@ -26,7 +32,7 @@
       const index = ALPHABET.indexOf(lower);
       if (index < 0) return target;
       if (state.flap[i] === undefined) {
-        const steps = Math.max(1, Math.round(state.settleAt(i) / SWAP_EVERY));
+        const steps = Math.max(1, Math.round(state.settleAt(i) / state.every));
         state.flap[i] = (index - steps + 52) % 26;
       } else {
         state.flap[i] = (state.flap[i] + 1) % 26;
@@ -38,9 +44,12 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(link, signal) {
+    const pace = paceOf(link);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const chars = [...link.textContent.trim()];
     const style = STYLES[link.dataset.scramble] || STYLES.symbols;
-    const duration = parseFloat(getComputedStyle(link).getPropertyValue('--kz-scramble-duration')) * 1000 || 600;
+    const duration = (parseFloat(getComputedStyle(link).getPropertyValue('--kz-scramble-duration')) * 1000 || 600) * pace;
+    const every = SWAP_EVERY * pace; // the letters swap at the same pace
 
     const text = document.createElement('span');
     text.className = 'kodza-scramble__text';
@@ -64,17 +73,17 @@
 
     let frame = null;
     const scramble = () => {
-      if (reduceMotion) return;
+      if (still) return;
       cancelAnimationFrame(frame);
       // When each letter settles (in ms): left to right, the first ones almost at once
       const settleAt = (i) => duration * (0.2 + 0.8 * (i / chars.length));
-      const state = { chars, pool: [], flap: [], settleAt };
+      const state = { chars, pool: [], flap: [], settleAt, every };
       const start = performance.now();
       let lastSwap = 0;
       const tick = (now) => {
         if (signal.aborted) return;
         const progress = (now - start) / duration;
-        const swap = now - lastSwap > SWAP_EVERY;
+        const swap = now - lastSwap > every;
         if (swap) lastSwap = now;
         const settled = chars.map((char, i) => char === ' ' || now - start >= settleAt(i));
         state.pool = chars.filter((char, i) => !settled[i]);

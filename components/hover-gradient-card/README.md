@@ -11,8 +11,8 @@ On hover a single line draws the card border from the exact point where the poin
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hover-gradient-card.html`](kodza-hover-gradient-card.html) | 0.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hover-gradient-card.css`](kodza-hover-gradient-card.css) | 8.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hover-gradient-card.js`](kodza-hover-gradient-card.js) | 11.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-hover-gradient-card.css`](kodza-hover-gradient-card.css) | 8.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hover-gradient-card.js`](kodza-hover-gradient-card.js) | 12.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

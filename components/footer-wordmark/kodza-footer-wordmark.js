@@ -11,6 +11,12 @@
 (() => {
   const SELECTOR = '.kodza-footer-wordmark';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const GLIDE = 'cubic-bezier(0.6, 0, 0.1, 1)'; // slow start, long settle
   const REF = 100; // the size the name is measured at, in px
   const VARS = ['size', 'height', 'lift', 'shift', 'mask'].map((name) => `--kz-footer-wordmark-${name}`);
@@ -141,6 +147,7 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
     const q = (s) => root.querySelector(s);
     const year = String(new Date().getFullYear());
     root.querySelectorAll('.kodza-footer-wordmark__year').forEach((el) => { el.textContent = year; });
@@ -203,7 +210,8 @@
     });
     fit();
     document.fonts?.ready.then(() => !signal.aborted && fit());
-    if (reduceMotion) return;
+    // The scroll moves the content, not the clock: at pace 0 it stays put, like reduced motion
+    if (reduceMotion || !pace) return;
 
     const inner = q('.kodza-footer-wordmark__inner');
     const veil = q('.kodza-footer-wordmark__veil');
@@ -241,9 +249,9 @@
     let rising = [];
     const call = () => {
       root.classList.add('is-called');
-      // A long name keeps the same overall pace
-      const step = Math.min(split === 'words' ? 140 : 70, 420 / Math.max(1, last));
-      rising = glyphs.map((glyph, i) => glyph.animate([{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration: 1100, delay: order[i] * step, easing: GLIDE, fill: 'backwards' }));
+      // A long name keeps the same overall pace, and the site's pace times it all
+      const step = Math.min(split === 'words' ? 140 : 70, 420 / Math.max(1, last)) * pace;
+      rising = glyphs.map((glyph, i) => glyph.animate([{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration: 1100 * pace, delay: order[i] * step, easing: GLIDE, fill: 'backwards' }));
     };
     const dismiss = () => {
       rising.forEach((a) => a.cancel());

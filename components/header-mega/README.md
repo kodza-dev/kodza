@@ -11,8 +11,8 @@ A full site header whose mega menus share one panel: from a link to the next it 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-mega.html`](kodza-header-mega.html) | 7.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-mega.css`](kodza-header-mega.css) | 49.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-header-mega.js`](kodza-header-mega.js) | 56.5 KB | The script. One copy per page runs every instance. |
+| [`kodza-header-mega.css`](kodza-header-mega.css) | 53.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-mega.js`](kodza-header-mega.js) | 57.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

@@ -5,10 +5,18 @@
 (() => {
   const SELECTOR = '.kodza-stack';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
-    if (reduceMotion) return;
+    const pace = paceOf(root);
+    // Scroll-linked, so not a duration: the pace only stops it at 0, like reduced motion
+    if (reduceMotion || !pace) return;
     const cards = [...root.querySelectorAll('.kodza-stack__card')];
     cards.forEach((card, i) => card.style.setProperty('--i', i));
 

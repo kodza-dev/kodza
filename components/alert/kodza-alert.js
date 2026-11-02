@@ -7,6 +7,12 @@
 (() => {
   const SELECTOR = '.kodza-alert';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const fold = 'cubic-bezier(0.65, 0, 0.35, 1)';
   let uid = 0;
@@ -28,6 +34,8 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const close = root.querySelector('.kodza-alert__close');
     const more = root.querySelector('.kodza-alert__more');
     const details = root.querySelector('.kodza-alert__details');
@@ -57,7 +65,7 @@
           focusables.find((el) => root.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING && el.offsetParent)?.focus();
         }
       };
-      if (reduceMotion) return after();
+      if (still) return after();
       const k = scale();
       const gap = space(root);
       const style = getComputedStyle(root);
@@ -65,11 +73,11 @@
         { opacity: 1, transform: 'none', height: `${root.offsetHeight}px`, paddingTop: style.paddingTop, paddingBottom: style.paddingBottom, [gap.side]: '0px', overflow: 'hidden' },
         { opacity: 0, transform: 'translateX(14px)', offset: 0.35, height: `${root.offsetHeight}px`, paddingTop: style.paddingTop, paddingBottom: style.paddingBottom, [gap.side]: '0px', overflow: 'hidden' },
         { opacity: 0, transform: 'translateX(14px)', height: '0px', paddingTop: '0px', paddingBottom: '0px', [gap.side]: `${-gap.px / k}px`, overflow: 'hidden' },
-      ], { duration: 620, easing: fold, fill: 'forwards' }).onfinish = after;
+      ], { duration: 620 * pace, easing: fold, fill: 'forwards' }).onfinish = after;
     };
 
     const unfold = () => {
-      if (reduceMotion) return;
+      if (still) return;
       const k = scale();
       const gap = space(root);
       const style = getComputedStyle(root);
@@ -77,7 +85,7 @@
         { opacity: 0, transform: 'translateY(6px)', height: '0px', paddingTop: '0px', paddingBottom: '0px', [gap.side]: `${-gap.px / k}px`, overflow: 'hidden' },
         { opacity: 0, transform: 'translateY(6px)', offset: 0.5, height: `${root.offsetHeight}px`, paddingTop: style.paddingTop, paddingBottom: style.paddingBottom, [gap.side]: '0px', overflow: 'hidden' },
         { opacity: 1, transform: 'none', height: `${root.offsetHeight}px`, paddingTop: style.paddingTop, paddingBottom: style.paddingBottom, [gap.side]: '0px', overflow: 'hidden' },
-      ], { duration: 760, easing: ease });
+      ], { duration: 760 * pace, easing: ease });
       // Drawn from the start, held empty (CSS delay) until the alert has come in
       draw(root);
     };
@@ -101,11 +109,11 @@
         const from = details.hidden ? 0 : details.offsetHeight;
         details.hidden = false;
         const to = open ? details.offsetHeight : 0;
-        if (reduceMotion) return (details.hidden = !open);
+        if (still) return (details.hidden = !open);
         details.animate([
           { height: `${from}px`, opacity: open ? 0 : 1 },
           { height: `${to}px`, opacity: open ? 1 : 0 },
-        ], { duration: open ? 520 : 420, easing: open ? ease : fold }).onfinish = () => (details.hidden = !open);
+        ], { duration: (open ? 520 : 420) * pace, easing: open ? ease : fold }).onfinish = () => (details.hidden = !open);
       }, { signal });
     }
   }

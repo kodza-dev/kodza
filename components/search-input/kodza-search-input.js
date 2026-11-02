@@ -7,6 +7,12 @@
 (() => {
   const SELECTOR = '.kodza-search';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const cross = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3 3 9"/></svg>';
   let uid = 0;
   let slashTaken = false;
@@ -26,6 +32,7 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     const input = root.querySelector('.kodza-search__input');
     const box = root.querySelector('.kodza-search__box');
     const datalist = root.querySelector('.kodza-search__options');
@@ -138,10 +145,10 @@
       }
       live.textContent = results.length ? `${results.length} suggestion${results.length > 1 ? 's' : ''}` : 'No suggestions';
       light(query ? items[0] || null : null, false);
-      if (!reduceMotion && root.classList.contains('is-open')) {
+      if (!reduceMotion && pace && root.classList.contains('is-open')) {
         resize?.cancel();
         const to = panel.offsetHeight;
-        if (Math.abs(to - from) > 1) resize = panel.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: 260, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+        if (Math.abs(to - from) > 1) resize = panel.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: 260 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
       }
     };
 

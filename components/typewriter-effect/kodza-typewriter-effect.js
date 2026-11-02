@@ -6,6 +6,12 @@
 (() => {
   const SELECTOR = '.kodza-typewriter';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // Common start and end of two phrases (by character)
@@ -24,6 +30,7 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     let words;
     try {
       words = JSON.parse(root.dataset.words || '[]');
@@ -32,7 +39,8 @@
     }
     if (!words.length) words = [root.textContent.trim()];
     const mode = root.dataset.mode || 'loop';
-    const speed = Number(root.dataset.speed) || 70; // ms per character
+    // The typing is motion, at the site's pace; the hold is the time to read a phrase, it stays
+    const speed = (Number(root.dataset.speed) || 70) * pace; // ms per character
     const hold = Number(root.dataset.hold) || 1800;
 
     const sr = document.createElement('span');
@@ -56,7 +64,7 @@
       selected.textContent = sel;
       after.textContent = tail;
     };
-    if (reduceMotion) return show(words[0]);
+    if (reduceMotion || !pace) return show(words[0]);
 
     // Typing only runs while the element is on screen
     let onScreen = false;
@@ -117,9 +125,9 @@
           // Select the part that changes, then type over it
           for (let n = 1; n <= changed.length; n++) {
             show(head, changed.slice(0, n), changed.slice(n) + tail);
-            await wait(28);
+            await wait(28 * pace);
           }
-          await wait(380);
+          await wait(380 * pace);
           show(head, '', tail);
           await wait(speed * 2);
         } else {

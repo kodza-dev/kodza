@@ -20,6 +20,13 @@
   // what stays in place (the site header by default), data-enter the parts of the arrival.
   const html = document.documentElement;
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion. The transition itself is drawn on
+  // html, so the engine reads it there; an arrival reads it on its section
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ON = `kodza-${NAME}-on`;
   const BACK = `kodza-${NAME}-back`;
   const ENTER = `kodza-${NAME}-enter`;
@@ -184,20 +191,21 @@
   }
   function prepare(root) {
     const signal = signals.get(root);
-    if (!signal || signal.aborted || motion.matches) return;
+    const pace = paceOf(root);
+    if (!signal || signal.aborted || motion.matches || !pace) return;
     entries.get(root)?.stop();
     const parts = [...root.querySelectorAll('[data-enter]')];
     if (!parts.length) return;
     const style = getComputedStyle(root);
     const easing = style.getPropertyValue(`--kz-${NAME}-enter-ease`).trim() || 'cubic-bezier(0.2, 0.8, 0.1, 1)';
     const reveal = style.getPropertyValue(`--kz-${NAME}-reveal-ease`).trim() || 'cubic-bezier(0.65, 0, 0.35, 1)';
-    const delay = ms(style.getPropertyValue(`--kz-${NAME}-enter-delay`), 360);
+    const delay = ms(style.getPropertyValue(`--kz-${NAME}-enter-delay`), 360) * pace;
     const title = parts.find((el) => el.dataset.enter === 'title');
     const markup = title?.innerHTML;
     const words = title ? split(title) : [];
     const anims = [];
     const add = (el, keyframes, duration, ease = easing) => {
-      const anim = el.animate(keyframes, { duration, easing: ease, fill: 'both' });
+      const anim = el.animate(keyframes, { duration: duration * pace, easing: ease, fill: 'both' });
       anim.pause();
       anims.push(anim);
       return anim;
@@ -235,10 +243,10 @@
             top = y;
             line += 1;
           }
-          anim.effect.updateTiming({ delay: 60 + line * 90 });
+          anim.effect.updateTiming({ delay: (60 + line * 90) * pace });
         });
-        image.forEach((anim) => anim.effect.updateTiming({ delay: 120 }));
-        rest.forEach((anim, i) => anim.effect.updateTiming({ delay: 60 + (line + 1) * 90 + i * 70 }));
+        image.forEach((anim) => anim.effect.updateTiming({ delay: 120 * pace }));
+        rest.forEach((anim, i) => anim.effect.updateTiming({ delay: (60 + (line + 1) * 90 + i * 70) * pace }));
         const at = Math.max(time + (lifted ? delay : 0), now());
         anims.forEach((anim) => {
           anim.startTime = at;
@@ -262,7 +270,7 @@
   //     detail: { update: () => swapTheContent(), back: false } })) || nothing to do
   // dispatchEvent() returns true when no engine took it: then run update() yourself.
   function swap(update, back) {
-    const lift = Boolean(document.startViewTransition) && !motion.matches;
+    const lift = Boolean(document.startViewTransition) && !motion.matches && paceOf(html) > 0;
     if (lift && current && current === local && turn && back === heading) {
       const first = turn; // already on its way there: this swap waits its turn too
       turn = async () => {
@@ -385,14 +393,16 @@
 
   // ...and the page that lands reads it before its first paint
   let landing = read(false);
-  if (!motion.matches && !landing.back && !landing.at && navType !== 'back_forward' && !performance.getEntriesByType('paint').length) html.classList.add(ENTER);
+  if (!motion.matches && paceOf(html) > 0 && !landing.back && !landing.at && navType !== 'back_forward' && !performance.getEntriesByType('paint').length) html.classList.add(ENTER);
   window.addEventListener('pagereveal', (event) => {
     const land = landing || read(true); // later ones: the page comes back from the back/forward cache
     landing = null;
     revealed = true;
     clean();
     const vt = event.viewTransition;
-    if (!vt) {
+    // At the site's pace 0 the page is there at once, as with reduced motion
+    if (vt && !paceOf(html)) vt.skipTransition();
+    if (!vt || !paceOf(html)) {
       arrive(now(), false);
       return;
     }
@@ -522,7 +532,7 @@
   // browser captures the new state)
   window.addEventListener('kodza:page-transition', (event) => {
     const update = event.detail?.update;
-    if (typeof update !== 'function' || motion.matches || !document.startViewTransition) return;
+    if (typeof update !== 'function' || motion.matches || !paceOf(html) || !document.startViewTransition) return;
     const from = sources(Boolean(event.detail.back));
     const keys = from.map(keyOf);
     mark(from, Boolean(event.detail.back));
@@ -533,7 +543,7 @@
   }, { capture: true, signal: page.signal });
   // Between two documents: the page you leave names its side and writes the keys...
   window.addEventListener('pageswap', (event) => {
-    if (!event.viewTransition || motion.matches) return;
+    if (!event.viewTransition || motion.matches || !paceOf(html)) return;
     const activation = event.activation;
     const link = clicked && Date.now() - clicked.time < 4000 ? clicked.el : null;
     const back = activation?.navigationType === 'traverse' ? activation.entry.index < activation.from.index : Boolean(link?.hasAttribute('data-page-back'));
@@ -555,7 +565,7 @@
     } catch (error) {
       record = null;
     }
-    if (!event.viewTransition || motion.matches || !record || Date.now() - record.time > 4000) return;
+    if (!event.viewTransition || motion.matches || !paceOf(html) || !record || Date.now() - record.time > 4000) return;
     mark(targets(record.keys || []));
   }, { signal: page.signal });
 

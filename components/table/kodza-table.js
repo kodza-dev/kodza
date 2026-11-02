@@ -6,6 +6,12 @@
 (() => {
   const SELECTOR = '.kodza-table';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
@@ -43,10 +49,13 @@
       });
       tbody.append(...rows);
       mark(index);
-      if (reduceMotion) return;
+      // Read at the click, not at the start: a style read before the sorted column is marked would
+      // turn its first marking into a fade
+      const pace = paceOf(root);
+      if (reduceMotion || !pace) return;
       rows.forEach((row, i) => {
         const dy = (before.get(row) - row.getBoundingClientRect().top) / k;
-        if (dy) row.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 620, delay: Math.min(i, 8) * 18, easing: ease, fill: 'backwards' });
+        if (dy) row.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 620 * pace, delay: Math.min(i, 8) * 18 * pace, easing: ease, fill: 'backwards' });
       });
     };
 

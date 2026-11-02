@@ -6,10 +6,16 @@
 (() => {
   const SELECTOR = '.kodza-badge__count, .kodza-badge-list';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
   // A count: rolls to its new number
-  function mountCount(count, signal) {
+  function mountCount(count, signal, pace) {
     let current = count.dataset.count || count.textContent.trim();
     count.replaceChildren(Object.assign(document.createElement('span'), { textContent: current }));
     const observer = new MutationObserver(() => {
@@ -20,8 +26,8 @@
       const old = count.lastElementChild;
       const span = Object.assign(document.createElement('span'), { textContent: next });
       count.append(span);
-      if (reduceMotion) return old.remove();
-      const timing = { duration: 420, easing: ease };
+      if (reduceMotion || !pace) return old.remove();
+      const timing = { duration: 420 * pace, easing: ease };
       old.animate([{ transform: 'none' }, { transform: `translateY(${up ? -110 : 110}%)` }], { ...timing, fill: 'forwards' }).finished.then(() => old.remove());
       span.animate([{ transform: `translateY(${up ? 110 : -110}%)` }, { transform: 'none' }], timing);
     });
@@ -30,7 +36,7 @@
   }
 
   // A list of tags: removes them
-  function mountList(list, signal) {
+  function mountList(list, signal, pace) {
     list.addEventListener('click', (event) => {
       const button = event.target.closest('.kodza-badge__remove');
       const tag = button?.closest('.kodza-badge');
@@ -49,7 +55,7 @@
         list.dispatchEvent(new CustomEvent('kodza:badge-remove', { bubbles: true, detail: { tag } }));
       };
       if (keyboard) next?.querySelector('.kodza-badge__remove')?.focus();
-      if (reduceMotion) return done();
+      if (reduceMotion || !pace) return done();
 
       // The tag leaves the flow where it stands; the others glide to their new place
       const k = list.getBoundingClientRect().width / list.offsetWidth || 1;
@@ -64,19 +70,20 @@
         const now = other.getBoundingClientRect();
         const dx = (was.left - now.left) / k;
         const dy = (was.top - now.top) / k;
-        if (dx || dy) other.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 560, delay: 60, easing: ease, fill: 'backwards' });
+        if (dx || dy) other.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 560 * pace, delay: 60 * pace, easing: ease, fill: 'backwards' });
       });
       tag.animate([
         { opacity: 1, transform: 'none' },
         { opacity: 0, transform: 'scale(0.6)' },
-      ], { duration: 260, easing: 'cubic-bezier(0.4, 0, 1, 1)', fill: 'forwards' }).onfinish = done;
+      ], { duration: 260 * pace, easing: 'cubic-bezier(0.4, 0, 1, 1)', fill: 'forwards' }).onfinish = done;
     }, { signal });
   }
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
-    if (root.classList.contains('kodza-badge-list')) mountList(root, signal);
-    else mountCount(root, signal);
+    const pace = paceOf(root);
+    if (root.classList.contains('kodza-badge-list')) mountList(root, signal, pace);
+    else mountCount(root, signal, pace);
   }
 
   // Kodza lifecycle, the same in every component: `kodza:init` starts the instances inside

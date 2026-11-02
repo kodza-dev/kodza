@@ -6,9 +6,17 @@
 (() => {
   const SELECTOR = '.kodza-dropdown';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const trigger = root.querySelector('.kodza-dropdown__trigger');
     const menu = root.querySelector('.kodza-dropdown__menu');
     if (!trigger || !menu) return;
@@ -32,9 +40,9 @@
       const span = document.createElement('span');
       span.textContent = text;
       value.append(span);
-      if (reduceMotion) return prev.remove();
+      if (still) return prev.remove();
       const to = span.offsetWidth;
-      const timing = { duration: 450, delay: 280, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+      const timing = { duration: 450 * pace, delay: 280 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
       prev.setAttribute('aria-hidden', 'true');
       value.animate([{ width: `${from}px` }, { width: `${to}px` }], { ...timing, fill: 'backwards' });
       prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
@@ -96,7 +104,7 @@
       root.dispatchEvent(new CustomEvent('kodza:select', { detail: { item, value: item.textContent.trim() }, bubbles: true }));
       light(item);
       root.classList.add('is-picking');
-      setTimeout(() => !signal.aborted && close(true), reduceMotion ? 0 : 320);
+      setTimeout(() => !signal.aborted && close(true), still ? 0 : 320 * pace);
     };
 
     trigger.addEventListener('click', () => (isOpen() ? close() : open()), { signal });

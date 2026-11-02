@@ -7,10 +7,20 @@
   const SELECTOR = '.kodza-cursor-zone';
   if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const FOLLOW = reduceMotion ? 1 : 0.2; // how much of the way it catches up each frame
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
+  const FOLLOW = 0.2; // how much of the way it catches up each frame
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(zone, signal) {
+    // The lag at the site's pace: slower, it catches up less each frame; at 0, as with reduced
+    // motion, it sits right on the pointer
+    const pace = paceOf(zone);
+    const follow = reduceMotion || !pace ? 1 : Math.min(1, FOLLOW / pace);
     const cursor = document.createElement('div');
     cursor.className = 'kodza-cursor-zone__cursor';
     cursor.setAttribute('aria-hidden', 'true');
@@ -28,8 +38,8 @@
 
     const render = () => {
       if (signal.aborted) return;
-      pos.x += (target.x - pos.x) * FOLLOW;
-      pos.y += (target.y - pos.y) * FOLLOW;
+      pos.x += (target.x - pos.x) * follow;
+      pos.y += (target.y - pos.y) * follow;
       cursor.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
       const still = Math.abs(target.x - pos.x) < 0.1 && Math.abs(target.y - pos.y) < 0.1;
       frame = still ? null : requestAnimationFrame(render);

@@ -6,6 +6,12 @@
 (() => {
   const SELECTOR = '.kodza-stat';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const NS = 'http://www.w3.org/2000/svg';
   const make = (tag, attrs = {}) => {
     const el = document.createElementNS(NS, tag);
@@ -31,6 +37,8 @@
     const labels = (root.dataset.labels || '').split(',');
     const format = (n) => n.toLocaleString('en-US');
     if (!svg || data.length < 2) return;
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
 
     // The figure: digits in windows, the plain text for screen readers
     const strips = [];
@@ -91,20 +99,20 @@
     signal.addEventListener('abort', () => resize.disconnect());
 
     const play = () => {
-      if (reduceMotion) {
+      if (still) {
         strips.forEach(({ strip, stop }) => (strip.style.transform = `translateY(${-stop * 1.1}em)`));
         return;
       }
       const ease = 'cubic-bezier(0.16, 1, 0.3, 1)';
-      strips.forEach(({ strip, stop, rank }) => strip.animate([{ transform: 'translateY(0)' }, { transform: `translateY(${-stop * 1.1}em)` }], { duration: 1300 + rank * 140, easing: ease, fill: 'forwards' }));
-      line.animate([{ strokeDasharray: '1', strokeDashoffset: '1' }, { strokeDasharray: '1', strokeDashoffset: '0' }], { duration: 1400, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'both' });
-      area.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 900, delay: 500, easing: ease, fill: 'both' });
-      end.animate([{ transform: 'scale(0)' }, { transform: 'scale(1.4)', offset: 0.6 }, { transform: 'none' }], { duration: 500, delay: 1250, easing: ease, fill: 'both' });
+      strips.forEach(({ strip, stop, rank }) => strip.animate([{ transform: 'translateY(0)' }, { transform: `translateY(${-stop * 1.1}em)` }], { duration: (1300 + rank * 140) * pace, easing: ease, fill: 'forwards' }));
+      line.animate([{ strokeDasharray: '1', strokeDashoffset: '1' }, { strokeDasharray: '1', strokeDashoffset: '0' }], { duration: 1400 * pace, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'both' });
+      area.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 900 * pace, delay: 500 * pace, easing: ease, fill: 'both' });
+      end.animate([{ transform: 'scale(0)' }, { transform: 'scale(1.4)', offset: 0.6 }, { transform: 'none' }], { duration: 500 * pace, delay: 1250 * pace, easing: ease, fill: 'both' });
     };
     end.style.transformBox = 'fill-box';
     end.style.transformOrigin = 'center';
 
-    if (reduceMotion || !('IntersectionObserver' in window)) play();
+    if (still || !('IntersectionObserver' in window)) play();
     else {
       strips.forEach(({ strip }) => (strip.style.transform = 'translateY(0)'));
       const io = new IntersectionObserver((entries) => {

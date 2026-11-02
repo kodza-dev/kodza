@@ -7,6 +7,12 @@
 (() => {
   const SELECTOR = '.kodza-code';
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const RULES = {
     js: [
       ['c', /\/\/[^\n]*|\/\*[\s\S]*?\*\//y],
@@ -79,6 +85,7 @@
     const code = pre?.querySelector('code');
     const copy = root.querySelector('.kodza-code__copy');
     if (!code) return;
+    const pace = paceOf(root);
     const source = code.textContent.replace(/\n$/, '');
     const lang = pre.dataset.lang || '';
     const marked = new Set();
@@ -154,14 +161,14 @@
         const at = (row.previousElementSibling || row).getBoundingClientRect();
         if (open && pre.scrollHeight > pre.clientHeight && box.bottom - at.bottom < 160) {
           const scale = box.height / pre.offsetHeight || 1;
-          pre.scrollBy({ top: (at.top - box.top) / scale, behavior: reduce.matches ? 'auto' : 'smooth' });
+          pre.scrollBy({ top: (at.top - box.top) / scale, behavior: reduce.matches || !pace ? 'auto' : 'smooth' });
           return;
         }
-        if (reduce.matches) return open || fold();
+        if (reduce.matches || !pace) return open || fold();
         // Only the height a screen can show is animated: the rest is below it either way
         const to = open ? Math.min(body.offsetHeight, innerHeight) : 0;
         body.animate([{ height: `${from}px` }, { height: `${to}px` }], {
-          duration: open ? 520 : 420,
+          duration: (open ? 520 : 420) * pace,
           easing: open ? 'cubic-bezier(0.22, 1, 0.36, 1)' : 'cubic-bezier(0.65, 0, 0.35, 1)',
         }).finished.then(() => open || fold(), () => {});
       };

@@ -11,7 +11,7 @@ A cover hero: a full-width picture under a monochrome veil with the title at the
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-cover.html`](kodza-hero-cover.html) | 1.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-cover.css`](kodza-hero-cover.css) | 17.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-cover.css`](kodza-hero-cover.css) | 18.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

@@ -6,6 +6,12 @@
 (() => {
   const SELECTOR = '.kodza-password';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const WORDS = ['Type something', 'Too easy', 'Getting there', 'Solid', 'Very solid'];
   const RULES = {
     length: (value) => value.length >= 8,
@@ -27,6 +33,7 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     const input = root.querySelector('.kodza-password__input');
     const toggle = root.querySelector('.kodza-password__toggle');
     const bars = [...root.querySelectorAll('.kodza-password__meter span')];
@@ -47,8 +54,8 @@
       if (prev.textContent === text) return;
       const span = Object.assign(document.createElement('span'), { textContent: text });
       word.append(span);
-      if (reduceMotion) return prev.remove();
-      const timing = { duration: 400, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+      if (reduceMotion || !pace) return prev.remove();
+      const timing = { duration: 400 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
       prev.animate([{ transform: 'none' }, { transform: `translateY(${dir * -110}%)` }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
       span.animate([{ transform: `translateY(${dir * 110}%)` }, { transform: 'none' }], timing);
     };
@@ -60,7 +67,7 @@
       // Filling up goes left to right, emptying right to left, one step after the other
       bars.forEach((bar, i) => {
         const delay = points > last ? i - last : last - 1 - i;
-        bar.style.setProperty('--d', `${Math.max(0, delay) * 60}ms`);
+        bar.style.setProperty('--d', `${Math.max(0, delay) * 60 * pace}ms`);
         bar.classList.toggle('is-on', i < points);
       });
       if (word) roll(WORDS[points], points >= last ? 1 : -1);

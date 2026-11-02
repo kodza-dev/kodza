@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '.kodza-toast';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const ICONS = {
     success: '<svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="7.5"/><path class="kodza-toast__tick" d="M5.8 9.2l2.2 2.1 4.2-4.6" pathLength="1"/></svg>',
@@ -20,6 +26,8 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const stack = root.querySelector('.kodza-toast__stack');
     if (!stack) return;
     stack.setAttribute('aria-live', 'polite');
@@ -50,8 +58,8 @@
       const span = Object.assign(document.createElement('span'), { textContent: text });
       box.append(span);
       if (!prev) return;
-      if (reduceMotion) return prev.remove();
-      const timing = { duration: 380, easing: ease };
+      if (still) return prev.remove();
+      const timing = { duration: 380 * pace, easing: ease };
       prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
       span.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
     };
@@ -67,7 +75,7 @@
         spread = false;
         stack.classList.remove('is-spread');
       }
-      setTimeout(() => toast.el.remove(), reduceMotion ? 0 : 360);
+      setTimeout(() => toast.el.remove(), still ? 0 : 360 * pace);
     };
 
     // The timer only runs while the deck is folded and the tab visible
@@ -90,6 +98,7 @@
       el.dataset.type = type;
       el.setAttribute('role', type === 'error' ? 'alert' : 'status');
       el.innerHTML = `<span class="kodza-toast__icon" aria-hidden="true">${ICONS[type] || ICONS.info}</span><span class="kodza-toast__text"></span><span class="kodza-toast__end"></span><span class="kodza-toast__time" aria-hidden="true"></span>`;
+      // Its life is reading time, not motion: the line that runs out keeps it whatever the pace
       el.style.setProperty('--kz-time', `${duration}ms`);
       const words = el.querySelector('.kodza-toast__text');
       roll(words, text);

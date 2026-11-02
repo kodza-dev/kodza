@@ -11,6 +11,12 @@
   const KEY = 'kodza-logo-collapse';
   const CAP = 3500; // ms the screen waits for the page, at most
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   const ms = (value, fallback) => {
     const n = parseFloat(value);
@@ -96,8 +102,8 @@
 
   // The entrance of the page: the title rises from behind its own edge, the image opens from the
   // bottom, the rest lifts in. Each part starts as the edge of the screen goes past it, from the
-  // bottom up (`when`), or one after the other once the screen fades
-  function entrance(root, scope, when, ease) {
+  // bottom up (`when`), or one after the other once the screen fades. At the site's pace
+  function entrance(root, scope, when, ease, pace) {
     const parts = [...scope.querySelectorAll('[data-enter]')].filter((el) => !root.contains(el) && el.getClientRects().length);
     return parts.map((el, i) => {
       const delay = when(el, i);
@@ -107,11 +113,12 @@
         : kind === 'image'
           ? [{ transform: 'scale(1.06)', clipPath: 'inset(100% 0 0 0)' }, { transform: 'none', clipPath: 'inset(0)' }]
           : [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }];
-      return el.animate(frames, { duration: kind === 'image' ? 1100 : 900, delay, easing: ease, fill: 'backwards' });
+      return el.animate(frames, { duration: (kind === 'image' ? 1100 : 900) * pace, delay, easing: ease, fill: 'backwards' });
     });
   }
 
   function mount(root, signal) {
+    const pace = paceOf(root);
     const screen = root.querySelector('.kodza-logo-collapse__screen');
     const bar = screen.querySelector('.kodza-logo-collapse__bar');
     const scope = scopeOf(root);
@@ -127,7 +134,7 @@
 
     // Played again (kodza:replay), the screen first comes down over the page
     const play = (again) => {
-      if (motion.matches) return root.classList.add('is-done');
+      if (motion.matches || !pace) return root.classList.add('is-done');
       run?.abort();
       run = new AbortController();
       const live = AbortSignal.any ? AbortSignal.any([signal, run.signal]) : signal;
@@ -138,23 +145,23 @@
       bar.style.setProperty('--kz-logo-collapse-progress', 0);
 
       const style = getComputedStyle(root);
-      const duration = ms(style.getPropertyValue('--kz-logo-collapse-duration'), 1000);
+      const duration = ms(style.getPropertyValue('--kz-logo-collapse-duration'), 1000) * pace;
       const ease = style.getPropertyValue('--kz-logo-collapse-ease').trim() || 'cubic-bezier(0.76, 0, 0.24, 1)';
       const enterEase = style.getPropertyValue('--kz-logo-collapse-enter-ease').trim() || 'cubic-bezier(0.22, 1, 0.36, 1)';
-      const hold = ms(style.getPropertyValue('--kz-logo-collapse-hold'), 450);
+      const hold = ms(style.getPropertyValue('--kz-logo-collapse-hold'), 450) * pace;
       const keep = (a) => {
         running.push(a);
         return a;
       };
 
-      const drop = again ? 700 : 0;
+      const drop = again ? 700 * pace : 0;
       if (drop) keep(screen.animate([{ clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0)' }], { duration: drop, easing: ease }));
       // The logo rises from behind its own edge, the line comes once it is there
       const rise = keep(marks[0].animate([
         { transform: 'translateY(100%)', clipPath: 'inset(0 0 100% 0)' },
         { transform: 'none', clipPath: 'inset(0)' },
-      ], { duration: 900, delay: drop + 100, easing: enterEase, fill: 'backwards' }));
-      keep(bar.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, delay: drop + 500, easing: 'ease-out', fill: 'backwards' }));
+      ], { duration: 900 * pace, delay: drop + 100 * pace, easing: enterEase, fill: 'backwards' }));
+      keep(bar.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500 * pace, delay: drop + 500 * pace, easing: 'ease-out', fill: 'backwards' }));
       let gone = false;
       const leave = () => {
         if (gone || live.aborted) return;
@@ -182,20 +189,20 @@
           flight.push(target.animate([{ opacity: 0 }, { opacity: 0 }], { duration, fill: 'forwards' }));
         }
         under.hidden = !lands; // no logo to land on: it leaves with the screen
-        flight.push(bar.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250, easing: 'ease-out', fill: 'forwards' }));
+        flight.push(bar.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250 * pace, easing: 'ease-out', fill: 'forwards' }));
         const fade = root.dataset.exit === 'fade';
         flight.push(fade
           ? screen.animate([{ opacity: 1 }, { opacity: 0 }], { duration: duration * 0.8, delay: duration * 0.1, easing: 'ease-in-out', fill: 'forwards' })
           : screen.animate([{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(0 0 100% 0)' }], { duration, easing: ease, fill: 'forwards' }));
         const box = root.getBoundingClientRect();
         const when = fade
-          ? (el, i) => duration * 0.3 + i * 80
+          ? (el, i) => duration * 0.3 + i * 80 * pace
           : (el) => {
             const r = el.getBoundingClientRect();
             const middle = Math.min(Math.max((r.top + r.height / 2 - box.top) / box.height, 0), 1);
             return duration * timeAt(ease, 1 - middle);
           };
-        running.push(...flight, ...entrance(root, scope, when, enterEase));
+        running.push(...flight, ...entrance(root, scope, when, enterEase, pace));
         remember(root);
         Promise.all(flight.map((a) => a.finished)).then(() => {
           if (live.aborted) return;
@@ -208,7 +215,8 @@
       hurry = leave;
       Promise.all([
         rise.finished,
-        loaded(root, live, (p) => bar.style.setProperty('--kz-logo-collapse-progress', p)).then(() => wait(600, live)),
+        // The page is waited for at any pace, then the line's own transition (0.6s) at the site's
+        loaded(root, live, (p) => bar.style.setProperty('--kz-logo-collapse-progress', p)).then(() => wait(600 * pace, live)),
       ]).then(() => wait(hold, live)).then(leave, () => {});
     };
 

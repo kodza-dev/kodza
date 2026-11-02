@@ -37,7 +37,9 @@
   background: var(--kz-upload-bg);
   text-align: center;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.4s var(--kz-upload-ease);
+  transition:
+    background-color calc(0.3s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-upload-ease);
 }
 
 .kodza-upload__input {
@@ -68,7 +70,7 @@
   stroke: var(--kz-upload-line);
   stroke-width: 1.5;
   stroke-dasharray: 6 6;
-  transition: stroke 0.3s ease;
+  transition: stroke calc(0.3s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-upload__zone:hover .kodza-upload__border rect,
@@ -78,7 +80,7 @@
 
 .kodza-upload.is-over .kodza-upload__border rect {
   stroke: var(--kz-upload-ink);
-  animation: kodza-upload-march 0.6s linear infinite;
+  animation: kodza-upload-march calc(0.6s * var(--kz-motion-scale, 1)) linear infinite;
 }
 
 @keyframes kodza-upload-march {
@@ -118,7 +120,7 @@
 }
 
 .kodza-upload__arrow {
-  transition: transform 0.4s var(--kz-upload-ease);
+  transition: transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-upload-ease);
 }
 
 .kodza-upload__zone:hover .kodza-upload__arrow {
@@ -126,7 +128,7 @@
 }
 
 .kodza-upload.is-over .kodza-upload__arrow {
-  animation: kodza-upload-lift 0.9s var(--kz-upload-ease) infinite alternate;
+  animation: kodza-upload-lift calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-upload-ease) infinite alternate;
 }
 
 @keyframes kodza-upload-lift {
@@ -160,7 +162,12 @@
 }
 
 .kodza-upload__hint {
-  font-size: 13px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-upload-muted);
 }
 
@@ -175,7 +182,7 @@
 .kodza-upload__item {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.45s var(--kz-upload-ease);
+  transition: grid-template-rows calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-upload-ease);
 }
 
 .kodza-upload__item.is-shown {
@@ -191,7 +198,9 @@
   overflow: hidden;
   opacity: 0;
   transform: translateY(-6px);
-  transition: opacity 0.3s ease, transform 0.45s var(--kz-upload-ease);
+  transition:
+    opacity calc(0.3s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-upload-ease);
 }
 
 .kodza-upload__item.is-shown .kodza-upload__row {
@@ -212,10 +221,11 @@
   overflow: hidden;
   border-radius: calc(8px * var(--kz-radius-scale, 1));
   background: var(--kz-upload-soft);
-  font-family: var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 10px);
+  font-weight: var(--kz-font-label-weight, 600);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, uppercase);
 }
 
 .kodza-upload__thumb img {
@@ -241,8 +251,12 @@
 .kodza-upload__meta {
   display: flex;
   gap: 8px;
-  font-family: var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 12px;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-upload-muted);
 }
 
@@ -262,7 +276,7 @@
   overflow: hidden;
   border-radius: calc(2px * var(--kz-radius-scale, 1));
   background: var(--kz-upload-soft);
-  transition: opacity 0.4s ease 0.4s;
+  transition: opacity calc(0.4s * var(--kz-motion-scale, 1)) ease calc(0.4s * var(--kz-motion-scale, 1));
 }
 
 .kodza-upload__bar span {
@@ -271,7 +285,7 @@
   background: var(--kz-upload-ink);
   transform: scaleX(var(--kz-progress, 0));
   transform-origin: left;
-  transition: transform 0.3s var(--kz-upload-ease);
+  transition: transform calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-upload-ease);
 }
 
 .kodza-upload__item.is-done .kodza-upload__bar,
@@ -282,7 +296,7 @@
 
 .kodza-upload__item.is-error .kodza-upload__meta {
   color: var(--kz-upload-fg);
-  font-weight: 500;
+  font-weight: var(--kz-font-label-weight, 500);
 }
 
 /* The end of the row: a tick when done, a cross to remove */
@@ -302,7 +316,7 @@
   stroke-linejoin: round;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  transition: stroke-dashoffset 0.45s var(--kz-upload-ease) 0.15s;
+  transition: stroke-dashoffset calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-upload-ease) calc(0.15s * var(--kz-motion-scale, 1));
 }
 
 .kodza-upload__item.is-done .kodza-upload__tick {
@@ -320,7 +334,9 @@
   background: none;
   color: var(--kz-upload-muted);
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-upload__remove:hover {
@@ -371,7 +387,7 @@
 }
 */
 
-/* kodza-guard 0f1701bf360d — generated by Kodza, do not edit.
+/* kodza-guard 663800acea48 — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -615,7 +631,8 @@
   border-radius: var(--kz-upload-radius);
   background: var(--kz-upload-bg);
   text-align: center;
-  transition: background-color 0.3s ease, transform 0.4s var(--kz-upload-ease);
+  transition: background-color calc(0.3s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-upload-ease);
 }
 
 .kodza-upload__input:not(#_) {

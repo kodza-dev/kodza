@@ -11,8 +11,8 @@ Between two real pages, the one you leave recedes as the next rises over it on a
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-page-lift.html`](kodza-page-lift.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-page-lift.css`](kodza-page-lift.css) | 18.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-page-lift.js`](kodza-page-lift.js) | 23.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-page-lift.css`](kodza-page-lift.css) | 18.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-page-lift.js`](kodza-page-lift.js) | 23.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

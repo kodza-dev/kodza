@@ -7,9 +7,16 @@
 (() => {
   const SELECTOR = '.kodza-context-menu';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     const area = root.querySelector('.kodza-context-menu__area');
     const menu = root.querySelector('.kodza-context-menu__menu');
     if (!area || !menu) return;
@@ -90,7 +97,7 @@
       root.dispatchEvent(new CustomEvent('kodza:select', { detail: { item, value: item.textContent.trim() }, bubbles: true }));
       light(item);
       root.classList.add('is-picking');
-      setTimeout(() => !signal.aborted && close(true), reduceMotion ? 0 : 320);
+      setTimeout(() => !signal.aborted && close(true), reduceMotion || !pace ? 0 : 320 * pace);
     };
 
     area.addEventListener('contextmenu', (event) => {

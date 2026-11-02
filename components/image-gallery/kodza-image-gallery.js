@@ -46,10 +46,17 @@
     next: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   };
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const pad = (n) => String(n).padStart(2, '0');
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     const items = [...root.querySelectorAll('.kodza-gallery__item')].map((figure) => {
       const img = figure.querySelector('.kodza-gallery__img');
       return {
@@ -92,7 +99,7 @@
     const chrome = [$('.kodza-gallery__bar'), $('.kodza-gallery__nav')];
 
     const style = getComputedStyle(root);
-    const duration = reduceMotion ? 0 : parseFloat(style.getPropertyValue('--kz-gal-duration')) || 900;
+    const duration = reduceMotion || !pace ? 0 : (parseFloat(style.getPropertyValue('--kz-gal-duration')) || 900) * pace;
     const ease = style.getPropertyValue('--kz-gal-ease').trim() || 'cubic-bezier(0.76, 0, 0.24, 1)';
 
     let current = 0;
@@ -149,7 +156,7 @@
         if (animate && duration) {
           span.animate(
             [{ transform: 'translateY(105%)' }, { transform: 'translateY(0)' }],
-            { duration: duration * 0.8, delay: duration * 0.35 + i * 70, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'backwards' }
+            { duration: duration * 0.8, delay: duration * 0.35 + i * 70 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'backwards' }
           );
         }
       });

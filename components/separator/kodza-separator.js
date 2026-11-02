@@ -5,8 +5,14 @@
 (() => {
   const SELECTOR = '.kodza-separator';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
-  const draw = (el) => {
+  const draw = (el, pace) => {
     el.classList.add('is-resetting');
     el.classList.remove('is-drawn');
     void el.offsetWidth;
@@ -14,21 +20,28 @@
     // Verticals in a row: one after the other
     const row = el.closest('.kodza-separator-row');
     const index = row ? [...row.querySelectorAll('.kodza-separator')].indexOf(el) : 0;
-    el.style.transitionDelay = row ? `${index * 90}ms` : '';
+    el.style.transitionDelay = row ? `${index * 90 * pace}ms` : '';
     el.classList.add('is-drawn');
   };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(el, signal) {
-    el.addEventListener('kodza:replay', () => draw(el), { signal });
+    el.addEventListener('kodza:replay', () => draw(el, paceOf(el)), { signal });
     if (!('IntersectionObserver' in window) || reduceMotion) return el.classList.add('is-drawn');
-    const io = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      io.disconnect();
-      draw(entry.target);
-    }, { threshold: 0, rootMargin: '0px 0px -12% 0px' });
-    io.observe(el);
-    signal.addEventListener('abort', () => io.disconnect());
+    // The pace is read once the line is marked ready (right after this start, before anything is
+    // drawn): a style read before would make the line shrink away first, and draw it at another time
+    queueMicrotask(() => {
+      if (signal.aborted) return;
+      const pace = paceOf(el);
+      if (!pace) return el.classList.add('is-drawn');
+      const io = new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        draw(entry.target, pace);
+      }, { threshold: 0, rootMargin: '0px 0px -12% 0px' });
+      io.observe(el);
+      signal.addEventListener('abort', () => io.disconnect());
+    });
   }
 
   // Kodza lifecycle, the same in every component: `kodza:init` starts the instances inside

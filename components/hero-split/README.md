@@ -11,8 +11,8 @@ A split hero, words on the left and a 4:5 picture on the right: the title lines 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-split.html`](kodza-hero-split.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-split.css`](kodza-hero-split.css) | 16.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-split.js`](kodza-hero-split.js) | 7.2 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-split.css`](kodza-hero-split.css) | 17.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-split.js`](kodza-hero-split.js) | 7.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

@@ -6,6 +6,12 @@
 (() => {
   const SELECTOR = '.kodza-hero-paths';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const GLIDE = 'cubic-bezier(0.6, 0, 0.1, 1)'; // slow start, long settle
   const SOFT = 'cubic-bezier(0.25, 1, 0.5, 1)';
   const OPEN = 'cubic-bezier(0.3, 0.5, 0.1, 1)'; // the curtains: a slow start would leave each picture a hairline for 200 ms
@@ -15,6 +21,7 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
     const q = (name) => [...root.querySelectorAll(`.kodza-hero-paths__${name}`)];
 
     let running = [];
@@ -22,8 +29,9 @@
       running.forEach((a) => a.cancel());
       running = [];
     };
-    const animate = (el, keyframes, options) => {
-      if (el) running.push(el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options }));
+    // Every duration and delay of the entrance at the site's pace
+    const animate = (el, keyframes, { duration, delay = 0, ...options }) => {
+      if (el) running.push(el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options, duration: duration * pace, delay: delay * pace }));
     };
     const rise = (el, delay, duration) => animate(el, [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration, delay });
     const come = (el, delay) => animate(el, [{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }], { duration: 900, delay, easing: SOFT });
@@ -45,7 +53,7 @@
       });
     };
 
-    if (reduceMotion) {
+    if (reduceMotion || !pace) {
       root.classList.add('is-shown');
       return;
     }

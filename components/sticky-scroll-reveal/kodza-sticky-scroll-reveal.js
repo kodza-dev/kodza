@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '.kodza-sticky-reveal';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const pad = (n) => String(n).padStart(2, '0');
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
@@ -16,6 +22,7 @@
     const num = root.querySelector('.kodza-sticky-reveal__num');
     const total = root.querySelector('.kodza-sticky-reveal__total');
     if (!texts.length) return;
+    const pace = paceOf(root);
     const originals = texts.map((text) => text.textContent.trim());
     root.style.setProperty('--kz-sreveal-n', texts.length);
     if (total) total.textContent = `/ ${pad(texts.length)}`;
@@ -82,8 +89,8 @@
       const prev = num.lastElementChild;
       const span = Object.assign(document.createElement('span'), { textContent: value });
       num.append(span);
-      if (reduceMotion) return prev.remove();
-      const timing = { duration: 500, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+      if (reduceMotion || !pace) return prev.remove();
+      const timing = { duration: 500 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
       prev.animate([{ transform: 'none' }, { transform: `translateY(${dir * -110}%)` }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
       span.animate([{ transform: `translateY(${dir * 110}%)` }, { transform: 'none' }], timing);
     };

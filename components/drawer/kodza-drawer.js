@@ -7,6 +7,12 @@
 (() => {
   const SELECTOR = '.kodza-sheet';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   // The page behind stays put while it is open: a wheel or a swipe only scrolls what can
   // scroll inside, under the pointer. Listening only while open costs nothing the rest of the time.
   const holdPage = (layer, signal) => {
@@ -48,6 +54,7 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     const trigger = root.querySelector('.kodza-sheet__trigger');
     const panel = root.querySelector('.kodza-sheet__panel');
     holdPage(panel, signal);
@@ -62,7 +69,7 @@
     [panel.querySelector('.kodza-sheet__head'), ...panel.querySelectorAll('.kodza-sheet__item'), panel.querySelector('.kodza-sheet__foot')]
       .filter(Boolean)
       .forEach((el, i) => el.style.setProperty('--i', i));
-    const duration = reduceMotion ? 0 : parseFloat(getComputedStyle(root).getPropertyValue('--kz-sheet-duration')) * 1000 || 550;
+    const duration = reduceMotion || !pace ? 0 : (parseFloat(getComputedStyle(root).getPropertyValue('--kz-sheet-duration')) * 1000 || 550) * pace;
     let timer = 0;
 
     // The half stop: how far down the sheet rests when half open, in pixels

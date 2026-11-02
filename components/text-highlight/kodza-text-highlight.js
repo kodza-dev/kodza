@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '.kodza-annotate-text';
   const SVG = 'http://www.w3.org/2000/svg';
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // A wobble, so the line looks drawn by hand. Each mark draws from its own seed (mulberry32):
   // every stroke differs, but the same mark redrawn keeps its shape
@@ -71,6 +77,7 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     const marks = [...root.querySelectorAll('[data-annotate]')];
     marks.forEach((mark, i) => mark.style.setProperty('--i', i));
 
@@ -79,6 +86,7 @@
       marks.forEach((mark) => draw(mark, k));
     };
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const still = reduceMotion || !pace;
     let wait = 0;
     const start = () => {
       root.classList.remove('is-drawn', 'is-erasing');
@@ -86,12 +94,13 @@
       void root.offsetWidth; // start from an empty page
       root.classList.add('is-drawn');
     };
-    // Played again: the pen takes the marks back first, rather than wiping them at once
+    // Played again: the pen takes the marks back first, rather than wiping them at once (the wait
+    // follows the erase, at the site's pace)
     const play = () => {
       clearTimeout(wait);
-      if (!root.classList.contains('is-drawn') || reduceMotion) return start();
+      if (!root.classList.contains('is-drawn') || still) return start();
       root.classList.add('is-erasing');
-      wait = setTimeout(start, 420);
+      wait = setTimeout(start, 420 * pace);
     };
 
     // Marks are measured on the real font: drawn once it has loaded, redrawn on resize after that
@@ -100,6 +109,8 @@
       if (signal.aborted) return;
       fontsReady = true;
       render();
+      // At the site's pace 0 the marks are simply there, as with reduced motion
+      if (!pace) return start();
       const observer = new IntersectionObserver((entries) => {
         if (!entries[0].isIntersecting) return;
         observer.disconnect();

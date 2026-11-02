@@ -12,6 +12,12 @@
 (() => {
   const SELECTOR = '.kodza-hero-focus';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const GLIDE = 'cubic-bezier(0.6, 0, 0.1, 1)'; // slow start, long settle
   const SOFT = 'cubic-bezier(0.25, 1, 0.5, 1)';
   const TRAVEL = 'cubic-bezier(0.65, 0, 0.35, 1)'; // the big moves on the scroll
@@ -126,6 +132,7 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
     const q = (s) => root.querySelector(s);
     const scene = q('.kodza-hero-focus__scene');
     const img = q('.kodza-hero-focus__img');
@@ -197,10 +204,11 @@
       notes.forEach((note, i) => { note.dataset.place = picks[i][0]; });
     };
 
-    // Reduced motion: the scene pins all the same, but each state comes at once when the scroll
-    // reaches it (the picture sharp past the middle of the focus pull, then the notes)
-    if (reduceMotion) {
-      root.classList.add('is-shown');
+    // Reduced motion, or the site's pace at 0: the scene pins all the same, but each state comes at
+    // once when the scroll reaches it (the picture sharp past the middle of the focus pull, then the
+    // notes). is-still gives the CSS those states
+    if (reduceMotion || !pace) {
+      root.classList.add('is-shown', 'is-still');
       const pin = scrub(root, scene, signal, () => {
         place();
         return [];
@@ -223,6 +231,7 @@
     // it blurs again. Each part stops at its own end, so on the way out they all close at once.
     // The scroll can only move a note ahead, never pull it back
     const open = notes.map(() => false);
+    const noteGap = NOTE_GAP * pace;
     const timers = [];
     const rates = notes.map(() => 0);
     let plays = notes.map(() => []);
@@ -265,7 +274,7 @@
         const upright = where === 'below' || where === 'above';
         let j = 0;
         const step = (el, keyframes, delay, duration, easing) => {
-          const a = el.animate(keyframes, { duration, delay, easing, fill: 'both' });
+          const a = el.animate(keyframes, { duration: duration * pace, delay: delay * pace, easing, fill: 'both' });
           a.pause();
           a.currentTime = kept[i]?.[j++] || 0;
           return a;
@@ -286,20 +295,20 @@
       open[i] = on;
       if (!on) {
         lastStart = 0;
-        timers[i] = setTimeout(() => move(i, -1.8), (notes.length - 1 - i) * CLOSE_GAP); // they leave faster than they came
+        timers[i] = setTimeout(() => move(i, -1.8), (notes.length - 1 - i) * CLOSE_GAP * pace); // they leave faster than they came
         return;
       }
       const now = performance.now();
-      const wait = Math.max(0, lastStart + NOTE_GAP - now);
+      const wait = Math.max(0, lastStart + noteGap - now);
       lastStart = now + wait;
       timers[i] = setTimeout(() => move(i, 1), wait);
     };
     // The scroll past the picture, in progress: where the notes must be at least, played in a row
     // from NOTES_AT to NOTES_BY. A slow scroll leaves them their own pace, a fast one hurries them
     const hurryNotes = (p) => {
-      const t = ((p - NOTES_AT) / (NOTES_BY - NOTES_AT)) * ((notes.length - 1) * NOTE_GAP + lengths[notes.length - 1]);
+      const t = ((p - NOTES_AT) / (NOTES_BY - NOTES_AT)) * ((notes.length - 1) * noteGap + lengths[notes.length - 1]);
       plays.forEach((set, i) => {
-        const floor = t - i * NOTE_GAP;
+        const floor = t - i * noteGap;
         if (!open[i] || floor <= 0) return;
         let behind = false;
         set.forEach((a) => {
@@ -373,8 +382,9 @@
       running.forEach((a) => a.cancel());
       running = [];
     };
-    const animate = (el, keyframes, options) => {
-      if (el) running.push(el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options }));
+    // Every duration and delay of the entrance at the site's pace
+    const animate = (el, keyframes, { duration, delay = 0, ...options }) => {
+      if (el) running.push(el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options, duration: duration * pace, delay: delay * pace }));
     };
     const rise = (el, delay, duration) => animate(el, [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration, delay });
     // Scrolling during the entrance hurries it, so the scroll takes over without a wait

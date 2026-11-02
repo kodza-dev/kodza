@@ -9,6 +9,12 @@
 (() => {
   const SELECTOR = '.kodza-hero-expand';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const GLIDE = 'cubic-bezier(0.6, 0, 0.1, 1)'; // slow start, long settle
   const SOFT = 'cubic-bezier(0.25, 1, 0.5, 1)';
   const TRAVEL = 'cubic-bezier(0.65, 0, 0.35, 1)'; // the big moves on the scroll
@@ -116,7 +122,10 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
-    if (reduceMotion) return root.classList.add('is-shown');
+    // The scroll moves are no durations: the pace only stops them at 0, like reduced motion, and
+    // is-still keeps the scene unpinned then (the CSS pins it whenever reduced motion is off)
+    const pace = paceOf(root);
+    if (reduceMotion || !pace) return root.classList.add('is-shown', 'is-still');
     const q = (s) => root.querySelector(s);
     const scene = q('.kodza-hero-expand__scene');
     const slot = q('.kodza-hero-expand__slot');
@@ -186,8 +195,9 @@
       running.forEach((a) => a.cancel());
       running = [];
     };
-    const animate = (el, keyframes, options) => {
-      if (el) running.push(el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options }));
+    // Every duration and delay of the entrance at the site's pace
+    const animate = (el, keyframes, { duration, delay = 0, ...options }) => {
+      if (el) running.push(el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options, duration: duration * pace, delay: delay * pace }));
     };
     const rise = (el, delay, duration) => animate(el, [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration, delay });
     // Scrolling during the entrance hurries it, so the scroll takes over without a wait

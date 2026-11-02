@@ -15,6 +15,12 @@
 (() => {
   const SELECTOR = '.kodza-footer-venue';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   const DAY = 1440; // minutes
   const WEEK = 7 * DAY;
@@ -82,6 +88,8 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the clock keeps its own time: only the motion follows the pace
     root.querySelectorAll('.kodza-footer-venue__year').forEach((year) => {
       year.textContent = String(new Date().getFullYear());
     });
@@ -116,17 +124,17 @@
       [...box.children].forEach((el) => el !== old && el.remove());
       box.append(next);
       if (!old) return;
-      if (!moving || reduceMotion) return old.remove();
+      if (!moving || still) return old.remove();
       const y = new DOMMatrixReadOnly(getComputedStyle(old).transform).m42;
       old.getAnimations().forEach((a) => a.cancel());
       old.classList.add('is-leaving');
       old.setAttribute('aria-hidden', 'true');
-      const timing = { duration: 700, easing: EASE };
+      const timing = { duration: 700 * pace, easing: EASE };
       old.animate([{ transform: `translateY(${y}px)` }, { transform: 'translateY(-100%)' }], { ...timing, fill: 'forwards' }).finished.then(() => old.remove(), () => {});
       next.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], timing);
       // The window opens a little ahead of the words, so their end isn't cut for long
       box.getAnimations().forEach((a) => a.cancel());
-      box.animate([{ width: `${from}px` }, { width: `${box.offsetWidth}px` }], { ...timing, duration: 480 });
+      box.animate([{ width: `${from}px` }, { width: `${box.offsetWidth}px` }], { ...timing, duration: 480 * pace });
     };
 
     // A line of words, with the minutes in their own window
@@ -169,8 +177,8 @@
       root.classList.toggle('has-today', Boolean(rowOf(d)));
       measure();
       hide();
-      if (!before || !moving || reduceMotion || !rowOf(d)) return;
-      const timing = { duration: 700, easing: EASE };
+      if (!before || !moving || still || !rowOf(d)) return;
+      const timing = { duration: 700 * pace, easing: EASE };
       slide(before, timing);
       // Folded, the week rolls under the window instead: the new day comes in where the old one was
       if (!folded()) return;
@@ -235,10 +243,10 @@
       root.classList.toggle('is-all', opening);
       all.setAttribute('aria-expanded', String(opening));
       hide();
-      if (reduceMotion) return;
+      if (still) return;
       const to = opening ? week.offsetHeight : place.h;
       const shift = [{ translate: `0 ${opening ? -place.y : 0}px` }, { translate: `0 ${opening ? 0 : -place.y}px` }];
-      const timing = { duration: 600, easing: EASE };
+      const timing = { duration: 600 * pace, easing: EASE };
       [frame, week, pill].forEach((el) => el.getAnimations().forEach((a) => a.cancel()));
       root.classList.add('is-folding');
       frame.animate([{ height: `${from}px` }, { height: `${to}px` }], timing).finished.then(() => root.classList.remove('is-folding'), () => {});

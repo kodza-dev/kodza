@@ -6,9 +6,17 @@
 (() => {
   const SELECTOR = '.kodza-radio';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const inputs = [...root.querySelectorAll('.kodza-radio__input')];
     if (!inputs.length) return;
     const dot = document.createElement('span');
@@ -16,7 +24,7 @@
     dot.setAttribute('aria-hidden', 'true');
     root.append(dot);
     const style = getComputedStyle(root);
-    const duration = parseFloat(style.getPropertyValue('--kz-radio-duration')) * 1000 || 500;
+    const duration = (parseFloat(style.getPropertyValue('--kz-radio-duration')) * 1000 || 500) * pace;
 
     // Where the dot sits for a ring: measured from the dot's own resting place (a fieldset's
     // legend shifts what "top: 0" means, so the group's box cannot be trusted). Screen pixels are
@@ -45,7 +53,7 @@
       const to = spot(checked, o);
       dot.style.setProperty('--kz-dot-x', `${to.x}px`);
       dot.style.setProperty('--kz-dot-y', `${to.y}px`);
-      if (animate && current && current !== checked && !reduceMotion) {
+      if (animate && current && current !== checked && !still) {
         const from = spot(current, o);
         const dx = to.x - from.x;
         const dy = to.y - from.y;
@@ -58,8 +66,8 @@
           { transform: `translate(${to.x}px, ${to.y}px) rotate(${angle}deg) scaleX(0.85) scaleY(1.1)`, offset: 0.8 },
           { transform: `translate(${to.x}px, ${to.y}px) rotate(${angle}deg) scaleX(1)` },
         ], { duration, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' });
-      } else if (animate && !current && !reduceMotion) {
-        dot.animate([{ transform: `translate(${to.x}px, ${to.y}px) scale(0)` }, { transform: `translate(${to.x}px, ${to.y}px) scale(1)` }], { duration: 300, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' });
+      } else if (animate && !current && !still) {
+        dot.animate([{ transform: `translate(${to.x}px, ${to.y}px) scale(0)` }, { transform: `translate(${to.x}px, ${to.y}px) scale(1)` }], { duration: 300 * pace, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' });
       }
       dot.style.opacity = '1';
       current = checked;

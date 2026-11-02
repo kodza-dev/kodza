@@ -11,8 +11,8 @@ A button with real thickness: the face sinks into its base, even the quickest ta
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-press-button.html`](kodza-press-button.html) | 0.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-press-button.css`](kodza-press-button.css) | 8.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-press-button.js`](kodza-press-button.js) | 7.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-press-button.css`](kodza-press-button.css) | 8.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-press-button.js`](kodza-press-button.js) | 7.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -59,9 +59,9 @@ CSS variables, set on `.kodza-press-button` itself:
 | `--kz-press-depth-y` | `6px` |  |
 | `--kz-press-lift` | `calc(1 / 3)` | share of the depth the face rises on hover (2px of 6: whole pixels, crisp text) |
 | `--kz-press-latch` | `0.5` | how far down a latched toggle stays (3px of 6: whole pixels, crisp text) |
-| `--kz-press-down` | `0.08s cubic-bezier(0.3, 0, 0.6, 1)` |  |
-| `--kz-press-up` | `0.45s cubic-bezier(0.3, 1.9, 0.5, 1)` |  |
-| `--kz-press-hover` | `0.25s cubic-bezier(0.22, 1, 0.36, 1)` |  |
+| `--kz-press-down` | `calc(0.08s * var(--kz-motion-scale, 1)) cubic-bezier(0.3, 0, 0.6, 1)` |  |
+| `--kz-press-up` | `calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.3, 1.9, 0.5, 1)` |  |
+| `--kz-press-hover` | `calc(0.25s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Modifiers: `.kodza-press-button--offset`
 

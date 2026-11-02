@@ -20,6 +20,12 @@
   // back exactly as it was. Each menu only writes how it moves: see `menu`.
   const SELECTOR = `.kodza-${NAME}`;
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const RISE = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const SWING = 'cubic-bezier(0.65, 0, 0.35, 1)';
   const BACK = 1.6; // closing replays the opening backwards, this much faster
@@ -81,18 +87,22 @@
     };
   };
 
-  // One menu. `setup(m)` receives its parts (toggle, panel, closer, links, one, all, css, cut, and
-  // while open page, reduced) and returns what the menu does itself:
+  // One menu. `setup(m)` receives its parts (toggle, panel, closer, links, one, all, css, cut, pace,
+  // and while open page, reduced) and returns what the menu does itself:
   //   page    'under' when the menu lies under the page that moves, 'over' when it covers the
   //           page that moves under it; without it the page stays as it is
   //   rig(page)     sets the flat page up for the ride, returns its geometry with `k` (its scale);
   //                 again on resize
   //   frames(g)     the page's keyframes, set again on resize
   //   build(add, mode, g)   the opening, add(el, keyframes, delay, duration, easing, options) per
-  //                 animation; mode is 'page', 'flat' (no page found) or 'reduced'
+  //                 animation, timed at pace 1; mode is 'page', 'flat' (no page found) or 'reduced'
   //   ready(), entry(), key(event), resize(), reset()   optional: before it opens, where the
   //                 keyboard enters, a key of its own (true once handled), after a resize, once closed
   const menu = (root, signal, setup) => {
+    // The site's pace, read when the menu first moves: read while the page's menus are set up, the
+    // style it computes would turn the next one's first state into a transition
+    let pace;
+    const paced = () => (pace ??= paceOf(root));
     const toggle = root.querySelector(`.kodza-${NAME}__toggle`);
     const panel = root.querySelector(`.kodza-${NAME}__panel`);
     if (!toggle || !panel) return;
@@ -199,7 +209,7 @@
     };
 
     const m = {
-      root, toggle, panel, closer, links, one, all, css, cut,
+      root, toggle, panel, closer, links, one, all, css, cut, get pace() { return paced(); },
       get page() {
         return moving ? moving.page : null;
       },
@@ -219,10 +229,11 @@
 
     // The opening, as one timeline. Every animation gets an end delay that makes it as long as
     // the longest, so running them all backwards is the exact reverse, even halfway through.
+    // Its delays and durations are the menu's own, times the site's pace
     const timeline = (mode, g) => {
       const steps = [];
       const add = (el, frames, delay, duration, easing = RISE, extra = {}) => {
-        if (el) steps.push([el, frames, { delay, duration, easing, ...extra }]);
+        if (el) steps.push([el, frames, { delay: delay * paced(), duration: duration * paced(), easing, ...extra }]);
       };
       own.build(add, mode, g);
       const total = Math.max(...steps.map(([, , o]) => o.delay + o.duration));
@@ -383,7 +394,7 @@
         enter(keyboard);
         return;
       }
-      reduced = motion.matches;
+      reduced = motion.matches || !paced(); // at pace 0, the reduced opening: a fade that takes no time
       const page = reduced || !own.page ? null : findPage();
       const under = page && own.page === 'under';
       let g = null;
@@ -533,6 +544,11 @@
 
     // The section you are in: a dot under its name
     triggers.forEach((trigger) => trigger.classList.toggle('is-current', !!panes.get(trigger).querySelector('[aria-current="page"]')));
+    // The site's pace (0 opens and shuts it at once, like reduced motion), read when the panel first
+    // moves: a style read while the page's headers are set up would make a section link fade to ink
+    // as the page loads
+    let paceRead;
+    const pace = () => (paceRead ??= paceOf(root));
 
     const desktop = () => getComputedStyle(nav).display !== 'none';
     // Boxes in the header's own pixels: a parent scaled with transform doesn't shift them
@@ -615,9 +631,10 @@
       cancelAnimationFrame(frame);
       const from = { ...W };
       const start = performance.now();
-      const quick = motion.matches || !duration;
+      const span = duration * pace();
+      const quick = motion.matches || !span;
       const step = (now) => {
-        const t = quick ? 1 : Math.min(1, (now - start) / duration);
+        const t = quick ? 1 : Math.min(1, (now - start) / span);
         const p = progress(samples, t);
         W = {
           x: mix(from.x, to.x, p),
@@ -660,15 +677,15 @@
 
     // The rows rise one after the other, and the picture settles
     const enter = (pane) => {
-      if (motion.matches) return;
+      if (motion.matches || !pace()) return;
       pane.querySelectorAll(`${c('label')}, ${c('entry')}, ${c('card')}`).forEach((el, i) => {
-        slide(el, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0px)' }], { duration: 500, delay: 40 + i * 25, easing: RISE, fill: 'backwards' });
+        slide(el, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0px)' }], { duration: 500 * pace(), delay: (40 + i * 25) * pace(), easing: RISE, fill: 'backwards' });
       });
       settle(pane);
     };
     const settle = (pane) => {
       const img = pane.querySelector(`${c('media')} img`);
-      if (img && !motion.matches) slide(img, [{ transform: 'scale(1.08)' }, { transform: 'scale(1)' }], { duration: 900, delay: 60, easing: RISE, fill: 'backwards' });
+      if (img && !motion.matches && pace()) slide(img, [{ transform: 'scale(1.08)' }, { transform: 'scale(1)' }], { duration: 900 * pace(), delay: 60 * pace(), easing: RISE, fill: 'backwards' });
     };
 
     const open = (trigger) => {
@@ -692,13 +709,13 @@
         from.inert = true;
         const old = from.querySelector(c('inner'));
         const fresh = pane.querySelector(c('inner'));
-        if (motion.matches) hide(from);
+        if (motion.matches || !pace()) hide(from);
         else {
-          slide(old, [{ opacity: 1, transform: 'translateX(0px)', easing: SWING }, { opacity: 0, offset: 0.6 }, { opacity: 0, transform: `translateX(${-48 * dir}px)` }], { duration: 240, fill: 'forwards' })
+          slide(old, [{ opacity: 1, transform: 'translateX(0px)', easing: SWING }, { opacity: 0, offset: 0.6 }, { opacity: 0, transform: `translateX(${-48 * dir}px)` }], { duration: 240 * pace(), fill: 'forwards' })
             .finished.then(() => {
               if (panes.get(current) !== from && panes.get(last) !== from) hide(from);
             }, () => {});
-          slide(fresh, [{ opacity: 0, transform: `translateX(${56 * dir}px)` }, { opacity: 1, transform: 'translateX(0px)' }], { duration: 450, delay: 40, easing: RISE, fill: 'backwards' });
+          slide(fresh, [{ opacity: 0, transform: `translateX(${56 * dir}px)` }, { opacity: 1, transform: 'translateX(0px)' }], { duration: 450 * pace(), delay: 40 * pace(), easing: RISE, fill: 'backwards' });
           settle(pane);
         }
         morph({ ...b, a: 1 }, 450, rise);
@@ -1016,10 +1033,10 @@
         }
         leaving.forEach((animation) => animation.cancel());
         leaving = [];
-        if (level === top || m.reduced || motion.matches) return;
+        if (level === top || m.reduced || motion.matches || !m.pace) return;
         const steps = [];
         rise((el, frames, delay, duration, easing = RISE, extra = {}) => {
-          if (el) steps.push([el, frames, { delay, duration, easing, ...extra }]);
+          if (el) steps.push([el, frames, { delay: delay * m.pace, duration: duration * m.pace, easing, ...extra }]);
         }, heading?.lastElementChild, level, 40);
         const total = Math.max(...steps.map(([, , o]) => o.delay + o.duration));
         leaving = steps.map(([el, frames, o]) => el.animate(frames, { ...o, direction: 'reverse', delay: (total - o.delay - o.duration) / BACK, duration: o.duration / BACK, fill: 'forwards' }));
@@ -1046,7 +1063,7 @@
         if (!to || to === level) return;
         const from = level;
         const dir = up ? -1 : 1;
-        const quick = m.reduced || motion.matches;
+        const quick = m.reduced || motion.matches || !m.pace;
         const { title, parent } = levels.get(to);
         level = to;
         from.inert = true;
@@ -1076,11 +1093,11 @@
           else {
             old.forEach((el) => {
               const transform = getComputedStyle(el).transform;
-              el.animate([{ transform: transform === 'none' ? 'translateY(0%)' : transform }, { transform: `translateY(${-110 * dir}%)` }], { duration: 560, easing: RISE, fill: 'forwards' })
+              el.animate([{ transform: transform === 'none' ? 'translateY(0%)' : transform }, { transform: `translateY(${-110 * dir}%)` }], { duration: 560 * m.pace, easing: RISE, fill: 'forwards' })
                 .finished.then(() => el.remove(), () => {});
             });
             // Same pace as the one leaving: the two names roll together, one above the other
-            name.animate([{ transform: `translateY(${110 * dir}%)` }, { transform: 'translateY(0%)' }], { duration: 560, easing: RISE });
+            name.animate([{ transform: `translateY(${110 * dir}%)` }, { transform: 'translateY(0%)' }], { duration: 560 * m.pace, easing: RISE });
           }
         }
 
@@ -1090,8 +1107,8 @@
           slides.clear();
         } else {
           // A row is gone (faded by halfway) before the new one takes its place: they never share it
-          const out = [...from.children].map((li, i) => slide(li, [{ opacity: 1, transform: 'translateX(0px)', easing: SWING }, { opacity: 0, offset: 0.55 }, { opacity: 0, transform: `translateX(${-48 * dir}px)` }], { duration: 240, delay: i * 20, fill: 'forwards' }));
-          [...to.children].forEach((li, i) => slide(li, [{ opacity: 0, transform: `translateX(${56 * dir}px)` }, { opacity: 1, transform: 'translateX(0px)' }], { duration: 560, delay: 170 + i * 40, easing: RISE, fill: 'backwards' }));
+          const out = [...from.children].map((li, i) => slide(li, [{ opacity: 1, transform: 'translateX(0px)', easing: SWING }, { opacity: 0, offset: 0.55 }, { opacity: 0, transform: `translateX(${-48 * dir}px)` }], { duration: 240 * m.pace, delay: i * 20 * m.pace, fill: 'forwards' }));
+          [...to.children].forEach((li, i) => slide(li, [{ opacity: 0, transform: `translateX(${56 * dir}px)` }, { opacity: 1, transform: 'translateX(0px)' }], { duration: 560 * m.pace, delay: (170 + i * 40) * m.pace, easing: RISE, fill: 'backwards' }));
           Promise.all(out.map((animation) => animation.finished)).then(() => {
             if (level === from) return;
             from.hidden = true;

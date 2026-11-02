@@ -6,6 +6,12 @@
 (() => {
   const SELECTOR = '.kodza-steps';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const small = window.matchMedia('(max-width: 860px)');
   const pad = (n) => String(n).padStart(2, '0');
 
@@ -18,7 +24,8 @@
     const barsBox = root.querySelector('.kodza-steps__bars');
     if (!steps.length) return;
     const style = getComputedStyle(root);
-    const duration = reduceMotion ? 0 : parseFloat(style.getPropertyValue('--kz-steps-duration')) * 1000 || 1000;
+    const pace = paceOf(root);
+    const duration = reduceMotion || !pace ? 0 : (parseFloat(style.getPropertyValue('--kz-steps-duration')) * 1000 || 1000) * pace;
 
     if (total) total.textContent = `/ ${pad(steps.length)}`;
     const bars = steps.map(() => {

@@ -11,8 +11,8 @@ A bar or a ring driven by data-value: the percentage rolls like an odometer, a s
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-progress-bar.html`](kodza-progress-bar.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-progress-bar.css`](kodza-progress-bar.css) | 9.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-progress-bar.js`](kodza-progress-bar.js) | 7.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-progress-bar.css`](kodza-progress-bar.css) | 10.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-progress-bar.js`](kodza-progress-bar.js) | 8.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

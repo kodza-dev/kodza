@@ -7,6 +7,12 @@
 (() => {
   const SELECTOR = '[data-kodza-eye-glyph]';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const NS = 'http://www.w3.org/2000/svg';
   const CLOSE = 'cubic-bezier(0.55, 0, 0.85, 0.35)';
   const OPEN = 'cubic-bezier(0.15, 0.7, 0.3, 1)';
@@ -260,6 +266,7 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
     const eyes = [...root.querySelectorAll('.kodza-eye-glyph__eye')].map((el) => makeEye(el, root));
     if (!eyes.length) return;
     const timers = new Set();
@@ -288,7 +295,7 @@
       cancelAnimationFrame(raf);
       timers.forEach(clearTimeout);
     });
-    if (reduceMotion) return; // the eyes stay open and look straight ahead
+    if (reduceMotion || !pace) return; // the eyes stay open and look straight ahead
 
     const frame = () => {
       let moving = false;
@@ -303,8 +310,9 @@
       });
       raf = moving ? requestAnimationFrame(frame) : 0;
     };
+    // The pupil's speed, slower at a slower pace
     const go = (s) => {
-      speed = s;
+      speed = Math.min(1, s / pace);
       if (!raf) raf = requestAnimationFrame(frame);
     };
     const set = (eye, x, y) => {
@@ -336,11 +344,12 @@
       { signal, passive: true }
     );
 
-    // Blinks: all the eyes of a word together, from time to time, twice in a row one time in four
-    const duration = () => time(getComputedStyle(root).getPropertyValue('--kz-eye-glyph-blink'), 340);
+    // Blinks: all the eyes of a word together, from time to time, twice in a row one time in four.
+    // The blink keeps the site's pace; the time between two blinks is the eye's life, not motion
+    const duration = () => time(getComputedStyle(root).getPropertyValue('--kz-eye-glyph-blink'), 340) * pace;
     const blinkAll = (twice) => {
       const d = duration();
-      eyes.forEach((eye, i) => eye.blink(d, twice && i === 0 ? () => later(() => blinkAll(false), 90) : null));
+      eyes.forEach((eye, i) => eye.blink(d, twice && i === 0 ? () => later(() => blinkAll(false), 90 * pace) : null));
     };
     let quiet = 0; // after a wink, no blink on its own for a while: the wink stays readable
     const blinks = () => {
@@ -384,7 +393,7 @@
         blinkAll(true);
         later(blinks, 2400);
         later(wander, 1800);
-      }, 450);
+      }, 450 * pace);
     });
     io.observe(root);
     signal.addEventListener('abort', () => io.disconnect());

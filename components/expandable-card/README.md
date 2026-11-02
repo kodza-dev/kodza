@@ -11,7 +11,7 @@ A row of cards where one is always open: click another and it widens while the o
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-expandable-card.html`](kodza-expandable-card.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-expandable-card.css`](kodza-expandable-card.css) | 13.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-expandable-card.css`](kodza-expandable-card.css) | 14.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-expandable-card.js`](kodza-expandable-card.js) | 7.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.

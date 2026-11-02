@@ -6,6 +6,12 @@
 (() => {
   const SELECTOR = '.kodza-countdown';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const SPAN = { days: 86400, hours: 3600, minutes: 60, seconds: 1 };
 
@@ -14,6 +20,8 @@
     const values = [...root.querySelectorAll('.kodza-countdown__value')];
     const units = root.querySelector('.kodza-countdown__units');
     const hasDays = values.some((el) => el.dataset.unit === 'days');
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     let timer = 0;
     let said = '';
 
@@ -39,8 +47,8 @@
         if (old.textContent === char) return;
         const next = Object.assign(document.createElement('span'), { textContent: char });
         cell.append(next);
-        if (!animate || reduceMotion) return old.remove();
-        const timing = { duration: 520, easing: ease };
+        if (!animate || still) return old.remove();
+        const timing = { duration: 520 * pace, easing: ease };
         old.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(100%)', opacity: 0 }], { ...timing, fill: 'forwards' }).finished.then(() => old.remove());
         next.animate([{ transform: 'translateY(-100%)', opacity: 0 }, { transform: 'none', opacity: 1 }], timing);
       });
@@ -66,7 +74,7 @@
       if (sentence !== said) sr.textContent = said = sentence;
       // At zero, 00 lands first, then the message takes over
       if (over) {
-        if (root.dataset.done && !root.classList.contains('is-done')) timer = setTimeout(() => root.classList.add('is-done'), animate && !reduceMotion ? 900 : 0);
+        if (root.dataset.done && !root.classList.contains('is-done')) timer = setTimeout(() => root.classList.add('is-done'), animate && !still ? 900 * pace : 0);
         return;
       }
       timer = setTimeout(tick, 1000 - (Date.now() % 1000) + 10);

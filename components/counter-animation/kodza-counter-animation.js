@@ -6,11 +6,19 @@
 (() => {
   const SELECTOR = '.kodza-counter';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
     const value = root.querySelector('.kodza-counter__value');
     if (!value) return;
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const text = value.textContent.trim();
     const count = (text.match(/\d/g) || []).length;
     let rank = 0;
@@ -33,19 +41,19 @@
 
     const land = () => strips.forEach(({ strip, stop }) => (strip.style.transform = `translateY(${-stop * 1.1}em)`));
     const roll = () => {
-      if (reduceMotion) return land();
+      if (still) return land();
       strips.forEach(({ strip, stop, rank: r }) => {
         strip.getAnimations().forEach((animation) => animation.cancel());
         strip.style.transform = '';
         strip.animate([{ transform: 'translateY(0)' }, { transform: `translateY(${-stop * 1.1}em)` }], {
-          duration: 1500 + r * 160,
+          duration: (1500 + r * 160) * pace,
           easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
           fill: 'forwards',
         });
       });
     };
 
-    if (reduceMotion || !('IntersectionObserver' in window)) land();
+    if (still || !('IntersectionObserver' in window)) land();
     else {
       const io = new IntersectionObserver((entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return;

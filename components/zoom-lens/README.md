@@ -11,8 +11,8 @@ A closer look under the pointer: a round lens follows with a little lag and show
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-zoom-lens.html`](kodza-zoom-lens.html) | 0.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-zoom-lens.css`](kodza-zoom-lens.css) | 5.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-zoom-lens.js`](kodza-zoom-lens.js) | 8.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-zoom-lens.css`](kodza-zoom-lens.css) | 5.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-zoom-lens.js`](kodza-zoom-lens.js) | 8.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

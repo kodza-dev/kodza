@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '[data-kodza-pattern-background]';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const EDGE = 8; // a frame line never closer than this to the edge of the section
   const FOLD = 2.5; // kodza:replay folds the trace away this many times faster than it draws
 
@@ -28,6 +34,8 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const content = root.querySelector('.kodza-pattern-background__content');
     if (!content) return;
 
@@ -71,7 +79,7 @@
     resize.observe(content, { box: 'border-box' });
     signal.addEventListener('abort', () => resize.disconnect());
 
-    const drawing = root.classList.contains('kodza-pattern-background--draw') && !reduceMotion;
+    const drawing = root.classList.contains('kodza-pattern-background--draw') && !still;
 
     // kodza:replay folds the trace back into the content, measures again and draws it once more
     // (a demo that swaps the pattern, a slide that comes back): nothing vanishes at once. A

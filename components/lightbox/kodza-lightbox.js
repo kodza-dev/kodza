@@ -7,11 +7,19 @@
 (() => {
   const SELECTOR = '.kodza-lightbox';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const icon = (d) => `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="${d}"/></svg>`;
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const triggers = [...root.querySelectorAll('img')]
       .filter((img) => !img.closest('a, button') && !img.hasAttribute('data-no-lightbox'))
       .map((img) => {
@@ -77,13 +85,13 @@
       const old = el.lastElementChild;
       if (old.textContent === text) return;
       // On opening (no direction) or without motion, the word simply changes in place
-      if (reduceMotion || !dir) {
+      if (still || !dir) {
         old.textContent = text;
         return;
       }
       const next = Object.assign(document.createElement('span'), { textContent: text });
       el.append(next);
-      const timing = { duration: 420, easing: ease };
+      const timing = { duration: 420 * pace, easing: ease };
       old.animate([{ transform: 'none', opacity: 1 }, { transform: `translateY(${-dir * 100}%)`, opacity: 0 }], { ...timing, fill: 'forwards' }).finished.then(() => old.remove());
       next.animate([{ transform: `translateY(${dir * 100}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], timing);
     };
@@ -125,11 +133,11 @@
       viewer.showModal();
       triggers[i].classList.add('is-away');
       label(0);
-      if (reduceMotion) return;
+      if (still) return;
       const rect = triggers[i].querySelector('img').getBoundingClientRect();
-      image.animate([{ transform: from(box, rect), borderRadius: getComputedStyle(triggers[i]).borderTopLeftRadius }, { transform: 'none', borderRadius: getComputedStyle(image).borderTopLeftRadius }], { duration: 620, easing: ease });
-      shade.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, easing: 'ease' });
-      [bar, close].forEach((el) => el.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 480, delay: 200, easing: ease, fill: 'backwards' }));
+      image.animate([{ transform: from(box, rect), borderRadius: getComputedStyle(triggers[i]).borderTopLeftRadius }, { transform: 'none', borderRadius: getComputedStyle(image).borderTopLeftRadius }], { duration: 620 * pace, easing: ease });
+      shade.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420 * pace, easing: 'ease' });
+      [bar, close].forEach((el) => el.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 480 * pace, delay: 200 * pace, easing: ease, fill: 'backwards' }));
     };
 
     const shut = () => {
@@ -143,16 +151,16 @@
         viewer.close();
         settle();
       };
-      if (reduceMotion) return done();
+      if (still) return done();
       const box = image.getBoundingClientRect();
       const rect = trigger.querySelector('img').getBoundingClientRect();
       const seen = rect.bottom > 0 && rect.top < innerHeight;
       // Back to its place if that place is on screen; otherwise it simply fades
       image.animate(seen
         ? [{ transform: getComputedStyle(image).transform === 'none' ? 'none' : getComputedStyle(image).transform }, { transform: from(box, rect), borderRadius: getComputedStyle(trigger).borderTopLeftRadius }]
-        : [{ opacity: 1 }, { opacity: 0, transform: 'scale(0.96)' }], { duration: 520, easing: ease, fill: 'forwards' }).onfinish = done;
-      shade.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 420, easing: 'ease', fill: 'forwards' });
-      [bar, close].forEach((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }));
+        : [{ opacity: 1 }, { opacity: 0, transform: 'scale(0.96)' }], { duration: 520 * pace, easing: ease, fill: 'forwards' }).onfinish = done;
+      shade.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 420 * pace, easing: 'ease', fill: 'forwards' });
+      [bar, close].forEach((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200 * pace, fill: 'forwards' }));
     };
 
     const go = (step) => {
@@ -165,9 +173,9 @@
       place(image, fit(image));
       old.after(image);
       label(step);
-      if (reduceMotion) return old.remove();
+      if (still) return old.remove();
       // A push: both move together by one screen, so they never cross
-      const push = { duration: 680, easing: 'cubic-bezier(0.76, 0, 0.24, 1)' };
+      const push = { duration: 680 * pace, easing: 'cubic-bezier(0.76, 0, 0.24, 1)' };
       old.getAnimations().forEach((animation) => animation.cancel());
       old.animate([{ transform: 'none' }, { transform: `translateX(${-step * innerWidth}px)` }], { ...push, fill: 'forwards' }).onfinish = () => old.remove();
       image.animate([{ transform: `translateX(${step * innerWidth}px)` }, { transform: 'none' }], push);

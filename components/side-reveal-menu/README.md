@@ -11,8 +11,8 @@ A menu under the page: the page slides left and shrinks into a card, the menu wa
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-side-reveal-menu.html`](kodza-side-reveal-menu.html) | 2.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-side-reveal-menu.css`](kodza-side-reveal-menu.css) | 20.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-side-reveal-menu.js`](kodza-side-reveal-menu.js) | 31.9 KB | The script. One copy per page runs every instance. |
+| [`kodza-side-reveal-menu.css`](kodza-side-reveal-menu.css) | 21.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-side-reveal-menu.js`](kodza-side-reveal-menu.js) | 32.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

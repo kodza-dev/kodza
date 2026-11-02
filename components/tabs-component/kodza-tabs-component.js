@@ -6,10 +6,18 @@
 (() => {
   const SELECTOR = '.kodza-tabs';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   let uid = 0;
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const list = root.querySelector('.kodza-tabs__list');
     const tabs = [...root.querySelectorAll('.kodza-tabs__tab')];
     const panels = [...root.querySelectorAll('.kodza-tabs__panel')];
@@ -51,7 +59,7 @@
       list.style.setProperty('--kz-ind-r', `${track - tab.offsetLeft - tab.offsetWidth}px`);
       if (scroll && list.classList.contains('is-scroll')) {
         const left = tab.offsetLeft - (list.clientWidth - tab.offsetWidth) / 2;
-        list.scrollTo({ left, behavior: reduceMotion ? 'auto' : 'smooth' });
+        list.scrollTo({ left, behavior: still ? 'auto' : 'smooth' });
       }
     };
 

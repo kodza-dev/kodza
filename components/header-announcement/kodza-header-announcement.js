@@ -11,6 +11,12 @@
 (() => {
   const SELECTOR = '.kodza-header-announcement';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const c = (name) => `.kodza-header-announcement__${name}`;
 
   // A duration variable, in ms
@@ -65,6 +71,8 @@
   // One instance, with its own state: two copies on a page never interfere. Everything it
   // starts is tied to `signal`, so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const links = [...root.querySelectorAll(c('link'))];
 
     // ---------- The strip ----------
@@ -91,10 +99,10 @@
       const from = messages[shown];
       const to = messages[(shown + 1) % messages.length];
       show(messages.indexOf(to));
-      if (reduceMotion || from === to) return;
+      if (still || from === to) return;
       from.classList.add('is-shown');
       const style = getComputedStyle(root);
-      const timing = { duration: ms(style, '--kz-header-announcement-roll', 700), easing: 'cubic-bezier(0.65, 0, 0.35, 1)' };
+      const timing = { duration: ms(style, '--kz-header-announcement-roll', 700) * pace, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' };
       const out = from.animate({ translate: ['0 0', '0 -100%'] }, timing);
       const into = to.animate({ translate: ['0 100%', '0 0'] }, timing);
       [out, into].forEach((run) => {
@@ -157,8 +165,8 @@
         clearTimeout(folding);
         if (strip.classList.contains('is-dismissed')) strip.hidden = true;
       };
-      if (reduceMotion) return leave();
-      folding = setTimeout(leave, ms(getComputedStyle(root), '--kz-header-announcement-fold', 600) + 80);
+      if (still) return leave();
+      folding = setTimeout(leave, ms(getComputedStyle(root), '--kz-header-announcement-fold', 600) * pace + 80);
     };
     // Back, from the first message: it unfolds and the header slides down
     const unfold = () => {
@@ -242,18 +250,18 @@
       panel.style.setProperty('--kz-header-announcement-from', `${Math.max(0, Math.round(edge))}px`);
     };
 
-    // Each row starts when the edge of the shutter gets to it
+    // Each row starts when the edge of the shutter gets to it (the delays are set at the site's pace)
     const time = () => {
       const style = getComputedStyle(root);
       const raw = style.getPropertyValue('--kz-header-announcement-menu-duration').trim();
-      const duration = reduceMotion ? 0 : parseFloat(raw) * (/ms$/.test(raw) ? 1 : 1000) || 800;
+      const duration = still ? 0 : (parseFloat(raw) * (/ms$/.test(raw) ? 1 : 1000) || 800) * pace;
       const match = style.getPropertyValue('--kz-header-announcement-menu-ease').match(/cubic-bezier\(([^)]+)\)/);
       const curve = match ? match[1].split(',').map(Number) : [0.76, 0, 0.24, 1];
       const box = panel.getBoundingClientRect();
       const late = performance.now() - started;
       parts.forEach((part) => {
         const p = Math.min(1, Math.max(0, (part.getBoundingClientRect().top - box.top) / (box.height || 1)));
-        const delay = Math.max(0, duration * timeAt(curve, p) - late - 40);
+        const delay = Math.max(0, duration * timeAt(curve, p) - late - 40 * pace);
         part.style.setProperty('--kz-header-announcement-delay', `${Math.round(delay)}ms`);
       });
     };
@@ -261,14 +269,14 @@
     // Menu rolls to Close and back the same way: the old word goes up, the new one comes from below.
     // A click during the roll turns it back from where the words are
     const roll = () => {
-      if (reduceMotion || words.length < 2) return;
+      if (still || words.length < 2) return;
       words.forEach((word, i) => {
         const coming = i === Number(open);
         const from = rolls.has(word) ? getComputedStyle(word).translate : coming ? '0 115%' : '0 0';
         rolls.get(word)?.cancel();
         const run = word.animate(
           { translate: [from, coming ? '0 0' : '0 -115%'] },
-          { duration: 500, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+          { duration: 500 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
         );
         rolls.set(word, run);
         run.finished.then(() => rolls.get(word) === run && rolls.delete(word), () => {});

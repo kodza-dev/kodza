@@ -11,8 +11,8 @@ A title over a wall of project thumbnails laid back like prints on a table. On s
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-showcase.html`](kodza-hero-showcase.html) | 7.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-showcase.css`](kodza-hero-showcase.css) | 23.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-showcase.js`](kodza-hero-showcase.js) | 18.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-showcase.css`](kodza-hero-showcase.css) | 24.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-showcase.js`](kodza-hero-showcase.js) | 19.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

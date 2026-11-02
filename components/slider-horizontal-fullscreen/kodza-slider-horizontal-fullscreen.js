@@ -6,16 +6,23 @@
 (() => {
   const SELECTOR = '.kodza-slider';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const pad = (n) => String(n).padStart(2, '0');
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     const slides = [...root.querySelectorAll('.kodza-slider__slide')];
     const count = root.querySelector('.kodza-slider__count b');
     if (slides.length < 2) return;
     const vertical = root.dataset.direction === 'vertical';
     const style = getComputedStyle(root);
-    const duration = reduceMotion ? 0 : parseFloat(style.getPropertyValue('--kz-slider-duration')) * 1000 || 1000;
+    const duration = reduceMotion || !pace ? 0 : (parseFloat(style.getPropertyValue('--kz-slider-duration')) * 1000 || 1000) * pace;
     const ease = style.getPropertyValue('--kz-slider-ease').trim() || 'ease';
     let current = 0;
     let busy = false;
@@ -68,7 +75,7 @@
       to.querySelectorAll('.kodza-slider__line').forEach((line, i) => {
         line.animate([{ transform: 'translateY(105%)' }, { transform: 'none' }], {
           duration: duration * 0.8,
-          delay: duration * 0.45 + i * 90,
+          delay: duration * 0.45 + i * 90 * pace,
           easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
           fill: 'backwards',
         });

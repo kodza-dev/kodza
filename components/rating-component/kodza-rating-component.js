@@ -6,23 +6,30 @@
 (() => {
   const SELECTOR = '.kodza-rating';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
-  const roll = (box, text, chosen, dir = 1) => {
+  // The word rolls to its new value, at the instance's pace
+  const roll = (box, text, chosen, dir = 1, pace = 1) => {
     const prev = box.lastElementChild;
     if (prev && prev.textContent === text && prev.classList.contains('is-chosen') === chosen) return;
     const span = Object.assign(document.createElement('span'), { textContent: text });
     span.classList.toggle('is-chosen', chosen);
     box.append(span);
     if (!prev) return;
-    if (reduceMotion || prev.textContent === text) return prev.remove();
-    const timing = { duration: 320, easing: ease };
+    if (reduceMotion || !pace || prev.textContent === text) return prev.remove();
+    const timing = { duration: 320 * pace, easing: ease };
     prev.animate([{ transform: 'none' }, { transform: `translateY(${dir * -110}%)` }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
     span.animate([{ transform: `translateY(${dir * 110}%)` }, { transform: 'none' }], timing);
   };
 
   // The interactive stars
-  function mountStars(root, signal) {
+  function mountStars(root, signal, pace) {
     const stars = [...root.querySelectorAll('.kodza-rating__input')];
     const word = root.querySelector('.kodza-rating__word');
     if (!stars.length) return;
@@ -37,7 +44,7 @@
         star.classList.toggle('is-lit', i < (preview ? Math.min(count, chosen) : count));
         star.classList.toggle('is-preview', preview && i < count);
       });
-      if (word) roll(word, count ? words[count - 1] : idle, !preview && count > 0, count >= shown ? 1 : -1);
+      if (word) roll(word, count ? words[count - 1] : idle, !preview && count > 0, count >= shown ? 1 : -1, pace);
       shown = count;
     };
     const rest = () => light(stars.findIndex((star) => star.checked) + 1, false);
@@ -46,8 +53,8 @@
       star.addEventListener('pointerenter', () => light(i + 1, true), { signal });
       star.addEventListener('change', () => {
         light(i + 1, false);
-        if (reduceMotion) return;
-        stars.slice(0, i + 1).forEach((s, k) => s.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.28)' }, { transform: 'scale(1)' }], { duration: 380, delay: k * 45, easing: ease }));
+        if (reduceMotion || !pace) return;
+        stars.slice(0, i + 1).forEach((s, k) => s.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.28)' }, { transform: 'scale(1)' }], { duration: 380 * pace, delay: k * 45 * pace, easing: ease }));
       }, { signal });
     });
     root.querySelector('.kodza-rating__stars')?.addEventListener('pointerleave', rest, { signal });
@@ -55,10 +62,10 @@
   }
 
   // The static score fills and counts up once, when it comes into view
-  function mountScore(root, signal) {
+  function mountScore(root, signal, pace) {
     const score = parseFloat(getComputedStyle(root).getPropertyValue('--kz-score')) || 0;
     const number = root.querySelector('.kodza-rating__score');
-    if (reduceMotion || !('IntersectionObserver' in window)) return;
+    if (reduceMotion || !pace || !('IntersectionObserver' in window)) return;
     root.classList.add('is-armed');
     if (number) number.textContent = '0.0';
     const io = new IntersectionObserver(([entry]) => {
@@ -67,7 +74,7 @@
       root.classList.add('is-in');
       const start = performance.now();
       const step = (now) => {
-        const t = Math.min(1, (now - start) / 1100);
+        const t = Math.min(1, (now - start) / (1100 * pace));
         if (number) number.textContent = (score * (1 - Math.pow(1 - t, 3))).toFixed(1);
         if (t < 1 && !signal.aborted) requestAnimationFrame(step);
       };
@@ -79,8 +86,9 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
-    if (root.classList.contains('kodza-rating--static')) mountScore(root, signal);
-    else mountStars(root, signal);
+    const pace = paceOf(root);
+    if (root.classList.contains('kodza-rating--static')) mountScore(root, signal, pace);
+    else mountStars(root, signal, pace);
   }
 
   // Kodza lifecycle, the same in every component: `kodza:init` starts the instances inside

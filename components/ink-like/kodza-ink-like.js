@@ -11,6 +11,12 @@
 (() => {
   const SELECTOR = '.kodza-ink-like';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const LAG_UP = 380;
   const LAG_DOWN = 120;
@@ -19,6 +25,8 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const svg = root.querySelector('.kodza-ink-like__icon');
     const ink = root.querySelector('.kodza-ink-like__ink');
     const surface = root.querySelector('.kodza-ink-like__surface');
@@ -94,7 +102,7 @@
       const was = a.padStart(n);
       const now = b.padStart(n);
       const k = to > from ? 1 : -1;
-      const delay = (i) => (k > 0 ? n - 1 - i : i) * 55;
+      const delay = (i) => (k > 0 ? n - 1 - i : i) * 55 * pace;
       const anims = [];
       const rooms = [];
       const turns = [...now].map((ch, i) => (ch !== was[i] && ch.trim() && was[i].trim() ? delay(i) : Infinity));
@@ -108,7 +116,7 @@
         if (was[i] === now[i]) continue;
         const old = Object.assign(document.createElement('span'), { textContent: was[i].trim() });
         cell.append(old);
-        const timing = { duration: 480, delay: turns[i] === Infinity && start !== Infinity ? start : delay(i), easing: ease, fill: 'both' };
+        const timing = { duration: 480 * pace, delay: turns[i] === Infinity && start !== Infinity ? start : delay(i), easing: ease, fill: 'both' };
         anims.push(
           next.animate([{ transform: `translateY(${100 * k}%)` }, { transform: 'none' }], timing),
           old.animate([{ transform: 'none' }, { transform: `translateY(${-100 * k}%)` }], timing),
@@ -119,7 +127,7 @@
         const narrow = parseFloat(getComputedStyle(old).width);
         if (wide !== narrow) rooms.push([cell, narrow, wide]);
       }
-      const timing = { duration: 480, delay: start === Infinity ? 0 : start, easing: ease, fill: 'both' };
+      const timing = { duration: 480 * pace, delay: start === Infinity ? 0 : start, easing: ease, fill: 'both' };
       rooms.forEach(([cell, narrow, wide]) => {
         anims.push(cell.animate([{ width: `${narrow}px` }, { width: `${wide}px` }], timing));
       });
@@ -135,7 +143,7 @@
       } else {
         run?.anims.forEach((a) => a.cancel());
         run = null;
-        if (reduceMotion) paint(to);
+        if (still) paint(to);
         else draw(shown, to);
       }
       shown = to;
@@ -146,17 +154,17 @@
       lag = setTimeout(() => {
         lag = 0;
         roll(total);
-      }, reduceMotion ? 0 : ms);
+      }, still ? 0 : ms * pace);
     };
 
     // The surface sloshes while the ink moves: it tilts against the flow, overshoots, settles
     let slosh = null;
     let flowTimer = 0;
     const flow = (up) => {
-      if (reduceMotion || !surface) return;
+      if (still || !surface) return;
       root.classList.add('is-flowing');
       clearTimeout(flowTimer);
-      flowTimer = setTimeout(() => root.classList.remove('is-flowing'), up ? 1000 : 520);
+      flowTimer = setTimeout(() => root.classList.remove('is-flowing'), (up ? 1000 : 520) * pace);
       const from = getComputedStyle(surface).transform;
       slosh?.cancel();
       const s = up ? 1 : -1;
@@ -165,19 +173,19 @@
         { transform: `rotate(${-5 * s}deg) scaleY(1.6)`, offset: 0.3 },
         { transform: `rotate(${2 * s}deg) scaleY(1.1)`, offset: 0.65 },
         { transform: 'rotate(0deg) scaleY(0.7)' },
-      ], { duration: up ? 900 : 480, easing: 'ease-out' });
+      ], { duration: (up ? 900 : 480) * pace, easing: 'ease-out' });
     };
 
     // The heart says no: a short shake when the request is refused
     const shake = () => {
-      if (reduceMotion) return;
+      if (still) return;
       svg.animate([
         { transform: 'none' },
         { transform: 'translateX(-2px)', offset: 0.2 },
         { transform: 'translateX(2px)', offset: 0.45 },
         { transform: 'translateX(-1px)', offset: 0.7 },
         { transform: 'none' },
-      ], { duration: 360, easing: 'ease-out' });
+      ], { duration: 360 * pace, easing: 'ease-out' });
     };
 
     // The level follows aria-pressed in CSS, so a click halfway turns it round where it is

@@ -9,7 +9,13 @@
 (() => {
   const SELECTOR = '.kodza-reveal';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const blocks = new WeakMap(); // block → { html (mask blocks: their markup as written), timer }
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
+  const blocks = new WeakMap(); // block → { html (mask blocks: their markup as written), timer, pace }
   const waiting = new Set(); // armed blocks not in yet (repeat blocks aside)
 
   // A time read from a variable, "0.9s" or "900ms", in ms
@@ -98,7 +104,7 @@
     const lines = el.querySelectorAll('.kodza-reveal__line').length;
     // The longest part of each entrance: the image of a clip settles in 1.9 durations, mask lines rise in 1.1
     const length = el.classList.contains('kodza-reveal--clip') ? 1.9 : lines ? 1.1 : 1;
-    block.timer = setTimeout(() => settle(el), duration * length + stagger * (i + lines) + 100);
+    block.timer = setTimeout(() => settle(el), (duration * length + stagger * (i + lines)) * block.pace + 100);
   };
 
   // A repeat block back below the screen: hidden again, at once
@@ -151,10 +157,11 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(el, signal) {
-    if (reduceMotion || !('IntersectionObserver' in window)) return;
+    const pace = paceOf(el);
+    if (reduceMotion || !pace || !('IntersectionObserver' in window)) return;
     const mask = el.classList.contains('kodza-reveal--mask') && inline(el);
     const html = mask ? el.innerHTML : null;
-    blocks.set(el, { html, timer: 0 });
+    blocks.set(el, { html, timer: 0, pace });
     if (mask) {
       split(el, html);
       document.fonts?.ready.then(() => !signal.aborted && !el.classList.contains('is-in') && split(el, html));

@@ -7,6 +7,12 @@
 (() => {
   const SELECTOR = '.kodza-hscroll';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const swipe = window.matchMedia('(hover: none), (max-width: 760px)');
   const pad = (n) => String(n).padStart(2, '0');
 
@@ -18,6 +24,8 @@
     const num = root.querySelector('.kodza-hscroll__num');
     const total = root.querySelector('.kodza-hscroll__total');
     if (!viewport || !track || !items.length) return;
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     if (total) total.textContent = `/ ${pad(items.length)}`;
     if (num) num.replaceChildren(Object.assign(document.createElement('span'), { textContent: pad(1) }));
 
@@ -35,8 +43,8 @@
       const span = document.createElement('span');
       span.textContent = pad(next + 1);
       num.append(span);
-      if (reduceMotion) return prev.remove();
-      const timing = { duration: 450, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+      if (still) return prev.remove();
+      const timing = { duration: 450 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
       prev.animate([{ transform: 'none' }, { transform: `translateY(${dir * -110}%)` }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
       span.animate([{ transform: `translateY(${dir * 110}%)` }, { transform: 'none' }], timing);
     };
@@ -52,7 +60,7 @@
       items.forEach((item) => {
         const box = item.getBoundingClientRect();
         const drift = Math.max(-1, Math.min(1, (box.left + box.width / 2 - middle) / innerWidth));
-        item.style.setProperty('--kz-drift', reduceMotion ? 0 : (-drift).toFixed(3));
+        item.style.setProperty('--kz-drift', still ? 0 : (-drift).toFixed(3));
       });
       roll(Math.min(items.length - 1, Math.round(progress * (items.length - 1))));
     };
@@ -75,7 +83,7 @@
       const item = event.target.closest('.kodza-hscroll__item');
       if (!item) return;
       const target = Math.min(distance, Math.max(0, item.offsetLeft - (innerWidth - item.offsetWidth) / 2));
-      window.scrollTo({ top: root.getBoundingClientRect().top + window.scrollY + target, behavior: reduceMotion ? 'auto' : 'smooth' });
+      window.scrollTo({ top: root.getBoundingClientRect().top + window.scrollY + target, behavior: still ? 'auto' : 'smooth' });
     }, { signal });
 
     let ticking = false;

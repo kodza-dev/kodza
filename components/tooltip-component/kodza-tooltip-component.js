@@ -7,13 +7,22 @@
 (() => {
   const SELECTOR = '.kodza-tooltip';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   let uid = 0;
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
     const triggers = [...root.querySelectorAll('.kodza-tooltip__trigger[data-tip]')];
     if (!triggers.length) return;
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const below = root.classList.contains('kodza-tooltip--bottom');
+    // The wait before the first bubble is the visitor's intent, not motion: it keeps its length
     const delay = parseFloat(getComputedStyle(root).getPropertyValue('--kz-tip-delay')) || 500;
 
     const bubble = document.createElement('span');
@@ -35,12 +44,12 @@
       const prev = words.lastElementChild;
       const span = Object.assign(document.createElement('span'), { textContent: text });
       words.append(span);
-      if (!roll || reduceMotion) prev.remove();
+      if (!roll || still) prev.remove();
       else {
         // The leaving word steps out of the flow: the bubble sizes itself to the new one only
         prev.classList.add('is-leaving');
         const dir = triggers.indexOf(trigger) > triggers.indexOf(current) ? 1 : -1;
-        const timing = { duration: 220, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+        const timing = { duration: 220 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
         prev.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${dir * -40}%)`, opacity: 0 }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
         span.animate([{ transform: `translateX(${dir * 40}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], timing);
       }
@@ -79,9 +88,9 @@
       write(trigger, gliding);
       bubble.classList.toggle('is-gliding', gliding);
       // The bubble eases to its new width
-      if (gliding && !reduceMotion) {
+      if (gliding && !still) {
         const to = width();
-        if (Math.abs(to - from) > 1) bubble.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: 250, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+        if (Math.abs(to - from) > 1) bubble.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: 250 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
       }
       place(trigger);
       current?.removeAttribute('aria-describedby');

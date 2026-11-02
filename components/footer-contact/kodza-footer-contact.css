@@ -14,7 +14,7 @@
   --kz-footer-contact-pad: 24px;
   --kz-footer-contact-weight: var(--kz-font-display-weight, 500); /* the address */
   --kz-footer-contact-tracking: var(--kz-font-display-tracking, -0.05em);
-  --kz-footer-contact-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-footer-contact-mono: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)); /* the time, the booking line, the handles and the © */
   --kz-footer-contact-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   display: block;
@@ -76,10 +76,11 @@
 .kodza-footer-contact__copy {
   margin: 0;
   font-family: var(--kz-footer-contact-mono);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
   line-height: 20px;
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-contact-muted);
   white-space: nowrap;
 }
@@ -123,7 +124,7 @@
   border-radius: 50%;
   box-shadow: 0 0 0 1px var(--kz-footer-contact-fg);
   opacity: 0;
-  animation: kodza-footer-contact-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  animation: kodza-footer-contact-ping calc(2.4s * var(--kz-motion-scale, 1)) cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 @keyframes kodza-footer-contact-ping {
@@ -213,7 +214,7 @@
   border-top: 1px solid var(--kz-footer-contact-line);
   background: linear-gradient(var(--kz-footer-contact-fg), var(--kz-footer-contact-fg)) no-repeat 100% 0 / 0 1px;
   background-origin: border-box;
-  transition: background-size 0.6s var(--kz-footer-contact-ease);
+  transition: background-size calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-footer-contact-ease);
 }
 
 .kodza-footer-contact.is-copied .kodza-footer-contact__under {
@@ -225,11 +226,15 @@
   display: inline-grid;
   overflow: hidden;
   margin: 0;
-  font-size: 14px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
   line-height: 22px;
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-contact-muted);
   white-space: nowrap;
-  transition: color 0.2s ease;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-footer-contact__said > span {
@@ -260,9 +265,12 @@
   gap: 8px;
   border-radius: calc(4px * var(--kz-radius-scale, 1));
   color: inherit;
-  font-size: 14px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
   line-height: 22px;
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
 }
 
@@ -287,7 +295,7 @@
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform 0.45s var(--kz-footer-contact-ease);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-footer-contact-ease);
 }
 
 .kodza-footer-contact__go svg + svg {
@@ -318,7 +326,7 @@
   text-decoration: none;
   background: linear-gradient(var(--kz-footer-contact-fg), var(--kz-footer-contact-fg)) no-repeat 100% 100% / 0 1px;
   background-origin: border-box;
-  transition: background-size 0.6s var(--kz-footer-contact-ease);
+  transition: background-size calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-footer-contact-ease);
 }
 
 .kodza-footer-contact__name {
@@ -337,17 +345,19 @@
 .kodza-footer-contact__name > span {
   display: block;
   text-shadow: 0 1.2em currentColor;
-  transition: transform 0.55s var(--kz-footer-contact-ease);
+  transition: transform calc(0.55s * var(--kz-motion-scale, 1)) var(--kz-footer-contact-ease);
 }
 
 .kodza-footer-contact__handle {
   font-family: var(--kz-footer-contact-mono);
-  font-size: 12px;
-  letter-spacing: 0.02em;
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
   line-height: 20px;
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-contact-muted);
   white-space: nowrap;
-  transition: color 0.2s ease;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-footer-contact__social .kodza-footer-contact__go {
@@ -381,11 +391,17 @@
 /* Links: the line grows from the left, and shrinks away to the right */
 .kodza-footer-contact__link {
   color: var(--kz-footer-contact-muted);
-  font-size: 13px;
-  line-height: 1.5;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.5);
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
   background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
-  transition: background-size 0.4s var(--kz-footer-contact-ease), color 0.2s ease;
+  transition:
+    background-size calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-footer-contact-ease),
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 @media (hover: hover) {
@@ -499,7 +515,7 @@
   }
 }
 
-/* kodza-guard 64ceb9f53c43 — generated by Kodza, do not edit.
+/* kodza-guard 071178386264 — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -617,7 +633,6 @@
   max-width: revert;
   max-height: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -690,11 +705,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
-  font-weight: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -717,10 +728,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -843,11 +851,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
-  font-weight: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1016,10 +1020,11 @@
 .kodza-footer-contact__copy:not(#_) {
   margin: 0;
   font-family: var(--kz-footer-contact-mono);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
   line-height: 20px;
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-contact-muted);
 }
 
@@ -1054,10 +1059,14 @@
 .kodza-footer-contact__said:not(#_) {
   display: inline-grid;
   margin: 0;
-  font-size: 14px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
   line-height: 22px;
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-contact-muted);
-  transition: color 0.2s ease;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-footer-contact__said svg:not(#_) {
@@ -1072,16 +1081,19 @@
   display: inline-flex;
   border-radius: calc(4px * var(--kz-radius-scale, 1));
   color: inherit;
-  font-size: 14px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
   line-height: 22px;
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
 }
 
 .kodza-footer-contact__go svg:not(#_) {
   position: absolute;
   display: block;
-  transition: transform 0.45s var(--kz-footer-contact-ease);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-footer-contact-ease);
 }
 
 .kodza-footer-contact__socials:not(#_) {
@@ -1103,7 +1115,7 @@
   color: inherit;
   text-decoration: none;
   background: linear-gradient(var(--kz-footer-contact-fg), var(--kz-footer-contact-fg)) no-repeat 100% 100% / 0 1px;
-  transition: background-size 0.6s var(--kz-footer-contact-ease);
+  transition: background-size calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-footer-contact-ease);
 }
 
 .kodza-footer-contact__row:not(#_) {
@@ -1120,11 +1132,16 @@
 
 .kodza-footer-contact__link:not(#_) {
   color: var(--kz-footer-contact-muted);
-  font-size: 13px;
-  line-height: 1.5;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.5);
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
   background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
-  transition: background-size 0.4s var(--kz-footer-contact-ease), color 0.2s ease;
+  transition: background-size calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-footer-contact-ease),
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 @media (hover: hover) {

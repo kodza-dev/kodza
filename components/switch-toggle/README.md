@@ -11,7 +11,7 @@ A real checkbox redrawn as a switch: the ink fills the track behind the thumb, t
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-switch-toggle.html`](kodza-switch-toggle.html) | 1.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-switch-toggle.css`](kodza-switch-toggle.css) | 10.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-switch-toggle.css`](kodza-switch-toggle.css) | 11.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

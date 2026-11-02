@@ -7,6 +7,12 @@
 (() => {
   const SELECTOR = '.kodza-color';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const PRESETS = ['#0a0a0a', '#f2f2f0', '#ff5c35', '#f5b700', '#12b76a', '#14b8a6', '#2f6bff', '#a855f7'];
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
@@ -38,6 +44,7 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     const native = root.querySelector('.kodza-color__native');
     const label = root.querySelector('.kodza-color__label');
     if (!native) return;
@@ -128,11 +135,11 @@
         commit('input');
         commit('change');
       };
-      if (reduceMotion) return done();
+      if (reduceMotion || !pace) return done();
       const start = performance.now();
       const step = (now) => {
         if (signal.aborted) return;
-        const t = Math.min(1, (now - start) / 450);
+        const t = Math.min(1, (now - start) / (450 * pace));
         const e = 1 - Math.pow(1 - t, 3);
         hsv = [(from[0] + turn * e + 360) % 360, from[1] + (next[1] - from[1]) * e, from[2] + (next[2] - from[2]) * e];
         paint();

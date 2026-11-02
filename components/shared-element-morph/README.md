@@ -11,8 +11,8 @@ Between two real pages, the picture you click grows into its place on the next p
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-shared-element-morph.html`](kodza-shared-element-morph.html) | 1.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-shared-element-morph.css`](kodza-shared-element-morph.css) | 24.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-shared-element-morph.js`](kodza-shared-element-morph.js) | 29.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-shared-element-morph.css`](kodza-shared-element-morph.css) | 24.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-shared-element-morph.js`](kodza-shared-element-morph.js) | 30.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

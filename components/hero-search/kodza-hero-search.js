@@ -13,11 +13,17 @@
 (() => {
   const SELECTOR = '.kodza-hero-search';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const GLIDE = 'cubic-bezier(0.6, 0, 0.1, 1)'; // slow start, long settle
   const SOFT = 'cubic-bezier(0.25, 1, 0.5, 1)';
   const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
-  const EVERY = 2600; // ms between two examples
-  const FIRST = 3200; // ms from the start of the entrance to the first example
+  const EVERY = 2600; // ms between two examples: reading time, whatever the pace
+  const FIRST = 3200; // ms from the start of the entrance to the first example, at the site's pace
   const tick = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" pathLength="1"/></svg>';
   const chevron = '<svg class="kodza-hero-search__chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6.5 8 10.5l4-4"/></svg>';
   let uid = 0;
@@ -30,6 +36,8 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const q = (s) => root.querySelector(s);
     const form = q('.kodza-hero-search__form');
     const modes = q('.kodza-hero-search__modes');
@@ -47,7 +55,8 @@
     };
     const animate = (list, el, keyframes, options) => {
       if (!el) return null;
-      const animation = el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options });
+      // The entrance, at the site's pace
+      const animation = el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options, duration: options.duration * pace, delay: (options.delay || 0) * pace });
       list.push(animation);
       return animation;
     };
@@ -61,10 +70,10 @@
       const next = span(text);
       box.append(next);
       if (!old) return;
-      if (!moving || reduceMotion) return old.remove();
+      if (!moving || still) return old.remove();
       const y = new DOMMatrixReadOnly(getComputedStyle(old).transform).m42;
       old.getAnimations().forEach((a) => a.cancel());
-      const timing = { duration, easing: EASE };
+      const timing = { duration: duration * pace, easing: EASE };
       old.animate([{ transform: `translateY(${y}px)` }, { transform: 'translateY(-110%)' }], { ...timing, fill: 'forwards' }).finished.then(() => old.remove(), () => {});
       next.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
     };
@@ -105,7 +114,7 @@
     let timer = 0;
     let shown = false;
     let visible = false;
-    const rolling = examples.length > 1 && !reduceMotion;
+    const rolling = examples.length > 1 && !still;
     const busy = () => form?.contains(document.activeElement) || fields.some((field) => field.isOpen());
     const free = () => rolling && shown && visible && !document.hidden && !input.value && !busy();
     const schedule = (delay = EVERY) => {
@@ -380,10 +389,10 @@
       const on = prices.find((el) => el.dataset.mode === mode()) ?? prices[0];
       const was = prices.find((el) => el.classList.contains('is-on'));
       prices.forEach((el) => el.classList.toggle('is-on', el === on));
-      if (!moving || reduceMotion || !was || was === on) return;
+      if (!moving || still || !was || was === on) return;
       const y = new DOMMatrixReadOnly(getComputedStyle(was).transform).m42;
       prices.forEach((el) => el.getAnimations().forEach((a) => a.cancel()));
-      const timing = { duration: 700, easing: EASE };
+      const timing = { duration: 700 * pace, easing: EASE };
       was.animate([{ visibility: 'visible', transform: `translateY(${y}px)` }, { visibility: 'visible', transform: 'translateY(-110%)' }], timing);
       on.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
     };
@@ -409,9 +418,9 @@
         current = count.lastElementChild;
         const to = current.offsetWidth;
         counted.takeRecords();
-        if (reduceMotion || from === to) return;
+        if (still || from === to) return;
         count.getAnimations().forEach((a) => a.cancel());
-        count.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: 420, easing: EASE });
+        count.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: 420 * pace, easing: EASE });
       });
       counted.observe(count, { childList: true });
       signal.addEventListener('abort', () => counted.disconnect());
@@ -423,7 +432,7 @@
       stop(entrance);
     });
 
-    if (reduceMotion) {
+    if (still) {
       root.classList.add('is-shown');
       return;
     }
@@ -457,7 +466,7 @@
       animate(entrance, q('.kodza-hero-search__caption'), [{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, offset: 0.5 }, { opacity: 1, transform: 'none' }], { duration: 900, delay: 920, easing: SOFT });
       // The examples wait for the card to settle
       shown = true;
-      if (rolling) schedule(FIRST);
+      if (rolling) schedule(FIRST * pace);
     };
 
     root.addEventListener('kodza:replay', play, { signal });

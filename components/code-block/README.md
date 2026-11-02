@@ -11,8 +11,8 @@ Code to read and copy: file name, line numbers, highlighted and folded lines, a 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-code-block.html`](kodza-code-block.html) | 2.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-code-block.css`](kodza-code-block.css) | 14.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-code-block.js`](kodza-code-block.js) | 12.4 KB | The script. One copy per page runs every instance. |
+| [`kodza-code-block.css`](kodza-code-block.css) | 16.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-code-block.js`](kodza-code-block.js) | 12.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

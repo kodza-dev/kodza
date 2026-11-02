@@ -11,7 +11,7 @@ A link that points the way: at rest a chevron, on hover the shaft draws itself i
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-arrow-link.html`](kodza-arrow-link.html) | 0.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-arrow-link.css`](kodza-arrow-link.css) | 4.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-arrow-link.css`](kodza-arrow-link.css) | 5.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

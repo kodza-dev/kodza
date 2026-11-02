@@ -11,8 +11,8 @@ Between two real pages, an ink panel rises with the name of the next page, then 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-curtain-transition.html`](kodza-curtain-transition.html) | 1.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-curtain-transition.css`](kodza-curtain-transition.css) | 24.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-curtain-transition.js`](kodza-curtain-transition.js) | 25.5 KB | The script. One copy per page runs every instance. |
+| [`kodza-curtain-transition.css`](kodza-curtain-transition.css) | 24.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-curtain-transition.js`](kodza-curtain-transition.js) | 26.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

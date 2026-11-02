@@ -20,6 +20,12 @@
   // back exactly as it was. Each menu only writes how it moves: see `menu`.
   const SELECTOR = `.kodza-${NAME}`;
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const RISE = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const SWING = 'cubic-bezier(0.65, 0, 0.35, 1)';
   const BACK = 1.6; // closing replays the opening backwards, this much faster
@@ -81,18 +87,22 @@
     };
   };
 
-  // One menu. `setup(m)` receives its parts (toggle, panel, closer, links, one, all, css, cut, and
-  // while open page, reduced) and returns what the menu does itself:
+  // One menu. `setup(m)` receives its parts (toggle, panel, closer, links, one, all, css, cut, pace,
+  // and while open page, reduced) and returns what the menu does itself:
   //   page    'under' when the menu lies under the page that moves, 'over' when it covers the
   //           page that moves under it; without it the page stays as it is
   //   rig(page)     sets the flat page up for the ride, returns its geometry with `k` (its scale);
   //                 again on resize
   //   frames(g)     the page's keyframes, set again on resize
   //   build(add, mode, g)   the opening, add(el, keyframes, delay, duration, easing, options) per
-  //                 animation; mode is 'page', 'flat' (no page found) or 'reduced'
+  //                 animation, timed at pace 1; mode is 'page', 'flat' (no page found) or 'reduced'
   //   ready(), entry(), key(event), resize(), reset()   optional: before it opens, where the
   //                 keyboard enters, a key of its own (true once handled), after a resize, once closed
   const menu = (root, signal, setup) => {
+    // The site's pace, read when the menu first moves: read while the page's menus are set up, the
+    // style it computes would turn the next one's first state into a transition
+    let pace;
+    const paced = () => (pace ??= paceOf(root));
     const toggle = root.querySelector(`.kodza-${NAME}__toggle`);
     const panel = root.querySelector(`.kodza-${NAME}__panel`);
     if (!toggle || !panel) return;
@@ -199,7 +209,7 @@
     };
 
     const m = {
-      root, toggle, panel, closer, links, one, all, css, cut,
+      root, toggle, panel, closer, links, one, all, css, cut, get pace() { return paced(); },
       get page() {
         return moving ? moving.page : null;
       },
@@ -219,10 +229,11 @@
 
     // The opening, as one timeline. Every animation gets an end delay that makes it as long as
     // the longest, so running them all backwards is the exact reverse, even halfway through.
+    // Its delays and durations are the menu's own, times the site's pace
     const timeline = (mode, g) => {
       const steps = [];
       const add = (el, frames, delay, duration, easing = RISE, extra = {}) => {
-        if (el) steps.push([el, frames, { delay, duration, easing, ...extra }]);
+        if (el) steps.push([el, frames, { delay: delay * paced(), duration: duration * paced(), easing, ...extra }]);
       };
       own.build(add, mode, g);
       const total = Math.max(...steps.map(([, , o]) => o.delay + o.duration));
@@ -383,7 +394,7 @@
         enter(keyboard);
         return;
       }
-      reduced = motion.matches;
+      reduced = motion.matches || !paced(); // at pace 0, the reduced opening: a fade that takes no time
       const page = reduced || !own.page ? null : findPage();
       const under = page && own.page === 'under';
       let g = null;
@@ -545,7 +556,7 @@
         active = i;
         links.forEach((link, j) => link.classList.toggle('is-active', j === i));
         place(instant);
-        const ms = instant || m.reduced ? 0 : 1;
+        const ms = instant || m.reduced ? 0 : m.pace; // durations times the site's pace
         const image = images[i];
         if (image && image !== images[was]) {
           image.classList.add('is-shown');

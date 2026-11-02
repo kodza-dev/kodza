@@ -7,6 +7,12 @@
 (() => {
   const SELECTOR = '.kodza-toc';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const small = window.matchMedia('(max-width: 900px)');
   const slug = (text) => text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'section';
   const WORDS_PER_MINUTE = 220;
@@ -29,7 +35,9 @@
     if (!headings.length) return;
     const minutes = Math.max(1, Math.round(article.textContent.trim().split(/\s+/).length / WORDS_PER_MINUTE));
     const offset = () => parseFloat(getComputedStyle(root).getPropertyValue('--kz-toc-offset')) || 0;
-    const goTo = (y) => window.scrollTo({ top: y, behavior: reduceMotion ? 'auto' : 'smooth' });
+    // The pace is read when it scrolls: read at mount, the style it computes would turn the
+    // summary's first state (folded on a phone) into a transition
+    const goTo = (y) => window.scrollTo({ top: y, behavior: reduceMotion || !paceOf(root) ? 'auto' : 'smooth' });
 
     let number = 0;
     const named = []; // the headings given an id here, which lose it again on abort

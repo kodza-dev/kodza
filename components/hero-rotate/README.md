@@ -11,8 +11,8 @@ A studio hero whose headline changes one word at a time: the next word rolls up 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-rotate.html`](kodza-hero-rotate.html) | 3.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-rotate.css`](kodza-hero-rotate.css) | 22.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-rotate.js`](kodza-hero-rotate.js) | 15.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-rotate.css`](kodza-hero-rotate.css) | 22.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-rotate.js`](kodza-hero-rotate.js) | 15.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

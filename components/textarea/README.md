@@ -11,8 +11,8 @@ A textarea whose label folds up, whose height eases to fit the text, and whose r
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-textarea.html`](kodza-textarea.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-textarea.css`](kodza-textarea.css) | 12.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-textarea.js`](kodza-textarea.js) | 7.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-textarea.css`](kodza-textarea.css) | 13.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-textarea.js`](kodza-textarea.js) | 8.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

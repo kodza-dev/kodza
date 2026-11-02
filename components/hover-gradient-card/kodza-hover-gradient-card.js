@@ -6,6 +6,12 @@
 (() => {
   const SELECTOR = '.kodza-trace';
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const SVG = 'http://www.w3.org/2000/svg';
   const CORNER = 26; // length of each corner arm, for --corners
 
@@ -31,6 +37,8 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(card, signal) {
+    // At 0 every line is drawn or gone at once: the hover still shows, nothing moves
+    const pace = paceOf(card);
     const mode = card.classList.contains('kodza-trace--corners') ? 'corners' : card.classList.contains('kodza-trace--both') ? 'both' : 'one';
     const svg = document.createElementNS(SVG, 'svg');
     svg.setAttribute('class', 'kodza-trace__svg');
@@ -38,7 +46,7 @@
     card.append(svg);
 
     const style = getComputedStyle(card);
-    const duration = parseFloat(style.getPropertyValue('--kz-trace-duration')) * 1000 || 700;
+    const duration = (parseFloat(style.getPropertyValue('--kz-trace-duration')) * 1000 || 700) * pace;
     const ease = style.getPropertyValue('--kz-trace-ease').trim() || 'ease';
     let paths = [];
     let lapLength = 0;
@@ -97,7 +105,7 @@
             { strokeDasharray: '0 1', opacity: 0 },
             { strokeDasharray: '0 1', opacity: 1, offset: 0.01 },
             { strokeDasharray: '1 0', opacity: 1 },
-          ], { duration: duration * 0.55, delay: rank * 70, easing: ease, fill: 'both' });
+          ], { duration: duration * 0.55, delay: rank * 70 * pace, easing: ease, fill: 'both' });
         });
         return;
       }

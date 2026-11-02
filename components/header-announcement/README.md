@@ -11,8 +11,8 @@ A site header with a strip of news on top: messages roll and pause on hover or f
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-announcement.html`](kodza-header-announcement.html) | 2.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-announcement.css`](kodza-header-announcement.css) | 44.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-header-announcement.js`](kodza-header-announcement.js) | 18.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-header-announcement.css`](kodza-header-announcement.css) | 48.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-announcement.js`](kodza-header-announcement.js) | 18.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

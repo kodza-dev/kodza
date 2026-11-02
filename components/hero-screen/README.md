@@ -11,8 +11,8 @@ A centred title and its buttons over a screenshot of the product, leaning back i
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-screen.html`](kodza-hero-screen.html) | 2.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-screen.css`](kodza-hero-screen.css) | 18.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-hero-screen.js`](kodza-hero-screen.js) | 14.9 KB | The script. One copy per page runs every instance. |
+| [`kodza-hero-screen.css`](kodza-hero-screen.css) | 19.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-screen.js`](kodza-hero-screen.js) | 15.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

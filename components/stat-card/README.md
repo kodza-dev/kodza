@@ -11,8 +11,8 @@ A key figure, its change and the curve behind it: the figure rolls, the curve dr
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-stat-card.html`](kodza-stat-card.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-stat-card.css`](kodza-stat-card.css) | 10.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-stat-card.js`](kodza-stat-card.js) | 11.4 KB | The script. One copy per page runs every instance. |
+| [`kodza-stat-card.css`](kodza-stat-card.css) | 11.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-stat-card.js`](kodza-stat-card.js) | 11.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

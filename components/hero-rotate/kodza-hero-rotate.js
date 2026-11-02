@@ -10,6 +10,12 @@
 (() => {
   const SELECTOR = '.kodza-hero-rotate';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const GLIDE = 'cubic-bezier(0.6, 0, 0.1, 1)'; // slow start, long settle
   const SOFT = 'cubic-bezier(0.25, 1, 0.5, 1)';
   const TURN = 1200; // one stroke: the word, the picture, the count and the ring move together
@@ -21,7 +27,8 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
-    if (reduceMotion) return root.classList.add('is-shown');
+    const pace = paceOf(root);
+    if (reduceMotion || !pace) return root.classList.add('is-shown');
     const q = (s) => root.querySelector(s);
     const slot = q('.kodza-hero-rotate__words');
     const slides = [...root.querySelectorAll('.kodza-hero-rotate__slide')];
@@ -49,7 +56,8 @@
     };
     const animate = (list, el, keyframes, options) => {
       if (!el) return null;
-      const animation = el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options });
+      // Every stroke at the site's pace
+      const animation = el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options, duration: options.duration * pace, delay: (options.delay || 0) * pace });
       list.push(animation);
       return animation;
     };
@@ -144,7 +152,7 @@
         if (round !== rounds) return;
         timer = null;
         next(round);
-        const emptied = progress.animate([{ strokeDashoffset: 0 }, { strokeDashoffset: -100 }], { duration: TURN, easing: GLIDE, fill: 'forwards' });
+        const emptied = progress.animate([{ strokeDashoffset: 0 }, { strokeDashoffset: -100 }], { duration: TURN * pace, easing: GLIDE, fill: 'forwards' });
         ring.push(filled, emptied);
         emptied.finished.then(() => {
           stop(ring);
@@ -182,7 +190,7 @@
       animate(entrance, q('.kodza-hero-rotate__caption'), [{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, offset: 0.5 }, { opacity: 1, transform: 'none' }], { duration: 900, delay: 920, easing: SOFT });
       // The words start turning once the picture has opened
       const round = rounds;
-      if (turns && progress) started = setTimeout(() => tick(round), 1550);
+      if (turns && progress) started = setTimeout(() => tick(round), 1550 * pace);
       slides[1]?.querySelector('img')?.decode().catch(() => {});
     };
 

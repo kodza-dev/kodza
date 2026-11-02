@@ -6,9 +6,17 @@
 (() => {
   const SELECTOR = '.kodza-loading-bar';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     let p = 0;
     let running = false;
     let timer = 0;
@@ -19,7 +27,8 @@
       root.setAttribute('aria-valuenow', Math.round(p * 100));
     };
 
-    // Shrinking steps: a third of what is left, then less and less
+    // Shrinking steps: a third of what is left, then less and less. Their rhythm is the progress,
+    // not the motion: the site's pace leaves it as it is
     const creep = () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
@@ -55,8 +64,8 @@
           root.classList.add('is-idle');
           root.classList.remove('is-done', 'is-leaving');
           paint(0);
-        }, reduceMotion ? 0 : 560);
-      }, reduceMotion ? 200 : 320);
+        }, still ? 0 : 560 * pace);
+      }, still ? 200 : 320 * pace);
     };
 
     root.kodzaLoadingBar = { start, done, set: (value) => (running ? paint(value) : (start(), paint(value))) };

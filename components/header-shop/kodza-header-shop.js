@@ -20,6 +20,12 @@
   // back exactly as it was. Each menu only writes how it moves: see `menu`.
   const SELECTOR = `.kodza-${NAME}`;
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const RISE = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const SWING = 'cubic-bezier(0.65, 0, 0.35, 1)';
   const BACK = 1.6; // closing replays the opening backwards, this much faster
@@ -81,18 +87,22 @@
     };
   };
 
-  // One menu. `setup(m)` receives its parts (toggle, panel, closer, links, one, all, css, cut, and
-  // while open page, reduced) and returns what the menu does itself:
+  // One menu. `setup(m)` receives its parts (toggle, panel, closer, links, one, all, css, cut, pace,
+  // and while open page, reduced) and returns what the menu does itself:
   //   page    'under' when the menu lies under the page that moves, 'over' when it covers the
   //           page that moves under it; without it the page stays as it is
   //   rig(page)     sets the flat page up for the ride, returns its geometry with `k` (its scale);
   //                 again on resize
   //   frames(g)     the page's keyframes, set again on resize
   //   build(add, mode, g)   the opening, add(el, keyframes, delay, duration, easing, options) per
-  //                 animation; mode is 'page', 'flat' (no page found) or 'reduced'
+  //                 animation, timed at pace 1; mode is 'page', 'flat' (no page found) or 'reduced'
   //   ready(), entry(), key(event), resize(), reset()   optional: before it opens, where the
   //                 keyboard enters, a key of its own (true once handled), after a resize, once closed
   const menu = (root, signal, setup) => {
+    // The site's pace, read when the menu first moves: read while the page's menus are set up, the
+    // style it computes would turn the next one's first state into a transition
+    let pace;
+    const paced = () => (pace ??= paceOf(root));
     const toggle = root.querySelector(`.kodza-${NAME}__toggle`);
     const panel = root.querySelector(`.kodza-${NAME}__panel`);
     if (!toggle || !panel) return;
@@ -199,7 +209,7 @@
     };
 
     const m = {
-      root, toggle, panel, closer, links, one, all, css, cut,
+      root, toggle, panel, closer, links, one, all, css, cut, get pace() { return paced(); },
       get page() {
         return moving ? moving.page : null;
       },
@@ -219,10 +229,11 @@
 
     // The opening, as one timeline. Every animation gets an end delay that makes it as long as
     // the longest, so running them all backwards is the exact reverse, even halfway through.
+    // Its delays and durations are the menu's own, times the site's pace
     const timeline = (mode, g) => {
       const steps = [];
       const add = (el, frames, delay, duration, easing = RISE, extra = {}) => {
-        if (el) steps.push([el, frames, { delay, duration, easing, ...extra }]);
+        if (el) steps.push([el, frames, { delay: delay * paced(), duration: duration * paced(), easing, ...extra }]);
       };
       own.build(add, mode, g);
       const total = Math.max(...steps.map(([, , o]) => o.delay + o.duration));
@@ -383,7 +394,7 @@
         enter(keyboard);
         return;
       }
-      reduced = motion.matches;
+      reduced = motion.matches || !paced(); // at pace 0, the reduced opening: a fade that takes no time
       const page = reduced || !own.page ? null : findPage();
       const under = page && own.page === 'under';
       let g = null;
@@ -546,7 +557,8 @@
   const countOf = (cart) => Math.max(0, parseInt(cart.dataset.count, 10) || 0);
   const format = (n) => new Intl.NumberFormat(document.documentElement.lang || undefined).format(n);
 
-  const mountCart = (cart, signal) => {
+  // At the site's pace: 0 rolls and bumps nothing, like reduced motion
+  const mountCart = (cart, signal, pace) => {
     const count = cart.querySelector(`.kodza-${NAME}__count`);
     const bag = cart.querySelector(`.kodza-${NAME}__bag`);
     let shown = countOf(cart);
@@ -572,10 +584,10 @@
         const next = Object.assign(document.createElement('span'), { textContent: now[i].trim() });
         cell.append(next);
         count.append(cell);
-        if (was[i] === now[i] || motion.matches) continue;
+        if (was[i] === now[i] || motion.matches || !pace) continue;
         const old = Object.assign(document.createElement('span'), { textContent: was[i].trim() });
         cell.append(old);
-        const timing = { duration: 460, delay: (n - 1 - i) * 60, easing: RISE };
+        const timing = { duration: 460 * pace, delay: (n - 1 - i) * 60 * pace, easing: RISE };
         next.animate([{ transform: `translateY(${100 * k}%)` }, { transform: 'none' }], { ...timing, fill: 'backwards' });
         const leave = old.animate([{ transform: 'none' }, { transform: `translateY(${-100 * k}%)` }], { ...timing, fill: 'forwards' });
         if (was[i] === ' ') cell.animate([{ width: '0px' }, { width: `${cell.offsetWidth}px` }], timing);
@@ -595,14 +607,14 @@
       // From zero the badge pops in with its number; to zero it shrinks away with the last one
       if (from === 0) count.textContent = format(next);
       else if (next > 0) draw(from, next);
-      if (motion.matches || next < from) return;
+      if (motion.matches || !pace || next < from) return;
       bag?.animate([
         { transform: 'none' },
         { transform: 'translateY(1.5px) scale(1.08, 0.9)', offset: 0.3 },
         { transform: 'translateY(-1px) scale(0.97, 1.04)', offset: 0.65 },
         { transform: 'none' },
-      ], { duration: 520, easing: 'ease-out' });
-      if (from > 0) count.animate([{ transform: 'none' }, { transform: 'translateY(-3px) scale(1.12)', offset: 0.35 }, { transform: 'none' }], { duration: 420, easing: 'ease-out' });
+      ], { duration: 520 * pace, easing: 'ease-out' });
+      if (from > 0) count.animate([{ transform: 'none' }, { transform: 'translateY(-3px) scale(1.12)', offset: 0.35 }, { transform: 'none' }], { duration: 420 * pace, easing: 'ease-out' });
     });
     observer.observe(cart, { attributes: true, attributeFilter: ['data-count'] });
     signal.addEventListener('abort', () => observer.disconnect());
@@ -611,10 +623,11 @@
   };
 
   function mount(root, signal) {
+    const pace = paceOf(root);
     drawer(root);
     search(root, signal);
     const cart = root.querySelector(`.kodza-${NAME}__cart`);
-    if (cart) mountCart(cart, signal);
+    if (cart) mountCart(cart, signal, pace);
 
     menu(root, signal, (m) => {
       const { panel, toggle, closer, links, one, all, css } = m;

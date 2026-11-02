@@ -6,9 +6,19 @@
 (() => {
   const SELECTOR = '.kodza-compare';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
+    // The glide's step per frame: a slower pace takes smaller steps
+    const step = still ? 1 : Math.min(1, 0.2 / pace);
     const range = root.querySelector('.kodza-compare__range');
     let pos = parseFloat(range?.value) || 50;
     let target = pos;
@@ -23,7 +33,7 @@
     };
     const glide = () => {
       if (signal.aborted) return;
-      pos += (target - pos) * (dragging || reduceMotion ? 1 : 0.2);
+      pos += (target - pos) * (dragging ? 1 : step);
       if (Math.abs(target - pos) < 0.05) pos = target;
       paint();
       frame = pos === target ? 0 : requestAnimationFrame(glide);
@@ -57,12 +67,12 @@
     range?.addEventListener('input', () => go(parseFloat(range.value)), { signal });
 
     // The first time it is seen: a small nudge, to say it moves
-    if (!reduceMotion && 'IntersectionObserver' in window) {
+    if (!still && 'IntersectionObserver' in window) {
       const io = new IntersectionObserver(([entry]) => {
         if (!entry.isIntersecting) return;
         io.disconnect();
         const start = pos;
-        [[start + 9, 450], [start - 6, 950], [start, 1400]].forEach(([value, delay]) => setTimeout(() => !dragging && go(value), delay));
+        [[start + 9, 450], [start - 6, 950], [start, 1400]].forEach(([value, delay]) => setTimeout(() => !dragging && go(value), delay * pace));
       }, { threshold: 0.6 });
       io.observe(root);
       signal.addEventListener('abort', () => io.disconnect());

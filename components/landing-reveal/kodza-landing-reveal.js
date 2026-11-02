@@ -13,13 +13,19 @@
 (() => {
   const SELECTOR = '.kodza-landing-reveal';
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const RISE = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const SWING = 'cubic-bezier(0.65, 0, 0.35, 1)';
   const SEEN = 'kodza-landing-reveal'; // sessionStorage key, for data-once
   // What the loader takes along when it leaves the hero: its settings, and the type the site gives it
   const VARS = [
     ...['bg', 'fg', 'muted', 'line', 'card', 'side', 'brand', 'brand-blend'].map((name) => `--kz-landing-reveal-${name}`),
-    ...['display', 'display-weight', 'display-scale', 'display-tracking', 'display-case', 'mono'].map((name) => `--kz-font-${name}`),
+    ...['display', 'display-weight', 'display-scale', 'display-tracking', 'display-case', 'mono', 'label', 'label-size', 'label-weight', 'label-tracking', 'label-case'].map((name) => `--kz-font-${name}`),
   ];
   const HOLD_KEYS = [' ', 'PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
   const BEAT = 600; // one image every 0.6 s: each one is seen, then covered
@@ -70,6 +76,8 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    // Every time below runs at the site's pace, except the wait for the files (the maximum)
+    const pace = paceOf(root);
     const loader = root.querySelector('.kodza-landing-reveal__loader');
     if (!loader) return;
     const image = root.querySelector('.kodza-landing-reveal__image');
@@ -126,7 +134,7 @@
     }, { signal });
     // Once the loader is gone, a click anywhere hurries the entrance along
     document.addEventListener('pointerdown', () => run?.phase === 'enter' && skip(), { signal });
-    root.addEventListener('kodza:replay', () => !motion.matches && start(true), { signal });
+    root.addEventListener('kodza:replay', () => !motion.matches && pace > 0 && start(true), { signal });
     // Back from another page (bfcache) halfway through: the hero as it ends up
     window.addEventListener('pageshow', (event) => event.persisted && run && end(), { signal });
 
@@ -160,20 +168,20 @@
       const dt = Math.min(64, now - (run.at || now));
       run.at = now;
       if (run.phase === 'load') {
-        const pace = 1 - Math.pow(1 - Math.min(1, t / run.min), 2);
-        const target = Math.floor(Math.min(run.done / run.total, pace) * 100) / 100;
-        run.value += (target - run.value) * (1 - Math.exp(-dt / 110));
+        const timed = 1 - Math.pow(1 - Math.min(1, t / run.min), 2);
+        const target = Math.floor(Math.min(run.done / run.total, timed) * 100) / 100;
+        run.value += (target - run.value) * (1 - Math.exp(-dt / (110 * pace)));
         if (Math.abs(target - run.value) < 0.004) run.value = target; // waiting for a file: a whole number, not a digit half rolled
-        const ready = run.done >= run.total && t >= run.min - LAST;
+        const ready = run.done >= run.total && t >= run.min - LAST * pace;
         // (never on top of an image still rising, unless the maximum is reached)
-        if ((ready && now >= run.beat - BEAT * 0.25) || t >= run.max - LAST) {
+        if ((ready && now >= run.beat - BEAT * pace * 0.25) || t >= run.max - LAST * pace) {
           if (!rise(now)) return;
         } else if (now >= run.beat) {
           reveal(cards[run.next % cards.length]);
-          run.beat = now + BEAT;
+          run.beat = now + BEAT * pace;
         }
       } else {
-        const p = Math.min(1, (now - run.from[1]) / LAST);
+        const p = Math.min(1, (now - run.from[1]) / (LAST * pace));
         run.value = run.from[0] + (1 - run.from[0]) * inOut(p);
       }
       roll(digits, run.value * 100);
@@ -204,11 +212,12 @@
       run.anims.push(card.animate([
         { transform: 'translateY(100%)', clipPath: `inset(0% 0% 100% 0% ${round})` },
         { transform: 'translateY(0%)', clipPath: `inset(0% 0% 0% 0% ${round})` },
-      ], { duration: 800, delay: lead, easing: SWING, fill: 'both' }));
+      ], { duration: 800 * pace, delay: lead * pace, easing: SWING, fill: 'both' }));
     };
 
+    // Delay and duration as tuned, played at the site's pace
     const add = (el, frames, delay, duration, easing = RISE, extra = {}) => {
-      const animation = el.animate(frames, { delay, duration, easing, fill: 'both', ...extra });
+      const animation = el.animate(frames, { delay: delay * pace, duration: duration * pace, easing, fill: 'both', ...extra });
       run.anims.push(animation);
       return animation;
     };
@@ -413,7 +422,7 @@
       const token = run;
       // From where the curtain is (halfway down when the replay is skipped): none would not move
       const from = getComputedStyle(loader).clipPath;
-      const lift = loader.animate([{ clipPath: from.startsWith('inset') ? from : 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 100% 0%)' }], { duration: 620, easing: SWING, fill: 'forwards' });
+      const lift = loader.animate([{ clipPath: from.startsWith('inset') ? from : 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 100% 0%)' }], { duration: 620 * pace, easing: SWING, fill: 'forwards' });
       run.anims.push(lift);
       lift.finished.then(() => run === token && end(), () => {});
     };
@@ -431,7 +440,7 @@
       }
       run = {
         phase: 'load', anims: [], entrance: [], order: [], next: 0, said: -1, value: 0, done: 0, shown: -1, total: 0, t0: 0, at: 0, beat: 0, frame: 0, hold: null,
-        min: seconds(css('min'), 2200),
+        min: seconds(css('min'), 2200) * pace,
         max: 0,
       };
       run.max = Math.max(run.min + 300, seconds(css('max'), 2800));
@@ -463,7 +472,7 @@
         if (!replay) {
           arrive(0);
           reveal(cards[0], 60);
-          run.beat = performance.now() + 60 + BEAT;
+          run.beat = performance.now() + 60 * pace + BEAT * pace;
         }
         run.frame = requestAnimationFrame(tick);
       };
@@ -473,11 +482,11 @@
       }
       // Played again: the paper first comes down over the page, like a curtain, and the first
       // image is on its way up as it lands
-      const drop = loader.animate([{ clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)' }], { duration: 650, easing: SWING });
+      const drop = loader.animate([{ clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)' }], { duration: 650 * pace, easing: SWING });
       run.anims.push(drop);
       arrive(360);
       reveal(cards[0], 420);
-      run.beat = performance.now() + 420 + BEAT;
+      run.beat = performance.now() + 420 * pace + BEAT * pace;
       drop.finished.then(begin, () => {});
     };
 
@@ -506,7 +515,7 @@
       }
     };
     const top = root.getBoundingClientRect().top + scrollY < innerHeight * 0.5;
-    if (up() && !motion.matches && top && ahead() && !seen()) start(false);
+    if (up() && !motion.matches && pace > 0 && top && ahead() && !seen()) start(false);
     else loader.hidden = true;
     // One hero has been through: those that come later (an app's next page, a theme's Ajax
     // content, kodza:init again) open straight on the hero, their loader hidden by the

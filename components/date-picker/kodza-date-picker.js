@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '.kodza-date';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const parse = (value) => {
@@ -20,21 +26,26 @@
   const arrow = (d) => `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="${d}"/></svg>`;
   let uid = 0;
 
-  // A word or a month name rolls to its new value (up going forward, down going back)
-  const roll = (box, text, dir = 1) => {
+  // A word or a month name rolls to its new value (up going forward, down going back), at the
+  // instance's pace
+  const roll = (box, text, dir = 1, pace = 1) => {
     const prev = box.lastElementChild;
     if (prev && prev.textContent === text) return;
     const span = Object.assign(document.createElement('span'), { textContent: text });
     box.append(span);
     if (!prev) return;
-    if (reduceMotion) return prev.remove();
-    const timing = { duration: 420, easing: ease };
+    if (reduceMotion || !pace) return prev.remove();
+    const timing = { duration: 420 * pace, easing: ease };
     prev.animate([{ transform: 'none' }, { transform: `translateY(${dir * -110}%)` }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
     span.animate([{ transform: `translateY(${dir * 110}%)` }, { transform: 'none' }], timing);
   };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    // The pace is read once the field is built (end of mount): read before, the style it computes
+    // would turn the field's first state into a transition
+    let pace = 1;
+    let still = reduceMotion; // the still path: no motion asked, by the visitor or the site
     const native = root.querySelector('.kodza-date__native');
     const label = root.querySelector('.kodza-date__label');
     if (!native) return;
@@ -150,15 +161,15 @@
       const hadFocus = old?.contains(document.activeElement);
       grid = next;
       stage.append(next);
-      roll(monthBox, monthName.format(view), dir || 1);
+      roll(monthBox, monthName.format(view), dir || 1, pace);
       placeMark(next, false);
       setFocusable();
       // The grid that held the focus is going away: the focus moves to the new one
       if (hadFocus) next.querySelector('[tabindex="0"]')?.focus({ preventScroll: true });
       if (old) {
-        if (!dir || reduceMotion) old.remove();
+        if (!dir || still) old.remove();
         else {
-          const timing = { duration: 380, easing: ease };
+          const timing = { duration: 380 * pace, easing: ease };
           old.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${dir * -40}%)`, opacity: 0 }], { ...timing, fill: 'forwards' }).finished.then(() => old.remove());
           next.animate([{ transform: `translateX(${dir * 40}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], timing);
         }
@@ -168,7 +179,7 @@
     const showValue = (animate) => {
       const text = selected ? long.format(selected) : 'Pick a date';
       if (!animate) value.replaceChildren();
-      roll(value, text, 1);
+      roll(value, text, 1, pace);
       value.lastElementChild.classList.toggle('is-empty', !selected);
     };
 
@@ -231,7 +242,7 @@
         native.dispatchEvent(new Event('change', { bubbles: true }));
       }
       // Let the mark land, then close
-      setTimeout(() => !signal.aborted && close(), reduceMotion ? 0 : 320);
+      setTimeout(() => !signal.aborted && close(), still ? 0 : 320 * pace);
     };
 
     trigger.addEventListener('click', () => (isOpen() ? close() : open()), { signal });
@@ -295,6 +306,8 @@
     // The calendar is built right away, so the panel has its real size before it first opens
     render(0);
     showValue(false);
+    pace = paceOf(root);
+    still = reduceMotion || !pace;
   }
 
   // Kodza lifecycle, the same in every component: `kodza:init` starts the instances inside

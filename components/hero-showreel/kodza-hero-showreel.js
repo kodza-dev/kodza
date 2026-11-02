@@ -9,6 +9,12 @@
 (() => {
   const SELECTOR = '.kodza-hero-showreel';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const fine = window.matchMedia('(hover: hover) and (pointer: fine)');
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const grow = 'cubic-bezier(0.65, 0, 0.35, 1)';
@@ -25,6 +31,8 @@
   // starts is tied to `signal` (listeners get { signal }, observers, loops and the dialog stop
   // on its 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const frame = root.querySelector('.kodza-hero-showreel__frame');
     const pill = root.querySelector('.kodza-hero-showreel__play');
     const loop = root.querySelector('.kodza-hero-showreel__loop');
@@ -64,7 +72,7 @@
     let seen = false;
     const looping = () => {
       if (!loop) return;
-      if (seen && !viewer.open && !reduceMotion) loop.play().catch(() => {});
+      if (seen && !viewer.open && !still) loop.play().catch(() => {});
       else loop.pause();
     };
     const watch = new IntersectionObserver(([entry]) => {
@@ -83,9 +91,9 @@
       next.classList.add('is-on');
       if (!old) return;
       old.classList.remove('is-on');
-      if (reduceMotion || !viewer.open) return;
+      if (still || !viewer.open) return;
       old.classList.add('is-leaving');
-      const timing = { duration: 420, easing: ease };
+      const timing = { duration: 420 * pace, easing: ease };
       old.animate([{ transform: 'none' }, { transform: 'translateY(-100%)' }], timing).finished.then(() => old.classList.remove('is-leaving'), () => {});
       next.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], timing);
     };
@@ -163,14 +171,14 @@
       state();
       cancelAnimationFrame(frameId);
       frameId = requestAnimationFrame(draw);
-      if (reduceMotion) return;
-      const timing = { duration: 760, easing: grow };
+      if (still) return;
+      const timing = { duration: 760 * pace, easing: grow };
       player.animate([shape(rect), full()], timing);
       video.animate([{ transform: 'scale(1.15)' }, { transform: 'none' }], timing);
       cover.animate([{ opacity: 1 }, { opacity: 1, offset: 0.12 }, { opacity: 0, offset: 0.55 }], timing);
       ghost.animate([{ opacity: 1 }, { opacity: 0, offset: 0.25 }], timing);
-      shade.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 480, easing: 'ease' });
-      [bar, close].forEach((el) => el.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 480, delay: 420, easing: ease, fill: 'backwards' }));
+      shade.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 480 * pace, easing: 'ease' });
+      [bar, close].forEach((el) => el.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 480 * pace, delay: 420 * pace, easing: ease, fill: 'backwards' }));
     };
 
     const shut = () => {
@@ -184,15 +192,15 @@
         settle();
         looping();
       };
-      if (reduceMotion) return done();
+      if (still) return done();
       const rect = pill.getBoundingClientRect();
       const there = rect.bottom > 0 && rect.top < innerHeight && rect.right > 0 && rect.left < innerWidth;
-      const timing = { duration: 640, easing: grow, fill: 'forwards' };
-      [bar, close].forEach((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }));
-      shade.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 520, delay: 120, easing: 'ease', fill: 'forwards' });
+      const timing = { duration: 640 * pace, easing: grow, fill: 'forwards' };
+      [bar, close].forEach((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200 * pace, fill: 'forwards' }));
+      shade.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 520 * pace, delay: 120 * pace, easing: 'ease', fill: 'forwards' });
       // Back into the pill if it's on screen; otherwise the player simply fades
       if (!there) {
-        player.animate([{ opacity: 1 }, { opacity: 0, transform: 'scale(0.96)' }], { ...timing, duration: 420 }).finished.then(done, () => {});
+        player.animate([{ opacity: 1 }, { opacity: 0, transform: 'scale(0.96)' }], { ...timing, duration: 420 * pace }).finished.then(done, () => {});
         return;
       }
       player.animate([full(), shape(rect)], timing).finished.then(done, () => {});
@@ -201,19 +209,20 @@
       ghost.animate([{ opacity: 0 }, { opacity: 0, offset: 0.75 }, { opacity: 1 }], timing);
     };
 
-    // The pill follows the pointer over the picture, a little late, and goes home when it leaves
+    // The pill follows the pointer over the picture, a little late (the lag at the site's pace),
+    // and goes home when it leaves
     const pos = { x: 0, y: 0 };
     const aim = { x: 0, y: 0 };
     let chasing = 0;
     const chase = () => {
-      const k = reduceMotion ? 1 : 0.2;
+      const k = still ? 1 : Math.min(1, 0.2 / pace);
       pos.x += (aim.x - pos.x) * k;
       pos.y += (aim.y - pos.y) * k;
-      const still = Math.abs(aim.x - pos.x) < 0.1 && Math.abs(aim.y - pos.y) < 0.1;
-      if (still) Object.assign(pos, aim);
+      const settled = Math.abs(aim.x - pos.x) < 0.1 && Math.abs(aim.y - pos.y) < 0.1;
+      if (settled) Object.assign(pos, aim);
       pill.style.translate = pos.x || pos.y ? `${pos.x}px ${pos.y}px` : '';
-      chasing = still ? 0 : requestAnimationFrame(chase);
-      if (still && !aim.x && !aim.y) root.classList.remove('is-following');
+      chasing = settled ? 0 : requestAnimationFrame(chase);
+      if (settled && !aim.x && !aim.y) root.classList.remove('is-following');
     };
     const go = () => {
       if (!chasing) chasing = requestAnimationFrame(chase);

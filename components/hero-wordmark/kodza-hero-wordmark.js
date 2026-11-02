@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '.kodza-hero-wordmark';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const GLIDE = 'cubic-bezier(0.6, 0, 0.1, 1)'; // slow start, long settle
   const SOFT = 'cubic-bezier(0.25, 1, 0.5, 1)';
   const OPEN = 'cubic-bezier(0.3, 0.5, 0.1, 1)'; // the curtain: a slow start would leave the picture a hairline for 200 ms
@@ -41,6 +47,7 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
     const q = (s) => root.querySelector(s);
     const title = q('.kodza-hero-wordmark__title');
     if (!title) return;
@@ -109,8 +116,9 @@
       running.forEach((a) => a.cancel());
       running = [];
     };
+    // The entrance, at the site's pace
     const animate = (el, keyframes, options) => {
-      if (el) running.push(el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options }));
+      if (el) running.push(el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options, duration: options.duration * pace, delay: (options.delay || 0) * pace }));
     };
     const rise = (el, delay, duration) => animate(el, [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration, delay });
 
@@ -132,7 +140,7 @@
       });
     };
 
-    if (reduceMotion) {
+    if (reduceMotion || !pace) {
       root.classList.add('is-shown');
       document.fonts?.ready.then(() => !signal.aborted && fit());
       return;

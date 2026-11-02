@@ -7,6 +7,12 @@
 (() => {
   const SELECTOR = '.kodza-cookies';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const read = (key) => {
     try {
       return JSON.parse(localStorage.getItem(key) || 'null');
@@ -24,6 +30,8 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const key = root.dataset.key || 'kodza-consent';
     const switches = [...root.querySelectorAll('.kodza-cookies__switch')];
     const more = root.querySelector('.kodza-cookies__more');
@@ -35,8 +43,8 @@
       if (!prev || prev.textContent === text) return;
       const span = Object.assign(document.createElement('span'), { textContent: text });
       words.append(span);
-      if (reduceMotion) return prev.remove();
-      const timing = { duration: 320, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+      if (still) return prev.remove();
+      const timing = { duration: 320 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
       prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
       span.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
     };
@@ -58,7 +66,7 @@
       root.dispatchEvent(new CustomEvent('kodza:consent', { detail: choices, bubbles: true }));
       root.classList.remove('is-shown');
       root.classList.add('is-leaving');
-      setTimeout(() => !signal.aborted && (root.hidden = true), reduceMotion ? 0 : 450);
+      setTimeout(() => !signal.aborted && (root.hidden = true), still ? 0 : 450 * pace);
     };
     const all = (on) => Object.fromEntries([['necessary', true], ...switches.map((input) => [input.name, on])]);
 
@@ -84,7 +92,7 @@
       if (!trigger.dataset.kodzaCookies || trigger.dataset.kodzaCookies === key) trigger.addEventListener('click', show, { signal });
     });
 
-    if (!read(key)) setTimeout(show, reduceMotion ? 0 : 600);
+    if (!read(key)) setTimeout(show, still ? 0 : 600 * pace);
   }
 
   // Kodza lifecycle, the same in every component: `kodza:init` starts the instances inside

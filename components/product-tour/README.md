@@ -11,8 +11,8 @@ A guided tour: the page dims, a spotlight cuts out each element and glides to th
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-product-tour.html`](kodza-product-tour.html) | 0.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-product-tour.css`](kodza-product-tour.css) | 12.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-product-tour.js`](kodza-product-tour.js) | 13.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-product-tour.css`](kodza-product-tour.css) | 14.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-product-tour.js`](kodza-product-tour.js) | 13.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

@@ -9,6 +9,12 @@
 (() => {
   const SELECTOR = '.kodza-skeleton';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const STEP = 70; // between two bones, in reading order
   const SWELL = 220; // a bar swells to the height of its line
   const PULL = 420; // then pulls away to the right
@@ -17,6 +23,8 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const parts = [...root.querySelectorAll('[data-bone]')];
     if (!parts.length) return;
     const layer = Object.assign(document.createElement('span'), { className: 'kodza-skeleton__bones' });
@@ -72,25 +80,25 @@
         part.classList.remove('is-waiting');
         const bars = bones.get(part) || [];
         bones.delete(part);
-        if (reduceMotion) return bars.forEach(({ bar }) => bar.remove());
+        if (still) return bars.forEach(({ bar }) => bar.remove());
         const block = part.dataset.bone === 'block' || !part.textContent.trim();
         if (block) {
-          const delay = order++ * STEP;
+          const delay = order++ * STEP * pace;
           const img = part.matches('img') ? part : part.querySelector('img');
           // The bone lifts off, quick at first so the image never shows as a thin line under
           // it; the image settles from a slight zoom, an avatar pops
           bars.forEach(({ bar }) => {
             bar.style.transformOrigin = img ? '50% 0' : '50% 50%';
-            bar.animate([{ transform: 'none' }, { transform: img ? 'scaleY(0)' : 'scale(0)' }], { duration: img ? 650 : 420, delay, easing: img ? out : inOut, fill: 'forwards' }).onfinish = () => bar.remove();
+            bar.animate([{ transform: 'none' }, { transform: img ? 'scaleY(0)' : 'scale(0)' }], { duration: (img ? 650 : 420) * pace, delay, easing: img ? out : inOut, fill: 'forwards' }).onfinish = () => bar.remove();
           });
-          if (img) img.animate([{ transform: 'scale(1.14)' }, { transform: 'none' }], { duration: 1300, delay, easing: out, fill: 'backwards' });
-          else part.animate([{ transform: 'scale(0.4)', opacity: 0 }, { transform: 'scale(1.08)', opacity: 1, offset: 0.6 }, { transform: 'none', opacity: 1 }], { duration: 520, delay: delay + 140, easing: out, fill: 'backwards' });
+          if (img) img.animate([{ transform: 'scale(1.14)' }, { transform: 'none' }], { duration: 1300 * pace, delay, easing: out, fill: 'backwards' });
+          else part.animate([{ transform: 'scale(0.4)', opacity: 0 }, { transform: 'scale(1.08)', opacity: 1, offset: 0.6 }, { transform: 'none', opacity: 1 }], { duration: 520 * pace, delay: delay + 140 * pace, easing: out, fill: 'backwards' });
           return;
         }
         // Each line: the bars of a part swell together to the height of the words, which show
         // only once every bar covers its line (no ascender or descender peeks out); then each
         // bar pulls away to the right, one line after the other
-        const delay = order * STEP;
+        const delay = order * STEP * pace;
         order += bars.length;
         bars.forEach(({ bar }, i) => {
           const hold = SWELL + i * STEP;
@@ -101,9 +109,9 @@
             { transform: 'scale(1, 1)', offset: SWELL / duration },
             { transform: 'scale(1, 1)', offset: hold / duration, easing: inOut },
             { transform: 'scale(0, 1)' },
-          ], { duration, delay, fill: 'forwards' }).onfinish = () => bar.remove();
+          ], { duration: duration * pace, delay, fill: 'forwards' }).onfinish = () => bar.remove();
         });
-        if (bars.length) part.animate({ opacity: [0, 0] }, { duration: delay + SWELL });
+        if (bars.length) part.animate({ opacity: [0, 0] }, { duration: delay + SWELL * pace });
       });
     };
 
@@ -127,7 +135,7 @@
         part.getAnimations({ subtree: true }).forEach((animation) => animation instanceof CSSTransition || animation.cancel());
       });
       draw();
-      if (!reduceMotion) layer.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease' });
+      if (!still) layer.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220 * pace, easing: 'ease' });
     };
 
     if (root.hasAttribute('data-loading')) start();

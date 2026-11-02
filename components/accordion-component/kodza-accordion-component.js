@@ -6,6 +6,12 @@
 (() => {
   const SELECTOR = '.kodza-accordion';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const fold = 'cubic-bezier(0.65, 0, 0.35, 1)';
 
@@ -13,26 +19,28 @@
   function mount(root, signal) {
     const items = [...root.querySelectorAll('.kodza-accordion__item')];
     const single = root.hasAttribute('data-single');
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
 
     const open = (item) => {
       const panel = item.querySelector('.kodza-accordion__panel');
       item.classList.remove('is-closing');
       panel.getAnimations().forEach((animation) => animation.cancel());
       item.open = true;
-      if (reduceMotion) return;
-      panel.animate([{ height: '0px' }, { height: `${panel.scrollHeight}px` }], { duration: 520, easing: ease });
+      if (still) return;
+      panel.animate([{ height: '0px' }, { height: `${panel.scrollHeight}px` }], { duration: 520 * pace, easing: ease });
       [...panel.children].forEach((child, i) => child.animate([
         { opacity: 0, transform: 'translateY(14px)' },
         { opacity: 1, transform: 'none' },
-      ], { duration: 620, delay: 60 + i * 70, easing: ease, fill: 'backwards' }));
+      ], { duration: 620 * pace, delay: (60 + i * 70) * pace, easing: ease, fill: 'backwards' }));
     };
 
     const close = (item) => {
       const panel = item.querySelector('.kodza-accordion__panel');
       if (!item.open || item.classList.contains('is-closing')) return;
-      if (reduceMotion) return (item.open = false);
+      if (still) return (item.open = false);
       item.classList.add('is-closing');
-      panel.animate([{ height: `${panel.offsetHeight}px`, opacity: 1 }, { height: '0px', opacity: 0.4 }], { duration: 420, easing: fold }).onfinish = () => {
+      panel.animate([{ height: `${panel.offsetHeight}px`, opacity: 1 }, { height: '0px', opacity: 0.4 }], { duration: 420 * pace, easing: fold }).onfinish = () => {
         item.classList.remove('is-closing');
         item.open = false;
       };

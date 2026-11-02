@@ -5,6 +5,12 @@
 (() => {
   const SELECTOR = '.kodza-image-reveal';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   const loaded = (root, signal) => {
     const img = root.querySelector('img');
@@ -20,12 +26,14 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     root.addEventListener('kodza:replay', () => {
       root.classList.remove('is-shown');
       void root.offsetWidth;
       show(root, signal);
     }, { signal });
-    if (reduceMotion || !('IntersectionObserver' in window)) return root.classList.add('is-shown');
+    if (still || !('IntersectionObserver' in window)) return root.classList.add('is-shown');
     const io = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
       io.disconnect();

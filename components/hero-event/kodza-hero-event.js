@@ -9,6 +9,12 @@
 (() => {
   const SELECTOR = '.kodza-hero-event';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const GLIDE = 'cubic-bezier(0.6, 0, 0.1, 1)'; // slow start, long settle
   const SOFT = 'cubic-bezier(0.25, 1, 0.5, 1)';
   const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
@@ -22,6 +28,8 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the count keeps real time: only the motion follows the pace
     const q = (s) => root.querySelector(s);
     const start = q('.kodza-hero-event__start');
     const end = q('.kodza-hero-event__end');
@@ -43,9 +51,9 @@
       list.forEach((a) => a.cancel());
       list.length = 0;
     };
-    const animate = (list, el, keyframes, options) => {
+    const animate = (list, el, keyframes, { duration, delay = 0, ...options }) => {
       if (!el) return null;
-      const animation = el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options });
+      const animation = el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options, duration: duration * pace, delay: delay * pace });
       list.push(animation);
       return animation;
     };
@@ -80,12 +88,12 @@
         if (old.textContent === char) return;
         const next = Object.assign(document.createElement('span'), { textContent: char });
         cell.append(next);
-        if (!moving || reduceMotion) return old.remove();
+        if (!moving || still) return old.remove();
         const style = getComputedStyle(old);
         const y = new DOMMatrixReadOnly(style.transform).m42;
         const opacity = style.opacity;
         old.getAnimations().forEach((a) => a.cancel());
-        const timing = { duration: 520, easing: EASE };
+        const timing = { duration: 520 * pace, easing: EASE };
         old.animate([{ transform: `translateY(${y}px)`, opacity }, { transform: `translateY(${old.offsetHeight}px)`, opacity: 0 }], { ...timing, fill: 'forwards' }).finished.then(() => old.remove(), () => {});
         next.animate([{ transform: 'translateY(-100%)', opacity: 0 }, { transform: 'none', opacity: 1 }], timing);
       });
@@ -130,7 +138,7 @@
       sr.hidden = name !== 'count';
       stop(motion);
       if (name !== 'over') root.classList.remove('is-over');
-      if (first || !moving || reduceMotion) {
+      if (first || !moving || still) {
         if (name === 'over') root.classList.add('is-over');
         return;
       }
@@ -176,11 +184,11 @@
       }
       const next = Date.now() >= ends ? 'over' : 'live';
       // At zero, 00 lands first, then the next state takes over
-      if (state === 'count' && moving && !reduceMotion) {
+      if (state === 'count' && moving && !still) {
         timer = setTimeout(() => {
           turn(next, true);
           schedule();
-        }, 900);
+        }, 900 * pace);
         return;
       }
       turn(next, moving);
@@ -198,7 +206,7 @@
       sr.remove();
     });
 
-    if (reduceMotion) return root.classList.add('is-shown');
+    if (still) return root.classList.add('is-shown');
 
     const rise = (el, delay, duration) => animate(entrance, el, [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration, delay });
     const play = async () => {

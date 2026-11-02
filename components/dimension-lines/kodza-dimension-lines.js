@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '[data-kodza-dimension-lines]';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const SVG = 'http://www.w3.org/2000/svg';
   const ARROW = 7;      // arrowhead length, in px
   const SPREAD = 2.5;   // arrowhead half-width
@@ -34,10 +40,11 @@
     svg.setAttribute('class', 'kodza-dimension-lines__drawing');
     sheet.append(svg);
     root.prepend(sheet);
+    const pace = paceOf(root);
 
     const part = (name) => root.querySelector(`.kodza-dimension-lines__${name}`);
     const pen = document.createElement('canvas').getContext('2d');
-    let entered = reduceMotion;
+    let entered = reduceMotion || !pace; // still: drawn at once, nothing opens
     let drawn = '';
     let animations = [];
     let guides = [];
@@ -226,11 +233,11 @@
     const play = () => {
       guides.forEach((el, i) => {
         animations.push(el.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], {
-          duration: 900, delay: i * 40, easing: DRAW, fill: 'backwards',
+          duration: 900 * pace, delay: i * 40 * pace, easing: DRAW, fill: 'backwards',
         }));
       });
       dims.forEach((d, i) => {
-        const timing = { duration: OPEN, delay: 280 + i * STEP, easing: DRAW, fill: 'backwards' };
+        const timing = { duration: OPEN * pace, delay: (280 + i * STEP) * pace, easing: DRAW, fill: 'backwards' };
         const axis = d.axis.toUpperCase();
         d.line.style.transformOrigin = d.axis === 'x' ? `${d.mid}px ${d.across}px` : `${d.across}px ${d.mid}px`;
         animations.push(d.line.animate([{ transform: `scale${axis}(0)` }, { transform: `scale${axis}(1)` }], timing));
@@ -238,7 +245,7 @@
           animations.push(el.animate([{ transform: `translate${axis}(${shift}px)` }, { transform: 'none' }], timing));
         });
         animations.push(d.digits.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], {
-          duration: 420, delay: timing.delay + OPEN * 0.55, easing: ARRIVE, fill: 'backwards',
+          duration: 420 * pace, delay: timing.delay + OPEN * 0.55 * pace, easing: ARRIVE, fill: 'backwards',
         }));
       });
     };

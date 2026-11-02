@@ -106,8 +106,11 @@
 
 .kodza-hero-showreel__label {
   margin: 0 0 20px;
-  font-family: var(--kz-hero-showreel-mono);
-  font-size: 12.5px;
+  font-family: var(--kz-font-label, var(--kz-hero-showreel-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
   line-height: 16px;
   color: var(--kz-hero-showreel-faint);
 }
@@ -168,14 +171,16 @@
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   color: var(--kz-hero-showreel-light);
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
   line-height: 1;
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
-  transition: color 0.4s var(--kz-hero-showreel-ease);
+  transition: color calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-ease);
 }
 
 .kodza-hero-showreel__button::before {
@@ -186,7 +191,7 @@
   border-radius: inherit;
   background: var(--kz-hero-showreel-light);
   transform: translateY(101%);
-  transition: transform 0.4s var(--kz-hero-showreel-ease);
+  transition: transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-ease);
 }
 
 .kodza-hero-showreel__arrow {
@@ -198,7 +203,7 @@
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform 0.3s var(--kz-hero-showreel-ease);
+  transition: transform calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-ease);
 }
 
 .kodza-hero-showreel__button:focus-visible,
@@ -236,15 +241,17 @@
   border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-hero-showreel-light);
   color: var(--kz-hero-showreel-ink);
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
   line-height: 1;
   white-space: nowrap;
   text-decoration: none;
   transition:
-    scale 0.3s var(--kz-hero-showreel-ease),
-    opacity 0.2s ease;
+    scale calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-ease),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-hero-showreel__dot {
@@ -264,8 +271,11 @@
 }
 
 .kodza-hero-showreel__time {
-  font-family: var(--kz-hero-showreel-mono);
-  font-size: 12.5px;
+  font-family: var(--kz-font-label, var(--kz-hero-showreel-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
   font-variant-numeric: tabular-nums;
   opacity: 0.68;
 }
@@ -367,8 +377,11 @@
   height: 52px;
   padding: 0 20px 0 8px;
   color: var(--kz-hero-showreel-ink);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
   line-height: 1;
   white-space: nowrap;
 }
@@ -392,12 +405,14 @@
   border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-hero-showreel-glass);
   color: var(--kz-hero-showreel-light);
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
   line-height: 36px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 /* The words of a button share one cell: it keeps the width of the longest */
@@ -443,8 +458,11 @@
 
 .kodza-hero-showreel__clock {
   flex: none;
-  font-family: var(--kz-hero-showreel-mono);
-  font-size: 12.5px;
+  font-family: var(--kz-font-label, var(--kz-hero-showreel-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
   font-variant-numeric: tabular-nums;
   color: var(--kz-hero-showreel-faint);
   white-space: nowrap;
@@ -464,7 +482,7 @@
   background: var(--kz-hero-showreel-glass);
   color: var(--kz-hero-showreel-light);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-hero-showreel__close svg {
@@ -492,40 +510,40 @@
 /* The entrance, on load: the loop opens and settles, the title lines rise, then the rest */
 @media (prefers-reduced-motion: no-preference) {
   .kodza-hero-showreel__curtain {
-    animation: kodza-hero-showreel-curtain 1350ms var(--kz-hero-showreel-glide) 100ms both;
+    animation: kodza-hero-showreel-curtain calc(1350ms * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-glide) calc(100ms * var(--kz-motion-scale, 1)) both;
   }
 
   .kodza-hero-showreel__hold {
-    animation: kodza-hero-showreel-hold 1350ms var(--kz-hero-showreel-glide) 100ms both;
+    animation: kodza-hero-showreel-hold calc(1350ms * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-glide) calc(100ms * var(--kz-motion-scale, 1)) both;
   }
 
   .kodza-hero-showreel__loop {
-    animation: kodza-hero-showreel-settle 2000ms var(--kz-hero-showreel-soft-ease) 100ms both;
+    animation: kodza-hero-showreel-settle calc(2000ms * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-soft-ease) calc(100ms * var(--kz-motion-scale, 1)) both;
   }
 
   .kodza-hero-showreel__label {
-    animation: kodza-hero-showreel-in 900ms var(--kz-hero-showreel-soft-ease) 250ms both;
+    animation: kodza-hero-showreel-in calc(900ms * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-soft-ease) calc(250ms * var(--kz-motion-scale, 1)) both;
   }
 
   .kodza-hero-showreel__rise {
-    animation: kodza-hero-showreel-rise 1170ms var(--kz-hero-showreel-glide) 300ms both;
+    animation: kodza-hero-showreel-rise calc(1170ms * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-glide) calc(300ms * var(--kz-motion-scale, 1)) both;
   }
 
   .kodza-hero-showreel__line:nth-child(2) .kodza-hero-showreel__rise {
-    animation-delay: 425ms;
+    animation-delay: calc(425ms * var(--kz-motion-scale, 1));
   }
 
   .kodza-hero-showreel__lead {
-    animation: kodza-hero-showreel-in 900ms var(--kz-hero-showreel-soft-ease) 650ms both;
+    animation: kodza-hero-showreel-in calc(900ms * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-soft-ease) calc(650ms * var(--kz-motion-scale, 1)) both;
   }
 
   .kodza-hero-showreel__actions {
-    animation: kodza-hero-showreel-in 900ms var(--kz-hero-showreel-soft-ease) 760ms both;
+    animation: kodza-hero-showreel-in calc(900ms * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-soft-ease) calc(760ms * var(--kz-motion-scale, 1)) both;
   }
 
   /* Backwards only: once in, the pill's scale and opacity belong to its states */
   .kodza-hero-showreel__play {
-    animation: kodza-hero-showreel-pop 700ms var(--kz-hero-showreel-ease) 600ms backwards;
+    animation: kodza-hero-showreel-pop calc(700ms * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-ease) calc(600ms * var(--kz-motion-scale, 1)) backwards;
   }
 }
 
@@ -586,7 +604,7 @@
   }
 }
 
-/* kodza-guard df9c9550f82f — generated by Kodza, do not edit.
+/* kodza-guard 76bc8d7cd802 — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -672,37 +690,7 @@
   transition-delay: revert;
 }
 
-.kodza-hero-showreel__label:not(#_) {
-  border: revert;
-  padding: revert;
-  border-radius: revert;
-  outline: revert;
-  text-decoration: revert;
-  list-style: revert;
-  box-sizing: revert;
-  float: revert;
-  position: revert;
-  background-color: revert;
-  background-image: revert;
-  box-shadow: revert;
-  outline-offset: revert;
-  appearance: revert;
-  max-width: revert;
-  max-height: revert;
-  font-weight: revert;
-  font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
-  text-underline-offset: revert;
-  text-align: revert;
-  text-indent: revert;
-  text-shadow: revert;
-  vertical-align: revert;
-  transition-property: revert;
-  transition-timing-function: revert;
-  transition-delay: revert;
-}
-
+.kodza-hero-showreel__label:not(#_),
 .kodza-hero-showreel__title:not(#_) {
   border: revert;
   padding: revert;
@@ -773,8 +761,6 @@
   max-width: revert;
   max-height: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -889,8 +875,6 @@
   max-width: revert;
   max-height: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -999,8 +983,11 @@
 
 .kodza-hero-showreel__label:not(#_) {
   margin: 0 0 20px;
-  font-family: var(--kz-hero-showreel-mono);
-  font-size: 12.5px;
+  font-family: var(--kz-font-label, var(--kz-hero-showreel-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
   line-height: 16px;
   color: var(--kz-hero-showreel-faint);
 }
@@ -1032,16 +1019,18 @@
   border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-hero-showreel-glass);
   color: var(--kz-hero-showreel-light);
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
   line-height: 1;
   text-decoration: none;
-  transition: color 0.4s var(--kz-hero-showreel-ease);
+  transition: color calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-ease);
 }
 
 .kodza-hero-showreel__arrow:not(#_) {
-  transition: transform 0.3s var(--kz-hero-showreel-ease);
+  transition: transform calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-ease);
 }
 
 .kodza-hero-showreel__button:focus-visible:not(#_),
@@ -1064,13 +1053,15 @@
   border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-hero-showreel-light);
   color: var(--kz-hero-showreel-ink);
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
   line-height: 1;
   text-decoration: none;
-  transition: scale 0.3s var(--kz-hero-showreel-ease),
-    opacity 0.2s ease;
+  transition: scale calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-hero-showreel-ease),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-hero-showreel__viewer:not(#_) {
@@ -1099,12 +1090,14 @@
   border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-hero-showreel-glass);
   color: var(--kz-hero-showreel-light);
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
   line-height: 36px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-hero-showreel__close:not(#_) {
@@ -1121,7 +1114,7 @@
   background: var(--kz-hero-showreel-glass);
   color: var(--kz-hero-showreel-light);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-hero-showreel__control:focus-visible:not(#_),

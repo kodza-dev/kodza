@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '.kodza-filter';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
@@ -18,6 +24,8 @@
     const items = [...root.querySelectorAll('.kodza-filter__item')];
     const num = root.querySelector('.kodza-filter__num');
     if (!pillsBox || !pills.length || !grid) return;
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
 
     // The white copy of the labels, cut to the pill's shape
     const mirror = document.createElement('span');
@@ -39,8 +47,8 @@
       if (prev.textContent === String(value)) return;
       const span = Object.assign(document.createElement('span'), { textContent: value });
       num.append(span);
-      if (reduceMotion) return prev.remove();
-      const timing = { duration: 450, easing: ease };
+      if (still) return prev.remove();
+      const timing = { duration: 450 * pace, easing: ease };
       prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
       span.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
     };
@@ -61,14 +69,14 @@
       const entering = items.filter((item) => item.hidden && matches(item, filter));
       const staying = items.filter((item) => !item.hidden && matches(item, filter));
       roll(staying.length + entering.length);
-      if (reduceMotion) {
+      if (still) {
         items.forEach((item) => (item.hidden = !matches(item, filter)));
         return;
       }
 
       // Beat one: the cards that go step back
       if (leaving.length) {
-        outs = leaving.map((item) => item.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(0.94)' }], { duration: 220, easing: 'ease-in', fill: 'forwards' }));
+        outs = leaving.map((item) => item.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(0.94)' }], { duration: 220 * pace, easing: 'ease-in', fill: 'forwards' }));
         await Promise.all(outs.map((animation) => animation.finished.catch(() => {})));
         if (id !== token) return;
       }
@@ -87,12 +95,12 @@
         const a = before.get(item);
         const b = item.getBoundingClientRect();
         if (Math.abs(a.left - b.left) + Math.abs(a.top - b.top) < 1) return;
-        running.push(item.animate([{ transform: `translate(${(a.left - b.left) / k}px, ${(a.top - b.top) / k}px)` }, { transform: 'none' }], { duration: 650, easing: ease }));
+        running.push(item.animate([{ transform: `translate(${(a.left - b.left) / k}px, ${(a.top - b.top) / k}px)` }, { transform: 'none' }], { duration: 650 * pace, easing: ease }));
       });
       entering
         .sort((a, b) => a.offsetTop - b.offsetTop || a.offsetLeft - b.offsetLeft)
-        .forEach((item, i) => running.push(item.animate([{ opacity: 0, transform: 'translateY(16px) scale(0.96)' }, { opacity: 1, transform: 'none' }], { duration: 650, delay: 80 + i * 60, easing: ease, fill: 'backwards' })));
-      if (from !== to) running.push(grid.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: 650, easing: ease }));
+        .forEach((item, i) => running.push(item.animate([{ opacity: 0, transform: 'translateY(16px) scale(0.96)' }, { opacity: 1, transform: 'none' }], { duration: 650 * pace, delay: (80 + i * 60) * pace, easing: ease, fill: 'backwards' })));
+      if (from !== to) running.push(grid.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: 650 * pace, easing: ease }));
     };
 
     const select = (pill) => {

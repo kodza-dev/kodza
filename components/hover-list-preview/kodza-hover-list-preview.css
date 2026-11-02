@@ -18,6 +18,8 @@
   --kz-hover-list-glass: auto; /* behind the words that cross the picture: auto = the background behind the list, see-through */
   --kz-hover-list-size: calc(clamp(22px, 2.6vw, 30px) * var(--kz-font-display-scale, 1));
   --kz-hover-list-columns: minmax(0, 1fr) minmax(0, 13em) auto;
+  --kz-hover-list-gap: 24px; /* between the columns */
+  --kz-hover-list-dot-radius: 50%; /* the dot before a group's count: 0 squares it */
   --kz-hover-list-width: 220px; /* the frame that follows the pointer */
   --kz-hover-list-panel: 220px; /* the frame beside the list, with --panel */
   --kz-hover-list-sticky: 24px; /* with --panel, where the frame stops from the top of the screen */
@@ -41,7 +43,7 @@
 .kodza-hover-list__items {
   display: grid;
   grid-template-columns: var(--kz-hover-list-columns);
-  column-gap: 24px;
+  column-gap: var(--kz-hover-list-gap);
   margin: 0;
   padding: 0;
   border-bottom: 1px solid var(--kz-hover-list-line);
@@ -77,11 +79,12 @@
   gap: 0.7em;
   margin: 0;
   color: var(--kz-hover-list-muted);
-  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 12.5px;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
 }
 
 .kodza-hover-list__group-count {
@@ -95,7 +98,7 @@
   content: "";
   width: 3px;
   height: 3px;
-  border-radius: 50%;
+  border-radius: var(--kz-hover-list-dot-radius);
   background: currentColor;
 }
 
@@ -107,7 +110,7 @@
   grid-template-columns: var(--kz-hover-list-columns);
   grid-template-columns: subgrid;
   align-items: baseline;
-  column-gap: 24px;
+  column-gap: var(--kz-hover-list-gap);
   padding: 20px 0;
   border-top: 1px solid var(--kz-hover-list-line);
   color: var(--kz-hover-list-ink);
@@ -119,7 +122,9 @@
 .kodza-hover-list__detail,
 .kodza-hover-list__meta {
   position: relative;
-  transition: color 0.35s ease, transform 0.55s var(--kz-hover-list-ease);
+  transition:
+    color calc(0.35s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.55s * var(--kz-motion-scale, 1)) var(--kz-hover-list-ease);
 }
 
 .kodza-hover-list__name {
@@ -136,17 +141,25 @@
 .kodza-hover-list__detail {
   justify-self: start;
   color: var(--kz-hover-list-muted);
-  font-size: 15px;
-  line-height: 1.4;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
 }
 
 .kodza-hover-list__meta {
   justify-self: end;
   color: var(--kz-hover-list-muted);
-  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 13px;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
   font-variant-numeric: tabular-nums;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
   text-align: right;
+  text-transform: var(--kz-font-label-case, inherit);
 }
 
 .kodza-hover-list__row.is-current .kodza-hover-list__name,
@@ -245,18 +258,18 @@
 
 .kodza-hover-list__frame.is-open .kodza-hover-list__media {
   clip-path: inset(0 0 0 0 round var(--kz-hover-list-radius));
-  transition: clip-path 0.6s var(--kz-hover-list-ease);
+  transition: clip-path calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-hover-list-ease);
 }
 
 .kodza-hover-list__frame.is-open .kodza-hover-list__reel {
   transform: none;
-  transition: transform 0.9s var(--kz-hover-list-ease);
+  transition: transform calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-hover-list-ease);
 }
 
 /* It leaves the way it came in: upwards */
 .kodza-hover-list__frame.is-leaving .kodza-hover-list__media {
   clip-path: inset(0 0 100% 0 round var(--kz-hover-list-radius));
-  transition: clip-path 0.42s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: clip-path calc(0.42s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .kodza-hover-list__frame.is-leaving .kodza-hover-list__reel {
@@ -292,9 +305,11 @@
   border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-hover-list-tint, rgba(255, 255, 255, 0.6));
   color: var(--kz-hover-list-ink);
-  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 12px;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
   line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
   font-variant-numeric: tabular-nums;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
@@ -346,7 +361,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.45s var(--kz-hover-list-ease);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-hover-list-ease);
 }
 
 .kodza-hover-list.is-inline .kodza-hover-list__row:active .kodza-hover-list__thumb img {
@@ -362,7 +377,7 @@
 .kodza-hover-list.is-inline .kodza-hover-list__detail {
   grid-column: 2;
   align-self: start;
-  font-size: 14px;
+  font-size: var(--kz-font-label-size, 14px);
 }
 
 .kodza-hover-list.is-inline .kodza-hover-list__meta {
@@ -391,7 +406,7 @@
 }
 */
 
-/* kodza-guard cf7226a4e6a2 — generated by Kodza, do not edit.
+/* kodza-guard 017229f7ffe1 — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -631,7 +646,6 @@
   max-width: revert;
   max-height: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -714,11 +728,12 @@
   display: flex;
   margin: 0;
   color: var(--kz-hover-list-muted);
-  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 12.5px;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
 }
 
 .kodza-hover-list__row:not(#_) {
@@ -748,7 +763,7 @@
 
 .kodza-hover-list__thumb img:not(#_) {
   display: block;
-  transition: transform 0.45s var(--kz-hover-list-ease);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-hover-list-ease);
 }
 
 @media (prefers-reduced-motion: reduce) {

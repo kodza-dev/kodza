@@ -7,6 +7,12 @@
 (() => {
   const SELECTOR = '.kodza-pagination';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const SLOTS = 7;
   const NARROW = 5;
   const arrow = (d) => `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -23,10 +29,10 @@
   };
 
   // Old content leaves through the top, new content rises from below
-  const roll = (box, next, duration, ease, delay = 0) => {
+  const roll = (box, next, duration, ease, delay, still) => {
     const prev = box.firstElementChild;
     box.replaceChildren(...(prev ? [prev, next] : [next]));
-    if (!prev || reduceMotion) {
+    if (!prev || still) {
       prev?.remove();
       return;
     }
@@ -37,11 +43,13 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const pages = Math.max(1, parseInt(root.dataset.pages, 10) || 1);
     const href = root.dataset.href;
     const compact = root.classList.contains('kodza-pagination--compact');
     const style = getComputedStyle(root);
-    const duration = parseFloat(style.getPropertyValue('--kz-pages-duration')) * 1000 || 500;
+    const duration = (parseFloat(style.getPropertyValue('--kz-pages-duration')) * 1000 || 500) * pace;
     const ease = style.getPropertyValue('--kz-pages-ease').trim() || 'ease';
     let current = Math.min(pages, Math.max(1, parseInt(root.dataset.current, 10) || 1));
 
@@ -119,7 +127,7 @@
       if (compact) {
         const span = document.createElement('span');
         span.textContent = current;
-        if (number.textContent !== String(current)) roll(number, span, animate ? duration : 0, ease);
+        if (number.textContent !== String(current)) roll(number, span, animate ? duration : 0, ease, 0, still);
       } else {
         windowAround(current, pages, slots.length).forEach((n, i) => {
           const slot = slots[i];
@@ -129,7 +137,7 @@
             old.toggleAttribute('aria-current', n === current);
             if (n === current) old.setAttribute('aria-current', 'page');
           } else {
-            roll(slot, pageEl(n), animate ? duration : 0, ease, i * 30);
+            roll(slot, pageEl(n), animate ? duration : 0, ease, i * 30 * pace, still);
           }
           if (n === current) indicator.style.setProperty('--kz-pages-x', `${slot.offsetLeft}px`);
         });

@@ -9,12 +9,18 @@
 (() => {
   const SELECTOR = '.kodza-footer-shop';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const FOLD = 'cubic-bezier(0.65, 0, 0.35, 1)';
   let uid = 0;
 
   // A word rolls into its box: the old one leaves upwards, the new one rises from below, and the
-  // box eases to its new width instead of jumping
+  // box eases to its new width instead of jumping. At the site's pace, read on the box
   const roll = (box, text, { delay = 0, tick = false } = {}) => {
     const prev = box.lastElementChild;
     if (!prev || prev.textContent === text) return;
@@ -30,9 +36,10 @@
       span.prepend(svg);
     }
     box.append(span);
-    if (reduceMotion) return prev.remove();
+    const pace = paceOf(box);
+    if (reduceMotion || !pace) return prev.remove();
     const to = span.offsetWidth;
-    const timing = { duration: 450, delay, easing: EASE };
+    const timing = { duration: 450 * pace, delay: delay * pace, easing: EASE };
     prev.setAttribute('aria-hidden', 'true');
     box.animate([{ width: `${from}px` }, { width: `${to}px` }], { ...timing, fill: 'backwards' });
     prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove(), () => {});
@@ -42,7 +49,7 @@
 
   // The letter: judged like Text Field (when the visitor leaves a filled field, then live while
   // they fix it), sent in place, then the field stays filled and the button says it worked
-  function letter(form, signal) {
+  function letter(form, signal, still) {
     const input = form.querySelector('.kodza-footer-shop__input');
     const send = form.querySelector('.kodza-footer-shop__send');
     const say = form.querySelector('.kodza-footer-shop__say');
@@ -92,8 +99,8 @@
       input.readOnly = true;
       form.classList.add('is-sending');
       roll(say, send.dataset.sending || 'Sending');
-      // Long enough to read the word, however fast the list answers
-      const wait = new Promise((resolve) => setTimeout(resolve, reduceMotion ? 0 : 700));
+      // Long enough to read the word, however fast the list answers (a time to read, not motion)
+      const wait = new Promise((resolve) => setTimeout(resolve, still ? 0 : 700));
       Promise.all([sent, wait]).then(() => {
         if (signal.aborted) return;
         form.classList.remove('is-sending');
@@ -113,7 +120,7 @@
 
   // Country and currency: a button and a list of links, unrolled upwards (downwards when the
   // page leaves no room above), with the highlight of Dropdown Menu gliding from one to the next
-  function region(root, signal) {
+  function region(root, signal, pace) {
     const trigger = root.querySelector('.kodza-footer-shop__picker');
     const list = root.querySelector('.kodza-footer-shop__places');
     if (!trigger || !list) return;
@@ -179,7 +186,7 @@
       if (value) roll(value, label(item), { delay: 280 });
       root.dispatchEvent(new CustomEvent('kodza:select', { detail: { item, value: label(item) }, bubbles: true }));
       light(item);
-      setTimeout(() => !signal.aborted && close(true), reduceMotion ? 0 : 320);
+      setTimeout(() => !signal.aborted && close(true), reduceMotion || !pace ? 0 : 320 * pace);
     };
 
     trigger.addEventListener('click', () => (isOpen() ? close() : open()), { signal });
@@ -238,7 +245,8 @@
 
   // Phones: each column title becomes the button of its accordion (CSS shows it under 600px of
   // footer width). The list opens to its height, its links rising one after the other
-  function columns(nav, signal) {
+  function columns(nav, signal, pace) {
+    const still = reduceMotion || !pace;
     nav.querySelectorAll('.kodza-footer-shop__col').forEach((col) => {
       const title = col.querySelector('.kodza-footer-shop__title');
       const list = col.querySelector('.kodza-footer-shop__links');
@@ -262,16 +270,16 @@
         button.setAttribute('aria-expanded', String(opening));
         if (opening) {
           col.classList.add('is-open');
-          if (reduceMotion) return col.classList.remove('is-moving');
+          if (still) return col.classList.remove('is-moving');
           col.classList.add('is-moving');
-          list.animate([{ height: `${from}px` }, { height: `${list.scrollHeight}px` }], { duration: 520, easing: EASE }).onfinish = () => col.classList.remove('is-moving');
+          list.animate([{ height: `${from}px` }, { height: `${list.scrollHeight}px` }], { duration: 520 * pace, easing: EASE }).onfinish = () => col.classList.remove('is-moving');
           if (from === 0) [...list.children].forEach((li, i) => li.animate([
             { opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' },
-          ], { duration: 560, delay: 60 + i * 45, easing: EASE, fill: 'backwards' }));
+          ], { duration: 560 * pace, delay: (60 + i * 45) * pace, easing: EASE, fill: 'backwards' }));
         } else {
-          if (reduceMotion) return col.classList.remove('is-open', 'is-moving');
+          if (still) return col.classList.remove('is-open', 'is-moving');
           col.classList.add('is-moving');
-          list.animate([{ height: `${from}px`, opacity: 1 }, { height: '0px', opacity: 0.4 }], { duration: 420, easing: FOLD }).onfinish = () => col.classList.remove('is-open', 'is-moving');
+          list.animate([{ height: `${from}px`, opacity: 1 }, { height: '0px', opacity: 0.4 }], { duration: 420 * pace, easing: FOLD }).onfinish = () => col.classList.remove('is-open', 'is-moving');
         }
       }, { signal });
     });
@@ -280,12 +288,13 @@
   // One instance, with its own state: two copies on a page never interfere. Everything it
   // starts is tied to `signal`, so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
     root.querySelectorAll('.kodza-footer-shop__year').forEach((year) => {
       year.textContent = String(new Date().getFullYear());
     });
-    root.querySelectorAll('.kodza-footer-shop__form').forEach((form) => letter(form, signal));
-    root.querySelectorAll('.kodza-footer-shop__region').forEach((place) => region(place, signal));
-    root.querySelectorAll('.kodza-footer-shop__nav').forEach((nav) => columns(nav, signal));
+    root.querySelectorAll('.kodza-footer-shop__form').forEach((form) => letter(form, signal, reduceMotion || !pace));
+    root.querySelectorAll('.kodza-footer-shop__region').forEach((place) => region(place, signal, pace));
+    root.querySelectorAll('.kodza-footer-shop__nav').forEach((nav) => columns(nav, signal, pace));
   }
 
   // Kodza lifecycle, the same in every component: `kodza:init` starts the instances inside

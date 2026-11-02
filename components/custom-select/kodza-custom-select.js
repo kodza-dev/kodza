@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '.kodza-select';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const tick = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" pathLength="1"/></svg>';
   const chevron = '<svg class="kodza-select__chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6.5 8 10.5l4-4"/></svg>';
   let uid = 0;
@@ -103,8 +109,11 @@
       value.append(span);
       shown = span;
       if (!prev) return;
-      if (!animate || reduceMotion) return prev.remove();
-      const timing = { duration: 420, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+      // Read when the value rolls: read at mount, the style it computes would turn the field's first
+      // state (its label folded over a chosen value) into a transition
+      const pace = paceOf(root);
+      if (!animate || reduceMotion || !pace) return prev.remove();
+      const timing = { duration: 420 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
       prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
       span.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
     };

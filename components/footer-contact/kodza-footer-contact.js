@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '.kodza-footer-contact';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const REF = 100; // the size the address is measured at, in px
   const VARS = ['size', 'height', 'lift', 'shift'].map((name) => `--kz-footer-contact-${name}`);
@@ -53,7 +59,7 @@
   }
 
   // A line rolls into its box: the old one leaves upwards, the new one rises from below, and the
-  // box eases to its new width instead of jumping
+  // box eases to its new width instead of jumping. At the site's pace, read on the box
   const line = (text, icon) => {
     const span = document.createElement('span');
     span.textContent = text;
@@ -73,9 +79,10 @@
     const from = box.offsetWidth;
     const span = line(text, icon);
     box.append(span);
-    if (reduceMotion) return prev.remove();
+    const pace = paceOf(box);
+    if (reduceMotion || !pace) return prev.remove();
     const to = span.offsetWidth;
-    const timing = { duration: 450, easing: EASE };
+    const timing = { duration: 450 * pace, easing: EASE };
     prev.setAttribute('aria-hidden', 'true');
     box.animate([{ width: `${from}px` }, { width: `${to}px` }], { ...timing, fill: 'backwards' });
     prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove(), () => {});

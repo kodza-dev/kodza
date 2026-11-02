@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '.kodza-dialog';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   // The page behind stays put while it is open: a wheel or a swipe only scrolls what can
   // scroll inside, under the pointer. Listening only while open costs nothing the rest of the time.
   const holdPage = (layer, signal) => {
@@ -49,6 +55,8 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const trigger = root.querySelector('.kodza-dialog__trigger');
     const panel = root.querySelector('.kodza-dialog__panel');
     holdPage(panel, signal);
@@ -98,14 +106,14 @@
       }
       panel.showModal();
       panel.classList.add('is-open');
-      if (reduceMotion) return;
+      if (still) return;
       const { origin, scale } = fromTrigger();
       panel.style.transformOrigin = origin;
       panel.animate([
         { transform: `scale(${scale})`, opacity: 0 },
         { opacity: 1, offset: 0.3 },
         { transform: 'none', opacity: 1 },
-      ], { duration: 520, easing: ease });
+      ], { duration: 520 * pace, easing: ease });
     };
 
     // Back into the trigger, then really closed
@@ -121,14 +129,14 @@
         trigger.focus({ preventScroll: true });
         root.dispatchEvent(new CustomEvent('kodza:close', { detail: { value }, bubbles: true }));
       };
-      if (reduceMotion) return finish();
+      if (still) return finish();
       const { origin, scale } = fromTrigger();
       panel.style.transformOrigin = origin;
       panel.animate([
         { transform: 'none', opacity: 1 },
         { opacity: 1, offset: 0.6 },
         { transform: `scale(${scale})`, opacity: 0 },
-      ], { duration: 380, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' }).finished.then(finish);
+      ], { duration: 380 * pace, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' }).finished.then(finish);
     };
 
     trigger.addEventListener('click', open, { signal });

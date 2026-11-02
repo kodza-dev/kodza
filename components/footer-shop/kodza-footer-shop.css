@@ -19,7 +19,7 @@
   --kz-footer-shop-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
   --kz-footer-shop-width: 1200px; /* the content, centred */
   --kz-footer-shop-pad: 24px;
-  --kz-footer-shop-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-footer-shop-mono: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)); /* titles, currencies, payment methods and the © */
   --kz-footer-shop-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   display: block;
@@ -126,8 +126,12 @@
 
 .kodza-footer-shop__small {
   grid-column: 2;
-  font-size: 13px;
-  line-height: 1.5;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.5);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-shop-muted);
   text-wrap: pretty;
 }
@@ -194,7 +198,7 @@
   border-radius: calc(12px * var(--kz-radius-scale, 1));
   background: var(--kz-footer-shop-raised);
   box-shadow: inset 0 0 0 1px var(--kz-footer-shop-edge);
-  transition: box-shadow 0.25s ease;
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
 }
 
 @media (hover: hover) {
@@ -258,7 +262,7 @@
   pointer-events: none;
   transform: translateY(-50%);
   transform-origin: left top;
-  transition: transform 0.35s var(--kz-footer-shop-ease);
+  transition: transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-footer-shop-ease);
 }
 
 .kodza-footer-shop__input:focus ~ .kodza-footer-shop__label,
@@ -282,11 +286,17 @@
   background: var(--kz-footer-shop-fg);
   color: var(--kz-footer-shop-bg);
   font: inherit;
-  font-size: 14px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
   line-height: 1;
+  text-transform: var(--kz-font-label-case, revert);
   cursor: pointer;
-  transition: background-color 0.35s ease, color 0.35s ease, opacity 0.2s ease;
+  transition:
+    background-color calc(0.35s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.35s * var(--kz-motion-scale, 1)) ease,
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 @media (hover: hover) {
@@ -322,7 +332,7 @@
   stroke-linejoin: round;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation: kodza-footer-shop-tick 0.4s var(--kz-footer-shop-ease) 0.35s forwards;
+  animation: kodza-footer-shop-tick calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-footer-shop-ease) calc(0.35s * var(--kz-motion-scale, 1)) forwards;
 }
 
 @keyframes kodza-footer-shop-tick {
@@ -348,8 +358,12 @@
   margin: 10px 0 0;
   padding: 0 2px;
   overflow: hidden;
-  font-size: 13px;
-  line-height: 1.4;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-shop-muted);
 }
 
@@ -357,13 +371,15 @@
 .kodza-footer-shop__error,
 .kodza-footer-shop__done {
   grid-area: 1 / 1;
-  transition: opacity 0.25s ease, transform 0.4s var(--kz-footer-shop-ease);
+  transition:
+    opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-footer-shop-ease);
 }
 
 .kodza-footer-shop__error,
 .kodza-footer-shop__done {
   color: var(--kz-footer-shop-fg);
-  font-weight: 500;
+  font-weight: var(--kz-font-label-weight, 500);
   opacity: 0;
   transform: translateY(100%);
 }
@@ -413,10 +429,11 @@
 .kodza-footer-shop__copy {
   margin: 0;
   font-family: var(--kz-footer-shop-mono);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  line-height: 1.5;
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  line-height: var(--kz-font-label-leading, 1.5);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-shop-muted);
 }
 
@@ -440,9 +457,12 @@
   background: none;
   color: inherit;
   font: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
   line-height: 1;
+  text-transform: var(--kz-font-label-case, revert);
   text-align: left;
   cursor: pointer;
 }
@@ -464,7 +484,7 @@
   height: 1.5px;
   border-radius: calc(1px * var(--kz-radius-scale, 1));
   background: currentColor;
-  transition: transform 0.4s var(--kz-footer-shop-ease);
+  transition: transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-footer-shop-ease);
 }
 
 .kodza-footer-shop__plus::after {
@@ -485,13 +505,19 @@
 .kodza-footer-shop__link,
 .kodza-footer-shop__claim {
   background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
-  transition: background-size 0.4s var(--kz-footer-shop-ease), color 0.2s ease;
+  transition:
+    background-size calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-footer-shop-ease),
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-footer-shop__link {
   color: inherit;
-  font-size: 14px;
-  line-height: 1.5;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.5);
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
 }
 
@@ -529,7 +555,7 @@
 }
 
 .kodza-footer-shop__row .kodza-footer-shop__link {
-  font-size: 13px;
+  font-size: var(--kz-font-label-size, 13px);
   color: var(--kz-footer-shop-muted);
 }
 
@@ -545,7 +571,7 @@
   position: relative;
   z-index: 0;
   display: inline-flex;
-  transition: z-index 0s linear 0.35s;
+  transition: z-index 0s linear calc(0.35s * var(--kz-motion-scale, 1));
 }
 
 .kodza-footer-shop__region.is-open {
@@ -567,11 +593,14 @@
   box-shadow: inset 0 0 0 1px var(--kz-footer-shop-edge);
   color: inherit;
   font: inherit;
-  font-size: 13px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
   line-height: 1;
+  text-transform: var(--kz-font-label-case, revert);
   cursor: pointer;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-footer-shop__region.is-open .kodza-footer-shop__picker {
@@ -605,7 +634,7 @@
   width: 14px;
   height: 14px;
   stroke-width: 1.5;
-  transition: transform 0.35s var(--kz-footer-shop-ease);
+  transition: transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-footer-shop-ease);
 }
 
 .kodza-footer-shop__region.is-open .kodza-footer-shop__chevron {
@@ -652,7 +681,11 @@
   opacity: 0;
   clip-path: inset(100% 0 0 0 round calc(14px * var(--kz-radius-scale, 1)));
   transform: translateY(4px);
-  transition: clip-path 0.35s var(--kz-footer-shop-ease), transform 0.35s var(--kz-footer-shop-ease), opacity 0.2s ease, visibility 0s linear 0.35s;
+  transition:
+    clip-path calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-footer-shop-ease),
+    transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-footer-shop-ease),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    visibility 0s linear calc(0.35s * var(--kz-motion-scale, 1));
 }
 
 .kodza-footer-shop__region.is-open .kodza-footer-shop__places {
@@ -695,7 +728,9 @@
 }
 
 .kodza-footer-shop__region.is-open .kodza-footer-shop__glide {
-  transition: transform 0.22s ease, opacity 0.15s ease;
+  transition:
+    transform calc(0.22s * var(--kz-motion-scale, 1)) ease,
+    opacity calc(0.15s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-footer-shop__place {
@@ -709,9 +744,12 @@
   padding: 0 10px 0 32px;
   border-radius: calc(8px * var(--kz-radius-scale, 1));
   color: inherit;
-  font-size: 14px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
   line-height: 1;
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -722,8 +760,8 @@
 
 .kodza-footer-shop__currency {
   font-family: var(--kz-footer-shop-mono);
-  font-size: 12px;
-  font-weight: 400;
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
   color: var(--kz-footer-shop-muted);
 }
 
@@ -744,9 +782,11 @@
   flex-wrap: wrap;
   gap: 4px 0;
   font-family: var(--kz-footer-shop-mono);
-  font-size: 12px;
-  letter-spacing: 0.02em;
-  line-height: 1.5;
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  line-height: var(--kz-font-label-leading, 1.5);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-shop-muted);
 }
 
@@ -867,7 +907,7 @@
   }
 
   .kodza-footer-shop.is-ready .kodza-footer-shop__links .kodza-footer-shop__link {
-    font-size: 15px;
+    font-size: var(--kz-font-label-size, 15px);
   }
 
   .kodza-footer-shop.is-ready .kodza-footer-shop__col:not(.is-open) .kodza-footer-shop__links {
@@ -886,7 +926,7 @@
   }
 }
 
-/* kodza-guard bb5335f0ed81 — generated by Kodza, do not edit.
+/* kodza-guard 7b0b4b7bd333 — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -1232,8 +1272,6 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1260,11 +1298,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
-  font-weight: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1334,7 +1368,6 @@
   max-width: revert;
   max-height: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1352,8 +1385,6 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-indent: revert;
   text-shadow: revert;
@@ -1406,11 +1437,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
-  font-weight: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1426,8 +1453,6 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1566,10 +1591,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1593,9 +1615,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-weight: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1833,11 +1853,16 @@
   background: var(--kz-footer-shop-fg);
   color: var(--kz-footer-shop-bg);
   font: inherit;
-  font-size: 14px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
   line-height: 1;
+  text-transform: var(--kz-font-label-case, revert);
   cursor: pointer;
-  transition: background-color 0.35s ease, color 0.35s ease, opacity 0.2s ease;
+  transition: background-color calc(0.35s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.35s * var(--kz-motion-scale, 1)) ease,
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 @media (hover: hover) {
@@ -1861,8 +1886,12 @@
   display: grid;
   margin: 10px 0 0;
   padding: 0 2px;
-  font-size: 13px;
-  line-height: 1.4;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-shop-muted);
 }
 
@@ -1874,10 +1903,11 @@
 .kodza-footer-shop__copy:not(#_) {
   margin: 0;
   font-family: var(--kz-footer-shop-mono);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  line-height: 1.5;
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  line-height: var(--kz-font-label-leading, 1.5);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-shop-muted);
 }
 
@@ -1900,9 +1930,12 @@
   background: none;
   color: inherit;
   font: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
   line-height: 1;
+  text-transform: var(--kz-font-label-case, revert);
   text-align: left;
   cursor: pointer;
 }
@@ -1913,13 +1946,18 @@
 
 .kodza-footer-shop__link:not(#_) {
   background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
-  transition: background-size 0.4s var(--kz-footer-shop-ease), color 0.2s ease;
+  transition: background-size calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-footer-shop-ease),
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-footer-shop__link:not(#_) {
   color: inherit;
-  font-size: 14px;
-  line-height: 1.5;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.5);
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
 }
 
@@ -1935,7 +1973,7 @@
 }
 
 .kodza-footer-shop__row .kodza-footer-shop__link:not(#_) {
-  font-size: 13px;
+  font-size: var(--kz-font-label-size, 13px);
   color: var(--kz-footer-shop-muted);
 }
 
@@ -1959,11 +1997,14 @@
   box-shadow: inset 0 0 0 1px var(--kz-footer-shop-edge);
   color: inherit;
   font: inherit;
-  font-size: 13px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
   line-height: 1;
+  text-transform: var(--kz-font-label-case, revert);
   cursor: pointer;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-footer-shop__region.is-open .kodza-footer-shop__picker:not(#_) {
@@ -1983,7 +2024,7 @@
 }
 
 .kodza-footer-shop__chevron:not(#_) {
-  transition: transform 0.35s var(--kz-footer-shop-ease);
+  transition: transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-footer-shop-ease);
 }
 
 .kodza-footer-shop__places:not(#_) {
@@ -1994,7 +2035,10 @@
   border-radius: calc(14px * var(--kz-radius-scale, 1));
   background: var(--kz-footer-shop-raised);
   box-shadow: 0 0 0 1px var(--kz-footer-shop-line), var(--kz-footer-shop-shadow);
-  transition: clip-path 0.35s var(--kz-footer-shop-ease), transform 0.35s var(--kz-footer-shop-ease), opacity 0.2s ease, visibility 0s linear 0.35s;
+  transition: clip-path calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-footer-shop-ease),
+    transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-footer-shop-ease),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    visibility 0s linear calc(0.35s * var(--kz-motion-scale, 1));
 }
 
 .kodza-footer-shop__region.is-open .kodza-footer-shop__places:not(#_) {
@@ -2008,7 +2052,8 @@
 }
 
 .kodza-footer-shop__region.is-open .kodza-footer-shop__glide:not(#_) {
-  transition: transform 0.22s ease, opacity 0.15s ease;
+  transition: transform calc(0.22s * var(--kz-motion-scale, 1)) ease,
+    opacity calc(0.15s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-footer-shop__place:not(#_) {
@@ -2018,9 +2063,12 @@
   padding: 0 10px 0 32px;
   border-radius: calc(8px * var(--kz-radius-scale, 1));
   color: inherit;
-  font-size: 14px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
   line-height: 1;
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
 }
 
@@ -2031,9 +2079,11 @@
 .kodza-footer-shop__pay:not(#_) {
   display: flex;
   font-family: var(--kz-footer-shop-mono);
-  font-size: 12px;
-  letter-spacing: 0.02em;
-  line-height: 1.5;
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  line-height: var(--kz-font-label-leading, 1.5);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-shop-muted);
 }
 
@@ -2115,6 +2165,6 @@
 
 @container kodza-footer-shop (max-width: 600px) {
   .kodza-footer-shop.is-ready .kodza-footer-shop__links .kodza-footer-shop__link:not(#_) {
-    font-size: 15px;
+    font-size: var(--kz-font-label-size, 15px);
   }
 }

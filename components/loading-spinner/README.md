@@ -11,7 +11,7 @@ A loading status sized on its text: a breathing ring, twelve bars, three dots or
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-loading-spinner.html`](kodza-loading-spinner.html) | 2.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-loading-spinner.css`](kodza-loading-spinner.css) | 10.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-loading-spinner.css`](kodza-loading-spinner.css) | 11.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

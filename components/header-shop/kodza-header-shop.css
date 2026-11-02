@@ -89,7 +89,9 @@
   text-transform: var(--kz-font-display-case, inherit);
   text-decoration: none;
   white-space: nowrap;
-  transition: translate var(--kz-header-shop-search-duration) var(--kz-header-shop-search-ease), opacity 0.3s;
+  transition:
+    translate calc(var(--kz-header-shop-search-duration) * var(--kz-motion-scale, 1)) var(--kz-header-shop-search-ease),
+    opacity calc(0.3s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__logo svg {
@@ -124,7 +126,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  transition: opacity 0.35s calc(var(--kz-header-shop-search-duration) * 0.3);
+  transition: opacity calc(0.35s * var(--kz-motion-scale, 1)) calc(var(--kz-header-shop-search-duration) * 0.3 * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__links > li {
@@ -145,13 +147,15 @@
   padding: 0 14px;
   border-radius: calc(8px * var(--kz-radius-scale, 1));
   color: var(--kz-header-shop-muted);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
   white-space: nowrap;
-  transition: color 0.2s;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__item::after {
@@ -165,7 +169,7 @@
   background: currentColor;
   transform: scaleX(0);
   transform-origin: 100% 50%;
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform calc(0.4s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .kodza-header-shop__item[aria-current="page"],
@@ -195,7 +199,7 @@
 
 .kodza-header-shop.is-searching .kodza-header-shop__links {
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity calc(0.3s * var(--kz-motion-scale, 1));
 }
 
 /* Search: the field rolls out from the magnifier, leftwards, over the departments; the
@@ -227,10 +231,10 @@
   opacity: 0;
   visibility: hidden;
   transition:
-    width var(--kz-header-shop-search-duration) var(--kz-header-shop-search-ease),
-    box-shadow 0.2s,
-    opacity 0.2s calc(var(--kz-header-shop-search-duration) * 0.8),
-    visibility 0s linear calc(var(--kz-header-shop-search-duration) * 0.8 + 0.2s);
+    width calc(var(--kz-header-shop-search-duration) * var(--kz-motion-scale, 1)) var(--kz-header-shop-search-ease),
+    box-shadow calc(0.2s * var(--kz-motion-scale, 1)),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) calc(var(--kz-header-shop-search-duration) * 0.8 * var(--kz-motion-scale, 1)),
+    visibility 0s linear calc((var(--kz-header-shop-search-duration) * 0.8 + 0.2s) * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__search.is-open .kodza-header-shop__field {
@@ -239,8 +243,8 @@
   visibility: visible;
   pointer-events: auto;
   transition:
-    width var(--kz-header-shop-search-duration) var(--kz-header-shop-search-ease),
-    box-shadow 0.2s,
+    width calc(var(--kz-header-shop-search-duration) * var(--kz-motion-scale, 1)) var(--kz-header-shop-search-ease),
+    box-shadow calc(0.2s * var(--kz-motion-scale, 1)),
     opacity 0s,
     visibility 0s;
 }
@@ -271,12 +275,16 @@
   caret-color: transparent;
   -webkit-appearance: none;
   appearance: none;
-  transition: color 0.12s, caret-color 0.01s;
+  transition:
+    color calc(0.12s * var(--kz-motion-scale, 1)),
+    caret-color calc(0.01s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__search.is-open .kodza-header-shop__input {
   caret-color: var(--kz-header-shop-fg);
-  transition: color 0.3s calc(var(--kz-header-shop-search-duration) * 0.9), caret-color 0.01s calc(var(--kz-header-shop-search-duration) * 0.9);
+  transition:
+    color calc(0.3s * var(--kz-motion-scale, 1)) calc(var(--kz-header-shop-search-duration) * 0.9 * var(--kz-motion-scale, 1)),
+    caret-color calc(0.01s * var(--kz-motion-scale, 1)) calc(var(--kz-header-shop-search-duration) * 0.9 * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__search:not(.is-open) .kodza-header-shop__input {
@@ -287,12 +295,12 @@
 .kodza-header-shop__input::placeholder {
   color: transparent;
   opacity: 1;
-  transition: color 0.12s;
+  transition: color calc(0.12s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__search.is-open .kodza-header-shop__input::placeholder {
   color: var(--kz-header-shop-muted);
-  transition: color 0.3s calc(var(--kz-header-shop-search-duration) * 0.9);
+  transition: color calc(0.3s * var(--kz-motion-scale, 1)) calc(var(--kz-header-shop-search-duration) * 0.9 * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__input::-webkit-search-cancel-button,
@@ -322,7 +330,7 @@
   text-decoration: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__find {
@@ -349,7 +357,9 @@
   z-index: -1;
   border-radius: inherit;
   background: transparent;
-  transition: background-color 0.2s, opacity 0.2s calc(var(--kz-header-shop-search-duration) * 0.8);
+  transition:
+    background-color calc(0.2s * var(--kz-motion-scale, 1)),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) calc(var(--kz-header-shop-search-duration) * 0.8 * var(--kz-motion-scale, 1));
 }
 
 @media (hover: hover) {
@@ -360,7 +370,9 @@
 
 .kodza-header-shop__search.is-open .kodza-header-shop__find::before {
   opacity: 0;
-  transition: background-color 0.2s, opacity 0.15s;
+  transition:
+    background-color calc(0.2s * var(--kz-motion-scale, 1)),
+    opacity calc(0.15s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__find:focus-visible,
@@ -393,7 +405,7 @@
 
 /* The magnifier leaves the button for the far end of the field; a cross turns into its place */
 .kodza-header-shop__glass {
-  transition: translate var(--kz-header-shop-search-duration) var(--kz-header-shop-search-ease);
+  transition: translate calc(var(--kz-header-shop-search-duration) * var(--kz-motion-scale, 1)) var(--kz-header-shop-search-ease);
 }
 
 .kodza-header-shop__search.is-open .kodza-header-shop__glass {
@@ -410,9 +422,9 @@
   scale: 0.6;
   rotate: -45deg;
   transition:
-    opacity 0.2s,
-    scale 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-    rotate 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    scale calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    rotate calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .kodza-header-shop__search.is-open .kodza-header-shop__x {
@@ -420,9 +432,9 @@
   scale: 1;
   rotate: 0deg;
   transition:
-    opacity 0.25s calc(var(--kz-header-shop-search-duration) * 0.45),
-    scale 0.45s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--kz-header-shop-search-duration) * 0.45),
-    rotate 0.45s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--kz-header-shop-search-duration) * 0.45);
+    opacity calc(0.25s * var(--kz-motion-scale, 1)) calc(var(--kz-header-shop-search-duration) * 0.45 * var(--kz-motion-scale, 1)),
+    scale calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc(var(--kz-header-shop-search-duration) * 0.45 * var(--kz-motion-scale, 1)),
+    rotate calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc(var(--kz-header-shop-search-duration) * 0.45 * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__x::before,
@@ -469,20 +481,25 @@
   background: var(--kz-header-shop-fg);
   box-shadow: 0 0 0 2px var(--kz-header-shop-bg);
   color: var(--kz-header-shop-bg);
-  font-size: 11px;
-  font-weight: 600;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, 600);
   line-height: 18px;
-  letter-spacing: 0;
+  letter-spacing: var(--kz-font-label-tracking, 0);
   font-variant-numeric: tabular-nums;
   pointer-events: none;
-  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s;
+  transition:
+    transform calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__cart[data-count="0"] .kodza-header-shop__count,
 .kodza-header-shop__cart:not([data-count]) .kodza-header-shop__count {
   opacity: 0;
   transform: scale(0.3);
-  transition: transform 0.25s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.2s 0.05s;
+  transition:
+    transform calc(0.25s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) calc(0.05s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__digit {
@@ -515,10 +532,12 @@
   border: 0;
   border-radius: var(--kz-radius-pill, 999px);
   font: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, revert);
   white-space: nowrap;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -587,7 +606,7 @@
 
 .kodza-header-shop__lines::before,
 .kodza-header-shop__lines::after {
-  transition: clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: clip-path calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Whole at rest, as an inset: the pointer slides it to a shorter one (from none it would jump) */
@@ -720,12 +739,18 @@
 .kodza-header-shop__label,
 .kodza-header-shop__index,
 .kodza-header-shop__small {
-  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.4;
-  letter-spacing: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0);
   color: var(--kz-header-shop-menu-muted);
+}
+
+/* The words take the labels' case, the numbers have none */
+.kodza-header-shop__label,
+.kodza-header-shop__small {
+  text-transform: var(--kz-font-label-case, inherit);
 }
 
 .kodza-header-shop__label {
@@ -751,7 +776,7 @@
 
 .kodza-header-shop__index {
   padding-top: calc(var(--kz-header-shop-menu-size) * 0.14);
-  transition: color 0.25s;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1));
 }
 
 /* The mask has the size of its word, so its room for descenders (g, j, p, q, y) and its step
@@ -762,7 +787,7 @@
   padding: 0.06em 0 0.22em;
   overflow: hidden;
   font-size: var(--kz-header-shop-menu-size);
-  transition: translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: translate calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .kodza-header-shop__word {
@@ -916,7 +941,7 @@
 }
 */
 
-/* kodza-guard 9828519457a9 — generated by Kodza, do not edit.
+/* kodza-guard 65eac20c8e9e — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -1067,9 +1092,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1262,7 +1285,6 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1296,7 +1318,6 @@
   max-width: revert;
   max-height: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1549,7 +1570,8 @@
   letter-spacing: var(--kz-font-display-tracking, -0.045em);
   text-transform: var(--kz-font-display-case, inherit);
   text-decoration: none;
-  transition: translate var(--kz-header-shop-search-duration) var(--kz-header-shop-search-ease), opacity 0.3s;
+  transition: translate calc(var(--kz-header-shop-search-duration) * var(--kz-motion-scale, 1)) var(--kz-header-shop-search-ease),
+    opacity calc(0.3s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__logo svg:not(#_) {
@@ -1571,7 +1593,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  transition: opacity 0.35s calc(var(--kz-header-shop-search-duration) * 0.3);
+  transition: opacity calc(0.35s * var(--kz-motion-scale, 1)) calc(var(--kz-header-shop-search-duration) * 0.3 * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__links > li:not(#_) {
@@ -1589,12 +1611,14 @@
   padding: 0 14px;
   border-radius: calc(8px * var(--kz-radius-scale, 1));
   color: var(--kz-header-shop-muted);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__item[aria-current="page"]:not(#_),
@@ -1614,7 +1638,7 @@
 }
 
 .kodza-header-shop.is-searching .kodza-header-shop__links:not(#_) {
-  transition: opacity 0.3s;
+  transition: opacity calc(0.3s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__search:not(#_) {
@@ -1646,12 +1670,14 @@
   caret-color: transparent;
   -webkit-appearance: none;
   appearance: none;
-  transition: color 0.12s, caret-color 0.01s;
+  transition: color calc(0.12s * var(--kz-motion-scale, 1)),
+    caret-color calc(0.01s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__search.is-open .kodza-header-shop__input:not(#_) {
   caret-color: var(--kz-header-shop-fg);
-  transition: color 0.3s calc(var(--kz-header-shop-search-duration) * 0.9), caret-color 0.01s calc(var(--kz-header-shop-search-duration) * 0.9);
+  transition: color calc(0.3s * var(--kz-motion-scale, 1)) calc(var(--kz-header-shop-search-duration) * 0.9 * var(--kz-motion-scale, 1)),
+    caret-color calc(0.01s * var(--kz-motion-scale, 1)) calc(var(--kz-header-shop-search-duration) * 0.9 * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__search:not(.is-open) .kodza-header-shop__input:not(#_) {
@@ -1661,12 +1687,12 @@
 .kodza-header-shop__input:not(#_)::placeholder {
   color: transparent;
   opacity: 1;
-  transition: color 0.12s;
+  transition: color calc(0.12s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__search.is-open .kodza-header-shop__input:not(#_)::placeholder {
   color: var(--kz-header-shop-muted);
-  transition: color 0.3s calc(var(--kz-header-shop-search-duration) * 0.9);
+  transition: color calc(0.3s * var(--kz-motion-scale, 1)) calc(var(--kz-header-shop-search-duration) * 0.9 * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__input:not(#_)::-webkit-search-cancel-button,
@@ -1693,7 +1719,7 @@
   text-decoration: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__account:not(#_),
@@ -1709,7 +1735,7 @@
   color: var(--kz-header-shop-fg);
   font: inherit;
   text-decoration: none;
-  transition: background-color 0.2s;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__find:not(#_) {
@@ -1734,7 +1760,8 @@
   z-index: -1;
   border-radius: inherit;
   background: transparent;
-  transition: background-color 0.2s, opacity 0.2s calc(var(--kz-header-shop-search-duration) * 0.8);
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) calc(var(--kz-header-shop-search-duration) * 0.8 * var(--kz-motion-scale, 1));
 }
 
 @media (hover: hover) {
@@ -1745,7 +1772,8 @@
 
 .kodza-header-shop__search.is-open .kodza-header-shop__find:not(#_)::before {
   opacity: 0;
-  transition: background-color 0.2s, opacity 0.15s;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)),
+    opacity calc(0.15s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-shop__find:focus-visible:not(#_) {
@@ -1766,7 +1794,7 @@
 }
 
 .kodza-header-shop__glass:not(#_) {
-  transition: translate var(--kz-header-shop-search-duration) var(--kz-header-shop-search-ease);
+  transition: translate calc(var(--kz-header-shop-search-duration) * var(--kz-motion-scale, 1)) var(--kz-header-shop-search-ease);
 }
 
 .kodza-header-shop__toggle:not(#_),
@@ -1781,10 +1809,12 @@
   border: 0;
   border-radius: var(--kz-radius-pill, 999px);
   font: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, revert);
   white-space: nowrap;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -1826,12 +1856,17 @@
 
 .kodza-header-shop__label:not(#_),
 .kodza-header-shop__small:not(#_) {
-  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.4;
-  letter-spacing: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0);
   color: var(--kz-header-shop-menu-muted);
+}
+
+.kodza-header-shop__label:not(#_),
+.kodza-header-shop__small:not(#_) {
+  text-transform: var(--kz-font-label-case, inherit);
 }
 
 .kodza-header-shop__label:not(#_) {

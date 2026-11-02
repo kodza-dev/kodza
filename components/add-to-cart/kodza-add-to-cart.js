@@ -10,6 +10,12 @@
   const SELECTOR = '.kodza-add-to-cart, .kodza-add-to-cart__cart';
   const CART = '.kodza-add-to-cart__cart';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const STATES = ['idle', 'added', 'failed'];
   const countOf = (cart) => Math.max(0, parseInt(cart.dataset.count, 10) || 0);
@@ -17,7 +23,8 @@
 
   // The cart: its count follows data-count, rolling only the digits that change (999 → 1,000
   // carries), and the bag gives a little bump each time something lands in it
-  function mountCart(cart, signal) {
+  function mountCart(cart, signal, pace) {
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const count = cart.querySelector('.kodza-add-to-cart__count');
     const bag = cart.querySelector('.kodza-add-to-cart__bag');
     let shown = countOf(cart);
@@ -43,10 +50,10 @@
         const next = Object.assign(document.createElement('span'), { textContent: now[i].trim() });
         cell.append(next);
         count.append(cell);
-        if (was[i] === now[i] || reduceMotion) continue;
+        if (was[i] === now[i] || still) continue;
         const old = Object.assign(document.createElement('span'), { textContent: was[i].trim() });
         cell.append(old);
-        const timing = { duration: 460, delay: (n - 1 - i) * 60, easing: ease };
+        const timing = { duration: 460 * pace, delay: (n - 1 - i) * 60 * pace, easing: ease };
         next.animate([{ transform: `translateY(${100 * k}%)` }, { transform: 'none' }], { ...timing, fill: 'backwards' });
         const leave = old.animate([{ transform: 'none' }, { transform: `translateY(${-100 * k}%)` }], { ...timing, fill: 'forwards' });
         if (was[i] === ' ') cell.animate([{ width: '0px' }, { width: `${cell.offsetWidth}px` }], timing);
@@ -66,14 +73,14 @@
       // From zero the badge pops in with its number; to zero it shrinks away with the last one
       if (from === 0) count.textContent = format(next);
       else if (next > 0) draw(from, next);
-      if (reduceMotion || next < from) return;
+      if (still || next < from) return;
       bag?.animate([
         { transform: 'none' },
         { transform: 'translateY(1.5px) scale(1.08, 0.9)', offset: 0.3 },
         { transform: 'translateY(-1px) scale(0.97, 1.04)', offset: 0.65 },
         { transform: 'none' },
-      ], { duration: 520, easing: 'ease-out' });
-      if (from > 0) count.animate([{ transform: 'none' }, { transform: 'translateY(-3px) scale(1.12)', offset: 0.35 }, { transform: 'none' }], { duration: 420, easing: 'ease-out' });
+      ], { duration: 520 * pace, easing: 'ease-out' });
+      if (from > 0) count.animate([{ transform: 'none' }, { transform: 'translateY(-3px) scale(1.12)', offset: 0.35 }, { transform: 'none' }], { duration: 420 * pace, easing: 'ease-out' });
     });
     observer.observe(cart, { attributes: true, attributeFilter: ['data-count'] });
     signal.addEventListener('abort', () => observer.disconnect());
@@ -82,7 +89,8 @@
   }
 
   // The button: words rolling between three states, the flight, and the request it waits for
-  function mountButton(button, signal) {
+  function mountButton(button, signal, pace) {
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const words = [...button.querySelectorAll('.kodza-add-to-cart__label > span')];
     if (words.length < 3) return;
     // The spoken status sits right after the button, and leaves with it
@@ -106,8 +114,8 @@
         if (i === next) word.removeAttribute('aria-hidden');
         else word.setAttribute('aria-hidden', 'true');
       });
-      if (reduceMotion) return;
-      const timing = { duration: 520, easing: ease };
+      if (still) return;
+      const timing = { duration: 520 * pace, easing: ease };
       old.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], timing);
       now.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
     };
@@ -222,7 +230,7 @@
           opacity: u > 0.86 ? 1 - (u - 0.86) / 0.14 : 1,
         });
       }
-      const flight = wrap.animate(frames, { duration: LIFT + TRAVEL, fill: 'forwards' });
+      const flight = wrap.animate(frames, { duration: (LIFT + TRAVEL) * pace, fill: 'forwards' });
       const done = () => {
         flights.delete(stop);
         wrap.remove();
@@ -232,7 +240,7 @@
         flight.pause();
         const now = getComputedStyle(wrap).transform;
         wrap.getAnimations().forEach((a) => a.cancel());
-        wrap.animate([{ transform: now, opacity: 1 }, { transform: `${now === 'none' ? '' : now} translateY(24px)`, opacity: 0 }], { duration: 280, easing: 'ease-in', fill: 'forwards' }).finished.then(done, done);
+        wrap.animate([{ transform: now, opacity: 1 }, { transform: `${now === 'none' ? '' : now} translateY(24px)`, opacity: 0 }], { duration: 280 * pace, easing: 'ease-in', fill: 'forwards' }).finished.then(done, done);
       };
       const stop = () => {
         flight.cancel();
@@ -270,7 +278,7 @@
       };
       settle('added');
       const picture = pictureFor();
-      const flight = !reduceMotion && target ? fly(seen(picture) ? picture : null, target) : null;
+      const flight = !still && target ? fly(seen(picture) ? picture : null, target) : null;
       if (flight) flight.landed.then(land, () => {});
       else land();
       request?.catch(() => {
@@ -295,8 +303,9 @@
   // One instance per button and per cart, each with its own state. Everything it starts is
   // tied to `signal`, so kodza:destroy stops it all.
   function mount(root, signal) {
-    if (root.matches(CART)) mountCart(root, signal);
-    else mountButton(root, signal);
+    const pace = paceOf(root);
+    if (root.matches(CART)) mountCart(root, signal, pace);
+    else mountButton(root, signal, pace);
   }
 
   // Kodza lifecycle, the same in every component: `kodza:init` starts the instances inside

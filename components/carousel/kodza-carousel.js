@@ -9,6 +9,12 @@
 (() => {
   const SELECTOR = '.kodza-carousel';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const STIFF = 9; // how quickly a glide settles (per second)
   const THROW = 0.3; // how far a throw carries: this many seconds of its speed
@@ -22,15 +28,15 @@
   // Past an end, a drag meets more and more resistance
   const rubber = (d) => (d * 0.55 * 220) / (220 + d * 0.55);
 
-  // Old number up, new one from below (the other way round when going back)
-  const roll = (el, text, dir) => {
+  // Old number up, new one from below (the other way round when going back), at the site's pace
+  const roll = (el, text, dir, pace) => {
     const old = el.lastElementChild;
     if (old?.textContent === text) return;
     const next = Object.assign(document.createElement('span'), { textContent: text });
     el.append(next);
     if (!old) return;
-    if (!dir || reduceMotion) return [...el.children].slice(0, -1).forEach((child) => child.remove());
-    const timing = { duration: 520, easing: ease };
+    if (!dir || reduceMotion || !pace) return [...el.children].slice(0, -1).forEach((child) => child.remove());
+    const timing = { duration: 520 * pace, easing: ease };
     const from = now(old, 'transform');
     old.getAnimations().forEach((a) => a.cancel());
     old.animate([{ transform: from }, { transform: `translateY(${-110 * dir}%)` }], { ...timing, fill: 'forwards' })
@@ -39,15 +45,16 @@
   };
 
   // A critically damped spring from `from` (moving at `velocity` px/s) to `to`. From rest it eases
-  // in and out; thrown at omega × distance, it is a plain ease-out that keeps the hand's speed
-  const spring = (from, to, velocity, omega, onFrame, onDone) => {
+  // in and out; thrown at omega × distance, it is a plain ease-out that keeps the hand's speed.
+  // Its clock runs at the site's pace: `velocity` and the speed it keeps are in that time
+  const spring = (from, to, velocity, omega, onFrame, onDone, pace) => {
     const x0 = from - to;
     const b = velocity + omega * x0;
     const start = performance.now();
     let raf = 0;
     const state = { x: from, v: velocity, stop: () => cancelAnimationFrame(raf) };
     const step = (time) => {
-      const t = Math.max(0, (time - start) / 1000);
+      const t = Math.max(0, (time - start) / 1000 / pace);
       const decay = Math.exp(-omega * t);
       state.x = to + (x0 + b * t) * decay;
       state.v = (velocity - omega * b * t) * decay;
@@ -63,6 +70,8 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const viewport = root.querySelector('.kodza-carousel__viewport');
     const slides = viewport ? [...viewport.children].filter((el) => el.classList.contains('kodza-carousel__slide')) : [];
     if (!slides.length) return;
@@ -176,14 +185,15 @@
     const glide = (to, velocity) => {
       to = clamp(to, 0, max);
       const from = motion ? motion.x : viewport.scrollLeft;
-      if (reduceMotion || Math.abs(to - from) < 1) {
+      if (still || Math.abs(to - from) < 1) {
         motion?.stop();
         motion = null;
         viewport.scrollLeft = to;
         settle();
         return;
       }
-      let v = velocity;
+      // A throw's speed, from the hand's time to the glide's (the same speed on screen as it leaves)
+      let v = velocity === undefined ? velocity : velocity * pace;
       let omega = STIFF;
       if (v === undefined) {
         // A button or a key: from rest, or from the speed of the glide it takes over
@@ -197,7 +207,7 @@
       motion = spring(from, to, v, omega, (x) => { viewport.scrollLeft = x; }, () => {
         motion = null;
         settle();
-      });
+      }, pace);
     };
     const go = (i) => {
       aim = clamp(i, 0, stops.length - 1);
@@ -217,14 +227,14 @@
     // The arrow leaves on the side it points to and comes back from the other one
     const nudge = (button, dir) => {
       const icon = button.querySelector('svg');
-      if (!icon || reduceMotion) return;
+      if (!icon || still) return;
       icon.getAnimations().forEach((a) => a.cancel());
       icon.animate([
         { transform: 'none', easing: 'cubic-bezier(0.55, 0, 0.75, 0.2)' },
         { transform: `translateX(${dir * 30}px)`, offset: 0.42 },
         { transform: `translateX(${-dir * 30}px)`, offset: 0.4201, easing: ease },
         { transform: 'none' },
-      ], { duration: 620 });
+      ], { duration: 620 * pace });
     };
     [[prev, -1], [next, 1]].forEach(([button, dir]) => {
       button?.addEventListener('click', () => {
@@ -250,7 +260,7 @@
       if (!pill || i === pillAt) return;
       const to = clip(i);
       const dir = Math.sign(i - pillAt);
-      if (animate && pillAt >= 0 && !reduceMotion) {
+      if (animate && pillAt >= 0 && !still) {
         const from = now(pill, 'clipPath');
         // Halfway, the leading edge is nearly there and the trailing one has barely left
         const a = clip(pillAt).match(/[\d.-]+px/g).map(parseFloat);
@@ -263,7 +273,7 @@
           { clipPath: from },
           { clipPath: `inset(${mid.map((v) => `${v}px`).join(' ')} round ${round}px)`, offset: 0.5 },
           { clipPath: to },
-        ], { duration: 560, easing: 'cubic-bezier(0.45, 0, 0.2, 1)' });
+        ], { duration: 560 * pace, easing: 'cubic-bezier(0.45, 0, 0.2, 1)' });
       }
       pill.style.clipPath = to;
       pillAt = i;
@@ -327,8 +337,8 @@
         const dir = animate ? Math.sign(view.from - shown.from || view.to - shown.to) : 0;
         if (count) {
           count.classList.toggle('is-single', view.from === view.to);
-          roll(first, pad(view.from + 1), dir);
-          roll(last, pad(view.to + 1), dir);
+          roll(first, pad(view.from + 1), dir, pace);
+          roll(last, pad(view.to + 1), dir, pace);
         }
         if (!animate) said = message(view);
         else announce();
@@ -393,12 +403,12 @@
       const [t0, x0] = trail[0] || [0, 0];
       const [t1, x1] = trail[trail.length - 1] || [0, 0];
       const velocity = t1 > t0 && event.timeStamp - t1 < 60 ? ((x1 - x0) / (t1 - t0)) * 1000 : 0;
-      if (pull && reduceMotion) setPull(0);
+      if (pull && still) setPull(0);
       else if (pull) {
         pulling = spring(pull, 0, 0, 13, setPull, () => {
           pulling = null;
           settle();
-        });
+        }, pace);
       }
       const x = viewport.scrollLeft;
       let i = nearest(x + velocity * THROW);
@@ -474,7 +484,9 @@
         if (signal.aborted) return;
         go(here() >= stops.length - 1 ? 0 : here() + 1);
       };
-      wanted = !reduceMotion;
+      // The time between two slides is reading time, not motion: it does not follow the pace, but
+      // with no motion asked autoplay waits for the play button
+      wanted = !still;
       toggle.addEventListener('click', () => {
         wanted = !wanted;
         // Pressing play means it: play now, even with the pointer or the focus still here

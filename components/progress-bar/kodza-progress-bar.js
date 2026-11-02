@@ -6,11 +6,19 @@
 (() => {
   const SELECTOR = '.kodza-progress';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const make = (tag, className) => Object.assign(document.createElement(tag), className ? { className } : {});
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const value = root.querySelector('.kodza-progress__value');
     const label = root.querySelector('.kodza-progress__label');
     if (!value) return;
@@ -62,13 +70,13 @@
         const from = column.offsetWidth;
         column.classList.toggle('is-off', !on);
         const to = column.offsetWidth;
-        if (!first && !reduceMotion) column.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: 450, easing: ease });
+        if (!first && !still) column.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: 450 * pace, easing: ease });
       });
       // 100% lands first, then gives way to the tick
       clearTimeout(settle);
       if (v < 100) root.classList.remove('is-complete');
-      else if (first || reduceMotion) root.classList.add('is-complete');
-      else settle = setTimeout(() => root.classList.add('is-complete'), 550);
+      else if (first || still) root.classList.add('is-complete');
+      else settle = setTimeout(() => root.classList.add('is-complete'), 550 * pace);
     };
 
     render(true);

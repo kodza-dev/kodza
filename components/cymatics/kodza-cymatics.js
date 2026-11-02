@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '[data-kodza-cymatics]';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // ---- Kodza field engine 1.1 ------------------------------------------------------------
   // The same copy in every canvas background of the family (Halftone Fade, Plus Pattern, Square
@@ -30,8 +36,9 @@
     root.classList.add('is-live');
 
     const [stiffness, damping] = layer.spring || [46, 8.5];
+    const pace = paceOf(root);
     const f = {
-      root, canvas, ctx, still: reduceMotion, time: 0, scale: 1,
+      root, canvas, ctx, still: reduceMotion || !pace, time: 0, scale: 1,
       width: 0, height: 0, gap: 0, cols: 0, rows: 0, count: 0, x0: 0, y0: 0, ink: '', bg: '',
       pointer: { x: 0, y: 0, vx: 0, vy: 0, active: false, t: 0 },
       pulses: [],
@@ -140,7 +147,7 @@
     function frame(now) {
       raf = 0;
       if (signal.aborted || !running()) return;
-      const dt = Math.min(Math.max((now - last) / 1000, 0), 1 / 30); // a frame stamp can predate the wake
+      const dt = Math.min(Math.max((now - last) / 1000, 0), 1 / 30) / pace; // a frame stamp can predate the wake; the site's pace stretches the time
       last = now;
       f.time += dt;
       const p = f.pointer;

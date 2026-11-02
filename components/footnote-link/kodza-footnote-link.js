@@ -5,6 +5,12 @@
 (() => {
   const SELECTOR = '[data-kodza-footnote-link]';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const OPEN = { duration: 460, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
   const CLOSE = { duration: 380, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' };
   const FOLDED = { height: '0px', paddingTop: '0px', paddingBottom: '0px', marginTop: '0px', marginBottom: '0px', opacity: 0 };
@@ -52,6 +58,7 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
     borrow(root, signal);
     const pairs = [...root.querySelectorAll('.kodza-footnote-link__ref')]
       .map((ref) => ({ ref, note: ref.nextElementSibling, open: false }))
@@ -153,7 +160,7 @@
       const from = moving ? read(getComputedStyle(note)) : null;
       note.getAnimations().forEach((animation) => animation.cancel());
       note.classList.add('is-open');
-      if (reduceMotion) {
+      if (reduceMotion || !pace) {
         settle(pair);
         return;
       }
@@ -161,7 +168,7 @@
       note.classList.add('is-moving');
       const animation = note.animate(
         [from || (open ? FOLDED : full), open ? full : FOLDED],
-        { ...(open ? OPEN : CLOSE), fill: open ? 'none' : 'forwards' },
+        { ...(open ? OPEN : CLOSE), duration: (open ? OPEN : CLOSE).duration * pace, fill: open ? 'none' : 'forwards' },
       );
       animation.onfinish = () => settle(pair);
     };

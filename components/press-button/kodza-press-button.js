@@ -6,9 +6,16 @@
   const SELECTOR = '.kodza-press-button';
   const TRAVEL = 110; // ms: a tap shorter than the way down (80 ms, plus a late frame) still reaches the bottom
   const SPRING = 450; // ms: the bounce back, as long as --kz-press-up
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(button, signal) {
+    const pace = paceOf(button);
     let downAt = 0;
     let timer = 0;
     let key = null;
@@ -34,8 +41,8 @@
       timer = setTimeout(() => {
         button.classList.remove('is-pressed');
         button.classList.add('is-releasing');
-        timer = setTimeout(() => button.classList.remove('is-releasing'), SPRING);
-      }, Math.max(0, TRAVEL - (performance.now() - downAt)));
+        timer = setTimeout(() => button.classList.remove('is-releasing'), SPRING * pace);
+      }, Math.max(0, TRAVEL * pace - (performance.now() - downAt)));
     };
 
     button.addEventListener('pointerdown', (event) => {

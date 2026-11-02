@@ -6,11 +6,18 @@
 (() => {
   const SELECTOR = '.kodza-footer-columns';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 
   // One instance, with its own state: two copies on a page never interfere. Everything it
   // starts is tied to `signal`, so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
     root.querySelectorAll('.kodza-footer-columns__year').forEach((year) => {
       year.textContent = String(new Date().getFullYear());
     });
@@ -18,7 +25,7 @@
     root.querySelectorAll('.kodza-footer-columns__top').forEach((top) => {
       top.addEventListener('click', (event) => {
         event.preventDefault();
-        window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+        window.scrollTo({ top: 0, behavior: reduceMotion || !pace ? 'auto' : 'smooth' });
         if (event.detail !== 0) return; // a click with the mouse leaves the focus where it is
         // From the keyboard: the first thing on the page you can reach takes the focus
         const first = [...document.querySelectorAll(FOCUSABLE)].find((el) => !root.contains(el) && el.getClientRects().length && el.checkVisibility?.({ visibilityProperty: true }) !== false);

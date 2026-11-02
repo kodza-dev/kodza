@@ -7,11 +7,19 @@
 (() => {
   const SELECTOR = '.kodza-loading-button';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const STATES = ['idle', 'loading', 'done'];
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(button, signal) {
+    const pace = paceOf(button);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const words = [...button.querySelectorAll('.kodza-loading-button__label > span')];
     if (words.length < 3) return;
     const sr = Object.assign(document.createElement('span'), { className: 'kodza-loading-button__sr' });
@@ -27,8 +35,8 @@
       index = next;
       words.forEach((word) => word.getAnimations().forEach((a) => a.cancel()));
       words.forEach((word, i) => (word.style.transform = i === next ? 'none' : 'translateY(110%)'));
-      if (reduceMotion) return;
-      const timing = { duration: 520, easing: ease };
+      if (still) return;
+      const timing = { duration: 520 * pace, easing: ease };
       old.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], timing);
       now.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
     };

@@ -33,10 +33,12 @@
   background: var(--kz-shutter-ink);
   color: var(--kz-shutter-on-ink);
   font: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, revert);
   white-space: nowrap;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -67,9 +69,9 @@
   will-change: transform;
   /* Closing: they uncross first, then part */
   transition:
-    rotate 0.22s cubic-bezier(0.65, 0, 0.35, 1),
-    translate 0.22s cubic-bezier(0.65, 0, 0.35, 1) 0.18s,
-    clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    rotate calc(0.22s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    translate calc(0.22s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1) calc(0.18s * var(--kz-motion-scale, 1)),
+    clip-path calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .kodza-shutter__lines::before {
@@ -93,9 +95,9 @@
 .kodza-shutter__toggle[aria-expanded="true"] .kodza-shutter__lines::after {
   clip-path: inset(0 0 0 0);
   transition:
-    translate 0.2s cubic-bezier(0.65, 0, 0.35, 1),
-    rotate 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.17s,
-    clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    translate calc(0.2s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    rotate calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc(0.17s * var(--kz-motion-scale, 1)),
+    clip-path calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .kodza-shutter__toggle[aria-expanded="true"] .kodza-shutter__lines::before {
@@ -160,18 +162,18 @@
   clip-path: inset(0 0 100% 0);
   /* Closing: quicker than it came down */
   transition:
-    clip-path calc(var(--kz-shutter-duration) * 0.7) var(--kz-shutter-ease),
-    display calc(var(--kz-shutter-duration) * 0.7) allow-discrete,
-    overlay calc(var(--kz-shutter-duration) * 0.7) allow-discrete;
+    clip-path calc(var(--kz-shutter-duration) * 0.7 * var(--kz-motion-scale, 1)) var(--kz-shutter-ease),
+    display calc(var(--kz-shutter-duration) * 0.7 * var(--kz-motion-scale, 1)) allow-discrete,
+    overlay calc(var(--kz-shutter-duration) * 0.7 * var(--kz-motion-scale, 1)) allow-discrete;
 }
 
 .kodza-shutter__panel:popover-open {
   display: grid;
   clip-path: inset(0 0 0 0);
   transition:
-    clip-path var(--kz-shutter-duration) var(--kz-shutter-ease),
-    display var(--kz-shutter-duration) allow-discrete,
-    overlay var(--kz-shutter-duration) allow-discrete;
+    clip-path calc(var(--kz-shutter-duration) * var(--kz-motion-scale, 1)) var(--kz-shutter-ease),
+    display calc(var(--kz-shutter-duration) * var(--kz-motion-scale, 1)) allow-discrete,
+    overlay calc(var(--kz-shutter-duration) * var(--kz-motion-scale, 1)) allow-discrete;
 }
 
 @starting-style {
@@ -207,7 +209,7 @@
   background: var(--kz-shutter-line);
   scale: 0 1;
   transform-origin: left center;
-  transition: scale 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: scale calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 /* The last row closes the list with a line under it, so the list is framed top and bottom */
@@ -217,12 +219,16 @@
 
 .kodza-shutter__index {
   padding-top: 0.4em;
-  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 12px;
-  line-height: 1.4;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
   color: var(--kz-shutter-muted);
   opacity: 0;
-  transition: opacity 0.2s, color 0.25s;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    color calc(0.25s * var(--kz-motion-scale, 1));
 }
 
 /* The mask has the size of its word, so its room for descenders (g, j, p, q, y) and its step
@@ -233,7 +239,7 @@
   padding: 0.06em 0 0.24em;
   overflow: hidden;
   font-size: var(--kz-shutter-size);
-  transition: translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: translate calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .kodza-shutter__word {
@@ -246,7 +252,7 @@
   text-transform: var(--kz-font-display-case, inherit);
   translate: 0 135%;
   /* Closing: the words drop back into their masks while the shutter rolls up */
-  transition: translate 0.32s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: translate calc(0.32s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .kodza-shutter__info {
@@ -256,13 +262,18 @@
   gap: 8px 24px;
   padding: 18px 0 22px;
   border-top: 1px solid var(--kz-shutter-line);
-  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 12px;
-  line-height: 1.4;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-shutter-muted);
   opacity: 0;
   translate: 0 8px;
-  transition: opacity 0.2s, translate 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    translate calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .kodza-shutter__info p {
@@ -277,36 +288,38 @@
 .kodza-shutter__socials a {
   color: inherit;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 /* Open: each part starts when the edge reaches it (the script sets --kz-shutter-delay) */
 .kodza-shutter__panel.is-open .kodza-shutter__link::before {
   scale: 1 1;
-  transition: scale 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay, 0s);
+  transition: scale calc(0.9s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay, 0s);
 }
 
 .kodza-shutter__panel.is-open .kodza-shutter__link:last-of-type::after {
   scale: 1 1;
-  transition: scale 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay-end, 0s);
+  transition: scale calc(0.9s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay-end, 0s);
 }
 
 .kodza-shutter__panel.is-open .kodza-shutter__index {
   opacity: 1;
-  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--kz-shutter-delay, 0s) + 0.12s), color 0.25s;
+  transition:
+    opacity calc(0.6s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc(var(--kz-shutter-delay, 0s) + 0.12s * var(--kz-motion-scale, 1)),
+    color calc(0.25s * var(--kz-motion-scale, 1));
 }
 
 .kodza-shutter__panel.is-open .kodza-shutter__word {
   translate: 0 0;
-  transition: translate 0.75s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay, 0s);
+  transition: translate calc(0.75s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay, 0s);
 }
 
 .kodza-shutter__panel.is-open .kodza-shutter__info {
   opacity: 1;
   translate: 0 0;
   transition:
-    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay, 0s),
-    translate 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay, 0s);
+    opacity calc(0.6s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay, 0s),
+    translate calc(0.7s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) var(--kz-shutter-delay, 0s);
 }
 
 /* Pointed at: the word steps aside and its number lights up */
@@ -345,7 +358,7 @@
   }
 }
 
-/* kodza-guard 217dce301ca5 — generated by Kodza, do not edit.
+/* kodza-guard 00ecef2e80bc — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -390,7 +403,6 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -558,10 +570,12 @@
   background: var(--kz-shutter-ink);
   color: var(--kz-shutter-on-ink);
   font: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, revert);
   white-space: nowrap;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -597,7 +611,7 @@
 .kodza-shutter__socials a:not(#_) {
   color: inherit;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-shutter__socials a:hover:not(#_) {

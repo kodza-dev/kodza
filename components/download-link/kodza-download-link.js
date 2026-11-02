@@ -7,6 +7,12 @@
 (() => {
   const SELECTOR = '[data-kodza-download-link]';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const UNITS = ['byte', 'kilobyte', 'megabyte', 'gigabyte'];
   const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const sizes = new Map();
@@ -48,10 +54,10 @@
 
   // The old text goes up out of its mask while the new one comes up from below, the width
   // following from one to the other
-  const roll = (el, text, signal) => {
+  const roll = (el, text, signal, pace) => {
     const before = el.textContent;
     if (before === text) return;
-    if (reduceMotion || !el.parentElement?.offsetParent) { el.textContent = text; return; }
+    if (reduceMotion || !pace || !el.parentElement?.offsetParent) { el.textContent = text; return; }
     const from = before ? el.offsetWidth : 0;
     const was = document.createElement('span');
     was.className = 'kodza-download-link__was';
@@ -65,7 +71,7 @@
     const pad = getComputedStyle(el).paddingInlineStart;
     if (before) el.prepend(was);
     el.classList.add('is-rolling');
-    const timing = { duration: 460, easing: EASE };
+    const timing = { duration: 460 * pace, easing: EASE };
     const moves = [
       now.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], timing),
       el.animate(before
@@ -81,7 +87,7 @@
   };
 
   // One link: its type from the address, its weight from the file, its arrow on a click
-  const dress = (link, signal, watcher) => {
+  const dress = (link, signal, watcher, pace) => {
     const type = link.querySelector('.kodza-download-link__type');
     const size = link.querySelector('.kodza-download-link__size');
     const arrow = link.querySelector('.kodza-download-link__arrow');
@@ -92,7 +98,7 @@
 
     let moves = [];
     link.addEventListener('click', () => {
-      if (reduceMotion || !arrow) return;
+      if (reduceMotion || !pace || !arrow) return;
       moves.forEach((move) => move.cancel());
       // Down and faster into the tray, out through its floor, then back in from the top
       moves = [
@@ -101,12 +107,12 @@
           { transform: 'translateY(15px)', offset: 0.4 },
           { transform: 'translateY(-15px)', offset: 0.4, easing: EASE },
           { transform: 'none' },
-        ], { duration: 720 }),
+        ], { duration: 720 * pace }),
         tray?.animate([
           { transform: 'none', easing: 'cubic-bezier(0.65, 0, 0.35, 1)' },
           { transform: 'translateY(1.25px)', offset: 0.38, easing: EASE },
           { transform: 'none' },
-        ], { duration: 720 }),
+        ], { duration: 720 * pace }),
       ].filter(Boolean);
     }, { signal });
 
@@ -117,7 +123,7 @@
     watcher.add(link, () => weigh(url).then((file) => {
       if (!file || signal.aborted) return;
       if (type && !type.textContent.trim()) type.textContent = typeOf(url, file.mime);
-      roll(size, sizeOf(file.bytes, lang), signal);
+      roll(size, sizeOf(file.bytes, lang), signal, pace);
     }));
   };
 
@@ -137,8 +143,9 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
     const watcher = watch(signal);
-    if (root.matches('a[href]')) { dress(root, signal, watcher); return; }
+    if (root.matches('a[href]')) { dress(root, signal, watcher, pace); return; }
 
     // An empty root: the File blocks of its article, their file name made the link, the button hidden
     const selector = root.dataset.target || 'article, main, .entry-content';
@@ -161,7 +168,7 @@
       link.classList.add('kodza-download-link');
       if (button?.hasAttribute('download') && !link.hasAttribute('download')) link.setAttribute('download', button.getAttribute('download'));
       if (button && button !== link) button.hidden = true;
-      dress(link, signal, watcher);
+      dress(link, signal, watcher, pace);
       signal.addEventListener('abort', () => {
         link.innerHTML = saved.html;
         if (saved.className === null) link.removeAttribute('class');

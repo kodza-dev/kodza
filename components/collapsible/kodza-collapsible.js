@@ -6,6 +6,12 @@
 (() => {
   const SELECTOR = '.kodza-more';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const fold = 'cubic-bezier(0.65, 0, 0.35, 1)';
   let uid = 0;
@@ -15,6 +21,8 @@
     const content = root.querySelector('.kodza-more__content');
     const toggle = root.querySelector('.kodza-more__toggle');
     if (!content || !toggle) return;
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     content.id = content.id || `kodza-more-${++uid}`;
     toggle.setAttribute('aria-controls', content.id);
 
@@ -40,12 +48,12 @@
       if (opening) {
         root.classList.add('is-open');
         const to = content.offsetHeight;
-        if (reduceMotion) return;
-        content.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: 640, easing: ease });
+        if (still) return;
+        content.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: 640 * pace, easing: ease });
         extra.forEach((item, i) => item.animate([
           { opacity: 0, transform: 'translateY(12px)' },
           { opacity: 1, transform: 'none' },
-        ], { duration: 520, delay: 80 + i * 55, easing: ease, fill: 'backwards' }));
+        ], { duration: 520 * pace, delay: (80 + i * 55) * pace, easing: ease, fill: 'backwards' }));
         return;
       }
       // Closing: measure the short state, but stay open (items shown, no cap) until the end
@@ -53,10 +61,10 @@
       const to = content.offsetHeight;
       root.classList.add('is-open');
       const top = root.getBoundingClientRect().top;
-      if (top < 0) window.scrollBy({ top: top - 24, behavior: reduceMotion ? 'auto' : 'smooth' });
-      if (reduceMotion) return root.classList.remove('is-open');
+      if (top < 0) window.scrollBy({ top: top - 24, behavior: still ? 'auto' : 'smooth' });
+      if (still) return root.classList.remove('is-open');
       root.classList.add('is-closing');
-      content.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: 480, easing: fold }).onfinish = () => !signal.aborted && root.classList.remove('is-open', 'is-closing');
+      content.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: 480 * pace, easing: fold }).onfinish = () => !signal.aborted && root.classList.remove('is-open', 'is-closing');
     }, { signal });
   }
 

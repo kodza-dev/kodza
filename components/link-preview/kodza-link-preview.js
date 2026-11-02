@@ -7,23 +7,30 @@
 (() => {
   const SELECTOR = '.kodza-link-preview';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const groups = new Map();
 
-  const roll = (el, text, animate) => {
+  const roll = (el, text, animate, pace) => {
     const old = el.lastElementChild;
     if (old && old.textContent === text) return;
     const next = Object.assign(document.createElement('span'), { textContent: text });
     el.append(next);
     if (!old) return;
-    if (!animate || reduceMotion) return old.remove();
-    const timing = { duration: 460, easing: ease };
+    if (!animate || reduceMotion || !pace) return old.remove();
+    const timing = { duration: 460 * pace, easing: ease };
     old.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(-100%)', opacity: 0 }], { ...timing, fill: 'forwards' }).finished.then(() => old.remove());
-    next.animate([{ transform: 'translateY(100%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { ...timing, delay: 50, fill: 'backwards' });
+    next.animate([{ transform: 'translateY(100%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { ...timing, delay: 50 * pace, fill: 'backwards' });
   };
 
-  const makeGroup = (group) => {
+  const makeGroup = (group, pace) => {
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const placed = getComputedStyle(group).position === 'static';
     if (placed) group.style.position = 'relative';
     const card = Object.assign(document.createElement('span'), { className: 'kodza-link-preview__card' });
@@ -50,13 +57,13 @@
         const img = Object.assign(document.createElement('img'), { src: previewImage, alt: '', decoding: 'async' });
         const old = [...media.children];
         media.append(img);
-        if (animate && !reduceMotion) {
-          img.animate([{ opacity: 0, transform: 'scale(1.08)' }, { opacity: 1, transform: 'none' }], { duration: 560, easing: ease });
-          setTimeout(() => old.forEach((el) => el.remove()), 560);
+        if (animate && !still) {
+          img.animate([{ opacity: 0, transform: 'scale(1.08)' }, { opacity: 1, transform: 'none' }], { duration: 560 * pace, easing: ease });
+          setTimeout(() => old.forEach((el) => el.remove()), 560 * pace);
         } else old.forEach((el) => el.remove());
       }
-      roll(title, previewTitle, animate);
-      roll(url, previewUrl, animate);
+      roll(title, previewTitle, animate, pace);
+      roll(url, previewUrl, animate, pace);
     };
 
     // Above the line of the link under the pointer, centred on it, kept on screen
@@ -72,7 +79,7 @@
       ty = (line.top - box.top) / k - h - 12;
     };
     const glide = () => {
-      const k = reduceMotion ? 1 : 0.2;
+      const k = still ? 1 : Math.min(1, 0.2 / pace); // its lag at the site's pace
       x += (tx - x) * k;
       y += (ty - y) * k;
       card.style.setProperty('--kz-preview-x', `${x.toFixed(1)}px`);
@@ -144,9 +151,10 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(link, signal) {
+    const pace = paceOf(link);
     if (!link.dataset.previewImage && !link.dataset.previewTitle) return;
     const group = link.closest('.kodza-link-preview-text') || link.parentElement;
-    if (!groups.has(group)) groups.set(group, makeGroup(group));
+    if (!groups.has(group)) groups.set(group, makeGroup(group, pace));
     groups.get(group).add(link, signal);
   }
 

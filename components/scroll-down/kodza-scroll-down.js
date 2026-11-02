@@ -7,6 +7,12 @@
 (() => {
   const SELECTOR = '.kodza-scroll-down';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const FIRST = 1400;
   const EVERY = 3600;
 
@@ -21,6 +27,8 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const icon = root.querySelector('.kodza-scroll-down__icon');
     const glyph = icon?.firstElementChild;
     if (!glyph) return;
@@ -81,7 +89,7 @@
     // The roll: both copies of the glyph move together, the twin lands where the glyph was
     let rolling = false;
     const roll = () => {
-      if (reduceMotion || rolling) return;
+      if (still || rolling) return;
       rolling = true;
       root.classList.add('is-rolling');
     };
@@ -91,13 +99,14 @@
       root.classList.remove('is-rolling');
     }, { signal });
 
-    // Now and then, only while it is shown and on screen
+    // Now and then, only while it is shown and on screen (the wait between two rolls is not motion:
+    // it keeps its length at any pace)
     let away = false;
     let inView = false;
     let timer = 0;
     const schedule = (wait = EVERY) => {
       clearTimeout(timer);
-      if (reduceMotion || away || !inView) return;
+      if (still || away || !inView) return;
       timer = setTimeout(() => {
         if (!document.hidden) roll();
         schedule();
@@ -121,7 +130,8 @@
         schedule();
       } else if (!want && filled) {
         root.classList.remove('is-in');
-        root.classList.add('is-out');
+        // Without motion there is no drain to wait for (no transitionend): it simply goes
+        if (!still) root.classList.add('is-out');
       }
     };
     const fill = icon.querySelector('.kodza-scroll-down__layer--fill');
@@ -166,13 +176,13 @@
       const box = scroller || document.documentElement;
       const from = scrollTop();
       const to = Math.max(0, Math.min(box.scrollHeight - (scroller ? scroller.clientHeight : innerHeight), y));
-      if (reduceMotion || Math.abs(to - from) < 2) {
+      if (still || Math.abs(to - from) < 2) {
         set(to);
         return;
       }
       const controller = new AbortController();
       glide = controller;
-      const duration = Math.min(1400, 500 + Math.abs(to - from) * 0.45);
+      const duration = Math.min(1400, 500 + Math.abs(to - from) * 0.45) * pace;
       const start = performance.now();
       const step = (now) => {
         if (controller.signal.aborted) return;

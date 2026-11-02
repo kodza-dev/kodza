@@ -7,17 +7,24 @@
 (() => {
   const SELECTOR = '.kodza-rotator';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const leave = 'cubic-bezier(0.55, 0, 0.75, 0.2)';
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     const slot = root.querySelector('.kodza-rotator__words');
     if (!slot) return;
     const words = [...slot.children].map((el) => el.textContent);
     if (words.length < 2) return;
     const flip = root.classList.contains('kodza-rotator--flip');
-    const interval = parseInt(root.dataset.interval, 10) || 2400;
+    const interval = parseInt(root.dataset.interval, 10) || 2400; // the time to read a word: not motion, the pace leaves it
     let index = 0;
     let timer = 0;
     let visible = true;
@@ -42,14 +49,14 @@
       // The slot eases to the new word's width; the old one, in the same cell, is cut by it
       const pad = slot.offsetWidth - Math.max(old.offsetWidth, word.offsetWidth);
       const to = word.offsetWidth + pad;
-      slot.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: 700, easing: ease });
+      slot.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: 700 * pace, easing: ease });
       if (flip) {
-        old.animate([{ transform: 'none', opacity: 1 }, { transform: 'rotateX(90deg)', opacity: 0 }], { duration: 520, easing: leave, fill: 'forwards' }).finished.then(() => old.remove());
-        word.animate([{ transform: 'rotateX(-90deg)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 760, delay: 140, easing: ease, fill: 'backwards' });
+        old.animate([{ transform: 'none', opacity: 1 }, { transform: 'rotateX(90deg)', opacity: 0 }], { duration: 520 * pace, easing: leave, fill: 'forwards' }).finished.then(() => old.remove());
+        word.animate([{ transform: 'rotateX(-90deg)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 760 * pace, delay: 140 * pace, easing: ease, fill: 'backwards' });
       } else {
-        const gone = [...old.children].map((char, i) => char.animate([{ transform: 'none' }, { transform: 'translateY(-112%)' }], { duration: 420, delay: i * 14, easing: leave, fill: 'forwards' }).finished);
+        const gone = [...old.children].map((char, i) => char.animate([{ transform: 'none' }, { transform: 'translateY(-112%)' }], { duration: 420 * pace, delay: i * 14 * pace, easing: leave, fill: 'forwards' }).finished);
         Promise.all(gone).then(() => old.remove());
-        [...word.children].forEach((char, i) => char.animate([{ transform: 'translateY(112%)' }, { transform: 'none' }], { duration: 640, delay: 90 + i * 24, easing: ease, fill: 'backwards' }));
+        [...word.children].forEach((char, i) => char.animate([{ transform: 'translateY(112%)' }, { transform: 'none' }], { duration: 640 * pace, delay: (90 + i * 24) * pace, easing: ease, fill: 'backwards' }));
       }
     };
 
@@ -62,7 +69,7 @@
       }, interval);
     };
 
-    if (!reduceMotion) {
+    if (!reduceMotion && pace) {
       const observer = new IntersectionObserver(([entry]) => {
         visible = entry.isIntersecting;
         loop();

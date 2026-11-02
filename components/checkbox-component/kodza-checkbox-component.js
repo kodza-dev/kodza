@@ -5,6 +5,12 @@
 // disabled ones). The drawing is CSS.
 (() => {
   const SELECTOR = '.kodza-checkbox';
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
     const all = root.querySelector('.kodza-checkbox__input[data-all]');
@@ -15,8 +21,8 @@
     let settling = 0;
     const sync = () => {
       clearTimeout(settling);
-      // Wait for a cascade from the "all" box to finish before judging
-      settling = setTimeout(judge, 80);
+      // Wait for a cascade from the "all" box to finish before judging (longer than one of its steps)
+      settling = setTimeout(judge, 80 * paceOf(root));
     };
     const judge = () => {
       const on = boxes.filter((box) => box.checked).length;
@@ -25,13 +31,17 @@
     };
 
     all.addEventListener('change', () => {
-      // One after the other, for the eye; the target is read once, before the boxes move
+      // One after the other, for the eye (all at once at pace 0); the target is read once, before
+      // the boxes move
       const value = all.checked;
+      // Read when it is needed: read at mount, the style it computes would turn the first state of
+      // the "all" box (set by judge() below) into a transition
+      const pace = paceOf(root);
       boxes.forEach((box, i) => setTimeout(() => {
         if (box.checked === value) return;
         box.checked = value;
         box.dispatchEvent(new Event('change', { bubbles: true }));
-      }, i * 60));
+      }, i * 60 * pace));
       // Meanwhile the "all" box already shows where it is going
       all.indeterminate = false;
       all.checked = value;

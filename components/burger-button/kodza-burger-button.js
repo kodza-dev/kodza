@@ -6,11 +6,18 @@
 (() => {
   const SELECTOR = '.kodza-burger';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance, with its own state: two copies on a page never interfere. Everything it
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
     const words = [...root.querySelectorAll('.kodza-burger__word')];
     const isOpen = () => root.getAttribute('aria-expanded') === 'true';
     const rolls = new Map();
@@ -31,10 +38,10 @@
 
     // A click during the roll turns it back from where the words are
     const roll = (open) => {
-      if (reduceMotion.matches || words.length < 2) return;
+      if (reduceMotion.matches || !pace || words.length < 2) return;
       const style = getComputedStyle(root);
       const raw = style.getPropertyValue('--kz-burger-duration').trim();
-      const duration = parseFloat(raw) * (raw.endsWith('ms') ? 1 : 1000) || 500;
+      const duration = (parseFloat(raw) * (raw.endsWith('ms') ? 1 : 1000) || 500) * pace;
       const easing = style.getPropertyValue('--kz-burger-ease').trim();
       words.forEach((word, i) => {
         const coming = i === Number(open);

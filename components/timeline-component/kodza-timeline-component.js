@@ -6,10 +6,20 @@
 (() => {
   const SELECTOR = '.kodza-timeline';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
     const items = [...root.querySelectorAll('.kodza-timeline__item')];
+    const pace = paceOf(root);
+    // The still path: the ink sticks to the reading point and the steps are simply there. The glide
+    // follows the scroll, not the clock: the pace does not stretch it
+    const still = reduceMotion || !pace;
     const fill = Object.assign(document.createElement('span'), { className: 'kodza-timeline__fill' });
     fill.setAttribute('aria-hidden', 'true');
     root.prepend(fill);
@@ -28,7 +38,7 @@
       if (signal.aborted) return;
       frame = 0;
       const { box, span, value } = target();
-      shown = reduceMotion ? value : shown + (value - shown) * 0.16;
+      shown = still ? value : shown + (value - shown) * 0.16;
       if (Math.abs(value - shown) < 0.0005) shown = value;
       root.style.setProperty('--kz-timeline-progress', shown.toFixed(4));
       const reached = box.top + 8 + shown * span;
@@ -44,7 +54,7 @@
     };
     const schedule = () => (frame ||= requestAnimationFrame(update));
 
-    if (!reduceMotion && 'IntersectionObserver' in window) {
+    if (!still && 'IntersectionObserver' in window) {
       const io = new IntersectionObserver((entries) => entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
         entry.target.classList.add('is-seen');

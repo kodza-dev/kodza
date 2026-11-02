@@ -4,8 +4,16 @@
 // under the pointer or the keyboard focus, and brings it back to the current page.
 (() => {
   const SELECTOR = '.kodza-hover-nav';
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
+
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     const links = [...root.querySelectorAll('.kodza-hover-nav__link')];
     if (!links.length) return;
 
@@ -30,6 +38,7 @@
     const current = () => links.find((link) => link.getAttribute('aria-current') === 'page');
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const padding = () => parseFloat(getComputedStyle(root).paddingRight) || 0;
     // When the links scroll, the highlight spans all of them (read from the last link, not
     // scrollWidth, which a highlight still at its old width would inflate); otherwise the pill
@@ -57,7 +66,7 @@
     const reveal = (link) => {
       const left = link.offsetLeft - padding();
       const right = link.offsetLeft + link.offsetWidth + padding() - root.clientWidth;
-      const behavior = reduceMotion ? 'auto' : 'smooth';
+      const behavior = still ? 'auto' : 'smooth';
       if (root.scrollLeft > left) root.scrollTo({ left, behavior });
       else if (root.scrollLeft < right) root.scrollTo({ left: right, behavior });
     };

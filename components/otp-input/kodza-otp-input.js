@@ -7,9 +7,17 @@
 (() => {
   const SELECTOR = '.kodza-otp';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const input = root.querySelector('.kodza-otp__input');
     const box = root.querySelector('.kodza-otp__cells');
     const done = root.querySelector('.kodza-otp__done');
@@ -37,7 +45,7 @@
         if (digit !== (shown[i] || '')) {
           const span = document.createElement('span');
           span.textContent = digit;
-          if (digit && !reduceMotion) span.classList.add('is-new');
+          if (digit && !still) span.classList.add('is-new');
           cell.replaceChildren(span);
           cell.dataset.digit = digit;
         }
@@ -61,7 +69,7 @@
     input.addEventListener('click', end, { signal });
     input.addEventListener('keydown', (event) => ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key) && event.preventDefault(), { signal });
 
-    // Resend: a countdown that rolls, then a link
+    // Resend: a countdown that rolls, then a link (the countdown is a clock: it keeps its seconds)
     const seconds = Number(root.dataset.resend) || 30;
     let left = 0;
     let timer = 0;
@@ -71,8 +79,8 @@
       const span = Object.assign(document.createElement('span'), { textContent: value });
       count.append(span);
       if (!prev) return;
-      if (reduceMotion) return prev.remove();
-      const timing = { duration: 350, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+      if (still) return prev.remove();
+      const timing = { duration: 350 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
       prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
       span.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
     };

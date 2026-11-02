@@ -5,6 +5,12 @@
 (() => {
   const SELECTOR = '.kodza-hero-statement';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // The words of the title, each in its own mask and numbered for the cascade. Text nodes are
   // split in place, so the spans around them (the muted part) stay. The heading keeps its
@@ -33,16 +39,17 @@
     });
   };
 
-  // A new value in a pair of digits: the old one leaves upwards, the new one comes from below
-  const roll = (slot, text, instant) => {
+  // A new value in a pair of digits: the old one leaves upwards, the new one comes from below, at
+  // the instance's pace
+  const roll = (slot, text, instant, pace) => {
     const old = slot.lastElementChild;
     if (old?.textContent === text) return;
     const next = document.createElement('span');
     next.textContent = text;
     slot.append(next);
     if (!old) return;
-    if (instant || reduceMotion) return old.remove();
-    const timing = { duration: 600, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+    if (instant || reduceMotion || !pace) return old.remove();
+    const timing = { duration: 600 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
     old.animate([{ transform: 'none' }, { transform: 'translateY(-100%)' }], timing).finished.then(() => old.remove(), () => old.remove());
     next.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], timing);
   };
@@ -62,6 +69,7 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
     const title = root.querySelector('.kodza-hero-statement__title');
     if (title) split(title);
 
@@ -77,11 +85,11 @@
       if (now === shown) return;
       shown = now;
       clock.dateTime = now;
-      roll(hours, parts.hour, instant);
-      roll(minutes, parts.minute, instant);
+      roll(hours, parts.hour, instant, pace);
+      roll(minutes, parts.minute, instant, pace);
     };
     update(true);
-    // Checked every second, written only when the minute changes
+    // Checked every second, written only when the minute changes: a clock, whatever the pace
     const timer = setInterval(update, 1000);
     signal.addEventListener('abort', () => clearInterval(timer));
   }

@@ -6,9 +6,16 @@
 (() => {
   const SELECTOR = '.kodza-marquee';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     const track = root.querySelector('.kodza-marquee__track');
     if (!track) return;
     const original = [...track.children];
@@ -26,9 +33,10 @@
           track.append(copy);
         });
       }
+      // The speed divided by the site's pace: a loop of 0s at pace 0, so it stands still
       const speed = parseFloat(getComputedStyle(root).getPropertyValue('--kz-marquee-speed')) || 60;
       root.style.setProperty('--kz-marquee-distance', `${setWidth}px`);
-      root.style.setProperty('--kz-marquee-duration', `${setWidth / speed}s`);
+      root.style.setProperty('--kz-marquee-duration', `${(setWidth / speed) * pace}s`);
     };
 
     // is-ready comes with the mount, so the loop is held here until the fonts are in (measured
@@ -50,15 +58,15 @@
     });
     observer.observe(root);
     signal.addEventListener('abort', () => observer.disconnect());
-    if (reduceMotion) return;
+    if (reduceMotion || !pace) return;
 
-    // Slow down and speed up smoothly, by easing the animation's playback rate
+    // Slow down and speed up smoothly, by easing the animation's playback rate (slower at a slower pace)
     let rate = 1;
     let target = 1;
     let frame = null;
     const ease = () => {
       if (signal.aborted) return;
-      rate += (target - rate) * 0.08;
+      rate += (target - rate) * Math.min(1, 0.08 / pace);
       if (Math.abs(target - rate) < 0.01) rate = target;
       track.getAnimations().forEach((animation) => (animation.playbackRate = rate));
       frame = rate === target ? null : requestAnimationFrame(ease);

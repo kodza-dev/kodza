@@ -11,8 +11,8 @@ A one-time code field: one real input drawn as cells. Digits rise into place, pa
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-otp-input.html`](kodza-otp-input.html) | 0.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-otp-input.css`](kodza-otp-input.css) | 10.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-otp-input.js`](kodza-otp-input.js) | 8.7 KB | The script. One copy per page runs every instance. |
+| [`kodza-otp-input.css`](kodza-otp-input.css) | 11.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-otp-input.js`](kodza-otp-input.js) | 9.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

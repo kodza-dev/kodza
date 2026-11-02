@@ -8,9 +8,17 @@
 (() => {
   const SELECTOR = '.kodza-breadcrumbs';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const list = root.querySelector('.kodza-breadcrumbs__list');
     const items = list ? [...list.children] : [];
     root.classList.add('is-ready');
@@ -46,7 +54,7 @@
     const stay = items.filter((item) => !folded.includes(item));
     const measure = () => new Map(stay.map((item) => [item, item.getBoundingClientRect()]));
     const glide = (before) => {
-      if (reduceMotion) return;
+      if (still) return;
       // Screen pixels back to the trail's own (a parent may be scaled with a transform)
       const k = root.getBoundingClientRect().width / root.offsetWidth || 1;
       stay.forEach((item) => {
@@ -54,7 +62,7 @@
         const to = item.getBoundingClientRect();
         const dx = (from.left - to.left) / k;
         const dy = (from.top - to.top) / k;
-        if (dx || dy) item.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 550, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+        if (dx || dy) item.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 550 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
       });
     };
 
@@ -85,12 +93,12 @@
         root.classList.remove('is-unfolding');
         update();
         glide(before);
-        if (!reduceMotion) more.animate([{ opacity: 0, transform: 'translateX(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+        if (!still) more.animate([{ opacity: 0, transform: 'translateX(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 420 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
       };
-      if (reduceMotion) return close();
+      if (still) return close();
       leaving = folded.map((item, i) => item.animate(
         [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(-12px)' }],
-        { duration: 320, delay: (folded.length - 1 - i) * 60, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'forwards' }
+        { duration: 320 * pace, delay: (folded.length - 1 - i) * 60 * pace, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'forwards' }
       ));
       Promise.all(leaving.map((animation) => animation.finished)).then(close, () => {});
     };

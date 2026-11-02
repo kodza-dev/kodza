@@ -7,18 +7,24 @@
 (() => {
   const SELECTOR = '.kodza-feed';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   // A word or a number rolls to its new value inside its little window
-  const roll = (box, text) => {
+  const roll = (box, text, pace) => {
     const prev = box.lastElementChild;
     if (prev && prev.textContent === String(text)) return;
     const span = document.createElement('span');
     span.textContent = text;
     box.append(span);
     if (!prev) return;
-    if (reduceMotion) return prev.remove();
-    const timing = { duration: 450, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+    if (reduceMotion || !pace) return prev.remove();
+    const timing = { duration: 450 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
     prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
     span.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
   };
@@ -38,6 +44,7 @@
     const count = root.querySelector('.kodza-feed__count');
     const total = root.querySelector('.kodza-feed__total');
     if (!list) return;
+    const pace = paceOf(root);
     const batch = Number(root.dataset.batch) || 3;
     const delay = Number(root.dataset.delay) || 0;
     let autoLeft = root.dataset.auto !== undefined ? Number(root.dataset.auto) : 2;
@@ -70,11 +77,11 @@
       root.setAttribute('aria-busy', 'true');
       if (button) {
         button.disabled = true;
-        roll(label, 'Loading');
+        roll(label, 'Loading', pace);
       }
       const ghosts = Array.from({ length: root.kodzaLoad ? batch : Math.min(batch, pending.length) }, ghost);
       list.append(...ghosts);
-      const items = root.kodzaLoad ? await root.kodzaLoad() : (await wait(reduceMotion ? 0 : delay), pending.splice(0, batch));
+      const items = root.kodzaLoad ? await root.kodzaLoad() : (await wait(reduceMotion || !pace ? 0 : delay), pending.splice(0, batch));
       if (signal.aborted) return;
       ghosts.forEach((li, i) => {
         const item = items[i];
@@ -86,15 +93,15 @@
         setTimeout(() => {
           li.querySelector('.kodza-feed__ghost')?.remove();
           li.classList.remove('is-arriving');
-        }, 1300 + i * 90);
+        }, (1300 + i * 90) * pace);
       });
       shown += Math.min(items.length, ghosts.length);
-      if (count) roll(count, shown);
+      if (count) roll(count, shown, pace);
       root.removeAttribute('aria-busy');
       loading = false;
       if (button) {
         button.disabled = false;
-        roll(label, idle);
+        roll(label, idle, pace);
       }
       root.dispatchEvent(new CustomEvent('kodza:loaded', { detail: { shown }, bubbles: true }));
       if ((!root.kodzaLoad && !pending.length) || !items.length) return finish();

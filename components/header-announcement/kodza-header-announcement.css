@@ -58,7 +58,7 @@
   background: var(--kz-header-announcement-strip-bg);
   color: var(--kz-header-announcement-strip-fg);
   -webkit-font-smoothing: antialiased;
-  transition: grid-template-rows var(--kz-header-announcement-fold) cubic-bezier(0.65, 0, 0.35, 1);
+  transition: grid-template-rows calc(var(--kz-header-announcement-fold) * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .kodza-header-announcement__strip.is-dismissed {
@@ -88,8 +88,8 @@
 /* Folding away: the message lifts a little and dims while the strip closes over it */
 .kodza-header-announcement__fold > * {
   transition:
-    translate var(--kz-header-announcement-fold) cubic-bezier(0.65, 0, 0.35, 1),
-    opacity calc(var(--kz-header-announcement-fold) * 0.6);
+    translate calc(var(--kz-header-announcement-fold) * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    opacity calc(var(--kz-header-announcement-fold) * 0.6 * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-announcement__strip.is-dismissed .kodza-header-announcement__fold > * {
@@ -110,11 +110,13 @@
   margin: 0;
   padding: 0;
   overflow: hidden;
-  font-size: 13px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: var(--kz-header-announcement-strip-height);
-  letter-spacing: -0.005em;
+  letter-spacing: var(--kz-font-label-tracking, -0.005em);
   text-align: center;
+  text-transform: var(--kz-font-label-case, inherit);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -138,7 +140,7 @@
 .kodza-header-announcement__message a span {
   display: inline-block;
   margin-left: 2px;
-  transition: translate 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: translate calc(0.25s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (hover: hover) {
@@ -169,10 +171,10 @@
   cursor: pointer;
   /* Its own colours, and the fold it shares with the messages */
   transition:
-    color 0.2s,
-    background-color 0.2s,
-    translate var(--kz-header-announcement-fold) cubic-bezier(0.65, 0, 0.35, 1),
-    opacity calc(var(--kz-header-announcement-fold) * 0.6);
+    color calc(0.2s * var(--kz-motion-scale, 1)),
+    background-color calc(0.2s * var(--kz-motion-scale, 1)),
+    translate calc(var(--kz-header-announcement-fold) * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    opacity calc(var(--kz-header-announcement-fold) * 0.6 * var(--kz-motion-scale, 1));
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -285,13 +287,15 @@
   padding: 0 14px;
   border-radius: calc(8px * var(--kz-radius-scale, 1));
   color: var(--kz-header-announcement-muted);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
   white-space: nowrap;
-  transition: color 0.2s;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-announcement__link:hover,
@@ -313,7 +317,7 @@
   background: currentColor;
   scale: 0 1;
   transform-origin: right center;
-  transition: scale 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: scale calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .kodza-header-announcement__link:hover::after,
@@ -346,13 +350,15 @@
   padding: 0 12px;
   border-radius: var(--kz-radius-pill, 999px);
   color: var(--kz-header-announcement-muted);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
   text-decoration: none;
+  text-transform: var(--kz-font-label-case, inherit);
   white-space: nowrap;
-  transition: color 0.2s;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-announcement__sign:hover {
@@ -374,13 +380,15 @@
   border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-announcement-ink);
   color: var(--kz-header-announcement-on-ink);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
   text-decoration: none;
+  text-transform: var(--kz-font-label-case, inherit);
   white-space: nowrap;
-  transition: background-color 0.2s;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 @media (hover: hover) {
@@ -408,10 +416,12 @@
   background: var(--kz-header-announcement-soft);
   color: var(--kz-header-announcement-fg);
   font: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, revert);
   white-space: nowrap;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -442,9 +452,9 @@
   will-change: transform;
   /* Closing: they uncross first, then part */
   transition:
-    rotate 0.22s cubic-bezier(0.65, 0, 0.35, 1),
-    translate 0.22s cubic-bezier(0.65, 0, 0.35, 1) 0.18s,
-    clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    rotate calc(0.22s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    translate calc(0.22s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1) calc(0.18s * var(--kz-motion-scale, 1)),
+    clip-path calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .kodza-header-announcement__lines::before {
@@ -468,9 +478,9 @@
 .kodza-header-announcement__toggle[aria-expanded="true"] .kodza-header-announcement__lines::after {
   clip-path: inset(0 0 0 0);
   transition:
-    translate 0.2s cubic-bezier(0.65, 0, 0.35, 1),
-    rotate 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.17s,
-    clip-path 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    translate calc(0.2s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    rotate calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc(0.17s * var(--kz-motion-scale, 1)),
+    clip-path calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .kodza-header-announcement__toggle[aria-expanded="true"] .kodza-header-announcement__lines::before {
@@ -537,18 +547,18 @@
   clip-path: inset(0 0 100% 0);
   /* Closing: quicker than it came down */
   transition:
-    clip-path calc(var(--kz-header-announcement-menu-duration) * 0.7) var(--kz-header-announcement-menu-ease),
-    display calc(var(--kz-header-announcement-menu-duration) * 0.7) allow-discrete,
-    overlay calc(var(--kz-header-announcement-menu-duration) * 0.7) allow-discrete;
+    clip-path calc(var(--kz-header-announcement-menu-duration) * 0.7 * var(--kz-motion-scale, 1)) var(--kz-header-announcement-menu-ease),
+    display calc(var(--kz-header-announcement-menu-duration) * 0.7 * var(--kz-motion-scale, 1)) allow-discrete,
+    overlay calc(var(--kz-header-announcement-menu-duration) * 0.7 * var(--kz-motion-scale, 1)) allow-discrete;
 }
 
 .kodza-header-announcement__panel:popover-open {
   display: grid;
   clip-path: inset(0 0 0 0);
   transition:
-    clip-path var(--kz-header-announcement-menu-duration) var(--kz-header-announcement-menu-ease),
-    display var(--kz-header-announcement-menu-duration) allow-discrete,
-    overlay var(--kz-header-announcement-menu-duration) allow-discrete;
+    clip-path calc(var(--kz-header-announcement-menu-duration) * var(--kz-motion-scale, 1)) var(--kz-header-announcement-menu-ease),
+    display calc(var(--kz-header-announcement-menu-duration) * var(--kz-motion-scale, 1)) allow-discrete,
+    overlay calc(var(--kz-header-announcement-menu-duration) * var(--kz-motion-scale, 1)) allow-discrete;
 }
 
 @starting-style {
@@ -585,7 +595,7 @@
   background: var(--kz-header-announcement-menu-line);
   scale: 0 1;
   transform-origin: left center;
-  transition: scale 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: scale calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .kodza-header-announcement__index {
@@ -593,12 +603,16 @@
   align-items: center;
   gap: 8px;
   padding-top: 0.4em;
-  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 12px;
-  line-height: 1.4;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
   color: var(--kz-header-announcement-menu-muted);
   opacity: 0;
-  transition: opacity 0.2s, color 0.25s;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    color calc(0.25s * var(--kz-motion-scale, 1));
 }
 
 /* The page you are on: its number lights up, with a dot */
@@ -623,7 +637,7 @@
   padding: 0.06em 0 0.24em;
   overflow: hidden;
   font-size: var(--kz-header-announcement-menu-size);
-  transition: translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: translate calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .kodza-header-announcement__word {
@@ -636,7 +650,7 @@
   text-transform: var(--kz-font-display-case, inherit);
   translate: 0 135%;
   /* Closing: the words drop back into their masks while the shutter rolls up */
-  transition: translate 0.32s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: translate calc(0.32s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .kodza-header-announcement__info {
@@ -649,7 +663,9 @@
   border-top: 1px solid var(--kz-header-announcement-menu-line);
   opacity: 0;
   translate: 0 8px;
-  transition: opacity 0.2s, translate 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    translate calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .kodza-header-announcement__info p {
@@ -665,11 +681,13 @@
   border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-announcement-menu-fg);
   color: var(--kz-header-announcement-menu-bg);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
   text-decoration: none;
+  text-transform: var(--kz-font-label-case, inherit);
   white-space: nowrap;
 }
 
@@ -681,40 +699,45 @@
 .kodza-header-announcement__socials {
   display: flex;
   gap: 20px;
-  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 12px;
-  line-height: 1.4;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-header-announcement-menu-muted);
 }
 
 .kodza-header-announcement__socials a {
   color: inherit;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 /* Open: each part starts when the edge reaches it (the script sets --kz-header-announcement-delay) */
 .kodza-header-announcement__panel.is-open .kodza-header-announcement__item::before {
   scale: 1 1;
-  transition: scale 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-announcement-delay, 0s);
+  transition: scale calc(0.9s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-announcement-delay, 0s);
 }
 
 .kodza-header-announcement__panel.is-open .kodza-header-announcement__index {
   opacity: 1;
-  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--kz-header-announcement-delay, 0s) + 0.12s), color 0.25s;
+  transition:
+    opacity calc(0.6s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc(var(--kz-header-announcement-delay, 0s) + 0.12s * var(--kz-motion-scale, 1)),
+    color calc(0.25s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-announcement__panel.is-open .kodza-header-announcement__word {
   translate: 0 0;
-  transition: translate 0.75s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-announcement-delay, 0s);
+  transition: translate calc(0.75s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-announcement-delay, 0s);
 }
 
 .kodza-header-announcement__panel.is-open .kodza-header-announcement__info {
   opacity: 1;
   translate: 0 0;
   transition:
-    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-announcement-delay, 0s),
-    translate 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-announcement-delay, 0s);
+    opacity calc(0.6s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-announcement-delay, 0s),
+    translate calc(0.7s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) var(--kz-header-announcement-delay, 0s);
 }
 
 /* Pointed at: the word steps aside and its number lights up */
@@ -783,7 +806,7 @@
   }
 }
 
-/* kodza-guard df6fa3e710e7 — generated by Kodza, do not edit.
+/* kodza-guard 3d38ebe79f6b — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -875,9 +898,7 @@
   max-width: revert;
   max-height: revert;
   color: revert;
-  font-family: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-indent: revert;
   text-shadow: revert;
@@ -1003,9 +1024,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1024,9 +1043,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1043,9 +1060,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1063,7 +1078,6 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1178,9 +1192,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1207,10 +1219,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-weight: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1351,8 +1360,8 @@
 }
 
 .kodza-header-announcement__fold > *:not(#_) {
-  transition: translate var(--kz-header-announcement-fold) cubic-bezier(0.65, 0, 0.35, 1),
-    opacity calc(var(--kz-header-announcement-fold) * 0.6);
+  transition: translate calc(var(--kz-header-announcement-fold) * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    opacity calc(var(--kz-header-announcement-fold) * 0.6 * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-announcement__strip.is-dismissed .kodza-header-announcement__fold > *:not(#_) {
@@ -1363,11 +1372,13 @@
 .kodza-header-announcement__message:not(#_) {
   margin: 0;
   padding: 0;
-  font-size: 13px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: var(--kz-header-announcement-strip-height);
-  letter-spacing: -0.005em;
+  letter-spacing: var(--kz-font-label-tracking, -0.005em);
   text-align: center;
+  text-transform: var(--kz-font-label-case, inherit);
 }
 
 .kodza-header-announcement__message a:not(#_) {
@@ -1395,10 +1406,10 @@
   background: transparent;
   color: var(--kz-header-announcement-strip-muted);
   cursor: pointer;
-  transition: color 0.2s,
-    background-color 0.2s,
-    translate var(--kz-header-announcement-fold) cubic-bezier(0.65, 0, 0.35, 1),
-    opacity calc(var(--kz-header-announcement-fold) * 0.6);
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)),
+    background-color calc(0.2s * var(--kz-motion-scale, 1)),
+    translate calc(var(--kz-header-announcement-fold) * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    opacity calc(var(--kz-header-announcement-fold) * 0.6 * var(--kz-motion-scale, 1));
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -1462,12 +1473,14 @@
   padding: 0 14px;
   border-radius: calc(8px * var(--kz-radius-scale, 1));
   color: var(--kz-header-announcement-muted);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-announcement__link:hover:not(#_),
@@ -1489,12 +1502,14 @@
   padding: 0 12px;
   border-radius: var(--kz-radius-pill, 999px);
   color: var(--kz-header-announcement-muted);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
   text-decoration: none;
-  transition: color 0.2s;
+  text-transform: var(--kz-font-label-case, inherit);
+  transition: color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-announcement__sign:hover:not(#_) {
@@ -1514,12 +1529,14 @@
   border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-announcement-ink);
   color: var(--kz-header-announcement-on-ink);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
   text-decoration: none;
-  transition: background-color 0.2s;
+  text-transform: var(--kz-font-label-case, inherit);
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 @media (hover: hover) {
@@ -1546,10 +1563,12 @@
   background: var(--kz-header-announcement-soft);
   color: var(--kz-header-announcement-fg);
   font: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, revert);
   white-space: nowrap;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -1587,11 +1606,13 @@
   border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-header-announcement-menu-fg);
   color: var(--kz-header-announcement-menu-bg);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
   text-decoration: none;
+  text-transform: var(--kz-font-label-case, inherit);
 }
 
 .kodza-header-announcement__action:focus-visible:not(#_) {
@@ -1601,16 +1622,19 @@
 
 .kodza-header-announcement__socials:not(#_) {
   display: flex;
-  font-family: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 12px;
-  line-height: 1.4;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-header-announcement-menu-muted);
 }
 
 .kodza-header-announcement__socials a:not(#_) {
   color: inherit;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-header-announcement__socials a:hover:not(#_) {

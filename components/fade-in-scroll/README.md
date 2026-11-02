@@ -11,8 +11,8 @@ Blocks make their entrance as they scroll in: a fade, lines rising from a mask, 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-fade-in-scroll.html`](kodza-fade-in-scroll.html) | 1.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-fade-in-scroll.css`](kodza-fade-in-scroll.css) | 5.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-fade-in-scroll.js`](kodza-fade-in-scroll.js) | 12.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-fade-in-scroll.css`](kodza-fade-in-scroll.css) | 6.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-fade-in-scroll.js`](kodza-fade-in-scroll.js) | 12.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

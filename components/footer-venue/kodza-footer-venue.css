@@ -12,7 +12,7 @@
   --kz-footer-venue-line: rgba(10, 10, 10, 0.1);
   --kz-footer-venue-width: 1200px; /* the content, centred */
   --kz-footer-venue-pad: 24px;
-  --kz-footer-venue-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-footer-venue-mono: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)); /* labels, the status and the © */
   --kz-footer-venue-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   display: block;
@@ -86,13 +86,15 @@
   border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-footer-venue-fg);
   color: var(--kz-footer-venue-bg);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
   white-space: nowrap;
-  transition: background-color 0.2s;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 @media (hover: hover) {
@@ -119,10 +121,11 @@
 .kodza-footer-venue__copy {
   margin: 0;
   font-family: var(--kz-footer-venue-mono);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  line-height: 1.5;
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  line-height: var(--kz-font-label-leading, 1.5);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-venue-muted);
 }
 
@@ -132,9 +135,13 @@
 
 .kodza-footer-venue__address {
   margin: 0;
-  font-size: 15px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
   font-style: normal;
-  line-height: 1.55;
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.55);
+  text-transform: var(--kz-font-label-case, inherit);
 }
 
 .kodza-footer-venue__address span {
@@ -146,11 +153,17 @@
 .kodza-footer-venue__go,
 .kodza-footer-venue__phone {
   color: inherit;
-  font-size: 14px;
-  line-height: 1.5;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.5);
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
   background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
-  transition: background-size 0.4s var(--kz-footer-venue-ease), color 0.2s ease;
+  transition:
+    background-size calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-footer-venue-ease),
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 @media (hover: hover) {
@@ -168,7 +181,7 @@
   align-items: center;
   gap: 6px;
   margin-top: 14px;
-  font-weight: 500;
+  font-weight: var(--kz-font-label-weight, 500);
 }
 
 .kodza-footer-venue__arrow {
@@ -190,7 +203,7 @@
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform 0.45s var(--kz-footer-venue-ease);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-footer-venue-ease);
 }
 
 .kodza-footer-venue__arrow svg + svg {
@@ -215,9 +228,11 @@
   max-width: 100%;
   margin: 0 0 14px;
   font-family: var(--kz-footer-venue-mono);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
   line-height: 20px;
+  text-transform: var(--kz-font-label-case, inherit);
   white-space: nowrap;
 }
 
@@ -243,7 +258,7 @@
 
 .kodza-footer-venue__dot::before {
   transform: scale(0);
-  transition: transform 0.45s var(--kz-footer-venue-ease);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-footer-venue-ease);
 }
 
 /* While it's open, a soft ring leaves the dot, again and again */
@@ -373,9 +388,12 @@
   background: none;
   color: inherit;
   font: inherit;
-  font-size: 14px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
   line-height: 1;
+  text-transform: var(--kz-font-label-case, revert);
   cursor: pointer;
 }
 
@@ -387,7 +405,7 @@
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform 0.45s var(--kz-footer-venue-ease);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-footer-venue-ease);
 }
 
 .kodza-footer-venue.is-all .kodza-footer-venue__all svg {
@@ -395,21 +413,25 @@
 }
 
 .kodza-footer-venue__phone {
-  font-size: 15px;
-  font-weight: 500;
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   font-variant-numeric: tabular-nums;
 }
 
 .kodza-footer-venue__block .kodza-footer-venue__link {
   margin-top: 6px;
-  font-size: 15px;
+  font-size: var(--kz-font-label-size, 15px);
 }
 
 .kodza-footer-venue__note {
   max-width: 22em;
   margin: 14px 0 0;
-  font-size: 14px;
-  line-height: 1.55;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.55);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-venue-muted);
   text-wrap: pretty;
 }
@@ -440,7 +462,7 @@
 }
 
 .kodza-footer-venue__row .kodza-footer-venue__link {
-  font-size: 13px;
+  font-size: var(--kz-font-label-size, 13px);
   color: var(--kz-footer-venue-muted);
 }
 
@@ -468,7 +490,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .kodza-footer-venue__status.is-open .kodza-footer-venue__dot::after {
-    animation: kodza-footer-venue-breathe 2.4s var(--kz-footer-venue-ease) infinite;
+    animation: kodza-footer-venue-breathe calc(2.4s * var(--kz-motion-scale, 1)) var(--kz-footer-venue-ease) infinite;
   }
 }
 
@@ -545,7 +567,7 @@
   }
 }
 
-/* kodza-guard c7efc08ba2a2 — generated by Kodza, do not edit.
+/* kodza-guard 039fa4caffb2 — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -702,9 +724,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -731,7 +751,6 @@
   max-width: revert;
   max-height: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -757,10 +776,6 @@
   max-width: revert;
   max-height: revert;
   color: revert;
-  font-family: revert;
-  font-weight: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -768,7 +783,8 @@
   vertical-align: revert;
 }
 
-.kodza-footer-venue__go:not(#_) {
+.kodza-footer-venue__go:not(#_),
+.kodza-footer-venue__link:not(#_) {
   border: revert;
   padding: revert;
   list-style: revert;
@@ -781,10 +797,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -810,8 +823,6 @@
   max-height: revert;
   color: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -887,8 +898,6 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -909,35 +918,7 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  font-family: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
-  text-underline-offset: revert;
-  text-align: revert;
-  text-indent: revert;
-  text-shadow: revert;
-  vertical-align: revert;
-}
-
-.kodza-footer-venue__link:not(#_) {
-  border: revert;
-  padding: revert;
-  list-style: revert;
-  box-sizing: revert;
-  float: revert;
-  margin-right: revert;
-  margin-bottom: revert;
-  margin-left: revert;
-  box-shadow: revert;
-  appearance: revert;
-  max-width: revert;
-  max-height: revert;
-  font-family: revert;
-  font-weight: revert;
-  font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -961,11 +942,7 @@
   outline-offset: revert;
   appearance: revert;
   max-height: revert;
-  font-family: revert;
-  font-weight: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -1169,12 +1146,14 @@
   border-radius: var(--kz-radius-pill, 999px);
   background: var(--kz-footer-venue-fg);
   color: var(--kz-footer-venue-bg);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
-  transition: background-color 0.2s;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 @media (hover: hover) {
@@ -1187,10 +1166,11 @@
 .kodza-footer-venue__copy:not(#_) {
   margin: 0;
   font-family: var(--kz-footer-venue-mono);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  line-height: 1.5;
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  line-height: var(--kz-font-label-leading, 1.5);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-venue-muted);
 }
 
@@ -1200,20 +1180,29 @@
 
 .kodza-footer-venue__address:not(#_) {
   margin: 0;
-  font-size: 15px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
   font-style: normal;
-  line-height: 1.55;
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.55);
+  text-transform: var(--kz-font-label-case, inherit);
 }
 
 .kodza-footer-venue__link:not(#_),
 .kodza-footer-venue__go:not(#_),
 .kodza-footer-venue__phone:not(#_) {
   color: inherit;
-  font-size: 14px;
-  line-height: 1.5;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.5);
+  text-transform: var(--kz-font-label-case, inherit);
   text-decoration: none;
   background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1px;
-  transition: background-size 0.4s var(--kz-footer-venue-ease), color 0.2s ease;
+  transition: background-size calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-footer-venue-ease),
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 @media (hover: hover) {
@@ -1228,13 +1217,13 @@
 .kodza-footer-venue__go:not(#_) {
   display: inline-flex;
   margin-top: 14px;
-  font-weight: 500;
+  font-weight: var(--kz-font-label-weight, 500);
 }
 
 .kodza-footer-venue__arrow svg:not(#_) {
   position: absolute;
   display: block;
-  transition: transform 0.45s var(--kz-footer-venue-ease);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-footer-venue-ease);
 }
 
 .kodza-footer-venue__status:not(#_) {
@@ -1242,9 +1231,11 @@
   max-width: 100%;
   margin: 0 0 14px;
   font-family: var(--kz-footer-venue-mono);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
   line-height: 20px;
+  text-transform: var(--kz-font-label-case, inherit);
 }
 
 .kodza-footer-venue__text > .is-leaving:not(#_) {
@@ -1294,32 +1285,39 @@
   background: none;
   color: inherit;
   font: inherit;
-  font-size: 14px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
   line-height: 1;
+  text-transform: var(--kz-font-label-case, revert);
   cursor: pointer;
 }
 
 .kodza-footer-venue__all svg:not(#_) {
   display: block;
-  transition: transform 0.45s var(--kz-footer-venue-ease);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-footer-venue-ease);
 }
 
 .kodza-footer-venue__phone:not(#_) {
-  font-size: 15px;
-  font-weight: 500;
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
 }
 
 .kodza-footer-venue__block .kodza-footer-venue__link:not(#_) {
   margin-top: 6px;
-  font-size: 15px;
+  font-size: var(--kz-font-label-size, 15px);
 }
 
 .kodza-footer-venue__note:not(#_) {
   max-width: 22em;
   margin: 14px 0 0;
-  font-size: 14px;
-  line-height: 1.55;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.55);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-footer-venue-muted);
 }
 
@@ -1336,7 +1334,7 @@
 }
 
 .kodza-footer-venue__row .kodza-footer-venue__link:not(#_) {
-  font-size: 13px;
+  font-size: var(--kz-font-label-size, 13px);
   color: var(--kz-footer-venue-muted);
 }
 

@@ -14,6 +14,12 @@
   const ROW = '.kodza-hover-list__row';
   const GROUP = '.kodza-hover-list__group';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const wipe = { duration: 700, easing: 'cubic-bezier(0.33, 1, 0.68, 1)' };
@@ -26,15 +32,16 @@
   const make = (tag, className) => Object.assign(document.createElement(tag), { className });
   const ready = (img) => (img.complete ? Promise.resolve() : img.decode().catch(() => {}));
 
-  // Old text up, new text from below (or the other way round when going up the list)
-  const roll = (el, text, dir) => {
+  // Old text up, new text from below (or the other way round when going up the list), at the
+  // list's pace
+  const roll = (el, text, dir, pace) => {
     const old = el.lastElementChild;
     if (old?.textContent === text) return;
     const next = Object.assign(document.createElement('span'), { textContent: text });
     el.append(next);
     if (!old) return;
-    if (!dir || reduceMotion) return [...el.children].slice(0, -1).forEach((child) => child.remove());
-    const timing = { duration: 520, easing: ease };
+    if (!dir || reduceMotion || !pace) return [...el.children].slice(0, -1).forEach((child) => child.remove());
+    const timing = { duration: 520 * pace, easing: ease };
     const from = now(old);
     old.getAnimations().forEach((a) => a.cancel());
     old.animate([{ transform: from }, { transform: `translateY(${-110 * dir}%)` }], { ...timing, fill: 'forwards' })
@@ -44,6 +51,9 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
+    const wiping = { ...wipe, duration: wipe.duration * pace };
     const rows = [...root.querySelectorAll(ROW)].filter((row) => row.dataset.image);
     if (!rows.length) return;
     const panel = root.classList.contains('kodza-hover-list--panel');
@@ -132,10 +142,10 @@
       const below = [...reel.children];
       reel.append(slide);
       shown = index;
-      if (count) roll(count, pad(index + 1), dir);
+      if (count) roll(count, pad(index + 1), dir, pace);
       const clear = () => below.forEach((el) => el.remove());
       // Out of sight (the frame opens around it), or no motion wanted: no wipe
-      if (reduceMotion || (!dir && (img.complete || !visible))) return clear();
+      if (still || (!dir && (img.complete || !visible))) return clear();
       const side = dir || 1;
       const hidden = side > 0 ? 'inset(100% 0 0 0)' : 'inset(0 0 100% 0)';
       slide.style.clipPath = hidden;
@@ -143,13 +153,13 @@
       ready(img).then(() => {
         if (signal.aborted || !slide.isConnected) return;
         slide.style.clipPath = '';
-        slide.animate([{ clipPath: hidden }, { clipPath: 'inset(0 0 0 0)' }], wipe).finished.then(clear, () => {});
-        img.animate([{ transform: `translateY(${28 * side}%) scale(1.12)` }, { transform: 'none' }], wipe);
+        slide.animate([{ clipPath: hidden }, { clipPath: 'inset(0 0 0 0)' }], wiping).finished.then(clear, () => {});
+        img.animate([{ transform: `translateY(${28 * side}%) scale(1.12)` }, { transform: 'none' }], wiping);
         below.forEach((el) => {
           const pic = el.firstElementChild;
           const from = now(pic);
           pic.getAnimations().forEach((a) => a.cancel());
-          pic.animate([{ transform: from }, { transform: `translateY(${-18 * side}%)` }], { ...wipe, fill: 'forwards' });
+          pic.animate([{ transform: from }, { transform: `translateY(${-18 * side}%)` }], { ...wiping, fill: 'forwards' });
         });
       });
     };
@@ -186,11 +196,12 @@
       if (signal.aborted) return;
       const dt = last ? Math.min(64, time - last) : 16.7;
       last = time;
-      const f = reduceMotion ? 1 : 1 - (1 - FOLLOW) ** (dt / 16.7);
+      // Its lag lasts as long as the site's pace says
+      const f = still ? 1 : 1 - (1 - FOLLOW) ** (dt / (16.7 * pace));
       x += (tx - x) * f;
       y += (ty - y) * f;
       // A slight swing, from how far it lags behind
-      tilt += ((reduceMotion ? 0 : clamp((tx - x) * SWING, -7, 7)) - tilt) * f;
+      tilt += ((still ? 0 : clamp((tx - x) * SWING, -7, 7)) - tilt) * f;
       const moving = Math.abs(tx - x) + Math.abs(ty - y) + Math.abs(tilt) > 0.2;
       if (!moving) {
         x = tx;
@@ -255,6 +266,11 @@
       open = false;
       if (!visible) return;
       frame.classList.remove('is-open');
+      // Still, it closes at once: no transition, so no transitionend to wait for
+      if (still) {
+        visible = false;
+        return;
+      }
       frame.classList.add('is-leaving');
     };
     const hideSoon = () => {

@@ -33,7 +33,7 @@
   color: var(--kz-share-fg);
   vertical-align: middle;
   -webkit-tap-highlight-color: transparent;
-  transition: z-index 0s linear 0.2s;
+  transition: z-index 0s linear calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-share.is-open {
@@ -58,9 +58,11 @@
   background: none;
   color: inherit;
   font: inherit;
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, revert);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -94,8 +96,8 @@
 .kodza-share__label > span {
   display: block;
   transition:
-    opacity 0.3s ease 0.2s,
-    transform var(--kz-share-duration) var(--kz-share-ease);
+    opacity calc(0.3s * var(--kz-motion-scale, 1)) ease calc(0.2s * var(--kz-motion-scale, 1)),
+    transform calc(var(--kz-share-duration) * var(--kz-motion-scale, 1)) var(--kz-share-ease);
 }
 
 /* (gone before the options come out) */
@@ -103,8 +105,8 @@
   opacity: 0;
   transform: translateX(-10px);
   transition:
-    opacity 0.15s ease,
-    transform var(--kz-share-duration) var(--kz-share-ease);
+    opacity calc(0.15s * var(--kz-motion-scale, 1)) ease,
+    transform calc(var(--kz-share-duration) * var(--kz-motion-scale, 1)) var(--kz-share-ease);
 }
 
 /* The icon: the arrow takes off out of its tray, a cross draws itself in its place */
@@ -132,7 +134,7 @@
 
 /* Open, the cross sits in the middle of its round button */
 .kodza-share__glyph {
-  transition: transform var(--kz-share-duration) var(--kz-share-unfold);
+  transition: transform calc(var(--kz-share-duration) * var(--kz-motion-scale, 1)) var(--kz-share-unfold);
 }
 
 .kodza-share.is-open .kodza-share__glyph {
@@ -145,35 +147,35 @@
 }
 
 .kodza-share__tray {
-  transition: stroke-dashoffset 0.32s var(--kz-share-ease) 0.14s;
+  transition: stroke-dashoffset calc(0.32s * var(--kz-motion-scale, 1)) var(--kz-share-ease) calc(0.14s * var(--kz-motion-scale, 1));
 }
 
 .kodza-share__arrow {
-  transition: transform 0.42s var(--kz-share-ease) 0.12s;
+  transition: transform calc(0.42s * var(--kz-motion-scale, 1)) var(--kz-share-ease) calc(0.12s * var(--kz-motion-scale, 1));
 }
 
 .kodza-share__cross {
   stroke-dashoffset: 1.5;
-  transition: stroke-dashoffset 0.16s ease;
+  transition: stroke-dashoffset calc(0.16s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-share.is-open .kodza-share__tray {
   stroke-dashoffset: -1.5;
-  transition: stroke-dashoffset 0.22s cubic-bezier(0.55, 0, 1, 0.45);
+  transition: stroke-dashoffset calc(0.22s * var(--kz-motion-scale, 1)) cubic-bezier(0.55, 0, 1, 0.45);
 }
 
 .kodza-share.is-open .kodza-share__arrow {
   transform: translateY(-17px);
-  transition: transform 0.22s cubic-bezier(0.55, 0, 1, 0.45);
+  transition: transform calc(0.22s * var(--kz-motion-scale, 1)) cubic-bezier(0.55, 0, 1, 0.45);
 }
 
 .kodza-share.is-open .kodza-share__cross {
   stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.26s var(--kz-share-ease) 0.16s;
+  transition: stroke-dashoffset calc(0.26s * var(--kz-motion-scale, 1)) var(--kz-share-ease) calc(0.16s * var(--kz-motion-scale, 1));
 }
 
 .kodza-share.is-open .kodza-share__cross + .kodza-share__cross {
-  transition-delay: 0.24s;
+  transition-delay: calc(0.24s * var(--kz-motion-scale, 1));
 }
 
 /* The options: all waiting behind the button, each slides out to its place, so the last one
@@ -186,7 +188,7 @@
      of the width never pokes out of it */
   clip-path: inset(0 0 0 calc(var(--kz-share-option) * -1) round 0 min(var(--kz-radius-pill, 999px), calc(var(--kz-share-option) / 2)) min(var(--kz-radius-pill, 999px), calc(var(--kz-share-option) / 2)) 0);
   visibility: hidden;
-  transition: visibility 0s linear var(--kz-share-duration);
+  transition: visibility 0s linear calc(var(--kz-share-duration) * var(--kz-motion-scale, 1));
 }
 
 .kodza-share.is-open .kodza-share__options {
@@ -214,7 +216,7 @@
 }
 
 .kodza-share.is-ready .kodza-share__option {
-  transition: transform var(--kz-share-duration) var(--kz-share-unfold);
+  transition: transform calc(var(--kz-share-duration) * var(--kz-motion-scale, 1)) var(--kz-share-unfold);
 }
 
 .kodza-share.is-open .kodza-share__option {
@@ -230,12 +232,12 @@
 /* Their icons come in as they leave the button, and fade on their way back into it */
 .kodza-share__option svg {
   opacity: 0;
-  transition: opacity 0.2s ease 0.12s;
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)) ease calc(0.12s * var(--kz-motion-scale, 1));
 }
 
 .kodza-share.is-open .kodza-share__option svg {
   opacity: 1;
-  transition: opacity 0.3s ease 0.08s;
+  transition: opacity calc(0.3s * var(--kz-motion-scale, 1)) ease calc(0.08s * var(--kz-motion-scale, 1));
 }
 
 /* The logos are solid: a touch smaller, to weigh as much as the line icons */
@@ -250,13 +252,13 @@
 .kodza-share__link {
   transform-origin: 12px 12px;
   transition:
-    opacity 0.2s ease 0.1s,
-    transform 0.35s var(--kz-share-ease) 0.1s;
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease calc(0.1s * var(--kz-motion-scale, 1)),
+    transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-share-ease) calc(0.1s * var(--kz-motion-scale, 1));
 }
 
 .kodza-share__check {
   stroke-dashoffset: 1.5;
-  transition: stroke-dashoffset 0.2s ease;
+  transition: stroke-dashoffset calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-share__option.is-copied .kodza-share__link {
@@ -267,7 +269,7 @@
 
 .kodza-share__option.is-copied .kodza-share__check {
   stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.32s var(--kz-share-ease) 0.12s;
+  transition: stroke-dashoffset calc(0.32s * var(--kz-motion-scale, 1)) var(--kz-share-ease) calc(0.12s * var(--kz-motion-scale, 1));
 }
 
 /* One tint for the whole button, cut out by clip-path around the option under the pointer (the
@@ -284,23 +286,23 @@
 }
 
 .kodza-share.is-ready .kodza-share__tint {
-  transition: opacity 0.2s ease;
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-share.is-ready.is-gliding .kodza-share__tint {
   transition:
-    clip-path 0.3s var(--kz-share-ease),
-    opacity 0.2s ease;
+    clip-path calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-share-ease),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 /* While the button opens or closes, the script keeps the tint and the label on what they sit
    on, frame by frame */
 .kodza-share.is-ready.is-gliding.is-moving .kodza-share__tint {
-  transition: opacity 0.2s ease;
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
 }
 
 .kodza-share.is-moving .kodza-share__tip.is-on {
-  transition: opacity 0.15s ease;
+  transition: opacity calc(0.15s * var(--kz-motion-scale, 1)) ease;
 }
 
 /* The name of the option, above it, the same bubble as Tooltip: it glides from option to option
@@ -314,10 +316,12 @@
   border-radius: calc(9px * var(--kz-radius-scale, 1));
   background: var(--kz-share-tip-bg);
   color: var(--kz-share-tip-fg);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.35;
-  letter-spacing: 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.35);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
   white-space: nowrap;
   pointer-events: none;
   visibility: hidden;
@@ -325,9 +329,9 @@
   transform: translateX(var(--kz-share-tip-x, 0px)) translateX(-50%) translateY(4px) scale(0.94);
   transform-origin: 50% 100%;
   transition:
-    opacity 0.15s ease,
-    transform 0.2s var(--kz-share-ease),
-    visibility 0s linear 0.2s;
+    opacity calc(0.15s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-share-ease),
+    visibility 0s linear calc(0.2s * var(--kz-motion-scale, 1));
 }
 
 .kodza-share__tip::after {
@@ -345,13 +349,13 @@
   opacity: 1;
   transform: translateX(var(--kz-share-tip-x, 0px)) translateX(-50%);
   transition:
-    opacity 0.15s ease,
-    transform 0.25s var(--kz-share-ease),
+    opacity calc(0.15s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-share-ease),
     visibility 0s;
 }
 
 .kodza-share__tip.is-on.is-gliding {
-  transition: transform 0.28s var(--kz-share-ease);
+  transition: transform calc(0.28s * var(--kz-motion-scale, 1)) var(--kz-share-ease);
 }
 
 /* The words: the leaving ones step out of the flow, so the bubble takes the size of the new */
@@ -399,7 +403,7 @@
   }
 }
 
-/* kodza-guard 3bb81bd01bab — generated by Kodza, do not edit.
+/* kodza-guard 1f96011be53c — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -444,7 +448,6 @@
   appearance: revert;
   max-width: revert;
   max-height: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -533,9 +536,11 @@
   background: none;
   color: inherit;
   font: inherit;
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, revert);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -566,7 +571,7 @@
 }
 
 .kodza-share__glyph:not(#_) {
-  transition: transform var(--kz-share-duration) var(--kz-share-unfold);
+  transition: transform calc(var(--kz-share-duration) * var(--kz-motion-scale, 1)) var(--kz-share-unfold);
 }
 
 .kodza-share__option:not(#_) {
@@ -588,7 +593,7 @@
 }
 
 .kodza-share.is-ready .kodza-share__option:not(#_) {
-  transition: transform var(--kz-share-duration) var(--kz-share-unfold);
+  transition: transform calc(var(--kz-share-duration) * var(--kz-motion-scale, 1)) var(--kz-share-unfold);
 }
 
 .kodza-share.is-open .kodza-share__option:not(#_) {
@@ -600,11 +605,11 @@
 }
 
 .kodza-share__option svg:not(#_) {
-  transition: opacity 0.2s ease 0.12s;
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)) ease calc(0.12s * var(--kz-motion-scale, 1));
 }
 
 .kodza-share.is-open .kodza-share__option svg:not(#_) {
-  transition: opacity 0.3s ease 0.08s;
+  transition: opacity calc(0.3s * var(--kz-motion-scale, 1)) ease calc(0.08s * var(--kz-motion-scale, 1));
 }
 
 @media (prefers-reduced-motion: reduce) {

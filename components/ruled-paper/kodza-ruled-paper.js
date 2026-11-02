@@ -8,12 +8,20 @@
 (() => {
   const SELECTOR = '[data-kodza-ruled-paper]';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const TEXT = 'h1, h2, h3, h4, h5, h6, p, li, blockquote, figcaption, dt, dd';
 
   // One instance, with its own state: two copies on a page never interfere. Everything it
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const content = root.querySelector('.kodza-ruled-paper__content');
     if (!content) return;
 
@@ -93,7 +101,7 @@
         root.classList.add('is-in');
       });
     };
-    if (reduceMotion) root.classList.add('is-in');
+    if (still) root.classList.add('is-in');
     else {
       io = new IntersectionObserver((entries) => {
         if (entries[entries.length - 1].isIntersecting) ruleIn();

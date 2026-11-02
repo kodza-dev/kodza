@@ -8,12 +8,20 @@
 (() => {
   const SELECTOR = '.kodza-popover';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const native = typeof HTMLElement.prototype.showPopover === 'function';
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   let uid = 0;
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const trigger = root.querySelector('.kodza-popover__trigger');
     const panel = root.querySelector('.kodza-popover__panel');
     if (!trigger || !panel) return;
@@ -63,8 +71,8 @@
         if (!next.hasAttribute('aria-hidden')) return;
         prev.setAttribute('aria-hidden', 'true');
         next.removeAttribute('aria-hidden');
-        if (reduceMotion) return;
-        const timing = { duration: 320, easing: ease };
+        if (still) return;
+        const timing = { duration: 320 * pace, easing: ease };
         prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], timing);
         next.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
       };
@@ -101,7 +109,7 @@
       if (isOpen()) {
         leaving = null;
         trigger.setAttribute('aria-expanded', 'true');
-        return panel.animate([now(), { opacity: 1, transform: 'none' }], { duration: 240, easing: ease });
+        return panel.animate([now(), { opacity: 1, transform: 'none' }], { duration: 240 * pace, easing: ease });
       }
       leaving?.cancel();
       leaving = null;
@@ -109,7 +117,7 @@
       else panel.classList.add('is-open');
       const below = place();
       trigger.setAttribute('aria-expanded', 'true');
-      if (!reduceMotion) panel.animate([{ opacity: 0, transform: `translateY(${below ? -6 : 6}px) scale(0.92)` }, { opacity: 1, transform: 'none' }], { duration: 320, easing: ease });
+      if (!still) panel.animate([{ opacity: 0, transform: `translateY(${below ? -6 : 6}px) scale(0.92)` }, { opacity: 1, transform: 'none' }], { duration: 320 * pace, easing: ease });
     };
     const hide = (refocus = false) => {
       if (!isOpen() || leaving) return;
@@ -120,9 +128,9 @@
         restCopy();
       };
       if (refocus) trigger.focus({ preventScroll: true });
-      if (reduceMotion) return done();
+      if (still) return done();
       const below = panel.dataset.side !== 'top';
-      leaving = panel.animate([now(), { opacity: 0, transform: `translateY(${below ? -4 : 4}px) scale(0.96)` }], { duration: 160, easing: 'ease-in', fill: 'forwards' });
+      leaving = panel.animate([now(), { opacity: 0, transform: `translateY(${below ? -4 : 4}px) scale(0.96)` }], { duration: 160 * pace, easing: 'ease-in', fill: 'forwards' });
       leaving.finished.then(() => {
         leaving = null;
         done();

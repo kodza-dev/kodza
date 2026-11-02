@@ -11,8 +11,8 @@ A centred header for a restaurant or a shop: the name in the middle, links on bo
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-centered.html`](kodza-header-centered.html) | 3.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-centered.css`](kodza-header-centered.css) | 47.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-header-centered.js`](kodza-header-centered.js) | 45.5 KB | The script. One copy per page runs every instance. |
+| [`kodza-header-centered.css`](kodza-header-centered.css) | 49.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-centered.js`](kodza-header-centered.js) | 46.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -55,7 +55,7 @@ CSS variables, set on `.kodza-header-centered` itself:
 | `--kz-header-centered-rule` | `rgba(10, 10, 10, 0.1)` |  |
 | `--kz-header-centered-cta-bg` | `#0a0a0a` |  |
 | `--kz-header-centered-cta-fg` | `#ffffff` |  |
-| `--kz-header-centered-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
+| `--kz-header-centered-mono` | `var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace))` | the line above the bar: address and hours |
 | `--kz-header-centered-top` | `var(--wp-admin--admin-bar--height, 0px)` | below the WordPress admin bar |
 | `--kz-header-centered-strip` | `36px` | the line with the address and the hours |
 | `--kz-header-centered-height` | `84px` | the bar at the top of the page |

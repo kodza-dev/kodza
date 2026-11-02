@@ -6,9 +6,18 @@
 (() => {
   const SELECTOR = '.kodza-zoom';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    // The lag, a step per frame: none without motion, smaller steps at a slower pace
+    const step = reduceMotion || !pace ? 1 : Math.min(1, 0.22 / pace);
     const img = root.querySelector('img');
     if (!img) return;
     const zoom = parseFloat(root.dataset.zoom) || 2.5;
@@ -58,9 +67,8 @@
     };
     const glide = () => {
       if (signal.aborted) return;
-      const k = reduceMotion ? 1 : 0.22;
-      x += (tx - x) * k;
-      y += (ty - y) * k;
+      x += (tx - x) * step;
+      y += (ty - y) * step;
       paint();
       frame = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(glide) : 0;
     };

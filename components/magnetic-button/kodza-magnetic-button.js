@@ -7,10 +7,19 @@
   const SELECTOR = '.kodza-magnetic';
   const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(el, signal) {
-    if (!fine || reduceMotion) return;
+    const pace = paceOf(el);
+    if (!fine || reduceMotion || !pace) return;
+    // The easing step per frame: a slower pace takes smaller steps
+    const step = Math.min(1, 0.16 / pace);
     const strength = Math.min(1, Math.max(0, parseFloat(el.dataset.strength) || 0.3));
     let x = 0;
     let y = 0;
@@ -21,8 +30,8 @@
     const tick = () => {
       frame = 0;
       let moving = false;
-      x += (tx - x) * 0.16;
-      y += (ty - y) * 0.16;
+      x += (tx - x) * step;
+      y += (ty - y) * step;
       if (Math.abs(tx - x) < 0.05 && Math.abs(ty - y) < 0.05) {
         x = tx;
         y = ty;

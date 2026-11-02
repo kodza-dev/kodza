@@ -4,8 +4,17 @@
 // in its frame (-1 to 1 on each axis), and sends it back to the centre on leave.
 (() => {
   const SELECTOR = '.kodza-image-hover--parallax';
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
+
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(frame, signal) {
+    // At pace 0 the image holds still in the middle of its frame, as with reduced motion
+    if (!paceOf(frame)) return;
     frame.addEventListener('pointermove', (event) => {
       const rect = frame.getBoundingClientRect();
       frame.style.setProperty('--kz-x', (((event.clientX - rect.left) / rect.width) * 2 - 1).toFixed(3));

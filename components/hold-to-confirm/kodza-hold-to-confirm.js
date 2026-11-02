@@ -6,6 +6,12 @@
 (() => {
   const SELECTOR = '.kodza-hold-to-confirm';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const KEYS = [' ', 'Enter'];
   const easeOut = (t) => 1 - (1 - t) ** 3;
@@ -13,6 +19,9 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(button, signal) {
+    const pace = paceOf(button);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
+    // The time to hold and the rest on the third words are not motion: they keep their length at any pace
     const holdTime = Math.max(300, number(button.dataset.hold, 1600));
     const restTime = Math.max(0, number(button.dataset.reset, 2200));
 
@@ -57,8 +66,8 @@
         const from = moving ? getComputedStyle(word).transform : null;
         word.getAnimations().forEach((a) => a.cancel());
         word.style.transform = i === next ? 'none' : 'translateY(125%)';
-        if (reduceMotion) return;
-        const timing = { duration: 520, easing: ease };
+        if (still) return;
+        const timing = { duration: 520 * pace, easing: ease };
         if (i === next) word.animate([{ transform: from || `translateY(${dir * 125}%)` }, { transform: 'none' }], timing);
         else if (i === prev || moving) word.animate([{ transform: from || 'none' }, { transform: `translateY(${dir * -125}%)` }], timing);
       }));
@@ -110,7 +119,7 @@
       state = 'draining';
       from = progress;
       start = performance.now();
-      drain = reduceMotion ? 0 : 320 + 640 * progress;
+      drain = still ? 0 : (320 + 640 * progress) * pace;
       button.classList.remove('is-holding');
       button.dataset.state = 'idle';
       roll(0, dir);

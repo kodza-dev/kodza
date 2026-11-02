@@ -8,12 +8,20 @@
 (() => {
   const SELECTOR = '.kodza-tour';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const ease = 'cubic-bezier(0.65, 0, 0.35, 1)';
   const pad2 = (n) => String(n).padStart(2, '0');
   let uid = 0;
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const start = root.querySelector('.kodza-tour__start');
     const steps = [...root.querySelectorAll('.kodza-tour__steps > li')].map((li) => ({ target: li.dataset.target, title: li.dataset.title || '', text: li.textContent.trim() }));
     if (!steps.length) return;
@@ -62,7 +70,7 @@
       const to = { left: `${box.left}px`, top: `${box.top}px`, width: `${box.width}px`, height: `${box.height}px` };
       // The first time, the hole closes in from the whole screen onto the target, like an iris
       const start = from || { left: '0px', top: '0px', width: `${innerWidth}px`, height: `${innerHeight}px` };
-      if (animate && !reduceMotion) spot.animate([start, to], { duration: from ? 550 : 700, easing: ease });
+      if (animate && !still) spot.animate([start, to], { duration: (from ? 550 : 700) * pace, easing: ease });
       Object.assign(spot.style, to);
       from = to;
       // The card: below, else above, else to the right; always on screen
@@ -76,7 +84,7 @@
         x = box.left + box.width + 14 + w < innerWidth ? box.left + box.width + 14 : Math.max(12, box.left - w - 14);
       }
       // The first time, the card appears in place instead of flying in from the corner
-      if (!card.kzPlaced) card.style.transition = 'opacity 0.3s ease 0.35s';
+      if (!card.kzPlaced) card.style.transition = `opacity ${0.3 * pace}s ease ${0.35 * pace}s`;
       card.style.setProperty('--kz-card-x', `${x}px`);
       card.style.setProperty('--kz-card-y', `${y}px`);
       if (!card.kzPlaced) {
@@ -95,8 +103,9 @@
       const r = target.getBoundingClientRect();
       const roomDown = scrollY + innerHeight < document.documentElement.scrollHeight - 1;
       if ((r.top < 80 && scrollY > 0) || (r.bottom > innerHeight - 220 && roomDown)) {
-        target.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
-        await new Promise((resolve) => setTimeout(resolve, reduceMotion ? 0 : 450));
+        // The browser's smooth scroll keeps its own speed, whatever the pace
+        target.scrollIntoView({ block: 'center', behavior: still ? 'auto' : 'smooth' });
+        await new Promise((resolve) => setTimeout(resolve, still ? 0 : 450));
         if (signal.aborted) return;
       }
       // The words slide the way you go
@@ -105,11 +114,11 @@
       words.append(fresh);
       if (old) {
         old.querySelector('.kodza-tour__title')?.removeAttribute('id');
-        if (reduceMotion) old.remove();
+        if (still) old.remove();
         else {
-          const timing = { duration: 380, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+          const timing = { duration: 380 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
           old.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${dir * -24}px)`, opacity: 0 }], { ...timing, fill: 'forwards' }).finished.then(() => old.remove());
-          fresh.animate([{ transform: `translateX(${dir * 24}px)`, opacity: 0 }, { transform: 'none', opacity: 1 }], { ...timing, delay: 80, fill: 'backwards' });
+          fresh.animate([{ transform: `translateX(${dir * 24}px)`, opacity: 0 }, { transform: 'none', opacity: 1 }], { ...timing, delay: 80 * pace, fill: 'backwards' });
         }
       }
       count.textContent = `${pad2(index + 1)} / ${pad2(steps.length)}`;
@@ -157,14 +166,14 @@
       }
     }, { signal });
     // While the page scrolls, the spotlight and the card stick to the target instead of gliding after it
-    let still = 0;
+    let resting = 0;
     const follow = () => {
       if (!root.classList.contains('is-on') || current < 0) return;
       spot.getAnimations().forEach((animation) => animation.finish());
       card.classList.add('is-following');
       place(scope.querySelector(steps[current].target), false);
-      clearTimeout(still);
-      still = setTimeout(() => card.classList.remove('is-following'), 140);
+      clearTimeout(resting);
+      resting = setTimeout(() => card.classList.remove('is-following'), 140);
     };
     addEventListener('resize', follow, { signal });
     addEventListener('scroll', follow, { passive: true, signal });

@@ -6,6 +6,12 @@
 (() => {
   const SELECTOR = '.kodza-text-reveal';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   function split(root, text, mode) {
     root.textContent = '';
@@ -52,6 +58,8 @@
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace;
     const text = root.textContent.trim().replace(/\s+/g, ' ');
     const mode = root.dataset.split || 'lines';
     const style = getComputedStyle(root);
@@ -60,7 +68,7 @@
     let timer;
 
     const play = () => {
-      if (reduceMotion) return;
+      if (still) return;
       clearTimeout(timer);
       root.classList.remove('is-playing', 'is-revealed');
       root.setAttribute('aria-label', text);
@@ -72,11 +80,11 @@
         root.classList.add('is-revealed');
         root.removeAttribute('aria-label');
         root.textContent = text;
-      }, duration + stagger * count + 50);
+      }, (duration + stagger * count) * pace + 50); // the CSS plays them at the site's pace too
     };
 
     root.classList.add('is-ready');
-    if (reduceMotion) return;
+    if (still) return;
     // Hidden until it plays (the pieces are only created then, so wrap the text in one)
     split(root, text, 'words');
 

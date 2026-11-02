@@ -11,8 +11,8 @@ A real dialog that grows out of the button that opened it and goes back into it.
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-modal-component.html`](kodza-modal-component.html) | 2.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-modal-component.css`](kodza-modal-component.css) | 22.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-modal-component.js`](kodza-modal-component.js) | 12.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-modal-component.css`](kodza-modal-component.css) | 24.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-modal-component.js`](kodza-modal-component.js) | 12.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

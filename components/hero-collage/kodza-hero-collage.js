@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '.kodza-hero-collage';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
   const GLIDE = 'cubic-bezier(0.6, 0, 0.1, 1)'; // slow start, long settle
   const SOFT = 'cubic-bezier(0.25, 1, 0.5, 1)';
@@ -19,6 +25,7 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root);
     const q = (name) => [...root.querySelectorAll(`.kodza-hero-collage__${name}`)];
     const shots = q('shot');
 
@@ -27,8 +34,9 @@
       running.forEach((a) => a.cancel());
       running = [];
     };
-    const animate = (el, keyframes, options) => {
-      if (el) running.push(el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options }));
+    // Every duration and delay of the entrance at the site's pace
+    const animate = (el, keyframes, { duration, delay = 0, ...options }) => {
+      if (el) running.push(el.animate(keyframes, { easing: GLIDE, fill: 'backwards', ...options, duration: duration * pace, delay: delay * pace }));
     };
     const rise = (el, delay, duration) => animate(el, [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration, delay });
     const come = (el, delay) => animate(el, [{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }], { duration: 900, delay, easing: SOFT });
@@ -51,7 +59,7 @@
       come(q('actions')[0], 760);
     };
 
-    if (reduceMotion) {
+    if (reduceMotion || !pace) {
       root.classList.add('is-shown');
       return;
     }
@@ -71,7 +79,7 @@
     const tick = (time) => {
       const dt = Math.min(64, time - (last || time));
       last = time;
-      const ease = 1 - Math.exp(-dt / SMOOTH);
+      const ease = 1 - Math.exp(-dt / (SMOOTH * pace));
       now = { x: now.x + (target.x - now.x) * ease, y: now.y + (target.y - now.y) * ease };
       const settled = Math.abs(target.x - now.x) < 0.001 && Math.abs(target.y - now.y) < 0.001;
       if (settled) now = { ...target };

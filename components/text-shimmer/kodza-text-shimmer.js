@@ -3,8 +3,17 @@
 // Only needed for the --pointer variant: moves the light to the pointer's position.
 (() => {
   const SELECTOR = '.kodza-shimmer--pointer';
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
+
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(text, signal) {
+    // The light follows the pointer, not the clock: at pace 0 it stays off, nothing moves
+    if (!paceOf(text)) return;
     text.addEventListener('pointermove', (event) => {
       const rect = text.getBoundingClientRect();
       text.style.setProperty('--kz-shimmer-x', `${((event.clientX - rect.left) / rect.width) * 100}%`);

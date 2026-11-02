@@ -11,8 +11,8 @@ A real multiple select as a field of tags: type to filter, pick to add a tag. Re
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-multi-select.html`](kodza-multi-select.html) | 0.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-multi-select.css`](kodza-multi-select.css) | 20.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-multi-select.js`](kodza-multi-select.js) | 15.3 KB | The script. One copy per page runs every instance. |
+| [`kodza-multi-select.css`](kodza-multi-select.css) | 22.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-multi-select.js`](kodza-multi-select.js) | 15.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

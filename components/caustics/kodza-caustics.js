@@ -8,6 +8,12 @@
 (() => {
   const SELECTOR = '[data-kodza-caustics]';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // ---- Kodza shader engine 1.1 -----------------------------------------------------------
   // The same copy in every WebGL background of the family: it owns the canvas and its context,
@@ -35,6 +41,7 @@
     const gl = canvas.getContext(layer.webgl2 ? 'webgl2' : 'webgl', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
     if (!gl) return null; // the still background drawn in CSS stays
 
+    let pace = 1; // read once the canvas is live, below
     const s = {
       root, canvas, gl, still: reduceMotion, time: 0, scale: 1, width: 0, height: 0,
       ink: [0, 0, 0, 1], calm: 1, pointer: { x: 0, y: 0, active: false },
@@ -93,6 +100,10 @@
     canvas.setAttribute('aria-hidden', 'true');
     root.prepend(canvas);
     root.classList.add('is-live');
+    // The site's pace, read now: read before, the style it computes would turn the CSS background
+    // giving way to the canvas into a fade
+    pace = paceOf(root);
+    s.still = s.still || !pace;
 
     // The ink is whatever the CSS says (a theme colour, color-mix…): a one-pixel canvas turns it into rgba
     const probe = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
@@ -193,7 +204,7 @@
     function frame(now) {
       raf = 0;
       if (signal.aborted || !running()) return;
-      const dt = Math.min(Math.max((now - last) / 1000, 0), 1 / 30); // a frame stamp can predate the wake
+      const dt = Math.min(Math.max((now - last) / 1000, 0), 1 / 30) / pace; // a frame stamp can predate the wake; the site's pace stretches the time
       last = now;
       s.time += dt;
       const mode = layer.step(s, dt);

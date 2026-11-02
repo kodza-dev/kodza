@@ -13,6 +13,12 @@
 (() => {
   const SELECTOR = '.kodza-hero-open';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   const DAY = 1440; // minutes
   const WEEK = 7 * DAY;
@@ -82,6 +88,7 @@
   // starts is tied to `signal` (listeners get { signal }, observers and timers stop on its
   // 'abort' event), so kodza:destroy stops it all.
   function mount(root, signal) {
+    const pace = paceOf(root); // the clock keeps its own time: only the roll of the words follows it
     const status = root.querySelector('.kodza-hero-open__status');
     const text = status?.querySelector('.kodza-hero-open__text');
     if (!text) return;
@@ -104,17 +111,17 @@
       [...box.children].forEach((el) => el !== old && el.remove());
       box.append(next);
       if (!old) return;
-      if (!moving || reduceMotion) return old.remove();
+      if (!moving || reduceMotion || !pace) return old.remove();
       const y = new DOMMatrixReadOnly(getComputedStyle(old).transform).m42;
       old.getAnimations().forEach((a) => a.cancel());
       old.classList.add('is-leaving');
       old.setAttribute('aria-hidden', 'true');
-      const timing = { duration: 700, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+      const timing = { duration: 700 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
       old.animate([{ transform: `translateY(${y}px)` }, { transform: 'translateY(-100%)' }], { ...timing, fill: 'forwards' }).finished.then(() => old.remove(), () => {});
       next.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], timing);
       // The window opens a little ahead of the words, so their end isn't cut for long
       box.getAnimations().forEach((a) => a.cancel());
-      box.animate([{ width: `${from}px` }, { width: `${box.offsetWidth}px` }], { ...timing, duration: 480 });
+      box.animate([{ width: `${from}px` }, { width: `${box.offsetWidth}px` }], { ...timing, duration: 480 * pace });
     };
 
     // A line of words, with the minutes in their own window

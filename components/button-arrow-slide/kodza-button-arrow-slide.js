@@ -5,13 +5,20 @@
 (() => {
   const SELECTOR = '.kodza-arrow-button';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(button, signal) {
+    const pace = paceOf(button);
     const path = button.querySelector('.kodza-arrow-button__arrow path');
     if (!path) return;
     const style = getComputedStyle(button);
-    const duration = reduceMotion ? 0 : parseFloat(style.getPropertyValue('--kz-arrow-duration')) * 1000 || 600;
+    const duration = reduceMotion || !pace ? 0 : (parseFloat(style.getPropertyValue('--kz-arrow-duration')) * 1000 || 600) * pace;
     const ease = style.getPropertyValue('--kz-arrow-ease').trim() || 'ease';
     let animation = null;
 

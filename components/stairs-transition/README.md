@@ -12,7 +12,7 @@ Between two real pages, five ink bands climb over the page like a staircase, the
 | --- | ---: | --- |
 | [`kodza-stairs-transition.html`](kodza-stairs-transition.html) | 1.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-stairs-transition.css`](kodza-stairs-transition.css) | 23.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-stairs-transition.js`](kodza-stairs-transition.js) | 25.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-stairs-transition.js`](kodza-stairs-transition.js) | 25.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

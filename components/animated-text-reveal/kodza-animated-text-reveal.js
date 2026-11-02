@@ -7,11 +7,18 @@
   const SELECTOR = '.kodza-scroll-reveal';
   const OVERLAP = 0.3; // how much of the scroll each word takes to light up
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
 
   const clamp = (v) => Math.min(1, Math.max(0, v));
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
     // Words become spans; the spaces between them stay plain text, so lines wrap as before
     const parts = root.textContent.trim().split(/(\s+)/);
     root.textContent = '';
@@ -24,7 +31,8 @@
       root.append(word);
       words.push(word);
     });
-    if (reduceMotion) return;
+    // The progress follows the scroll, not the clock: still at pace 0, like reduced motion
+    if (reduceMotion || !pace) return;
     words.forEach((word) => word.style.setProperty('--w', 0));
 
     let visible = false;

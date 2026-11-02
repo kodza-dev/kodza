@@ -51,11 +51,12 @@
 .kodza-hero-showcase__eyebrow {
   overflow: hidden;
   margin: 0 0 clamp(16px, 2cqi, 26px);
-  font-family: var(--kz-hero-showcase-mono);
-  font-size: 12.5px;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
+  font-family: var(--kz-font-label, var(--kz-hero-showcase-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-hero-showcase-faint);
 }
 
@@ -124,9 +125,11 @@
   padding: 0 26px;
   border: 0;
   border-radius: var(--kz-radius-pill, 999px);
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
   line-height: 1;
   white-space: nowrap;
   text-decoration: none;
@@ -153,14 +156,14 @@
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform 0.3s var(--kz-hero-showcase-ease);
+  transition: transform calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-hero-showcase-ease);
 }
 
 /* Soft: ink rises from the bottom edge on hover */
 .kodza-hero-showcase__button--soft {
   background: var(--kz-hero-showcase-soft);
   color: var(--kz-hero-showcase-ink);
-  transition: color 0.4s var(--kz-hero-showcase-ease);
+  transition: color calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-hero-showcase-ease);
 }
 
 .kodza-hero-showcase__button--soft::before {
@@ -171,7 +174,7 @@
   border-radius: inherit;
   background: var(--kz-hero-showcase-ink);
   transform: translateY(101%);
-  transition: transform 0.4s var(--kz-hero-showcase-ease);
+  transition: transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-hero-showcase-ease);
 }
 
 /* The wall, without the script: the projects in a grid under the words */
@@ -251,7 +254,7 @@
   height: 100%;
   max-width: none;
   object-fit: cover;
-  transition: scale 0.7s var(--kz-hero-showcase-ease);
+  transition: scale calc(0.7s * var(--kz-motion-scale, 1)) var(--kz-hero-showcase-ease);
 }
 
 .kodza-hero-showcase__caption {
@@ -260,11 +263,12 @@
   gap: 12px;
   overflow: hidden;
   padding-top: 10px;
-  font-family: var(--kz-hero-showcase-mono);
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
+  font-family: var(--kz-font-label, var(--kz-hero-showcase-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
 }
 
 .kodza-hero-showcase__name {
@@ -299,13 +303,14 @@
 
 /* With the script and motion: a tall section, the scene pinned inside it, the copy at the top and
    the wall at the centre, each row a single line that runs past both edges (the script repeats
-   its projects on either side, then lays the wall back from there) */
+   its projects on either side, then lays the wall back from there). is-still: the site's pace at
+   0, laid out as with reduced motion */
 @media (prefers-reduced-motion: no-preference) {
-  .kodza-hero-showcase.is-ready {
+  .kodza-hero-showcase.is-ready:not(.is-still) {
     height: calc(100svh - var(--kz-hero-showcase-top) + var(--kz-hero-showcase-distance));
   }
 
-  .kodza-hero-showcase.is-ready .kodza-hero-showcase__scene {
+  .kodza-hero-showcase.is-ready:not(.is-still) .kodza-hero-showcase__scene {
     position: sticky;
     top: var(--kz-hero-showcase-top);
     overflow: hidden;
@@ -313,16 +318,16 @@
     height: calc(100svh - var(--kz-hero-showcase-top));
   }
 
-  .kodza-hero-showcase.is-ready .kodza-hero-showcase__copy {
+  .kodza-hero-showcase.is-ready:not(.is-still) .kodza-hero-showcase__copy {
     padding-top: clamp(28px, 11svh, 120px);
     padding-bottom: clamp(24px, 5svh, 48px);
   }
 
-  .kodza-hero-showcase.is-ready.is-past .kodza-hero-showcase__copy {
+  .kodza-hero-showcase.is-ready:not(.is-still).is-past .kodza-hero-showcase__copy {
     pointer-events: none;
   }
 
-  .kodza-hero-showcase.is-ready .kodza-hero-showcase__stage {
+  .kodza-hero-showcase.is-ready:not(.is-still) .kodza-hero-showcase__stage {
     position: absolute;
     inset: 0;
     z-index: 1;
@@ -334,29 +339,29 @@
   }
 
   /* One column as wide as the scene: each row overflows it on both sides, centred */
-  .kodza-hero-showcase.is-ready .kodza-hero-showcase__wall {
+  .kodza-hero-showcase.is-ready:not(.is-still) .kodza-hero-showcase__wall {
     grid-template-columns: minmax(0, 1fr);
     width: 100%;
     max-width: none;
   }
 
-  .kodza-hero-showcase.is-ready .kodza-hero-showcase__row {
+  .kodza-hero-showcase.is-ready:not(.is-still) .kodza-hero-showcase__row {
     display: flex;
     justify-content: center;
   }
 
-  .kodza-hero-showcase.is-ready .kodza-hero-showcase__item {
+  .kodza-hero-showcase.is-ready:not(.is-still) .kodza-hero-showcase__item {
     flex: none;
     width: var(--kz-hero-showcase-card);
   }
 
-  .kodza-hero-showcase.is-ready .kodza-hero-showcase__card {
+  .kodza-hero-showcase.is-ready:not(.is-still) .kodza-hero-showcase__card {
     pointer-events: auto;
   }
 
   /* Its own layer, so Chrome clips the picture's rounded corners inside it: without one, under the
      wall's perspective, it can drop a clipped picture and leave the thumbnail blank */
-  .kodza-hero-showcase.is-ready .kodza-hero-showcase__frame {
+  .kodza-hero-showcase.is-ready:not(.is-still) .kodza-hero-showcase__frame {
     will-change: transform;
   }
 
@@ -383,7 +388,7 @@
 
   /* A phone: bigger thumbnails, two and a bit across */
   @container kodza-hero-showcase (max-width: 640px) {
-    .kodza-hero-showcase.is-ready .kodza-hero-showcase__item {
+    .kodza-hero-showcase.is-ready:not(.is-still) .kodza-hero-showcase__item {
       width: 44cqi;
     }
   }
@@ -424,7 +429,7 @@
   }
 }
 
-/* kodza-guard 0fea8b0995b9 — generated by Kodza, do not edit.
+/* kodza-guard 50928981de61 — generated by Kodza, do not edit.
    Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
    component. :not(#_) is always true and weighs as much as an id, so these lines win over
    theme rules made of classes and tags. Customise the component through its --kz-* variables. */
@@ -491,7 +496,6 @@
   max-width: revert;
   max-height: revert;
   font-style: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -571,8 +575,6 @@
   max-width: revert;
   max-height: revert;
   font-style: revert;
-  letter-spacing: revert;
-  text-transform: revert;
   text-underline-offset: revert;
   text-align: revert;
   text-indent: revert;
@@ -767,11 +769,12 @@
 
 .kodza-hero-showcase__eyebrow:not(#_) {
   margin: 0 0 clamp(16px, 2cqi, 26px);
-  font-family: var(--kz-hero-showcase-mono);
-  font-size: 12.5px;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
+  font-family: var(--kz-font-label, var(--kz-hero-showcase-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
   color: var(--kz-hero-showcase-faint);
 }
 
@@ -799,9 +802,11 @@
   padding: 0 26px;
   border: 0;
   border-radius: var(--kz-radius-pill, 999px);
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
   line-height: 1;
   text-decoration: none;
 }
@@ -817,13 +822,13 @@
 }
 
 .kodza-hero-showcase__arrow:not(#_) {
-  transition: transform 0.3s var(--kz-hero-showcase-ease);
+  transition: transform calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-hero-showcase-ease);
 }
 
 .kodza-hero-showcase__button--soft:not(#_) {
   background: var(--kz-hero-showcase-soft);
   color: var(--kz-hero-showcase-ink);
-  transition: color 0.4s var(--kz-hero-showcase-ease);
+  transition: color calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-hero-showcase-ease);
 }
 
 .kodza-hero-showcase__row:not(#_) {
@@ -853,7 +858,7 @@
 .kodza-hero-showcase__hold img:not(#_) {
   display: block;
   max-width: none;
-  transition: scale 0.7s var(--kz-hero-showcase-ease);
+  transition: scale calc(0.7s * var(--kz-motion-scale, 1)) var(--kz-hero-showcase-ease);
 }
 
 @media (hover: hover) {
@@ -863,7 +868,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .kodza-hero-showcase.is-ready .kodza-hero-showcase__row:not(#_) {
+  .kodza-hero-showcase.is-ready:not(.is-still) .kodza-hero-showcase__row:not(#_) {
     display: flex;
   }
 }

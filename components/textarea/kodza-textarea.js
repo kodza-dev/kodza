@@ -6,10 +6,18 @@
 (() => {
   const SELECTOR = '.kodza-textarea';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
+  // script times it, and 0 moves nothing, like reduced motion
+  const paceOf = (el) => {
+    const pace = parseFloat(getComputedStyle(el).getPropertyValue('--kz-motion-scale'));
+    return pace >= 0 ? pace : 1;
+  };
   let uid = 0;
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
+    const pace = paceOf(root);
+    const still = reduceMotion || !pace; // the still path: no motion asked, by the visitor or the site
     const input = root.querySelector('.kodza-textarea__input');
     const hint = root.querySelector('.kodza-textarea__hint');
     const error = root.querySelector('.kodza-textarea__error');
@@ -30,9 +38,9 @@
       input.style.height = 'auto';
       const to = Math.max(input.scrollHeight, 44);
       input.style.height = `${to}px`;
-      if (animate && !reduceMotion && height && Math.abs(to - from) > 1) {
+      if (animate && !still && height && Math.abs(to - from) > 1) {
         growing?.cancel();
-        growing = input.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: 220, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+        growing = input.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: 220 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
       }
       height = to;
     };
@@ -44,8 +52,8 @@
       if (prev.textContent === String(text)) return;
       const span = Object.assign(document.createElement('span'), { textContent: text });
       left.append(span);
-      if (reduceMotion || !root.classList.contains('is-near')) return prev.remove();
-      const timing = { duration: 220, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+      if (still || !root.classList.contains('is-near')) return prev.remove();
+      const timing = { duration: 220 * pace, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
       prev.animate([{ transform: 'none' }, { transform: 'translateY(-110%)' }], { ...timing, fill: 'forwards' }).finished.then(() => prev.remove());
       span.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], timing);
     };

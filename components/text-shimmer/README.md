@@ -11,8 +11,8 @@ A band of light that sweeps across text, the way a busy interface says "still wo
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-text-shimmer.html`](kodza-text-shimmer.html) | 0.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-text-shimmer.css`](kodza-text-shimmer.css) | 3.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-text-shimmer.js`](kodza-text-shimmer.js) | 4.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-text-shimmer.css`](kodza-text-shimmer.css) | 3.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-text-shimmer.js`](kodza-text-shimmer.js) | 5.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
