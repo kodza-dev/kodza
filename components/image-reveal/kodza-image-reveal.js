@@ -14,6 +14,9 @@
 
   const loaded = (root, signal) => {
     const img = root.querySelector('img');
+    // A lazy picture behind the closed curtain may never load (the browser waits to see it, the
+    // curtain waits for the picture): once the figure is on screen, it loads now
+    if (img && !img.complete && img.loading === 'lazy') img.loading = 'eager';
     return !img || img.complete ? Promise.resolve() : new Promise((resolve) => {
       img.addEventListener('load', resolve, { once: true, signal });
       img.addEventListener('error', resolve, { once: true, signal });

@@ -51,7 +51,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 160. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 161. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -78,7 +78,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-160 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+161 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
 
 ### Buttons
 
@@ -227,6 +227,7 @@ Written like it's going live tomorrow. Because it probably is.
 | --- | --- | --- |
 | [Annotated Text](components/text-highlight/) | Hand-drawn marks that draw themselves on key words when the paragraph shows up: underline, strike, circle or marker. | [Demo](https://kodza.dev/components/text-highlight/) |
 | [Eye Glyph](components/eye-glyph/) | Any letter with a hole becomes an eye: the pupil follows the pointer, lashes grow on top, and real lids close it when it blinks. Poke one and it winks. | [Demo](https://kodza.dev/components/eye-glyph/) |
+| [Inline Image Text](components/inline-image-text/) | A large sentence with small pictures set in its lines, at letter height. Lines rise from their mask and each picture opens as its line lands. Sized in em; a muted loop works too. | [Demo](https://kodza.dev/components/inline-image-text/) |
 | [Marquee](components/scrolling-text-loop/) | An endless ticker that never jumps, eases to a stop under the pointer and fades at both edges. Runs either way. | [Demo](https://kodza.dev/components/scrolling-text-loop/) |
 | [Scroll Text Reveal](components/animated-text-reveal/) | Words light up one after the other as a paragraph scrolls by, and dim again on the way back. Fade, blur or rise. No GSAP. | [Demo](https://kodza.dev/components/animated-text-reveal/) |
 | [Shimmer Text](components/text-shimmer/) | A band of light that sweeps across text, the way a busy interface says "still working on it". Looping, on hover, or following the pointer. | [Demo](https://kodza.dev/components/text-shimmer/) |
