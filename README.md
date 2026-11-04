@@ -51,7 +51,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 176. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 180. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -78,7 +78,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-176 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+180 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
 
 ### Buttons
 
@@ -154,6 +154,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 | Component | What it does | |
 | --- | --- | --- |
+| [A–Z Index](components/a-z-index/) | A bar of letters over a grouped list: a click glides to the group, an ink pill follows the letter you read, empty letters stay dimmed. Sticks to the top. | [Demo](https://kodza.dev/components/a-z-index/) |
 | [Breadcrumbs](components/breadcrumbs/) | A breadcrumb trail that folds its middle behind a "…" button when it would not fit on one line, and unfolds it crumb after crumb. | [Demo](https://kodza.dev/components/breadcrumbs/) |
 | [Burger Button](components/burger-button/) | A menu button: the lines meet, then cross, and Menu rolls to Close at a fixed width. It follows aria-expanded and fires kodza:burger, so it drives the menu you already have. | [Demo](https://kodza.dev/components/burger-button/) |
 | [Command Palette](components/command-palette/) | A ⌘K palette in a real dialog: results filter as you type, matched letters are underlined and a highlight slides between them. | [Demo](https://kodza.dev/components/command-palette/) |
@@ -207,8 +208,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Code Block](components/code-block/) | Code to read and copy: file name, line numbers, highlighted and folded lines, a monochrome syntax in weight and light. Copy rolls to Copied and takes everything, folded lines too; a terminal copies its commands only. | [Demo](https://kodza.dev/components/code-block/) |
 | [Countdown](components/event-day-counter/) | A live countdown to a date: every digit that changes falls out of its window as the next one drops in, and at zero the figures step aside for your message. Large or inline. | [Demo](https://kodza.dev/components/event-day-counter/) |
 | [Counter](components/counter-animation/) | A figure that rolls into place like an odometer when it comes into view: digits on the right spin more and land last, a zero takes a full turn. Readable without the script. | [Demo](https://kodza.dev/components/counter-animation/) |
+| [Departure Board](components/departure-board/) | The next departures from a place, worked out at its own time: the day's timetable by season and weekday, the next trip on top with a countdown that rolls every minute, gone trips faded, a line once the day is over. | [Demo](https://kodza.dev/components/departure-board/) |
 | [Filter Transitions](components/filter-transitions/) | A filterable grid: the ink pill slides to the filter, leaving cards step back, the others glide to their new place and the new ones arrive in turn. | [Demo](https://kodza.dev/components/filter-transitions/) |
 | [Kbd](components/kbd/) | Keyboard keys with a little depth, alone, in a combo or in a list of shortcuts. Type one for real and its keys sink as you press them; the whole combo down lights its line. | [Demo](https://kodza.dev/components/kbd/) |
+| [Menu Board](components/menu-board/) | A restaurant menu by service: dish, original name, a tabular price on a dotted leader, marks in icon and words. Opens on the service served now; tabs, or stacked with pinned titles (data-layout="stack"). | [Demo](https://kodza.dev/components/menu-board/) |
 | [Separator](components/separator/) | Lines that draw themselves from their middle when they come into view: a plain rule, one with a label or a section title, one around a CSS dot, and verticals between items. | [Demo](https://kodza.dev/components/separator/) |
 | [Show More](components/collapsible/) | Long content kept short until asked: a text cut by a soft fade, or a list that says how many items are left. It opens at its real height and the button's words roll. | [Demo](https://kodza.dev/components/collapsible/) |
 | [Stat Card](components/stat-card/) | A key figure, its change and the curve behind it: the figure rolls, the curve draws itself and a guide follows your pointer with the value of the day. Trends told by arrows. | [Demo](https://kodza.dev/components/stat-card/) |
@@ -279,6 +282,7 @@ Written like it's going live tomorrow. Because it probably is.
 | [Back to Top](components/back-to-top/) | A round button that shows up a screen down, its ring filling as you read. Its label unrolls on hover, the arrow takes off when you click. | [Demo](https://kodza.dev/components/back-to-top/) |
 | [Horizontal Scroll](components/horizontal-scroll/) | A section that pins itself while its cards slide sideways as you scroll down. Pictures drift in their frames, the counter rolls. A swipe on touch. | [Demo](https://kodza.dev/components/horizontal-scroll/) |
 | [Infinite Scroll](components/infinite-scroll/) | Placeholders the size of a post shimmer in, then turn into the posts without a jump. Two loads on their own, then a button, so the footer stays reachable. | [Demo](https://kodza.dev/components/infinite-scroll/) |
+| [Scroll Gauge](components/scroll-gauge/) | A figure pinned in a corner of a long page. Each section carries its value, and as you read, the figure rolls to it digit by digit, with its unit, a note and a scale of the whole story. | [Demo](https://kodza.dev/components/scroll-gauge/) |
 | [Scroll Reveal](components/fade-in-scroll/) | Blocks make their entrance as they scroll in: a fade, lines rising from a mask, or an image unveiled by clip-path. Blocks that arrive together take turns. | [Demo](https://kodza.dev/components/fade-in-scroll/) |
 | [Sticky Scroll Reveal](components/sticky-scroll-reveal/) | A block that pins itself while big statements take turns as you scroll: each line leaves through its own mask while the next one rises. | [Demo](https://kodza.dev/components/sticky-scroll-reveal/) |
 | [Sticky Steps](components/sticky-steps/) | A picture pinned on one side, steps scrolling on the other: each step draws its picture over the last like a curtain, and the counter rolls along. | [Demo](https://kodza.dev/components/sticky-steps/) |

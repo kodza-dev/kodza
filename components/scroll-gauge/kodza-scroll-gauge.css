@@ -1,0 +1,535 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Scroll Gauge
+   A real figure pinned in a corner of a long page. Each section carries its value; once you
+   read it, the figure rolls there digit by digit like an odometer (up when it climbs, down when
+   it falls), its note rolls with it and a needle slides along the scale of the whole story.
+   The dial rides along at the bottom of the screen and leaves with the end of the story.
+   Everything is tuned with the --kz-scroll-gauge-* variables. */
+.kodza-scroll-gauge {
+  --kz-scroll-gauge-fg: #0a0a0a;
+  --kz-scroll-gauge-muted: rgba(10, 10, 10, 0.62);
+  --kz-scroll-gauge-line: rgba(10, 10, 10, 0.1); /* the dial's edge and the rules between sections */
+  --kz-scroll-gauge-rule: rgba(10, 10, 10, 0.24); /* the scale and its ticks */
+  --kz-scroll-gauge-glass: rgba(255, 255, 255, 0.78);
+  --kz-scroll-gauge-shadow: 0 1px 2px rgba(10, 10, 10, 0.04), 0 14px 32px -14px rgba(10, 10, 10, 0.22);
+  --kz-scroll-gauge-size: 48px; /* the figure */
+  --kz-scroll-gauge-width: 208px; /* the narrowest the dial gets; a longer figure widens it */
+  --kz-scroll-gauge-inset: 24px; /* from the bottom of the screen */
+  --kz-scroll-gauge-side: 0px; /* from the side of the story (left, or right with data-side="right") */
+  --kz-scroll-gauge-radius: calc(14px * var(--kz-radius-scale, 1));
+  --kz-scroll-gauge-z: 20;
+  --kz-scroll-gauge-section: 560px; /* the least height of a section */
+  --kz-scroll-gauge-in: 0.6s; /* the dial coming in; the figure rolls in the script's time */
+  --kz-scroll-gauge-out: 0.4s; /* and going away */
+  --kz-scroll-gauge-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-scroll-gauge-ease-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  color: var(--kz-scroll-gauge-fg);
+}
+
+/* The story: a rule, the time on the left, the words on the right */
+.kodza-scroll-gauge__section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: 16px 64px;
+  align-content: start;
+  box-sizing: border-box;
+  min-height: var(--kz-scroll-gauge-section);
+  padding: 28px 0 64px;
+  border-top: 1px solid var(--kz-scroll-gauge-line);
+}
+
+.kodza-scroll-gauge__time {
+  margin: 0;
+  padding-top: 0.5em;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  color: var(--kz-scroll-gauge-muted);
+}
+
+.kodza-scroll-gauge__title {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(30px, 4vw, 52px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+}
+
+.kodza-scroll-gauge__text {
+  grid-column: 2;
+  max-width: 30em;
+  margin: 4px 0 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--kz-scroll-gauge-muted);
+  text-wrap: pretty;
+}
+
+/* The dial, on a rail of no height pinned to the bottom of the screen: it rides along while the
+   story scrolls, and goes up with the end of it */
+.kodza-scroll-gauge__rail {
+  position: sticky;
+  bottom: var(--kz-scroll-gauge-inset);
+  z-index: var(--kz-scroll-gauge-z);
+  height: 0;
+  pointer-events: none;
+}
+
+/* A shutter: it opens from its bottom edge up, and closes back down. The clip leaves room for
+   the shadow */
+.kodza-scroll-gauge__dial {
+  position: absolute;
+  bottom: 0;
+  left: var(--kz-scroll-gauge-side);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: var(--kz-scroll-gauge-width);
+  padding: 13px 18px 16px;
+  border: 1px solid var(--kz-scroll-gauge-line);
+  border-radius: var(--kz-scroll-gauge-radius);
+  background: var(--kz-scroll-gauge-glass);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: var(--kz-scroll-gauge-shadow);
+  color: var(--kz-scroll-gauge-fg);
+  clip-path: inset(calc(100% + 48px) -48px -48px -48px);
+  transition: clip-path calc(var(--kz-scroll-gauge-out) * var(--kz-motion-scale, 1)) var(--kz-scroll-gauge-ease-out);
+}
+
+.kodza-scroll-gauge[data-side="right"] .kodza-scroll-gauge__dial {
+  right: var(--kz-scroll-gauge-side);
+  left: auto;
+}
+
+.kodza-scroll-gauge.is-shown .kodza-scroll-gauge__dial {
+  clip-path: inset(-48px);
+  transition: clip-path calc(var(--kz-scroll-gauge-in) * var(--kz-motion-scale, 1)) var(--kz-scroll-gauge-ease);
+}
+
+/* What it measures, in small type, rising from behind its line */
+.kodza-scroll-gauge__label {
+  display: block;
+  overflow: hidden;
+  overflow: clip;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  color: var(--kz-scroll-gauge-muted);
+}
+
+.kodza-scroll-gauge__label .kodza-scroll-gauge__in,
+.kodza-scroll-gauge__unit .kodza-scroll-gauge__in {
+  display: block;
+  transform: translateY(110%);
+  transition: transform calc(var(--kz-scroll-gauge-out) * var(--kz-motion-scale, 1)) var(--kz-scroll-gauge-ease-out);
+}
+
+.kodza-scroll-gauge.is-shown .kodza-scroll-gauge__label .kodza-scroll-gauge__in,
+.kodza-scroll-gauge.is-shown .kodza-scroll-gauge__unit .kodza-scroll-gauge__in {
+  transform: none;
+  transition: transform calc(var(--kz-scroll-gauge-in) * var(--kz-motion-scale, 1)) var(--kz-scroll-gauge-ease) calc(0.08s * var(--kz-motion-scale, 1));
+}
+
+.kodza-scroll-gauge.is-shown .kodza-scroll-gauge__unit .kodza-scroll-gauge__in {
+  transition-delay: calc(0.16s * var(--kz-motion-scale, 1));
+}
+
+/* The figure and its unit */
+.kodza-scroll-gauge__reading {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 4px;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-scroll-gauge-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-scroll-gauge__figure {
+  position: relative;
+  display: flex;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+/* One slot per character: a digit spins in its window, an unused one closes to no width */
+.kodza-scroll-gauge__digit,
+.kodza-scroll-gauge__char {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 0.62em;
+  height: 1.1em;
+  overflow: hidden;
+  overflow: clip;
+  text-align: center;
+  transition:
+    width calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-scroll-gauge-ease),
+    opacity calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-scroll-gauge-ease);
+}
+
+/* A slot closing fades with its width, so no half digit is left at its edge */
+.kodza-scroll-gauge__digit.is-closed,
+.kodza-scroll-gauge__char.is-closed {
+  opacity: 0;
+}
+
+.kodza-scroll-gauge__strip {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+}
+
+.kodza-scroll-gauge__cell {
+  display: block;
+  height: 1.1em;
+}
+
+/* Measures the widest digit in the page's own font, then leaves */
+.kodza-scroll-gauge__probe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  white-space: nowrap;
+}
+
+.kodza-scroll-gauge__unit {
+  display: block;
+  overflow: hidden;
+  overflow: clip;
+  margin: 0.22em 0 0 0.16em;
+  font-size: 0.4em;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  color: var(--kz-scroll-gauge-muted);
+}
+
+/* The note of the section being read: every note in one cell, so the dial keeps its width */
+.kodza-scroll-gauge__note {
+  display: grid;
+  overflow: hidden;
+  overflow: clip;
+  margin-top: 2px;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-scroll-gauge__line {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+  transform: translateY(110%);
+}
+
+.kodza-scroll-gauge__line.is-current {
+  transform: none;
+}
+
+/* The scale of the whole story: a tick for each section, the needle on the one being read. It
+   draws itself from the left as the dial comes in */
+.kodza-scroll-gauge__scale {
+  position: relative;
+  height: 9px;
+  margin-top: 12px;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path calc(var(--kz-scroll-gauge-out) * var(--kz-motion-scale, 1)) var(--kz-scroll-gauge-ease-out);
+}
+
+.kodza-scroll-gauge.is-shown .kodza-scroll-gauge__scale {
+  clip-path: inset(0);
+  transition: clip-path calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-scroll-gauge-ease) calc(0.1s * var(--kz-motion-scale, 1));
+}
+
+.kodza-scroll-gauge__track {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: var(--kz-scroll-gauge-rule);
+}
+
+.kodza-scroll-gauge__stop {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  height: 5px;
+  background: var(--kz-scroll-gauge-rule);
+}
+
+/* The needle moves across its own width (the scale less its 2 px), so 100% is the far end */
+.kodza-scroll-gauge__needle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: calc(100% - 2px);
+  height: 100%;
+}
+
+.kodza-scroll-gauge__tick {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: var(--kz-scroll-gauge-fg);
+}
+
+/* What the dial says, for screen readers */
+.kodza-scroll-gauge__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .kodza-scroll-gauge {
+    --kz-scroll-gauge-size: 36px;
+    --kz-scroll-gauge-width: 172px;
+    --kz-scroll-gauge-inset: 16px;
+    --kz-scroll-gauge-section: 480px;
+  }
+
+  .kodza-scroll-gauge__section {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding-bottom: 48px;
+  }
+
+  .kodza-scroll-gauge__text {
+    grid-column: auto;
+    font-size: 16px;
+  }
+
+  .kodza-scroll-gauge__dial {
+    padding: 11px 14px 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-scroll-gauge *,
+  .kodza-scroll-gauge *::before,
+  .kodza-scroll-gauge *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode: set the colours on the root, for instance
+   .dark .kodza-scroll-gauge {
+     --kz-scroll-gauge-fg: #f2f2f0;
+     --kz-scroll-gauge-muted: rgba(242, 242, 240, 0.62);
+     --kz-scroll-gauge-line: rgba(255, 255, 255, 0.14);
+     --kz-scroll-gauge-rule: rgba(255, 255, 255, 0.3);
+     --kz-scroll-gauge-glass: rgba(22, 22, 22, 0.72);
+     --kz-scroll-gauge-shadow: 0 14px 32px -14px rgba(0, 0, 0, 0.6);
+   } */
+
+/* kodza-guard 7194bfa037ff — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-scroll-gauge__time):not(#_),
+:where(.kodza-scroll-gauge__title):not(#_),
+:where(.kodza-scroll-gauge__text):not(#_) {
+  transition-duration: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-scroll-gauge:not(#_),
+.kodza-scroll-gauge__rail:not(#_),
+.kodza-scroll-gauge__label:not(#_),
+.kodza-scroll-gauge__in:not(#_),
+.kodza-scroll-gauge__reading:not(#_),
+.kodza-scroll-gauge__figure:not(#_),
+.kodza-scroll-gauge__digit:not(#_),
+.kodza-scroll-gauge__strip:not(#_),
+.kodza-scroll-gauge__cell:not(#_),
+.kodza-scroll-gauge__char:not(#_),
+.kodza-scroll-gauge__unit:not(#_),
+.kodza-scroll-gauge__note:not(#_),
+.kodza-scroll-gauge__line:not(#_),
+.kodza-scroll-gauge__scale:not(#_),
+.kodza-scroll-gauge__track:not(#_),
+.kodza-scroll-gauge__stop:not(#_),
+.kodza-scroll-gauge__needle:not(#_),
+.kodza-scroll-gauge__tick:not(#_),
+.kodza-scroll-gauge__sr:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-scroll-gauge__time:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  padding-right: revert;
+  padding-bottom: revert;
+  padding-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-scroll-gauge__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-scroll-gauge__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-scroll-gauge__time:not(#_):where(:not([hidden])),
+.kodza-scroll-gauge__title:not(#_):where(:not([hidden])),
+.kodza-scroll-gauge__text:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-scroll-gauge__time:not(#_):where([hidden]),
+.kodza-scroll-gauge__title:not(#_):where([hidden]),
+.kodza-scroll-gauge__text:not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-scroll-gauge__time:not(#_) {
+  margin: 0;
+  padding-top: 0.5em;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  color: var(--kz-scroll-gauge-muted);
+}
+
+.kodza-scroll-gauge__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(30px, 4vw, 52px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-scroll-gauge__text:not(#_) {
+  max-width: 30em;
+  margin: 4px 0 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--kz-scroll-gauge-muted);
+}
+
+@media (max-width: 720px) {
+  .kodza-scroll-gauge__text:not(#_) {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-scroll-gauge *:where(p, h2):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

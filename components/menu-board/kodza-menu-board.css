@@ -1,0 +1,776 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Menu Board
+   A restaurant menu by service. Each dish has its name (and the one it has at home), a line of
+   description, a price set in tabular figures at the end of a dotted leader, and its marks
+   (vegetarian, spicy, allergens), each an icon and words. The script turns the services into tabs
+   with the ink pill of Tabs, and opens on the one served now at the place; data-layout="stack"
+   keeps them one under the other, each title pinned while you read its dishes.
+   Everything is tuned with the --kz-menu-board-* variables. */
+.kodza-menu-board {
+  --kz-menu-board-fg: #0a0a0a;
+  --kz-menu-board-muted: rgba(10, 10, 10, 0.62);
+  --kz-menu-board-line: rgba(10, 10, 10, 0.1);
+  --kz-menu-board-dots: rgba(10, 10, 10, 0.34); /* the leader between a dish and its price */
+  --kz-menu-board-tabs-bg: #ffffff;
+  --kz-menu-board-ink: #0a0a0a;
+  --kz-menu-board-on-ink: #ffffff;
+  --kz-menu-board-veil: rgba(255, 255, 255, 0.78); /* behind a pinned title (stack layout) */
+  --kz-menu-board-top: 0px; /* height of a fixed header above it (stack layout) */
+  --kz-menu-board-width: 720px;
+  --kz-menu-board-duration: 0.5s;
+  --kz-menu-board-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--kz-menu-board-width);
+  color: var(--kz-menu-board-fg);
+}
+
+/* A service: its title, a note (hours, what the prices include), its dishes */
+.kodza-menu-board__service + .kodza-menu-board__service {
+  margin-top: 48px;
+}
+
+.kodza-menu-board__head {
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.kodza-menu-board__title {
+  margin: 0;
+  color: var(--kz-menu-board-fg);
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(30px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.035em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-menu-board__note {
+  margin: 8px 0 0;
+  text-wrap: balance;
+  color: var(--kz-menu-board-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-menu-board__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-menu-board__dish {
+  display: grid;
+  gap: 6px;
+  padding: 18px 0;
+  border-top: 1px solid var(--kz-menu-board-line);
+}
+
+.kodza-menu-board__dish:last-child {
+  padding-bottom: 0;
+}
+
+/* Name, leader, price: the price keeps to the right on the last line of the name, the leader
+   fills what is left */
+.kodza-menu-board__line {
+  display: flex;
+  align-items: baseline;
+  align-items: last baseline;
+  gap: 10px;
+}
+
+.kodza-menu-board__line::after {
+  content: "";
+  order: 1;
+  flex: 1 1 24px;
+  min-width: 24px;
+  height: 2px;
+  background: radial-gradient(circle, var(--kz-menu-board-dots) 0.9px, transparent 1.3px) 0 50% / 6px 2px repeat-x;
+}
+
+.kodza-menu-board__name {
+  min-width: 0;
+  color: var(--kz-menu-board-fg);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+
+.kodza-menu-board__origin {
+  /* The name it has at home stays whole, on the next line if need be; it breaks only when longer
+     than the line itself */
+  display: inline-block;
+  color: var(--kz-menu-board-muted);
+  font-weight: 400;
+}
+
+.kodza-menu-board__price {
+  flex: none;
+  order: 2;
+  color: var(--kz-menu-board-fg);
+  font-size: 17px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.kodza-menu-board__desc {
+  max-width: 34em;
+  margin: 0;
+  color: var(--kz-menu-board-muted);
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+/* The marks: an icon and words, never the icon alone */
+.kodza-menu-board__marks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  margin-top: 4px;
+}
+
+.kodza-menu-board__marks:empty {
+  display: none;
+}
+
+.kodza-menu-board__mark {
+  --kz-menu-board-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3C/svg%3E");
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--kz-menu-board-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-menu-board__mark::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: var(--kz-menu-board-icon) center / contain no-repeat;
+  mask: var(--kz-menu-board-icon) center / contain no-repeat;
+}
+
+.kodza-menu-board__mark[data-mark="veg"] {
+  --kz-menu-board-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19C5 10 10 5 19 5c0 9-5 14-14 14Z'/%3E%3Cpath d='M5 19l8-8'/%3E%3C/svg%3E");
+}
+
+.kodza-menu-board__mark[data-mark="vegan"] {
+  --kz-menu-board-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21v-8'/%3E%3Cpath d='M12 13C12 8 9 5 4 5c0 5 3 8 8 8Z'/%3E%3Cpath d='M12 11c0-4 2.5-6 7-6 0 4-2.5 6-7 6Z'/%3E%3C/svg%3E");
+}
+
+.kodza-menu-board__mark[data-mark="spicy"] {
+  --kz-menu-board-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21c-3.9 0-7-2.8-7-6.5 0-2.6 1.5-4.6 3-6 .3 1.6 1.2 2.7 2.4 3.2C10 8.2 11.5 5 15 3c-.5 3 .8 5 2.2 6.8 1.1 1.4 1.8 3 1.8 4.7 0 3.7-3.1 6.5-7 6.5Z'/%3E%3C/svg%3E");
+}
+
+.kodza-menu-board__mark[data-mark="allergens"] {
+  --kz-menu-board-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.5v5.5'/%3E%3Cpath d='M12 16.5v.01'/%3E%3C/svg%3E");
+}
+
+.kodza-menu-board__mark[data-mark="out"] {
+  --kz-menu-board-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M6 18 18 6'/%3E%3C/svg%3E");
+
+  height: 22px;
+  padding: 0 9px 0 7px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-menu-board-ink);
+  color: var(--kz-menu-board-on-ink);
+  font-weight: var(--kz-font-label-weight, 500);
+}
+
+.kodza-menu-board__mark[data-mark="out"]::before {
+  width: 12px;
+  height: 12px;
+}
+
+/* Sold out: still on the menu, at a lower voice, its price struck through */
+.kodza-menu-board__dish--out .kodza-menu-board__name {
+  color: var(--kz-menu-board-muted);
+}
+
+.kodza-menu-board__dish--out .kodza-menu-board__price {
+  color: var(--kz-menu-board-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+/* Tabs (built by the script) */
+.kodza-menu-board.is-tabs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.kodza-menu-board__tabs {
+  position: relative;
+  display: inline-flex;
+  justify-self: start;
+  box-sizing: border-box;
+  max-width: 100%;
+  margin-bottom: 28px;
+  padding: 4px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-menu-board-tabs-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-menu-board-line);
+}
+
+/* More services than room (a phone): the row scrolls sideways */
+.kodza-menu-board__tabs.is-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.kodza-menu-board__tabs.is-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.kodza-menu-board__tab,
+.kodza-menu-board__ghost {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  box-sizing: border-box;
+  height: 36px;
+  padding: 0 18px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+}
+
+.kodza-menu-board__tab {
+  position: relative;
+  margin: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-menu-board-muted);
+  cursor: pointer;
+  transition: color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-menu-board__tab:hover,
+.kodza-menu-board__tab[aria-selected="true"] {
+  color: var(--kz-menu-board-fg);
+}
+
+.kodza-menu-board__tab:focus-visible {
+  outline: 2px solid var(--kz-menu-board-fg);
+  outline-offset: 2px;
+}
+
+/* The service served now: a dot before its name */
+.kodza-menu-board__now {
+  display: none;
+  position: relative;
+  width: 6px;
+  height: 6px;
+  order: -1;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.is-now > .kodza-menu-board__now {
+  display: inline-block;
+}
+
+.kodza-menu-board__hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The pill covers the whole row (scrolled part included) and is cut down to the chosen service:
+   only clip-path moves. A white copy of the names, cut the same way, turns them white exactly
+   at its edges */
+.kodza-menu-board__indicator,
+.kodza-menu-board__mirror {
+  position: absolute;
+  inset: 0 auto 0 0;
+  box-sizing: border-box;
+  width: var(--kz-menu-board-track, 100%);
+  clip-path: inset(4px var(--kz-menu-board-r, 100%) 4px var(--kz-menu-board-l, 0) round var(--kz-radius-pill, 999px));
+  pointer-events: none;
+}
+
+.kodza-menu-board__indicator {
+  background: var(--kz-menu-board-ink);
+}
+
+.kodza-menu-board__mirror {
+  display: flex;
+  padding: 4px;
+  color: var(--kz-menu-board-on-ink);
+}
+
+.kodza-menu-board.is-live .kodza-menu-board__indicator,
+.kodza-menu-board.is-live .kodza-menu-board__mirror {
+  transition: clip-path calc(var(--kz-menu-board-duration) * var(--kz-motion-scale, 1)) var(--kz-menu-board-ease);
+}
+
+/* In tabs, the services are stacked in one cell: the board keeps the height of the longest, so
+   nothing under it moves. The old one leaves on one side while the new one comes in from the
+   side of the service you picked */
+.kodza-menu-board.is-tabs .kodza-menu-board__service {
+  grid-area: 2 / 1;
+  margin: 0;
+  visibility: hidden;
+  opacity: 0;
+  /* A waiting service sits a little to the side, never further than the page leaves there (a
+     phone gutter): it never widens the page */
+  transform: translateX(calc(var(--kz-menu-board-leave, -1) * min(14px, (100vw - 100%) / 2)));
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.3s * var(--kz-motion-scale, 1)) ease-in,
+    visibility 0s linear calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-menu-board.is-tabs .kodza-menu-board__service.is-active {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity calc(0.4s * var(--kz-motion-scale, 1)) ease calc(0.06s * var(--kz-motion-scale, 1)),
+    transform calc(var(--kz-menu-board-duration) * var(--kz-motion-scale, 1)) var(--kz-menu-board-ease) calc(0.06s * var(--kz-motion-scale, 1)),
+    visibility 0s;
+}
+
+.kodza-menu-board.is-tabs .kodza-menu-board__service.is-from {
+  transform: translateX(calc(var(--kz-menu-board-leave, -1) * -1 * min(22px, (100vw - 100%) / 2)));
+  transition: none;
+}
+
+.kodza-menu-board.is-tabs .kodza-menu-board__service:focus-visible {
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
+  outline: 2px solid var(--kz-menu-board-fg);
+  outline-offset: 6px;
+}
+
+/* The tab already says the service: its title stays for screen readers only */
+.kodza-menu-board.is-tabs .kodza-menu-board__title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-menu-board.is-tabs .kodza-menu-board__note {
+  margin: 0;
+}
+
+/* Stack: each title stays in view while its dishes scroll by, on a frosted veil once something
+   passes under it */
+.kodza-menu-board.is-stack .kodza-menu-board__head {
+  position: sticky;
+  top: var(--kz-menu-board-top);
+  z-index: 1;
+  padding: 14px 0 12px;
+}
+
+.kodza-menu-board.is-stack .kodza-menu-board__head::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--kz-menu-board-veil);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 1px 0 var(--kz-menu-board-line);
+  opacity: 0;
+  transition: opacity calc(0.25s * var(--kz-motion-scale, 1)) ease;
+  pointer-events: none;
+}
+
+.kodza-menu-board.is-stack .kodza-menu-board__head.is-stuck::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-menu-board.is-live .kodza-menu-board__indicator,
+  .kodza-menu-board.is-live .kodza-menu-board__mirror,
+  .kodza-menu-board__tab,
+  .kodza-menu-board.is-tabs .kodza-menu-board__service,
+  .kodza-menu-board.is-tabs .kodza-menu-board__service.is-active,
+  .kodza-menu-board.is-stack .kodza-menu-board__head::before {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-menu-board {
+  --kz-menu-board-fg: #f2f2f0;
+  --kz-menu-board-muted: rgba(242, 242, 240, 0.62);
+  --kz-menu-board-line: rgba(255, 255, 255, 0.12);
+  --kz-menu-board-dots: rgba(242, 242, 240, 0.36);
+  --kz-menu-board-tabs-bg: #161616;
+  --kz-menu-board-ink: #f2f2f0;
+  --kz-menu-board-on-ink: #0a0a0a;
+  --kz-menu-board-veil: rgba(10, 10, 10, 0.82);
+}
+*/
+
+/* kodza-guard 5612f4d631a9 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-menu-board__tab):not(#_),
+:where(.kodza-menu-board__service):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-menu-board__title):not(#_) {
+  position: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-menu-board__tab:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-menu-board__now:not(#_),
+.kodza-menu-board__hidden:not(#_),
+.kodza-menu-board__head:not(#_),
+.kodza-menu-board__line:not(#_),
+.kodza-menu-board__name:not(#_),
+.kodza-menu-board__origin:not(#_),
+.kodza-menu-board__price:not(#_),
+.kodza-menu-board__marks:not(#_),
+.kodza-menu-board__mark:not(#_),
+.kodza-menu-board__tab span:where(:not([class*="kodza-"])):not(#_),
+.kodza-menu-board__ghost span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-menu-board__service:not(#_) {
+  box-sizing: revert;
+  box-shadow: revert;
+}
+
+.kodza-menu-board__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-menu-board__note:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-menu-board__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-menu-board__dish:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-menu-board__desc:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-menu-board__title:not(#_):where(:not([hidden])),
+.kodza-menu-board__note:not(#_):where(:not([hidden])),
+.kodza-menu-board__list:not(#_):where(:not([hidden])),
+.kodza-menu-board__desc:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-menu-board__title:not(#_):where([hidden]),
+.kodza-menu-board__note:not(#_):where([hidden]),
+.kodza-menu-board__list:not(#_):where([hidden]),
+.kodza-menu-board__desc:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-menu-board__line:not(#_)::after,
+.kodza-menu-board__mark:not(#_)::before,
+.kodza-menu-board__head:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-menu-board:not(#_) {
+  width: min(100%, var(--kz-menu-board-width));
+}
+
+.kodza-menu-board__title:not(#_) {
+  margin: 0;
+  color: var(--kz-menu-board-fg);
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(30px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.035em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-menu-board__note:not(#_) {
+  margin: 8px 0 0;
+  color: var(--kz-menu-board-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-menu-board__list:not(#_) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-menu-board__dish:not(#_) {
+  display: grid;
+  padding: 18px 0;
+  border-top: 1px solid var(--kz-menu-board-line);
+}
+
+.kodza-menu-board__dish:last-child:not(#_) {
+  padding-bottom: 0;
+}
+
+.kodza-menu-board__desc:not(#_) {
+  max-width: 34em;
+  margin: 0;
+  color: var(--kz-menu-board-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.kodza-menu-board__tab:not(#_) {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  box-sizing: border-box;
+  height: 36px;
+  padding: 0 18px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+}
+
+.kodza-menu-board__tab:not(#_) {
+  position: relative;
+  margin: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-menu-board-muted);
+  cursor: pointer;
+  transition: color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-menu-board__tab:hover:not(#_),
+.kodza-menu-board__tab[aria-selected="true"]:not(#_) {
+  color: var(--kz-menu-board-fg);
+}
+
+.kodza-menu-board__tab:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-menu-board-fg);
+  outline-offset: 2px;
+}
+
+.kodza-menu-board.is-tabs .kodza-menu-board__service:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-menu-board-fg);
+  outline-offset: 6px;
+}
+
+.kodza-menu-board.is-tabs .kodza-menu-board__title:not(#_) {
+  position: absolute;
+}
+
+.kodza-menu-board.is-tabs .kodza-menu-board__note:not(#_) {
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-menu-board__tab:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

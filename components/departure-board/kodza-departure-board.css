@@ -1,0 +1,704 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Departure Board
+   The next departures from a place, read without counting. The next trip sits on top, large:
+   its time, where it goes, and a countdown whose digits roll on every minute. Under it, today's
+   timetable: the gone trips fade, a mark slides down to the next one, and a line comes once
+   there is nothing left today. The script works it all out at the place's own time.
+   Everything is tuned with the --kz-departure-board-* variables. */
+.kodza-departure-board {
+  --kz-departure-board-fg: #0a0a0a;
+  --kz-departure-board-muted: rgba(10, 10, 10, 0.62); /* gone trips, via, duration, labels */
+  --kz-departure-board-line: rgba(10, 10, 10, 0.1);
+  --kz-departure-board-bg: #ffffff;
+  --kz-departure-board-ink: #0a0a0a; /* the countdown pill */
+  --kz-departure-board-on-ink: #ffffff;
+  --kz-departure-board-mark: rgba(10, 10, 10, 0.05); /* behind the next trip */
+  --kz-departure-board-width: 520px;
+  --kz-departure-board-duration: 0.5s; /* a gone trip fading */
+  --kz-departure-board-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--kz-departure-board-width);
+  padding: 28px;
+  border: 1px solid var(--kz-departure-board-line);
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-departure-board-bg);
+  color: var(--kz-departure-board-fg);
+}
+
+/* While the height moves from one state to the next */
+.kodza-departure-board.is-sizing {
+  overflow: clip;
+}
+
+/* The line it serves, and the time at the place */
+.kodza-departure-board__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+
+.kodza-departure-board__label,
+.kodza-departure-board__clock,
+.kodza-departure-board__next-label,
+.kodza-departure-board__title {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-departure-board__label {
+  min-width: 0;
+  color: var(--kz-departure-board-fg);
+}
+
+.kodza-departure-board__clock {
+  color: var(--kz-departure-board-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The next trip */
+.kodza-departure-board__next {
+  margin-top: 28px;
+}
+
+.kodza-departure-board__next-label {
+  color: var(--kz-departure-board-muted);
+}
+
+.kodza-departure-board__next-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-top: 6px;
+}
+
+.kodza-departure-board__next-time {
+  color: var(--kz-departure-board-fg);
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(64px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, inherit);
+  white-space: nowrap;
+}
+
+/* The countdown, in an ink pill: its line is as tall as the pill, so it rolls out of it whole */
+.kodza-departure-board__count {
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 13px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-departure-board-ink);
+  color: var(--kz-departure-board-on-ink);
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  font-variant-numeric: tabular-nums;
+  line-height: 32px;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+}
+
+.kodza-departure-board__count[hidden] {
+  display: none;
+}
+
+.kodza-departure-board__next-to {
+  margin: 10px 0 0;
+  color: var(--kz-departure-board-fg);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.kodza-departure-board__next-info::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  margin: 0 8px 0 4px;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: middle;
+}
+
+.kodza-departure-board__next-info,
+.kodza-departure-board__via {
+  color: var(--kz-departure-board-muted);
+  font-weight: 400;
+}
+
+.kodza-departure-board__next.is-none .kodza-departure-board__next-row,
+.kodza-departure-board__next.is-none .kodza-departure-board__next-to {
+  display: none;
+}
+
+/* Today's timetable */
+.kodza-departure-board__day {
+  position: relative;
+  isolation: isolate;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--kz-departure-board-line);
+}
+
+.kodza-departure-board__day[hidden] {
+  display: none;
+}
+
+/* The timetable that leaves when the day changes: a still copy, laid over the new one */
+.kodza-departure-board__day.is-parting {
+  position: absolute;
+  margin: 0;
+  pointer-events: none;
+}
+
+.kodza-departure-board__title {
+  margin-bottom: 6px;
+  color: var(--kz-departure-board-muted);
+}
+
+.kodza-departure-board__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-departure-board__trip {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 16px;
+  padding: 11px 0;
+  color: var(--kz-departure-board-fg);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.kodza-departure-board__time {
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-departure-board__to {
+  min-width: 0;
+}
+
+.kodza-departure-board__via {
+  margin-left: 0.3em;
+}
+
+.kodza-departure-board__info {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* A gone trip fades */
+.kodza-departure-board__trip.is-gone,
+.kodza-departure-board__trip.is-gone .kodza-departure-board__via {
+  color: var(--kz-departure-board-muted);
+}
+
+.kodza-departure-board.is-live .kodza-departure-board__trip {
+  transition: color calc(var(--kz-departure-board-duration) * var(--kz-motion-scale, 1)) var(--kz-departure-board-ease);
+}
+
+/* The mark behind the next trip, a little wider than its row; the script slides it */
+.kodza-departure-board__mark {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  right: -12px;
+  left: -12px;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  background: var(--kz-departure-board-mark);
+  pointer-events: none;
+}
+
+.kodza-departure-board__mark.is-off {
+  display: none;
+}
+
+/* Once the day is over, or on a day with no timetable */
+.kodza-departure-board__end {
+  display: none;
+  margin: 0;
+  padding: 11px 0;
+  color: var(--kz-departure-board-fg);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.kodza-departure-board.is-over .kodza-departure-board__end,
+.kodza-departure-board.is-empty .kodza-departure-board__end {
+  display: block;
+}
+
+.kodza-departure-board.is-empty > .kodza-departure-board__end {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--kz-departure-board-line);
+}
+
+/* What rolls: each window clips its line top and bottom, never its sides */
+.kodza-departure-board__next-label,
+.kodza-departure-board__clock,
+.kodza-departure-board__count,
+.kodza-departure-board__next-to {
+  position: relative;
+  overflow: hidden;
+}
+
+.kodza-departure-board__line {
+  display: block;
+}
+
+.kodza-departure-board__cell {
+  position: relative;
+  display: inline-block;
+  clip-path: inset(0 -0.3em);
+}
+
+.kodza-departure-board__glyph {
+  display: block;
+}
+
+/* What leaves stops sizing its window, so the width only follows the new words */
+.kodza-departure-board .is-leaving {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.kodza-departure-board__count .kodza-departure-board__line.is-leaving {
+  left: 13px;
+}
+
+/* The words for screen readers: the rolling lines are drawn for the eyes only */
+.kodza-departure-board__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 480px) {
+  .kodza-departure-board {
+    padding: 20px;
+  }
+
+  .kodza-departure-board__next-time {
+    font-size: calc(52px * var(--kz-font-display-scale, 1));
+  }
+
+  .kodza-departure-board__trip {
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    gap: 12px;
+    font-size: 16px;
+  }
+
+  .kodza-departure-board__mark {
+    right: -8px;
+    left: -8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-departure-board *,
+  .kodza-departure-board *::before,
+  .kodza-departure-board *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 5c469c27f4da — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-departure-board__label):not(#_),
+:where(.kodza-departure-board__title):not(#_),
+:where(.kodza-departure-board__list):not(#_),
+:where(.kodza-departure-board__time):not(#_),
+:where(.kodza-departure-board__end):not(#_) {
+  position: revert;
+  transition-duration: revert;
+}
+
+:where(.kodza-departure-board__clock):not(#_),
+:where(.kodza-departure-board__next-label):not(#_),
+:where(.kodza-departure-board__next-to):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-departure-board__trip):not(#_) {
+  transition: revert;
+  position: revert;
+}
+
+:where(.kodza-departure-board__next-to):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-departure-board__next-to):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-departure-board__head:not(#_),
+.kodza-departure-board__sr:not(#_),
+.kodza-departure-board__line:not(#_),
+.kodza-departure-board__cell:not(#_),
+.kodza-departure-board__glyph:not(#_),
+.kodza-departure-board__next:not(#_),
+.kodza-departure-board__next-row:not(#_),
+.kodza-departure-board__next-time:not(#_),
+.kodza-departure-board__via:not(#_),
+.kodza-departure-board__next-info:not(#_),
+.kodza-departure-board__day:not(#_),
+.kodza-departure-board__to:not(#_),
+.kodza-departure-board__info:not(#_),
+.kodza-departure-board__mark:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-departure-board__label:not(#_),
+.kodza-departure-board__clock:not(#_),
+.kodza-departure-board__next-label:not(#_),
+.kodza-departure-board__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-departure-board__next-to:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-departure-board__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-departure-board__trip:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-departure-board__time:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-departure-board__end:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-departure-board__label:not(#_):where(:not([hidden])),
+.kodza-departure-board__clock:not(#_):where(:not([hidden])),
+.kodza-departure-board__next-label:not(#_):where(:not([hidden])),
+.kodza-departure-board__title:not(#_):where(:not([hidden])),
+.kodza-departure-board__list:not(#_):where(:not([hidden])),
+.kodza-departure-board__time:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-departure-board__label:not(#_):where([hidden]),
+.kodza-departure-board__clock:not(#_):where([hidden]),
+.kodza-departure-board__next-label:not(#_):where([hidden]),
+.kodza-departure-board__title:not(#_):where([hidden]),
+.kodza-departure-board__list:not(#_):where([hidden]),
+.kodza-departure-board__time:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-departure-board__next-info:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-departure-board:not(#_) {
+  width: min(100%, var(--kz-departure-board-width));
+}
+
+.kodza-departure-board__label:not(#_),
+.kodza-departure-board__clock:not(#_),
+.kodza-departure-board__next-label:not(#_),
+.kodza-departure-board__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-departure-board__label:not(#_) {
+  color: var(--kz-departure-board-fg);
+}
+
+.kodza-departure-board__clock:not(#_) {
+  color: var(--kz-departure-board-muted);
+}
+
+.kodza-departure-board__next-label:not(#_) {
+  color: var(--kz-departure-board-muted);
+}
+
+.kodza-departure-board__next-to:not(#_) {
+  margin: 10px 0 0;
+  color: var(--kz-departure-board-fg);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.kodza-departure-board__next.is-none .kodza-departure-board__next-to:not(#_) {
+  display: none;
+}
+
+.kodza-departure-board__title:not(#_) {
+  margin-bottom: 6px;
+  color: var(--kz-departure-board-muted);
+}
+
+.kodza-departure-board__list:not(#_) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-departure-board__trip:not(#_) {
+  display: grid;
+  padding: 11px 0;
+  color: var(--kz-departure-board-fg);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.kodza-departure-board__trip.is-gone:not(#_) {
+  color: var(--kz-departure-board-muted);
+}
+
+.kodza-departure-board.is-live .kodza-departure-board__trip:not(#_) {
+  transition: color calc(var(--kz-departure-board-duration) * var(--kz-motion-scale, 1)) var(--kz-departure-board-ease);
+}
+
+.kodza-departure-board__end:not(#_) {
+  display: none;
+  margin: 0;
+  padding: 11px 0;
+  color: var(--kz-departure-board-fg);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.kodza-departure-board.is-over .kodza-departure-board__end:not(#_),
+.kodza-departure-board.is-empty .kodza-departure-board__end:not(#_) {
+  display: block;
+}
+
+.kodza-departure-board__next-label:not(#_),
+.kodza-departure-board__clock:not(#_),
+.kodza-departure-board__next-to:not(#_) {
+  position: relative;
+}
+
+.kodza-departure-board .is-leaving:where(p, h3, ol, li, time):not(#_) {
+  position: absolute;
+}
+
+@media (max-width: 480px) {
+  .kodza-departure-board__trip:not(#_) {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-departure-board *:where(p, h3, ol, li, time):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}
