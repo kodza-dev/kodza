@@ -1,0 +1,798 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Subscribe Field
+   An email field and its button in one pill. Sent, the button's word rolls away for a turning
+   ring (the width never moves), then the pill rises out and the thanks comes up in its place,
+   its tick drawing in. A wrong address swaps the hint for the error, like every Kodza field.
+   The form posts to its own action (Mailchimp, Brevo, a WordPress plugin), or your code sends
+   it: see component.js. The --icon variant trades the word for an arrow.
+   Everything is tuned with the --kz-subscribe-* variables. Its width follows --kz-field-width,
+   shared by every Kodza form field. */
+.kodza-subscribe {
+  --kz-subscribe-bg: #ffffff;
+  --kz-subscribe-fg: #0a0a0a;
+  --kz-subscribe-muted: rgba(10, 10, 10, 0.6);
+  --kz-subscribe-line: rgba(10, 10, 10, 0.14);
+  --kz-subscribe-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-subscribe-focus: #0a0a0a;
+  --kz-subscribe-halo: rgba(10, 10, 10, 0.04);
+  --kz-subscribe-error: #0a0a0a; /* monochrome by default: an icon and a message, never colour alone */
+  --kz-subscribe-ink: #0a0a0a; /* the button and the tick */
+  --kz-subscribe-ink-hover: #2a2a2a;
+  --kz-subscribe-on-ink: #ffffff;
+  --kz-subscribe-width: var(--kz-field-width, 440px);
+  --kz-subscribe-height: 56px;
+  --kz-subscribe-button: 44px; /* the button's height, inside the pill */
+  --kz-subscribe-pad: 22px; /* from the pill's edge to the text */
+  --kz-subscribe-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-subscribe-swap: cubic-bezier(0.65, 0, 0.35, 1); /* the pill leaving, the thanks arriving */
+
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  max-width: var(--kz-subscribe-width);
+  margin: 0;
+  color: var(--kz-subscribe-fg);
+}
+
+/* The pill and the thanks share one cell: the height never jumps. The clip lets the focus
+   halo show, and hides what rolls past it: the thanks comes up from behind its bottom edge */
+.kodza-subscribe__stage {
+  display: grid;
+  clip-path: inset(-8px -8px -4px);
+}
+
+.kodza-subscribe__pill,
+.kodza-subscribe__done {
+  grid-area: 1 / 1;
+  transition:
+    transform calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-subscribe-swap),
+    opacity calc(0.45s * var(--kz-motion-scale, 1)) ease,
+    visibility 0s linear 0s;
+}
+
+.kodza-subscribe__pill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--kz-subscribe-height);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-subscribe-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-subscribe-line);
+  transition:
+    transform calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-subscribe-swap),
+    opacity calc(0.4s * var(--kz-motion-scale, 1)) cubic-bezier(0.4, 0, 1, 1),
+    visibility 0s linear 0s,
+    box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-subscribe__pill:hover {
+    box-shadow: inset 0 0 0 1px var(--kz-subscribe-line-hover);
+  }
+}
+
+.kodza-subscribe__pill:has(.kodza-subscribe__input:focus) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-subscribe-focus), 0 0 0 4px var(--kz-subscribe-halo);
+}
+
+/* The box: the whole left part is the label, so a click anywhere focuses the input */
+.kodza-subscribe__box {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 12px 9px var(--kz-subscribe-pad);
+  cursor: text;
+}
+
+.kodza-subscribe__input {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  outline: none;
+}
+
+/* The label: inside the pill at rest, folded up above the text once focused or filled */
+.kodza-subscribe__label {
+  position: absolute;
+  top: 50%;
+  left: var(--kz-subscribe-pad);
+  max-width: calc(100% - var(--kz-subscribe-pad) - 12px);
+  overflow: hidden;
+  color: var(--kz-subscribe-muted);
+  font-size: 15px;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transform-origin: left top;
+  transition: transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-subscribe-ease);
+}
+
+.kodza-subscribe__box:focus-within .kodza-subscribe__label,
+.kodza-subscribe__input:not(:placeholder-shown) ~ .kodza-subscribe__label {
+  transform: translateY(-18px) scale(0.8);
+}
+
+/* The button: its word and its ring share one cell, so its width never moves */
+.kodza-subscribe__button {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  height: var(--kz-subscribe-button);
+  margin: 0 calc((var(--kz-subscribe-height) - var(--kz-subscribe-button)) / 2) 0 0;
+  padding: 0 20px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-subscribe-ink);
+  color: var(--kz-subscribe-on-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-subscribe-ease);
+}
+
+@media (hover: hover) {
+  .kodza-subscribe__button:hover {
+    background: var(--kz-subscribe-ink-hover);
+  }
+}
+
+.kodza-subscribe__button:active {
+  transform: scale(0.97);
+}
+
+.kodza-subscribe__button:focus-visible {
+  outline: 2px solid var(--kz-subscribe-focus);
+  outline-offset: 2px;
+}
+
+.kodza-subscribe__word,
+.kodza-subscribe__spinner {
+  grid-area: 1 / 1;
+  transition: transform calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-subscribe-ease);
+}
+
+.kodza-subscribe__word {
+  display: block;
+}
+
+.kodza-subscribe__spinner {
+  width: 18px;
+  height: 18px;
+  transform: translateY(calc(var(--kz-subscribe-button) * 0.75));
+}
+
+.kodza-subscribe svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-subscribe__spinner svg {
+  stroke-width: 2.2;
+}
+
+.kodza-subscribe__spinner circle:first-child {
+  opacity: 0.25;
+}
+
+.kodza-subscribe__spinner circle:nth-child(2) {
+  stroke-dasharray: 28 100;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+/* Sending: the word leaves through the top, the ring comes up and turns */
+.kodza-subscribe:is([data-state="sending"], [data-state="done"]) .kodza-subscribe__word {
+  transform: translateY(calc(var(--kz-subscribe-button) * -0.75));
+}
+
+.kodza-subscribe:is([data-state="sending"], [data-state="done"]) .kodza-subscribe__spinner {
+  transform: none;
+}
+
+.kodza-subscribe:is([data-state="sending"], [data-state="done"]) .kodza-subscribe__spinner svg {
+  animation: kodza-subscribe-turn calc(0.9s * var(--kz-motion-scale, 1)) linear infinite;
+}
+
+.kodza-subscribe[data-state="sending"] .kodza-subscribe__button {
+  cursor: progress;
+}
+
+@keyframes kodza-subscribe-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The thanks: waits below, comes up as the pill rises out */
+.kodza-subscribe__done {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  min-width: 0;
+  height: var(--kz-subscribe-height);
+  margin: 0;
+  padding: 0 calc((var(--kz-subscribe-height) - 32px) / 2);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+  outline: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(calc(100% + 12px));
+  transition-delay: 0s, 0s, calc(0.6s * var(--kz-motion-scale, 1));
+}
+
+.kodza-subscribe__done:focus-visible {
+  outline: 2px solid var(--kz-subscribe-focus);
+  outline-offset: 2px;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-subscribe__tick {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--kz-subscribe-ink);
+  color: var(--kz-subscribe-on-ink);
+  transform: scale(0.6);
+  transition: transform calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-subscribe-ease);
+}
+
+.kodza-subscribe__tick svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.2;
+}
+
+.kodza-subscribe__tick path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-subscribe[data-state="done"] .kodza-subscribe__pill {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(calc(-100% - 12px));
+  transition-delay: 0s, calc(0.14s * var(--kz-motion-scale, 1)), calc(0.6s * var(--kz-motion-scale, 1)), 0s;
+}
+
+.kodza-subscribe[data-state="done"] .kodza-subscribe__done {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: calc(0.06s * var(--kz-motion-scale, 1)), calc(0.22s * var(--kz-motion-scale, 1)), 0s;
+}
+
+.kodza-subscribe[data-state="done"] .kodza-subscribe__tick {
+  transform: none;
+  transition-delay: calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-subscribe[data-state="done"] .kodza-subscribe__tick path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-subscribe-ease) calc(0.45s * var(--kz-motion-scale, 1));
+}
+
+/* The --icon variant: a round button with an arrow */
+.kodza-subscribe--icon .kodza-subscribe__button {
+  width: var(--kz-subscribe-button);
+  padding: 0;
+}
+
+.kodza-subscribe--icon .kodza-subscribe__word {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+}
+
+.kodza-subscribe--icon .kodza-subscribe__word svg {
+  stroke-width: 2;
+}
+
+@media (hover: hover) {
+  .kodza-subscribe--icon:not([data-state]) .kodza-subscribe__button:hover .kodza-subscribe__word {
+    transform: translateX(2px);
+  }
+}
+
+/* The note: the hint and the error share one line, and swap */
+.kodza-subscribe__note {
+  display: grid;
+  margin: 0;
+  padding: 0 var(--kz-subscribe-pad);
+  overflow: hidden;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-subscribe__hint,
+.kodza-subscribe__error {
+  grid-area: 1 / 1;
+  transition:
+    opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-subscribe-ease);
+}
+
+.kodza-subscribe__hint {
+  color: var(--kz-subscribe-muted);
+}
+
+.kodza-subscribe__error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--kz-subscribe-error);
+  font-weight: var(--kz-font-label-weight, 500);
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.kodza-subscribe__error::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* A wrong address: a firmer outline, and the error replaces the hint. A failed send shows its
+   message the same way, without blaming the address */
+.kodza-subscribe:has(.kodza-subscribe__input[aria-invalid="true"]) .kodza-subscribe__pill {
+  box-shadow: inset 0 0 0 1.5px var(--kz-subscribe-error);
+}
+
+.kodza-subscribe:is(:has(.kodza-subscribe__input[aria-invalid="true"]), [data-failed]) .kodza-subscribe__hint {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.kodza-subscribe:is(:has(.kodza-subscribe__input[aria-invalid="true"]), [data-failed]) .kodza-subscribe__error {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-subscribe:is([data-state="sending"], [data-state="done"]) .kodza-subscribe__spinner svg {
+    animation: none;
+  }
+
+  .kodza-subscribe__pill,
+  .kodza-subscribe__done,
+  .kodza-subscribe__label,
+  .kodza-subscribe__word,
+  .kodza-subscribe__spinner,
+  .kodza-subscribe__tick,
+  .kodza-subscribe__tick path,
+  .kodza-subscribe__hint,
+  .kodza-subscribe__error {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-subscribe {
+  --kz-subscribe-bg: #161616;
+  --kz-subscribe-fg: #f2f2f0;
+  --kz-subscribe-muted: rgba(242, 242, 240, 0.62);
+  --kz-subscribe-line: rgba(255, 255, 255, 0.14);
+  --kz-subscribe-line-hover: rgba(255, 255, 255, 0.3);
+  --kz-subscribe-focus: #f2f2f0;
+  --kz-subscribe-halo: rgba(255, 255, 255, 0.06);
+  --kz-subscribe-error: #f2f2f0;
+  --kz-subscribe-ink: #f2f2f0;
+  --kz-subscribe-ink-hover: #d6d6d4;
+  --kz-subscribe-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard e3a699ad4b23 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-subscribe__button):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-subscribe__done):not(#_) {
+  border-radius: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-subscribe:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-subscribe__stage:not(#_),
+.kodza-subscribe__pill:not(#_),
+.kodza-subscribe__label:not(#_),
+.kodza-subscribe__word:not(#_),
+.kodza-subscribe__spinner:not(#_),
+.kodza-subscribe__tick:not(#_),
+.kodza-subscribe__thanks:not(#_),
+.kodza-subscribe__hint:not(#_),
+.kodza-subscribe__error:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-subscribe__box:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-subscribe__input:not(#_) {
+  border-radius: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-subscribe__button:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-subscribe__done:not(#_) {
+  border: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-subscribe__note:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-subscribe__spinner svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-subscribe__tick svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-subscribe__word svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-subscribe__input:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-subscribe__input:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-subscribe__error:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-subscribe:not(#_) {
+  display: grid;
+  color: var(--kz-subscribe-fg);
+}
+
+.kodza-subscribe:not(#_) {
+  width: min(100%, var(--kz-subscribe-width));
+}
+
+.kodza-subscribe__done:not(#_) {
+  transition: transform calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-subscribe-swap),
+    opacity calc(0.45s * var(--kz-motion-scale, 1)) ease,
+    visibility 0s linear 0s;
+}
+
+.kodza-subscribe__box:not(#_) {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 12px 9px var(--kz-subscribe-pad);
+}
+
+.kodza-subscribe__input:not(#_) {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  outline: none;
+}
+
+.kodza-subscribe__button:not(#_) {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  height: var(--kz-subscribe-button);
+  margin: 0 calc((var(--kz-subscribe-height) - var(--kz-subscribe-button)) / 2) 0 0;
+  padding: 0 20px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-subscribe-ink);
+  color: var(--kz-subscribe-on-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-subscribe-ease);
+}
+
+@media (hover: hover) {
+  .kodza-subscribe__button:hover:not(#_) {
+    background: var(--kz-subscribe-ink-hover);
+  }
+}
+
+.kodza-subscribe__button:active:not(#_) {
+  transform: scale(0.97);
+}
+
+.kodza-subscribe__button:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-subscribe-focus);
+  outline-offset: 2px;
+}
+
+.kodza-subscribe svg:not(#_) {
+  display: block;
+}
+
+.kodza-subscribe[data-state="sending"] .kodza-subscribe__button:not(#_) {
+  cursor: progress;
+}
+
+.kodza-subscribe__done:not(#_) {
+  display: flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 calc((var(--kz-subscribe-height) - 32px) / 2);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  outline: none;
+  transition-delay: 0s, 0s, calc(0.6s * var(--kz-motion-scale, 1));
+}
+
+.kodza-subscribe__done:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-subscribe-focus);
+  outline-offset: 2px;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-subscribe[data-state="done"] .kodza-subscribe__done:not(#_) {
+  transition-delay: calc(0.06s * var(--kz-motion-scale, 1)), calc(0.22s * var(--kz-motion-scale, 1)), 0s;
+}
+
+.kodza-subscribe--icon .kodza-subscribe__button:not(#_) {
+  width: var(--kz-subscribe-button);
+  padding: 0;
+}
+
+.kodza-subscribe__note:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0 var(--kz-subscribe-pad);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-subscribe__done:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

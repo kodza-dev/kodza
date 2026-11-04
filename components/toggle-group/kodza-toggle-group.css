@@ -1,0 +1,548 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Toggle Group
+   Several on/off choices on real checkboxes: days, filters, notification settings. A picked
+   option fills with ink from its centre, and its plus spins away while a check draws itself in.
+   --joined lays out round options (the days of a week): picked neighbours join into one band of
+   ink, so Monday to Thursday reads as one stretch, and the band splits where you drop a day.
+   Pure CSS: the form gets the values as usual, and the keyboard is the checkbox's own.
+   Everything is tuned with the --kz-toggle-group-* variables. */
+.kodza-toggle-group {
+  --kz-toggle-group-bg: #ffffff;
+  --kz-toggle-group-fg: #0a0a0a;
+  --kz-toggle-group-muted: rgba(10, 10, 10, 0.58);
+  --kz-toggle-group-border: rgba(10, 10, 10, 0.1);
+  --kz-toggle-group-border-hover: rgba(10, 10, 10, 0.28);
+  --kz-toggle-group-ink: #0a0a0a;
+  --kz-toggle-group-on-ink: #ffffff;
+  --kz-toggle-group-height: 40px; /* one option; --joined: its diameter */
+  --kz-toggle-group-gap: 6px; /* the room between options */
+
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--kz-toggle-group-fg);
+}
+
+.kodza-toggle-group__legend {
+  margin-bottom: 10px;
+  padding: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-toggle-group-muted);
+}
+
+/* The full name for screen readers (--joined shows one letter) */
+.kodza-toggle-group__name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Its own stacking context: the ink and the bands sit above every option's surface */
+.kodza-toggle-group__list {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kz-toggle-group-gap);
+  isolation: isolate;
+}
+
+.kodza-toggle-group__option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 0;
+  height: var(--kz-toggle-group-height);
+  margin: 0;
+  padding: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-toggle-group-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-toggle-group-border);
+  color: var(--kz-toggle-group-fg);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.15s * var(--kz-motion-scale, 1)) ease;
+}
+
+/* The real checkbox covers its option: a click anywhere toggles it */
+.kodza-toggle-group__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+/* The ink grows from the centre and keeps the round ends all the way */
+.kodza-toggle-group__option::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: var(--kz-toggle-group-ink);
+  clip-path: inset(50% 50% round var(--kz-radius-pill, 999px));
+  pointer-events: none;
+  transition: clip-path calc(0.4s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-toggle-group__option:has(.kodza-toggle-group__input:checked)::before {
+  clip-path: inset(0 round var(--kz-radius-pill, 999px));
+}
+
+/* The label fills its option, so its background lines up with the ink. The text is painted
+   twice, cut at the ink's edge: on-ink inside a box that grows from the centre exactly like the
+   ink, the page colour around it. It never turns grey halfway, and never sits white on white */
+.kodza-toggle-group__label {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex: 1 1 auto;
+  align-self: stretch;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px 0 13px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  color: transparent;
+  background:
+    linear-gradient(var(--kz-toggle-group-on-ink), var(--kz-toggle-group-on-ink)) center / 0% 0% no-repeat,
+    linear-gradient(var(--kz-toggle-group-fg), var(--kz-toggle-group-fg)) 0 0 / 100% 100% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  transition: background-size calc(0.4s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-toggle-group__option:has(.kodza-toggle-group__input:checked) .kodza-toggle-group__label {
+  background-size: 100% 100%, 100% 100%;
+}
+
+/* The plus spins away while the check draws itself in. Each keeps its own colour: the plus
+   leaves before the ink reaches it, the check only shows where the ink already is */
+.kodza-toggle-group__mark {
+  display: block;
+  flex: none;
+  overflow: visible;
+}
+
+.kodza-toggle-group__plus,
+.kodza-toggle-group__check {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.kodza-toggle-group__plus {
+  stroke: var(--kz-toggle-group-fg);
+  transition:
+    transform calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-toggle-group__check {
+  stroke: var(--kz-toggle-group-on-ink);
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  transition:
+    stroke-dashoffset calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    opacity calc(0.1s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-toggle-group__option:has(.kodza-toggle-group__input:checked) .kodza-toggle-group__plus {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.3);
+}
+
+.kodza-toggle-group__option:has(.kodza-toggle-group__input:checked) .kodza-toggle-group__check {
+  stroke-dashoffset: 0;
+  opacity: 1;
+  transition-delay: calc(0.12s * var(--kz-motion-scale, 1)), 0s;
+}
+
+@media (hover: hover) {
+  .kodza-toggle-group__option:hover {
+    box-shadow: inset 0 0 0 1px var(--kz-toggle-group-border-hover);
+  }
+}
+
+.kodza-toggle-group:not(.kodza-toggle-group--joined) .kodza-toggle-group__option:active {
+  transform: scale(0.97);
+}
+
+.kodza-toggle-group__option:has(.kodza-toggle-group__input:focus-visible) {
+  outline: 2px solid var(--kz-toggle-group-fg);
+  outline-offset: 2px;
+}
+
+.kodza-toggle-group__option:has(.kodza-toggle-group__input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+/* --joined: round options in one row. Each picked day draws its own circle, and a band of ink
+   runs from it over the next day when that one is picked too, so neighbours read as one stretch */
+.kodza-toggle-group--joined .kodza-toggle-group__list {
+  flex-wrap: nowrap;
+}
+
+.kodza-toggle-group--joined .kodza-toggle-group__option {
+  flex: none;
+  width: var(--kz-toggle-group-height);
+  padding: 0;
+}
+
+/* The letter's on-ink copy: a disc that grows like the ink, and the part of this day's band
+   right of its centre (the band's left end is round and sits on that centre all the way). The
+   band coming from the previous day never needs a copy: this day's disc covers the letter first */
+.kodza-toggle-group--joined .kodza-toggle-group__label {
+  padding: 0;
+  background:
+    radial-gradient(closest-side, var(--kz-toggle-group-on-ink) 100%, transparent 0) center / 0% 0% no-repeat,
+    linear-gradient(var(--kz-toggle-group-on-ink), var(--kz-toggle-group-on-ink)) calc(var(--kz-toggle-group-height) / 2) 50% / 0% 0% no-repeat,
+    linear-gradient(var(--kz-toggle-group-fg), var(--kz-toggle-group-fg)) 0 0 / 100% 100% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.kodza-toggle-group--joined .kodza-toggle-group__option:has(.kodza-toggle-group__input:checked) .kodza-toggle-group__label {
+  background-size: 100% 100%, 0% 0%, 100% 100%;
+}
+
+.kodza-toggle-group--joined .kodza-toggle-group__option:has(.kodza-toggle-group__input:checked):has(+ .kodza-toggle-group__option .kodza-toggle-group__input:checked) .kodza-toggle-group__label {
+  background-size: 100% 100%, calc(150% + var(--kz-toggle-group-gap)) 100%, 100% 100%;
+}
+
+/* The band spans this day and the next. At rest it is a point at this day's centre; picked, this
+   day's circle; picked with the next day, the whole stadium over both. Its moving end stays round,
+   and dropping a day pulls it back into the circle that stays */
+.kodza-toggle-group--joined .kodza-toggle-group__option::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  width: calc(200% + var(--kz-toggle-group-gap));
+  background: var(--kz-toggle-group-ink);
+  clip-path: inset(50% calc(100% - var(--kz-toggle-group-height) / 2) 50% calc(var(--kz-toggle-group-height) / 2) round var(--kz-radius-pill, 999px));
+  pointer-events: none;
+  transition: clip-path calc(0.4s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-toggle-group--joined .kodza-toggle-group__option:has(.kodza-toggle-group__input:checked)::after {
+  clip-path: inset(0 calc(100% - var(--kz-toggle-group-height)) 0 0 round var(--kz-radius-pill, 999px));
+}
+
+.kodza-toggle-group--joined .kodza-toggle-group__option:has(.kodza-toggle-group__input:checked):has(+ .kodza-toggle-group__option .kodza-toggle-group__input:checked)::after {
+  clip-path: inset(0 round var(--kz-radius-pill, 999px));
+}
+
+/* The last day has no next one, and its band would only widen the page */
+.kodza-toggle-group--joined .kodza-toggle-group__option:last-child::after {
+  content: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-toggle-group__option,
+  .kodza-toggle-group__option::before,
+  .kodza-toggle-group__option::after,
+  .kodza-toggle-group__label,
+  .kodza-toggle-group__plus,
+  .kodza-toggle-group__check {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-toggle-group {
+  --kz-toggle-group-bg: #161616;
+  --kz-toggle-group-fg: #f2f2f0;
+  --kz-toggle-group-muted: rgba(242, 242, 240, 0.62);
+  --kz-toggle-group-border: rgba(255, 255, 255, 0.12);
+  --kz-toggle-group-border-hover: rgba(255, 255, 255, 0.3);
+  --kz-toggle-group-ink: #f2f2f0;
+  --kz-toggle-group-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard 94692547434d — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-toggle-group__option):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-toggle-group:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-toggle-group__legend:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+}
+
+.kodza-toggle-group__list:not(#_),
+.kodza-toggle-group__label:not(#_),
+.kodza-toggle-group__name:not(#_),
+.kodza-toggle-group__plus:not(#_),
+.kodza-toggle-group__check:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-toggle-group__option:not(#_) {
+  border: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-toggle-group__input:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-toggle-group__mark:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-toggle-group__legend:not(#_):where(:not([hidden])),
+.kodza-toggle-group__input:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-toggle-group__legend:not(#_):where([hidden]),
+.kodza-toggle-group__input:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-toggle-group__option:not(#_)::before,
+.kodza-toggle-group__input:not(#_)::before,
+.kodza-toggle-group__option:not(#_)::after,
+.kodza-toggle-group__input:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-toggle-group:not(#_) {
+  display: block;
+  padding: 0;
+  border: 0;
+  color: var(--kz-toggle-group-fg);
+}
+
+.kodza-toggle-group__legend:not(#_) {
+  margin-bottom: 10px;
+  padding: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-toggle-group-muted);
+}
+
+.kodza-toggle-group__option:not(#_) {
+  position: relative;
+  display: inline-flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-toggle-group-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-toggle-group-border);
+  color: var(--kz-toggle-group-fg);
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.15s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-toggle-group__input:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.kodza-toggle-group__mark:not(#_) {
+  display: block;
+}
+
+@media (hover: hover) {
+  .kodza-toggle-group__option:hover:not(#_) {
+    box-shadow: inset 0 0 0 1px var(--kz-toggle-group-border-hover);
+  }
+}
+
+.kodza-toggle-group__option:has(.kodza-toggle-group__input:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-toggle-group-fg);
+  outline-offset: 2px;
+}
+
+.kodza-toggle-group--joined .kodza-toggle-group__option:not(#_) {
+  padding: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-toggle-group__option:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

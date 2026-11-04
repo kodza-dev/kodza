@@ -1,0 +1,745 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Tags Input
+   Free values as tags, over a real text input (the form gets them joined by commas). Enter or
+   a comma turns the typed word into a tag: the ink sweeps over it, left to right, as it settles
+   into its pill, and the field makes room. A pasted list gives one tag per item; a value
+   already there shakes its tag instead of coming twice. Backspace on the empty field selects
+   the last tag, a second one removes it. data-max caps the count, shown top right; on an email
+   input each address is checked first. Without JS, the native input stays, styled. Same box
+   and same tags as Multi Select.
+   Everything is tuned with the --kz-tags-* variables; the words and timings, at the top of the
+   script. */
+.kodza-tags {
+  --kz-tags-bg: #ffffff;
+  --kz-tags-fg: #0a0a0a;
+  --kz-tags-muted: rgba(10, 10, 10, 0.6);
+  --kz-tags-line: rgba(10, 10, 10, 0.14);
+  --kz-tags-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-tags-soft: rgba(10, 10, 10, 0.06);
+  --kz-tags-ink: #0a0a0a; /* the tags */
+  --kz-tags-on-ink: #ffffff;
+  --kz-tags-cross-hover: rgba(255, 255, 255, 0.18);
+  --kz-tags-error: #0a0a0a; /* a message, never colour alone: set a red here if you want one */
+  --kz-tags-height: 64px; /* one row of tags */
+  --kz-tags-radius: calc(12px * var(--kz-radius-scale, 1));
+  --kz-tags-pad: 16px;
+  --kz-tags-width: var(--kz-field-width, 420px);
+  --kz-tags-duration: 0.35s;
+  --kz-tags-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  max-width: var(--kz-tags-width);
+  color: var(--kz-tags-fg);
+}
+
+/* The box: label on top, tags below (or the native input, without the script) */
+.kodza-tags__box {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  min-height: var(--kz-tags-height);
+  margin: 0;
+  padding: 0;
+  border-radius: var(--kz-tags-radius);
+  background: var(--kz-tags-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-tags-line);
+  cursor: text;
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-tags__box:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-tags-line-hover);
+}
+
+.kodza-tags__box:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-tags-fg), 0 0 0 4px var(--kz-tags-soft);
+}
+
+.kodza-tags.is-invalid .kodza-tags__box {
+  box-shadow: inset 0 0 0 1.5px var(--kz-tags-error);
+}
+
+.kodza-tags.is-invalid .kodza-tags__box:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-tags-error), 0 0 0 4px var(--kz-tags-soft);
+}
+
+.kodza-tags.is-disabled .kodza-tags__box {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kodza-tags__label {
+  position: absolute;
+  top: 10px;
+  left: var(--kz-tags-pad);
+  z-index: 1;
+  color: var(--kz-tags-muted);
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform calc(var(--kz-tags-duration) * var(--kz-motion-scale, 1)) var(--kz-tags-ease);
+}
+
+/* No tag and nothing typed: the label sits in the field at the size of a value, as in Text
+   Field, and rises when the field takes the focus */
+.kodza-tags.is-empty .kodza-tags__box:not(:focus-within) .kodza-tags__label {
+  transform: translateY(calc(var(--kz-tags-height) / 2 - 17.5px)) scale(1.25);
+}
+
+/* The count, when there is a cap (data-max): it turns to ink once full */
+.kodza-tags__count {
+  position: absolute;
+  top: 10px;
+  right: var(--kz-tags-pad);
+  z-index: 1;
+  display: flex;
+  color: var(--kz-tags-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: 12px;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-tags__count.is-full {
+  color: var(--kz-tags-fg);
+}
+
+/* The number rolls: the old one leaves as the new one comes in, in the same cell */
+.kodza-tags__now {
+  display: inline-grid;
+  overflow: hidden;
+}
+
+.kodza-tags__now > span {
+  grid-area: 1 / 1;
+  text-align: right;
+}
+
+/* Without the script: the native input, styled like the field */
+.kodza-tags__native {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--kz-tags-height);
+  margin: 0;
+  padding: calc(var(--kz-tags-height) - 31px) var(--kz-tags-pad) 9px;
+  border: 0;
+  border-radius: inherit;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  appearance: none;
+}
+
+/* Enhanced: the native input steps back (still in the form), the tags take its place */
+.kodza-tags.is-ready .kodza-tags__native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+/* The field: the tags, then the text input where the next one is typed, wrapping */
+.kodza-tags__field {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  min-height: var(--kz-tags-height);
+  padding: 28px 12px 8px;
+  isolation: isolate;
+}
+
+.kodza-tags__tag {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  max-width: 100%;
+  height: 28px;
+  padding: 0 4px 0 10px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-tags-ink);
+  color: var(--kz-tags-on-ink);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: 28px;
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  cursor: default;
+  transform-origin: left center;
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+/* An address keeps its case, whatever the labels of the site do */
+.kodza-tags.is-email .kodza-tags__tag,
+.kodza-tags.is-email .kodza-tags__ghost {
+  text-transform: none;
+}
+
+/* Selected (Backspace or the arrows, or a click): the next Backspace removes it */
+.kodza-tags__tag.is-armed {
+  box-shadow: 0 0 0 2px var(--kz-tags-bg), 0 0 0 3.5px var(--kz-tags-ink);
+}
+
+.kodza-tags__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kodza-tags__remove {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-tags__remove:hover {
+  background: var(--kz-tags-cross-hover);
+  opacity: 1;
+}
+
+.kodza-tags__remove:disabled {
+  cursor: not-allowed;
+}
+
+.kodza-tags__remove svg {
+  display: block;
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* The typed word, as it was, just ahead of the ink while a new tag sweeps in */
+.kodza-tags__ghost {
+  position: absolute;
+  z-index: 0;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 0 28px 0 10px;
+  overflow: hidden;
+  color: var(--kz-tags-fg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: 28px;
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+/* Narrow at least: the caret stays on the tags' row as long as a few letters fit */
+.kodza-tags__input {
+  flex: 1 0 44px;
+  box-sizing: border-box;
+  min-width: 44px;
+  height: 28px;
+  margin: 0;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 28px;
+  letter-spacing: inherit;
+  caret-color: var(--kz-tags-fg);
+  appearance: none;
+}
+
+.kodza-tags__input::placeholder {
+  color: transparent;
+  opacity: 1;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-tags__input:focus::placeholder {
+  color: var(--kz-tags-muted);
+}
+
+.kodza-tags__input:disabled {
+  cursor: not-allowed;
+}
+
+/* Hint and error share one line: the hint steps out upward as the error rises in */
+.kodza-tags__note {
+  display: grid;
+  margin: 0;
+  padding: 0 2px;
+  overflow: hidden;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-tags__hint,
+.kodza-tags__error {
+  grid-area: 1 / 1;
+  transition:
+    opacity calc(var(--kz-tags-duration) * 0.625 * var(--kz-motion-scale, 1)) ease,
+    transform calc(var(--kz-tags-duration) * var(--kz-motion-scale, 1)) var(--kz-tags-ease);
+}
+
+.kodza-tags__hint {
+  color: var(--kz-tags-muted);
+}
+
+.kodza-tags__error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--kz-tags-error);
+  font-weight: var(--kz-font-label-weight, 500);
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.kodza-tags__error::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-tags.is-invalid .kodza-tags__hint {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.kodza-tags.is-invalid .kodza-tags__error {
+  opacity: 1;
+  transform: none;
+}
+
+/* What screen readers hear: a tag added, removed, already there */
+.kodza-tags__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-tags__box,
+  .kodza-tags__label,
+  .kodza-tags__count,
+  .kodza-tags__tag,
+  .kodza-tags__remove,
+  .kodza-tags__input::placeholder,
+  .kodza-tags__hint,
+  .kodza-tags__error {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-tags {
+  --kz-tags-bg: #161616;
+  --kz-tags-fg: #f2f2f0;
+  --kz-tags-muted: rgba(242, 242, 240, 0.62);
+  --kz-tags-line: rgba(255, 255, 255, 0.14);
+  --kz-tags-line-hover: rgba(255, 255, 255, 0.3);
+  --kz-tags-soft: rgba(255, 255, 255, 0.08);
+  --kz-tags-ink: #f2f2f0;
+  --kz-tags-on-ink: #0a0a0a;
+  --kz-tags-cross-hover: rgba(10, 10, 10, 0.12);
+  --kz-tags-error: #f2f2f0;
+}
+*/
+
+/* kodza-guard 62c8eab045d9 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-tags__native):not(#_) {
+  position: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-tags:not(#_),
+.kodza-tags__label:not(#_),
+.kodza-tags__text:not(#_),
+.kodza-tags__count:not(#_),
+.kodza-tags__now:not(#_),
+.kodza-tags__hint:not(#_),
+.kodza-tags__error:not(#_),
+.kodza-tags__live:not(#_),
+.kodza-tags__now span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-tags__box:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-tags__native:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-tags__remove:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-tags__input:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-tags__note:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-tags__remove svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-tags__input:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-tags__input:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-tags__error:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-tags:not(#_) {
+  width: min(100%, var(--kz-tags-width));
+}
+
+.kodza-tags__box:not(#_) {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--kz-tags-radius);
+  background: var(--kz-tags-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-tags-line);
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-tags__box:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-tags-line-hover);
+}
+
+.kodza-tags__box:focus-within:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-tags-fg), 0 0 0 4px var(--kz-tags-soft);
+}
+
+.kodza-tags.is-invalid .kodza-tags__box:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-tags-error);
+}
+
+.kodza-tags.is-invalid .kodza-tags__box:focus-within:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-tags-error), 0 0 0 4px var(--kz-tags-soft);
+}
+
+.kodza-tags__native:not(#_) {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--kz-tags-height);
+  margin: 0;
+  padding: calc(var(--kz-tags-height) - 31px) var(--kz-tags-pad) 9px;
+  border: 0;
+  border-radius: inherit;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  appearance: none;
+}
+
+.kodza-tags.is-ready .kodza-tags__native:not(#_) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+.kodza-tags__remove:not(#_) {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-tags__remove:hover:not(#_) {
+  background: var(--kz-tags-cross-hover);
+  opacity: 1;
+}
+
+.kodza-tags__remove:disabled:not(#_) {
+  cursor: not-allowed;
+}
+
+.kodza-tags__remove svg:not(#_) {
+  display: block;
+}
+
+.kodza-tags__input:not(#_) {
+  flex: 1 0 44px;
+  box-sizing: border-box;
+  min-width: 44px;
+  height: 28px;
+  margin: 0;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 28px;
+  letter-spacing: inherit;
+  caret-color: var(--kz-tags-fg);
+  appearance: none;
+}
+
+.kodza-tags__input:not(#_)::placeholder {
+  color: transparent;
+  opacity: 1;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-tags__input:focus:not(#_)::placeholder {
+  color: var(--kz-tags-muted);
+}
+
+.kodza-tags__input:disabled:not(#_) {
+  cursor: not-allowed;
+}
+
+.kodza-tags__note:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0 2px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-tags__box:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-tags__remove:not(#_),
+  .kodza-tags__input:not(#_)::placeholder {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

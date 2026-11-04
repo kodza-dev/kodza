@@ -1,0 +1,634 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Signature Pad
+   A box to sign in, over a line with its little cross. The ink thins as the pen speeds up, like
+   a real nib, with finger, mouse or stylus. Undo makes the last stroke back out along its own
+   path; Clear wipes the box from left to right. With a keyboard, the name typed on the line is
+   the signature, in the display font. The form gets a trimmed PNG (data URL) under the hidden
+   input's name, printed in black whatever the theme. Without JS, the name field stays.
+   Same box as Text Field. Everything is tuned with the --kz-signature-* variables; the words
+   and timings, at the top of the script. */
+.kodza-signature {
+  --kz-signature-bg: #ffffff;
+  --kz-signature-fg: #0a0a0a;
+  --kz-signature-muted: rgba(10, 10, 10, 0.6);
+  --kz-signature-line: rgba(10, 10, 10, 0.14);
+  --kz-signature-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-signature-soft: rgba(10, 10, 10, 0.06);
+  --kz-signature-error: #0a0a0a; /* a message, never colour alone: set a red here if you want one */
+  --kz-signature-ink: #0a0a0a; /* the ink on screen */
+  --kz-signature-print: #0a0a0a; /* the ink in the image the form gets, for a white page */
+  --kz-signature-pen-min: 0.8px; /* the thinnest line, at full speed (read by the script) */
+  --kz-signature-pen-max: 3.2px; /* the thickest, when the pen slows down */
+  --kz-signature-name-size: 34px; /* the name typed on the line */
+  --kz-signature-height: 200px;
+  --kz-signature-width: var(--kz-field-width, 480px);
+  --kz-signature-radius: calc(12px * var(--kz-radius-scale, 1));
+  --kz-signature-duration: 0.35s;
+  --kz-signature-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  max-width: var(--kz-signature-width);
+  color: var(--kz-signature-fg);
+}
+
+/* The box: the label on top, the tools on the right, the line near the bottom */
+.kodza-signature__pad {
+  position: relative;
+  display: block;
+  height: var(--kz-signature-height);
+  margin: 0;
+  padding: 0;
+  border-radius: var(--kz-signature-radius);
+  background: var(--kz-signature-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-signature-line);
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-signature__pad:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-signature-line-hover);
+}
+
+.kodza-signature.is-invalid .kodza-signature__pad {
+  box-shadow: inset 0 0 0 1.5px var(--kz-signature-error);
+}
+
+/* The line to sign on, and its cross */
+.kodza-signature__pad::before {
+  content: "";
+  position: absolute;
+  right: 24px;
+  bottom: 52px;
+  left: 40px;
+  height: 1px;
+  background: var(--kz-signature-line-hover);
+}
+
+.kodza-signature__pad::after {
+  content: "";
+  position: absolute;
+  bottom: 58px;
+  left: 20px;
+  width: 9px;
+  height: 9px;
+  background: var(--kz-signature-muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1 1l8 8M9 1L1 9' stroke='black' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1 1l8 8M9 1L1 9' stroke='black' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* The ink, drawn by the script over the line */
+.kodza-signature__ink {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  color: var(--kz-signature-ink); /* read by the script */
+  cursor: crosshair;
+  touch-action: none;
+}
+
+/* The name field, over the whole box. Once the script runs the pointer goes through it to the
+   ink; the keyboard still reaches the field, and a name already typed takes the pointer back */
+.kodza-signature__write {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border-radius: inherit;
+  cursor: text;
+}
+
+.kodza-signature.is-ready .kodza-signature__write {
+  pointer-events: none;
+}
+
+.kodza-signature.is-ready.is-typed .kodza-signature__type {
+  pointer-events: auto;
+}
+
+/* Typing: the box is the one in use */
+.kodza-signature__write::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1.5px transparent, 0 0 0 4px transparent;
+  pointer-events: none;
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-signature__write:focus-within::after {
+  box-shadow: inset 0 0 0 1.5px var(--kz-signature-fg), 0 0 0 4px var(--kz-signature-soft);
+}
+
+.kodza-signature.is-invalid .kodza-signature__write:focus-within::after {
+  box-shadow: inset 0 0 0 1.5px var(--kz-signature-error), 0 0 0 4px var(--kz-signature-soft);
+}
+
+.kodza-signature__label {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  color: var(--kz-signature-muted);
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* The name typed on the line, in the display font */
+.kodza-signature__type {
+  position: absolute;
+  right: 24px;
+  bottom: 42px;
+  left: 40px;
+  box-sizing: border-box;
+  width: auto;
+  height: 50px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: var(--kz-signature-ink);
+  caret-color: var(--kz-signature-fg);
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-signature-name-size) * var(--kz-font-display-scale, 1));
+  font-style: italic;
+  font-weight: var(--kz-font-display-weight, 400);
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  line-height: 50px;
+  text-transform: var(--kz-font-display-case, none);
+  appearance: none;
+}
+
+/* Under the line: what to do now, then when it was signed */
+.kodza-signature__prompt {
+  position: absolute;
+  bottom: 24px;
+  left: 40px;
+  display: grid;
+  overflow: hidden;
+  color: var(--kz-signature-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.kodza-signature__say {
+  grid-area: 1 / 1;
+}
+
+/* Undo once there is ink, Clear once there is a signature, drawn or typed */
+.kodza-signature__tools {
+  position: absolute;
+  z-index: 3;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 2px;
+}
+
+.kodza-signature__undo,
+.kodza-signature__clear {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 28px;
+  margin: 0;
+  padding: 0 11px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  outline: none;
+  background: transparent;
+  color: var(--kz-signature-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  line-height: 1;
+  text-transform: var(--kz-font-label-case, revert);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-6px);
+  visibility: hidden;
+  transition:
+    opacity calc(var(--kz-signature-duration) * 0.625 * var(--kz-motion-scale, 1)) ease,
+    transform calc(var(--kz-signature-duration) * var(--kz-motion-scale, 1)) var(--kz-signature-ease),
+    visibility 0s linear calc(var(--kz-signature-duration) * var(--kz-motion-scale, 1)),
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-signature.is-inked .kodza-signature__undo,
+.kodza-signature.is-filled .kodza-signature__clear {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.kodza-signature__undo:hover,
+.kodza-signature__clear:hover {
+  background: var(--kz-signature-soft);
+  color: var(--kz-signature-fg);
+}
+
+.kodza-signature__undo:focus-visible,
+.kodza-signature__clear:focus-visible {
+  background: var(--kz-signature-soft);
+  box-shadow: inset 0 0 0 1.5px var(--kz-signature-fg);
+  color: var(--kz-signature-fg);
+}
+
+/* Hint and error share one line: the hint steps out upward as the error rises in */
+.kodza-signature__note {
+  display: grid;
+  margin: 0;
+  padding: 0 2px;
+  overflow: hidden;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-signature__hint,
+.kodza-signature__error {
+  grid-area: 1 / 1;
+  transition:
+    opacity calc(var(--kz-signature-duration) * 0.625 * var(--kz-motion-scale, 1)) ease,
+    transform calc(var(--kz-signature-duration) * var(--kz-motion-scale, 1)) var(--kz-signature-ease);
+}
+
+.kodza-signature__hint {
+  color: var(--kz-signature-muted);
+}
+
+.kodza-signature__error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--kz-signature-error);
+  font-weight: var(--kz-font-label-weight, 500);
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.kodza-signature__error::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-signature.is-invalid .kodza-signature__hint {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.kodza-signature.is-invalid .kodza-signature__error {
+  opacity: 1;
+  transform: none;
+}
+
+/* What screen readers hear: a stroke undone, the box cleared */
+.kodza-signature__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-signature__pad,
+  .kodza-signature__write::after,
+  .kodza-signature__undo,
+  .kodza-signature__clear,
+  .kodza-signature__hint,
+  .kodza-signature__error {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-signature {
+  --kz-signature-bg: #161616;
+  --kz-signature-fg: #f2f2f0;
+  --kz-signature-muted: rgba(242, 242, 240, 0.62);
+  --kz-signature-line: rgba(255, 255, 255, 0.14);
+  --kz-signature-line-hover: rgba(255, 255, 255, 0.3);
+  --kz-signature-soft: rgba(255, 255, 255, 0.08);
+  --kz-signature-error: #f2f2f0;
+  --kz-signature-ink: #f2f2f0;
+}
+*/
+
+/* kodza-guard 8694a0e5a488 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-signature__undo):not(#_),
+:where(.kodza-signature__clear):not(#_) {
+  box-shadow: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-signature:not(#_),
+.kodza-signature__pad:not(#_),
+.kodza-signature__ink:not(#_),
+.kodza-signature__label:not(#_),
+.kodza-signature__prompt:not(#_),
+.kodza-signature__say:not(#_),
+.kodza-signature__tools:not(#_),
+.kodza-signature__hint:not(#_),
+.kodza-signature__error:not(#_),
+.kodza-signature__live:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-signature__write:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-signature__type:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-signature__undo:not(#_),
+.kodza-signature__clear:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-signature__value:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-signature__note:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-signature__type:not(#_):where(:not([hidden])),
+.kodza-signature__value:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-signature__type:not(#_):where([hidden]),
+.kodza-signature__value:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-signature__pad:not(#_)::before,
+.kodza-signature__pad:not(#_)::after,
+.kodza-signature__write:not(#_)::after,
+.kodza-signature__error:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-signature:not(#_) {
+  width: min(100%, var(--kz-signature-width));
+}
+
+.kodza-signature__write:not(#_) {
+  position: absolute;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border-radius: inherit;
+}
+
+.kodza-signature.is-ready.is-typed .kodza-signature__type:not(#_) {
+  pointer-events: auto;
+}
+
+.kodza-signature__type:not(#_) {
+  position: absolute;
+  right: 24px;
+  bottom: 42px;
+  left: 40px;
+  box-sizing: border-box;
+  width: auto;
+  height: 50px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: var(--kz-signature-ink);
+  caret-color: var(--kz-signature-fg);
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-signature-name-size) * var(--kz-font-display-scale, 1));
+  font-style: italic;
+  font-weight: var(--kz-font-display-weight, 400);
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  line-height: 50px;
+  text-transform: var(--kz-font-display-case, none);
+  appearance: none;
+}
+
+.kodza-signature__undo:not(#_),
+.kodza-signature__clear:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 28px;
+  margin: 0;
+  padding: 0 11px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  outline: none;
+  background: transparent;
+  color: var(--kz-signature-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  line-height: 1;
+  text-transform: var(--kz-font-label-case, revert);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-6px);
+  visibility: hidden;
+  transition: opacity calc(var(--kz-signature-duration) * 0.625 * var(--kz-motion-scale, 1)) ease,
+    transform calc(var(--kz-signature-duration) * var(--kz-motion-scale, 1)) var(--kz-signature-ease),
+    visibility 0s linear calc(var(--kz-signature-duration) * var(--kz-motion-scale, 1)),
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-signature.is-inked .kodza-signature__undo:not(#_),
+.kodza-signature.is-filled .kodza-signature__clear:not(#_) {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.kodza-signature__undo:hover:not(#_),
+.kodza-signature__clear:hover:not(#_) {
+  background: var(--kz-signature-soft);
+  color: var(--kz-signature-fg);
+}
+
+.kodza-signature__undo:focus-visible:not(#_),
+.kodza-signature__clear:focus-visible:not(#_) {
+  background: var(--kz-signature-soft);
+  box-shadow: inset 0 0 0 1.5px var(--kz-signature-fg);
+  color: var(--kz-signature-fg);
+}
+
+.kodza-signature__note:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0 2px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-signature__undo:not(#_),
+  .kodza-signature__clear:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

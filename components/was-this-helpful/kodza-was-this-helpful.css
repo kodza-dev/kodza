@@ -1,0 +1,1152 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Was This Helpful
+   The question and two thumbs. The chosen thumb fills with ink (Yes from the bottom, No from
+   the top) and nods. Yes is sent at once; No unfolds a small "Tell us more", sent by its own
+   button, so the note stays optional. Then the question rises out and the thanks comes up in
+   its place, its tick drawing in. A failed send swaps its line for the error.
+   The form posts to its own action, or your code sends it: see component.js.
+   Everything is tuned with the --kz-helpful-* variables. Its width follows --kz-field-width,
+   shared by every Kodza form field. */
+.kodza-helpful {
+  --kz-helpful-bg: #ffffff;
+  --kz-helpful-fg: #0a0a0a;
+  --kz-helpful-muted: rgba(10, 10, 10, 0.6);
+  --kz-helpful-line: rgba(10, 10, 10, 0.14);
+  --kz-helpful-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-helpful-focus: #0a0a0a;
+  --kz-helpful-halo: rgba(10, 10, 10, 0.04);
+  --kz-helpful-error: #0a0a0a; /* monochrome by default: an icon and a message, never colour alone */
+  --kz-helpful-ink: #0a0a0a; /* the chosen thumb, the tick and the Send button */
+  --kz-helpful-ink-hover: #2a2a2a;
+  --kz-helpful-on-ink: #ffffff;
+  --kz-helpful-width: var(--kz-field-width, 380px);
+  --kz-helpful-thumb: 40px; /* the size of a thumb's round button */
+  --kz-helpful-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-helpful-swap: cubic-bezier(0.65, 0, 0.35, 1); /* the question leaving, the thanks arriving */
+
+  display: grid;
+  width: 100%;
+  max-width: var(--kz-helpful-width);
+  margin: 0;
+  color: var(--kz-helpful-fg);
+}
+
+/* The question and the thanks share one cell: the height never jumps. The clip lets the focus
+   rings show, and hides what rolls past it: the thanks comes up from behind its bottom edge */
+.kodza-helpful__stage {
+  display: grid;
+  clip-path: inset(-8px -8px -6px);
+}
+
+.kodza-helpful__ask,
+.kodza-helpful__done {
+  grid-area: 1 / 1;
+  transition:
+    transform calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-helpful-swap),
+    opacity calc(0.45s * var(--kz-motion-scale, 1)) ease,
+    visibility 0s linear 0s;
+}
+
+.kodza-helpful__ask {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+  transition:
+    transform calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-helpful-swap),
+    opacity calc(0.4s * var(--kz-motion-scale, 1)) cubic-bezier(0.4, 0, 1, 1),
+    visibility 0s linear 0s;
+}
+
+/* The question, and the error that takes its line when a Yes could not be sent */
+.kodza-helpful__label {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.kodza-helpful__question,
+.kodza-helpful__hint,
+.kodza-helpful__error {
+  grid-area: 1 / 1;
+  min-width: 0;
+  transition:
+    opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease);
+}
+
+.kodza-helpful__error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--kz-helpful-error);
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.kodza-helpful__error::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* The thumbs: a face for the rest, and an ink copy cut by clip-path that fills over it */
+.kodza-helpful__choices {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
+.kodza-helpful__choice {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--kz-helpful-thumb);
+  height: var(--kz-helpful-thumb);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-helpful-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-helpful-line);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease);
+}
+
+.kodza-helpful__face,
+.kodza-helpful__ink {
+  display: grid;
+  place-items: center;
+}
+
+.kodza-helpful__face {
+  grid-area: 1 / 1;
+}
+
+.kodza-helpful__ink {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--kz-helpful-ink);
+  color: var(--kz-helpful-on-ink);
+  clip-path: inset(100% 0 0 0);
+  pointer-events: none;
+  transition: clip-path calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease);
+}
+
+/* No is the same thumb upside down: its ink pours from the top */
+.kodza-helpful__choice--no .kodza-helpful__ink {
+  clip-path: inset(0 0 100% 0);
+}
+
+.kodza-helpful__choice[aria-pressed="true"] .kodza-helpful__ink {
+  clip-path: inset(0 0 0 0);
+}
+
+.kodza-helpful svg {
+  display: block;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-helpful__choice svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.6;
+  transition: transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease);
+}
+
+.kodza-helpful__choice--no svg {
+  rotate: 180deg;
+}
+
+@media (hover: hover) {
+  .kodza-helpful__choice:hover {
+    box-shadow: inset 0 0 0 1px var(--kz-helpful-line-hover);
+  }
+
+  .kodza-helpful:not([data-state]) .kodza-helpful__choice:not([aria-pressed="true"]):hover svg {
+    transform: rotate(-12deg);
+  }
+}
+
+.kodza-helpful__choice:active {
+  transform: scale(0.94);
+}
+
+.kodza-helpful__choice:focus-visible {
+  outline: 2px solid var(--kz-helpful-focus);
+  outline-offset: 2px;
+}
+
+/* Chosen, the thumb nods once */
+.kodza-helpful__choice[aria-pressed="true"] svg {
+  animation: kodza-helpful-nod calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease);
+}
+
+@keyframes kodza-helpful-nod {
+  0% {
+    transform: rotate(-12deg);
+  }
+
+  45% {
+    transform: rotate(6deg) scale(1.1);
+  }
+
+  100% {
+    transform: none;
+  }
+}
+
+/* A Yes on its way: a ring turns around the thumb, once its ink is in */
+.kodza-helpful__choice::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  box-sizing: border-box;
+  border: 1.5px solid transparent;
+  border-top-color: var(--kz-helpful-ink);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-helpful[data-state="sending"]:not([data-more]) .kodza-helpful__choice[aria-pressed="true"]::after {
+  opacity: 1;
+  transition-delay: calc(0.4s * var(--kz-motion-scale, 1));
+  animation: kodza-helpful-turn calc(0.9s * var(--kz-motion-scale, 1)) linear infinite;
+}
+
+.kodza-helpful[data-state="sending"] .kodza-helpful__choice,
+.kodza-helpful[data-state="sending"] .kodza-helpful__send {
+  cursor: progress;
+}
+
+@keyframes kodza-helpful-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The thanks: waits below, comes up as the question rises out */
+.kodza-helpful__done {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+  outline: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(calc(100% + 12px));
+  transition-delay: 0s, 0s, calc(0.6s * var(--kz-motion-scale, 1));
+}
+
+.kodza-helpful__done:focus-visible {
+  outline: 2px solid var(--kz-helpful-focus);
+  outline-offset: 4px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+}
+
+.kodza-helpful__tick {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--kz-helpful-ink);
+  color: var(--kz-helpful-on-ink);
+  transform: scale(0.6);
+  transition: transform calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease);
+}
+
+.kodza-helpful__tick svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.2;
+}
+
+.kodza-helpful__tick path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-helpful__thanks:empty {
+  display: none;
+}
+
+.kodza-helpful[data-state="done"] .kodza-helpful__ask {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(calc(-100% - 12px));
+  transition-delay: 0s, calc(0.14s * var(--kz-motion-scale, 1)), calc(0.6s * var(--kz-motion-scale, 1));
+}
+
+.kodza-helpful[data-state="done"] .kodza-helpful__done {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: calc(0.06s * var(--kz-motion-scale, 1)), calc(0.22s * var(--kz-motion-scale, 1)), 0s;
+}
+
+.kodza-helpful[data-state="done"] .kodza-helpful__tick {
+  transform: none;
+  transition-delay: calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-helpful[data-state="done"] .kodza-helpful__tick path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease) calc(0.45s * var(--kz-motion-scale, 1));
+}
+
+/* Tell us more: folded away until No is chosen, then its height eases open. It folds back as
+   the thanks arrives, and keeps room for the box's focus halo */
+.kodza-helpful__more {
+  display: grid;
+  grid-template-rows: 0fr;
+  contain: inline-size;
+  visibility: hidden;
+  transition:
+    grid-template-rows calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease),
+    visibility 0s linear calc(0.5s * var(--kz-motion-scale, 1));
+}
+
+.kodza-helpful[data-more]:not([data-state="done"]) .kodza-helpful__more {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.kodza-helpful__more-inner {
+  min-height: 0;
+  margin: 0 -4px;
+  padding: 0 4px;
+  overflow: hidden;
+}
+
+/* The box of the family's Text Field, its label folded up for good */
+.kodza-helpful__box {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  margin: 16px 0 0;
+  padding: 30px 16px 12px;
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+  background: var(--kz-helpful-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-helpful-line);
+  cursor: text;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    opacity calc(0.3s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease);
+}
+
+.kodza-helpful[data-more]:not([data-state="done"]) .kodza-helpful__box {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0s, calc(0.08s * var(--kz-motion-scale, 1)), calc(0.08s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-helpful__box:hover {
+    box-shadow: inset 0 0 0 1px var(--kz-helpful-line-hover);
+  }
+}
+
+.kodza-helpful__box:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-helpful-focus), 0 0 0 4px var(--kz-helpful-halo);
+}
+
+.kodza-helpful__small {
+  position: absolute;
+  top: 11px;
+  right: 16px;
+  left: 16px;
+  overflow: hidden;
+  color: var(--kz-helpful-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-overflow: ellipsis;
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.kodza-helpful__text {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  max-height: 132px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  outline: none;
+  resize: none;
+  field-sizing: content;
+}
+
+.kodza-helpful__text::placeholder {
+  color: var(--kz-helpful-muted);
+  opacity: 1;
+}
+
+/* Under the box: the hint (or the error) and the Send button */
+.kodza-helpful__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 10px;
+  padding-bottom: 4px;
+}
+
+.kodza-helpful__note {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 0 16px;
+  overflow: hidden;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-helpful__hint {
+  color: var(--kz-helpful-muted);
+}
+
+.kodza-helpful__note .kodza-helpful__error {
+  font-weight: var(--kz-font-label-weight, 500);
+}
+
+/* Send: its word and its ring share one cell, so its width never moves */
+.kodza-helpful__send {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 16px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-helpful-ink);
+  color: var(--kz-helpful-on-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease);
+}
+
+@media (hover: hover) {
+  .kodza-helpful__send:hover {
+    background: var(--kz-helpful-ink-hover);
+  }
+}
+
+.kodza-helpful__send:active {
+  transform: scale(0.97);
+}
+
+.kodza-helpful__send:focus-visible {
+  outline: 2px solid var(--kz-helpful-focus);
+  outline-offset: 2px;
+}
+
+.kodza-helpful__word,
+.kodza-helpful__spinner {
+  grid-area: 1 / 1;
+  transition: transform calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease);
+}
+
+.kodza-helpful__word {
+  display: block;
+}
+
+.kodza-helpful__spinner {
+  width: 16px;
+  height: 16px;
+  transform: translateY(27px);
+}
+
+.kodza-helpful__spinner svg {
+  width: 100%;
+  height: 100%;
+  stroke-width: 2.2;
+}
+
+.kodza-helpful__spinner circle:first-child {
+  opacity: 0.25;
+}
+
+.kodza-helpful__spinner circle:nth-child(2) {
+  stroke-dasharray: 28 100;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.kodza-helpful[data-more]:is([data-state="sending"], [data-state="done"]) .kodza-helpful__word {
+  transform: translateY(-27px);
+}
+
+.kodza-helpful[data-more]:is([data-state="sending"], [data-state="done"]) .kodza-helpful__spinner {
+  transform: none;
+}
+
+.kodza-helpful[data-more]:is([data-state="sending"], [data-state="done"]) .kodza-helpful__spinner svg {
+  animation: kodza-helpful-turn calc(0.9s * var(--kz-motion-scale, 1)) linear infinite;
+}
+
+/* A failed send: the error takes the line of what was sent, the question or the hint */
+.kodza-helpful[data-failed]:not([data-more]) .kodza-helpful__question,
+.kodza-helpful[data-failed][data-more] .kodza-helpful__hint {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.kodza-helpful[data-failed]:not([data-more]) .kodza-helpful__label .kodza-helpful__error,
+.kodza-helpful[data-failed][data-more] .kodza-helpful__note .kodza-helpful__error {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-helpful__choice[aria-pressed="true"] svg,
+  .kodza-helpful[data-state="sending"]:not([data-more]) .kodza-helpful__choice[aria-pressed="true"]::after,
+  .kodza-helpful[data-more]:is([data-state="sending"], [data-state="done"]) .kodza-helpful__spinner svg {
+    animation: none;
+  }
+
+  .kodza-helpful__ask,
+  .kodza-helpful__done,
+  .kodza-helpful__question,
+  .kodza-helpful__hint,
+  .kodza-helpful__error,
+  .kodza-helpful__choice,
+  .kodza-helpful__choice svg,
+  .kodza-helpful__choice::after,
+  .kodza-helpful__ink,
+  .kodza-helpful__tick,
+  .kodza-helpful__tick path,
+  .kodza-helpful__more,
+  .kodza-helpful__box,
+  .kodza-helpful__word,
+  .kodza-helpful__spinner {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-helpful {
+  --kz-helpful-bg: #161616;
+  --kz-helpful-fg: #f2f2f0;
+  --kz-helpful-muted: rgba(242, 242, 240, 0.62);
+  --kz-helpful-line: rgba(255, 255, 255, 0.14);
+  --kz-helpful-line-hover: rgba(255, 255, 255, 0.3);
+  --kz-helpful-focus: #f2f2f0;
+  --kz-helpful-halo: rgba(255, 255, 255, 0.06);
+  --kz-helpful-error: #f2f2f0;
+  --kz-helpful-ink: #f2f2f0;
+  --kz-helpful-ink-hover: #d6d6d4;
+  --kz-helpful-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard 481a37d962b6 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-helpful__choice):not(#_),
+:where(.kodza-helpful__send):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-helpful__done):not(#_) {
+  border-radius: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-helpful:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-helpful__stage:not(#_),
+.kodza-helpful__ask:not(#_),
+.kodza-helpful__question:not(#_),
+.kodza-helpful__error:not(#_),
+.kodza-helpful__choices:not(#_),
+.kodza-helpful__face:not(#_),
+.kodza-helpful__ink:not(#_),
+.kodza-helpful__tick:not(#_),
+.kodza-helpful__thanks:not(#_),
+.kodza-helpful__more:not(#_),
+.kodza-helpful__more-inner:not(#_),
+.kodza-helpful__small:not(#_),
+.kodza-helpful__row:not(#_),
+.kodza-helpful__hint:not(#_),
+.kodza-helpful__word:not(#_),
+.kodza-helpful__spinner:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-helpful__label:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-helpful__choice:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-helpful__done:not(#_) {
+  border: revert;
+  padding: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-helpful__box:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-helpful__text:not(#_) {
+  border-radius: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+}
+
+.kodza-helpful__note:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-helpful__send:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-helpful__face svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-helpful__ink svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-helpful__tick svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-helpful__spinner svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-helpful__error:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-helpful:not(#_) {
+  display: grid;
+  color: var(--kz-helpful-fg);
+}
+
+.kodza-helpful:not(#_) {
+  width: min(100%, var(--kz-helpful-width));
+}
+
+.kodza-helpful__done:not(#_) {
+  transition: transform calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-helpful-swap),
+    opacity calc(0.45s * var(--kz-motion-scale, 1)) ease,
+    visibility 0s linear 0s;
+}
+
+.kodza-helpful__label:not(#_) {
+  display: grid;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.kodza-helpful__choice:not(#_) {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--kz-helpful-thumb);
+  height: var(--kz-helpful-thumb);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-helpful-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-helpful-line);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease);
+}
+
+.kodza-helpful svg:not(#_) {
+  display: block;
+}
+
+.kodza-helpful__choice svg:not(#_) {
+  transition: transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease);
+}
+
+@media (hover: hover) {
+  .kodza-helpful__choice:hover:not(#_) {
+    box-shadow: inset 0 0 0 1px var(--kz-helpful-line-hover);
+  }
+}
+
+.kodza-helpful__choice:active:not(#_) {
+  transform: scale(0.94);
+}
+
+.kodza-helpful__choice:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-helpful-focus);
+  outline-offset: 2px;
+}
+
+.kodza-helpful__choice:not(#_)::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  box-sizing: border-box;
+  border: 1.5px solid transparent;
+  border-top-color: var(--kz-helpful-ink);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-helpful[data-state="sending"]:not([data-more]) .kodza-helpful__choice[aria-pressed="true"]:not(#_)::after {
+  opacity: 1;
+  transition-delay: calc(0.4s * var(--kz-motion-scale, 1));
+  animation: kodza-helpful-turn calc(0.9s * var(--kz-motion-scale, 1)) linear infinite;
+}
+
+.kodza-helpful[data-state="sending"] .kodza-helpful__choice:not(#_),
+.kodza-helpful[data-state="sending"] .kodza-helpful__send:not(#_) {
+  cursor: progress;
+}
+
+.kodza-helpful__done:not(#_) {
+  display: flex;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  outline: none;
+  transition-delay: 0s, 0s, calc(0.6s * var(--kz-motion-scale, 1));
+}
+
+.kodza-helpful__done:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-helpful-focus);
+  outline-offset: 4px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+}
+
+.kodza-helpful[data-state="done"] .kodza-helpful__done:not(#_) {
+  transition-delay: calc(0.06s * var(--kz-motion-scale, 1)), calc(0.22s * var(--kz-motion-scale, 1)), 0s;
+}
+
+.kodza-helpful__box:not(#_) {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  margin: 16px 0 0;
+  padding: 30px 16px 12px;
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+  background: var(--kz-helpful-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-helpful-line);
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    opacity calc(0.3s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease);
+}
+
+.kodza-helpful[data-more]:not([data-state="done"]) .kodza-helpful__box:not(#_) {
+  transition-delay: 0s, calc(0.08s * var(--kz-motion-scale, 1)), calc(0.08s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-helpful__box:hover:not(#_) {
+    box-shadow: inset 0 0 0 1px var(--kz-helpful-line-hover);
+  }
+}
+
+.kodza-helpful__box:focus-within:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-helpful-focus), 0 0 0 4px var(--kz-helpful-halo);
+}
+
+.kodza-helpful__text:not(#_) {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  max-height: 132px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  outline: none;
+  resize: none;
+  field-sizing: content;
+}
+
+.kodza-helpful__text:not(#_)::placeholder {
+  color: var(--kz-helpful-muted);
+  opacity: 1;
+}
+
+.kodza-helpful__note:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0 0 0 16px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-helpful__send:not(#_) {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 16px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-helpful-ink);
+  color: var(--kz-helpful-on-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-helpful-ease);
+}
+
+@media (hover: hover) {
+  .kodza-helpful__send:hover:not(#_) {
+    background: var(--kz-helpful-ink-hover);
+  }
+}
+
+.kodza-helpful__send:active:not(#_) {
+  transform: scale(0.97);
+}
+
+.kodza-helpful__send:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-helpful-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-helpful[data-state="sending"]:not([data-more]) .kodza-helpful__choice[aria-pressed="true"]:not(#_)::after {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-helpful__done:not(#_),
+  .kodza-helpful__choice svg:not(#_),
+  .kodza-helpful__box:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-helpful__choice:not(#_),
+  .kodza-helpful__choice:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

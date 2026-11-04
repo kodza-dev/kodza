@@ -1,0 +1,862 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Time Picker
+   A real time input, dressed up: the field shows the time the way the locale says it (12 or
+   24 hours), and a wheel unrolls under it. Hour and minute columns (and AM / PM) scroll and
+   snap on the value, read through an ink band where the digits turn white exactly at its
+   edges, and the time rolls into the field part by part. With .kodza-time--slots, the panel
+   shows the free slots of a day instead, taken ones struck out, and the ink mark travels to
+   the one you pick. Same box as Select and Date Picker. Everything is tuned with the
+   --kz-time-* variables. */
+.kodza-time {
+  --kz-time-bg: #ffffff;
+  --kz-time-fg: #0a0a0a;
+  --kz-time-muted: rgba(10, 10, 10, 0.6);
+  --kz-time-line: rgba(10, 10, 10, 0.14);
+  --kz-time-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-time-soft: rgba(10, 10, 10, 0.06);
+  --kz-time-ink: #0a0a0a;
+  --kz-time-on-ink: #ffffff;
+  --kz-time-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  --kz-time-height: 56px;
+  --kz-time-radius: calc(12px * var(--kz-radius-scale, 1));
+  --kz-time-pad: 16px;
+  /* One line of the wheel, and the width of one of its columns */
+  --kz-time-row: 36px;
+  --kz-time-col: 64px;
+  --kz-time-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-time-width: var(--kz-field-width, 320px);
+
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: var(--kz-time-width);
+  /* The closed panel keeps its size, ready to unroll, but never lengthens the page */
+  contain: layout;
+  /* A number, not auto, so it can wait for the panel to roll up before dropping back */
+  z-index: 0;
+  transition: z-index 0s linear calc(0.4s * var(--kz-motion-scale, 1));
+  color: var(--kz-time-fg);
+}
+
+/* Open, the field rises above what follows it (its panel included) */
+.kodza-time.is-open {
+  z-index: 20;
+  transition-delay: 0s;
+}
+
+.kodza-time__label {
+  position: absolute;
+  top: 10px;
+  left: var(--kz-time-pad);
+  z-index: 1;
+  color: var(--kz-time-muted);
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.kodza-time__native,
+.kodza-time__trigger {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: var(--kz-time-height);
+  margin: 0;
+  padding: 0 44px 9px var(--kz-time-pad);
+  border: 0;
+  border-radius: var(--kz-time-radius);
+  background: var(--kz-time-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-time-line);
+  box-sizing: border-box;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-time__native:hover,
+.kodza-time__trigger:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-time-line-hover);
+}
+
+.kodza-time__native:focus-visible,
+.kodza-time__trigger:focus-visible,
+.kodza-time.is-open .kodza-time__trigger {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--kz-time-fg), 0 0 0 4px var(--kz-time-soft);
+}
+
+.kodza-time.is-ready .kodza-time__native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+/* The time in the field: each part (hours, minutes, AM / PM) rolls on its own, and its width
+   follows when the new face is wider or narrower */
+.kodza-time__value,
+.kodza-time__part {
+  display: inline-grid;
+  overflow: hidden;
+}
+
+.kodza-time__value > span,
+.kodza-time__part > span {
+  grid-area: 1 / 1;
+  justify-self: start;
+  white-space: pre;
+}
+
+.kodza-time__value .is-empty {
+  color: var(--kz-time-muted);
+}
+
+.kodza-time__line {
+  display: inline-flex;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-time__icon {
+  position: absolute;
+  top: calc(var(--kz-time-height) / 2 - 9px);
+  right: 16px;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--kz-time-muted);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* The panel unrolls under the field */
+.kodza-time__pop {
+  position: absolute;
+  top: calc(var(--kz-time-height) + 8px);
+  left: 0;
+  z-index: 20;
+  width: 100%;
+  padding: 12px;
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-time-bg);
+  box-shadow: 0 0 0 1px var(--kz-time-line), var(--kz-time-shadow);
+  box-sizing: border-box;
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(0 0 100% 0 round calc(16px * var(--kz-radius-scale, 1)));
+  transform: translateY(-4px);
+  transition:
+    clip-path calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-time-ease),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-time-ease),
+    visibility 0s linear calc(0.4s * var(--kz-motion-scale, 1));
+}
+
+.kodza-time.is-open .kodza-time__pop {
+  visibility: visible;
+  opacity: 1;
+  clip-path: inset(-40px -40px -60px -40px round calc(16px * var(--kz-radius-scale, 1)));
+  transform: none;
+  transition-delay: 0s;
+}
+
+.kodza-time.is-above .kodza-time__pop {
+  top: auto;
+  bottom: calc(var(--kz-time-height) + 8px);
+  clip-path: inset(100% 0 0 0 round calc(16px * var(--kz-radius-scale, 1)));
+  transform: translateY(4px);
+}
+
+.kodza-time.is-above.is-open .kodza-time__pop {
+  clip-path: inset(-60px -40px -40px -40px round calc(16px * var(--kz-radius-scale, 1)));
+  transform: none;
+}
+
+/* The wheel: five lines a column, the value on the middle one, under the ink band */
+.kodza-time__wheel {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  width: max-content;
+  margin: 0 auto;
+  padding: 0 6px;
+}
+
+.kodza-time__band {
+  position: absolute;
+  top: calc(var(--kz-time-row) * 2);
+  right: 0;
+  left: 0;
+  height: var(--kz-time-row);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-time-ink);
+  pointer-events: none;
+}
+
+.kodza-time__col {
+  position: relative;
+  border-radius: var(--kz-time-radius);
+}
+
+
+.kodza-time__list {
+  position: relative;
+  width: var(--kz-time-col);
+  height: calc(var(--kz-time-row) * 5);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  touch-action: pan-y;
+  outline: none;
+  color: var(--kz-time-fg);
+  /* The far lines fade out, like the edge of a drum */
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.12), #000 calc(var(--kz-time-row) * 1.75), #000 calc(var(--kz-time-row) * 3.25), rgba(0, 0, 0, 0.12));
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.12), #000 calc(var(--kz-time-row) * 1.75), #000 calc(var(--kz-time-row) * 3.25), rgba(0, 0, 0, 0.12));
+}
+
+.kodza-time__list::-webkit-scrollbar {
+  display: none;
+}
+
+/* Room for the first and the last value to reach the band */
+.kodza-time__list::before,
+.kodza-time__list::after {
+  content: "";
+  display: block;
+  height: calc(var(--kz-time-row) * 2);
+}
+
+/* Sent to a value (click, keys), a column glides there by script, snapping off on the way */
+.kodza-time__list.is-gliding {
+  scroll-snap-type: none;
+}
+
+.kodza-time__item,
+.kodza-time__ghost {
+  display: grid;
+  place-items: center;
+  height: var(--kz-time-row);
+  font-size: 16px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.kodza-time__item {
+  scroll-snap-align: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* The lens: a white copy of the column, cut to the band, so the digits turn white exactly at
+   its edges whatever the scroll */
+.kodza-time__lens {
+  position: absolute;
+  top: calc(var(--kz-time-row) * 2);
+  right: 0;
+  left: 0;
+  height: var(--kz-time-row);
+  overflow: hidden;
+  border-radius: var(--kz-radius-pill, 999px);
+  color: var(--kz-time-on-ink);
+  pointer-events: none;
+}
+
+/* Focus from the keyboard: a ring round the value of the column, inside the band */
+.kodza-time__col:has(> .kodza-time__list:focus-visible) .kodza-time__lens {
+  box-shadow: inset 0 0 0 3px var(--kz-time-ink), inset 0 0 0 4.5px var(--kz-time-on-ink);
+}
+
+.kodza-time__reel {
+  will-change: transform;
+}
+
+/* Out of min / max: still on the wheel, but faded, and the wheel slides back off it */
+.kodza-time__item.is-off,
+.kodza-time__ghost.is-off {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.kodza-time__sep {
+  position: relative;
+  align-self: center;
+  width: 8px;
+  color: var(--kz-time-on-ink);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: var(--kz-time-row);
+  text-align: center;
+  pointer-events: none;
+}
+
+.kodza-time__foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--kz-time-soft);
+}
+
+.kodza-time__done {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-time__done:hover {
+  background: var(--kz-time-soft);
+}
+
+/* The slots of a day */
+.kodza-time__count {
+  margin: 2px 4px 10px;
+  color: var(--kz-time-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-time__slots {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  /* Room for the focus ring, which the scroll box would clip */
+  margin: -4px;
+  padding: 4px;
+  max-height: 272px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.kodza-time__slot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  height: 36px;
+  margin: 0;
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-time-line);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease calc(0.1s * var(--kz-motion-scale, 1)),
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-time__slot:hover {
+  background: var(--kz-time-soft);
+}
+
+.kodza-time__slot[aria-pressed="true"] {
+  color: var(--kz-time-on-ink);
+  box-shadow: inset 0 0 0 1px transparent;
+}
+
+.kodza-time__slot[aria-pressed="true"]:hover {
+  background: none;
+}
+
+.kodza-time__slot:disabled {
+  color: var(--kz-time-muted);
+  box-shadow: inset 0 0 0 1px var(--kz-time-soft);
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+.kodza-time__slot:disabled:hover {
+  background: none;
+}
+
+.kodza-time__slot:focus-visible,
+.kodza-time__done:focus-visible {
+  outline: 2px solid var(--kz-time-fg);
+  outline-offset: 2px;
+}
+
+/* The ink mark: it travels to the slot you pick */
+.kodza-time__mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--kz-mark-w, 0);
+  height: var(--kz-mark-h, 0);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-time-ink);
+  transform: translate(var(--kz-mark-x, 0), var(--kz-mark-y, 0));
+  transition:
+    transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-time-ease),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-time__mark.is-hidden {
+  opacity: 0;
+  transform: translate(var(--kz-mark-x, 0), var(--kz-mark-y, 0)) scale(0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-time__native,
+  .kodza-time__trigger,
+  .kodza-time__pop,
+  .kodza-time__slot,
+  .kodza-time__mark {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-time {
+  --kz-time-bg: #161616;
+  --kz-time-fg: #f2f2f0;
+  --kz-time-muted: rgba(242, 242, 240, 0.62);
+  --kz-time-line: rgba(255, 255, 255, 0.14);
+  --kz-time-line-hover: rgba(255, 255, 255, 0.3);
+  --kz-time-soft: rgba(255, 255, 255, 0.08);
+  --kz-time-ink: #f2f2f0;
+  --kz-time-on-ink: #0a0a0a;
+  --kz-time-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+}
+*/
+
+/* kodza-guard 06594cb6bd2f — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-time__native):not(#_) {
+  outline: revert;
+  position: revert;
+}
+
+:where(.kodza-time__trigger):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-time__done):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-time__slot):not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-time:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-time__label:not(#_),
+.kodza-time__value:not(#_),
+.kodza-time__line:not(#_),
+.kodza-time__part:not(#_),
+.kodza-time__wheel:not(#_),
+.kodza-time__band:not(#_),
+.kodza-time__col:not(#_),
+.kodza-time__item:not(#_),
+.kodza-time__lens:not(#_),
+.kodza-time__reel:not(#_),
+.kodza-time__ghost:not(#_),
+.kodza-time__sep:not(#_),
+.kodza-time__foot:not(#_),
+.kodza-time__slots:not(#_),
+.kodza-time__mark:not(#_),
+.kodza-time__part span:where(:not([class*="kodza-"])):not(#_),
+.kodza-time__value span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-time__native:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-time__trigger:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-time__icon:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-time__list:not(#_) {
+  box-sizing: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+.kodza-time__done:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  line-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-time__count:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-time__slot:not(#_) {
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-time__icon:not(#_):where(:not([hidden])),
+.kodza-time__count:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-time__icon:not(#_):where([hidden]),
+.kodza-time__count:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-time__list:not(#_)::before,
+.kodza-time__list:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-time:not(#_) {
+  position: relative;
+  display: block;
+  transition: z-index 0s linear calc(0.4s * var(--kz-motion-scale, 1));
+  color: var(--kz-time-fg);
+}
+
+.kodza-time:not(#_) {
+  width: min(100%, var(--kz-time-width));
+}
+
+.kodza-time.is-open:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-time__native:not(#_),
+.kodza-time__trigger:not(#_) {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: var(--kz-time-height);
+  margin: 0;
+  padding: 0 44px 9px var(--kz-time-pad);
+  border: 0;
+  border-radius: var(--kz-time-radius);
+  background: var(--kz-time-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-time-line);
+  box-sizing: border-box;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-time__native:hover:not(#_),
+.kodza-time__trigger:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-time-line-hover);
+}
+
+.kodza-time__native:focus-visible:not(#_),
+.kodza-time__trigger:focus-visible:not(#_),
+.kodza-time.is-open .kodza-time__trigger:not(#_) {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--kz-time-fg), 0 0 0 4px var(--kz-time-soft);
+}
+
+.kodza-time.is-ready .kodza-time__native:not(#_) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+.kodza-time__icon:not(#_) {
+  position: absolute;
+}
+
+.kodza-time__list:not(#_) {
+  outline: none;
+}
+
+.kodza-time__done:not(#_) {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-time__done:hover:not(#_) {
+  background: var(--kz-time-soft);
+}
+
+.kodza-time__count:not(#_) {
+  margin: 2px 4px 10px;
+  color: var(--kz-time-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-time__slot:not(#_) {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  height: 36px;
+  margin: 0;
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-time-line);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease calc(0.1s * var(--kz-motion-scale, 1)),
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-time__slot:hover:not(#_) {
+  background: var(--kz-time-soft);
+}
+
+.kodza-time__slot[aria-pressed="true"]:not(#_) {
+  color: var(--kz-time-on-ink);
+  box-shadow: inset 0 0 0 1px transparent;
+}
+
+.kodza-time__slot[aria-pressed="true"]:hover:not(#_) {
+  background: none;
+}
+
+.kodza-time__slot:disabled:not(#_) {
+  color: var(--kz-time-muted);
+  box-shadow: inset 0 0 0 1px var(--kz-time-soft);
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+.kodza-time__slot:disabled:hover:not(#_) {
+  background: none;
+}
+
+.kodza-time__slot:focus-visible:not(#_),
+.kodza-time__done:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-time-fg);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-time__native:not(#_),
+  .kodza-time__trigger:not(#_),
+  .kodza-time__slot:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

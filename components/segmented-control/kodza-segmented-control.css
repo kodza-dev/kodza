@@ -1,0 +1,523 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Segmented Control
+   Two to five exclusive choices on real radio buttons, in one pill. An ink pill slides to the
+   option you pick, its front edge first and its back edge catching up, like a drop of ink, and
+   the labels turn white exactly at its edges. Arrow keys move the choice, like any radio group,
+   and the form gets the value as usual. Without the script, the chosen option simply fills
+   with ink.
+   --block fills the width with equal segments (sizes, a form), --icons shows icons only (the
+   names stay for screen readers), and a badge (−20%) can ride in a label.
+   Everything is tuned with the --kz-segmented-* variables; the stretch of the pill, with the
+   constants at the top of the script. */
+.kodza-segmented {
+  --kz-segmented-bg: #ffffff;
+  --kz-segmented-fg: #0a0a0a;
+  --kz-segmented-muted: rgba(10, 10, 10, 0.58);
+  --kz-segmented-border: rgba(10, 10, 10, 0.1);
+  --kz-segmented-ink: #0a0a0a;
+  --kz-segmented-on-ink: #ffffff;
+  --kz-segmented-badge: rgba(10, 10, 10, 0.07); /* the badge on the track */
+  --kz-segmented-badge-on-ink: rgba(255, 255, 255, 0.2); /* the badge under the pill */
+  --kz-segmented-height: 44px; /* the whole pill; the options are 2 × --kz-segmented-pad shorter */
+  --kz-segmented-pad: 4px; /* the room around the ink pill */
+  --kz-segmented-width: var(--kz-field-width, 360px); /* --block: the width it fills, at most */
+  --kz-segmented-duration: 0.55s; /* the slide of the pill. 0s = no motion */
+
+  display: inline-block;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--kz-segmented-fg);
+}
+
+.kodza-segmented__legend {
+  margin-bottom: 10px;
+  padding: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-segmented-muted);
+}
+
+/* A name for screen readers only (a pricing toggle needs no visible title) */
+.kodza-segmented__legend--hidden,
+.kodza-segmented--icons .kodza-segmented__name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-segmented__track {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  max-width: 100%;
+  height: var(--kz-segmented-height);
+  padding: var(--kz-segmented-pad);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-segmented-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-segmented-border);
+}
+
+.kodza-segmented__option {
+  position: relative;
+  flex: 0 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 16px;
+  border-radius: var(--kz-radius-pill, 999px);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The state colours the text, not the option (the white copies hold their own) */
+.kodza-segmented__option > .kodza-segmented__label {
+  color: var(--kz-segmented-muted);
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+/* The real radio covers its option: a click anywhere picks it */
+.kodza-segmented__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.kodza-segmented__label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+}
+
+.kodza-segmented__label svg {
+  display: block;
+  flex: none;
+}
+
+.kodza-segmented__badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-segmented-badge);
+  color: var(--kz-segmented-fg);
+  font-size: var(--kz-font-label-size, 12px);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+@media (hover: hover) {
+  .kodza-segmented__option:hover > .kodza-segmented__label {
+    color: var(--kz-segmented-fg);
+  }
+}
+
+.kodza-segmented__option:has(.kodza-segmented__input:checked) > .kodza-segmented__label {
+  color: var(--kz-segmented-fg);
+}
+
+.kodza-segmented__option:has(.kodza-segmented__input:focus-visible) {
+  outline: 2px solid var(--kz-segmented-fg);
+  outline-offset: 2px;
+}
+
+.kodza-segmented__option:has(.kodza-segmented__input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+/* Without the script: the chosen option fills with ink */
+.kodza-segmented:not(.is-ready) .kodza-segmented__option:has(.kodza-segmented__input:checked) {
+  background: var(--kz-segmented-ink);
+}
+
+.kodza-segmented:not(.is-ready) .kodza-segmented__option:has(.kodza-segmented__input:checked) > .kodza-segmented__label {
+  color: var(--kz-segmented-on-ink);
+}
+
+/* The ink pill (added by the script): two windows slide in the lane, one cut at the pill's left
+   edge, one at its right edge, while the ink inside them holds still. Only transforms move, so
+   the slide stays smooth on a busy page, and the corners stay round */
+.kodza-segmented__lane {
+  position: absolute;
+  inset: var(--kz-segmented-pad);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.kodza-segmented__pill,
+.kodza-segmented__edge,
+.kodza-segmented__mirror {
+  position: absolute;
+  inset: 0;
+}
+
+.kodza-segmented__pill {
+  overflow: hidden;
+  border-radius: var(--kz-radius-pill, 999px) 0 0 var(--kz-radius-pill, 999px);
+  transform: translateX(var(--kz-seg-l, 0px));
+}
+
+.kodza-segmented__edge {
+  overflow: hidden;
+  border-radius: 0 var(--kz-radius-pill, 999px) var(--kz-radius-pill, 999px) 0;
+  transform: translateX(calc(-1 * var(--kz-seg-l, 0px) - var(--kz-seg-r, 100%)));
+}
+
+/* The ink, with a white copy of the labels: the text turns white exactly at the edges of the
+   pill, never all at once */
+.kodza-segmented__mirror {
+  background: var(--kz-segmented-ink);
+  color: var(--kz-segmented-on-ink);
+  transform: translateX(var(--kz-seg-r, 100%));
+}
+
+.kodza-segmented__ghost {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 16px;
+}
+
+.kodza-segmented__mirror .kodza-segmented__badge {
+  background: var(--kz-segmented-badge-on-ink);
+  color: var(--kz-segmented-on-ink);
+}
+
+/* --icons: round options around one icon */
+.kodza-segmented--icons .kodza-segmented__option,
+.kodza-segmented--icons .kodza-segmented__ghost {
+  padding: 0 9px;
+}
+
+/* --block: the width of a form field, in equal segments */
+.kodza-segmented--block {
+  display: block;
+  width: 100%;
+  max-width: var(--kz-segmented-width);
+}
+
+.kodza-segmented--block .kodza-segmented__option {
+  flex: 1 1 0;
+  padding: 0 8px;
+}
+
+.kodza-segmented--block .kodza-segmented__ghost {
+  padding: 0 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-segmented__option > .kodza-segmented__label {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-segmented {
+  --kz-segmented-bg: #161616;
+  --kz-segmented-fg: #f2f2f0;
+  --kz-segmented-muted: rgba(242, 242, 240, 0.62);
+  --kz-segmented-border: rgba(255, 255, 255, 0.12);
+  --kz-segmented-ink: #f2f2f0;
+  --kz-segmented-on-ink: #0a0a0a;
+  --kz-segmented-badge: rgba(255, 255, 255, 0.1);
+  --kz-segmented-badge-on-ink: rgba(10, 10, 10, 0.12);
+}
+*/
+
+/* kodza-guard b5ecb7ec5cd0 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-segmented__legend):not(#_) {
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-left: revert;
+  white-space: revert;
+}
+
+:where(.kodza-segmented__option):not(#_) {
+  outline: revert;
+  background-color: revert;
+  background-image: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-segmented:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-segmented__legend:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-segmented__option:not(#_) {
+  border: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-segmented__input:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-segmented__label:not(#_),
+.kodza-segmented__badge:not(#_),
+.kodza-segmented__lane:not(#_),
+.kodza-segmented__pill:not(#_),
+.kodza-segmented__edge:not(#_),
+.kodza-segmented__mirror:not(#_),
+.kodza-segmented__name:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-segmented__label svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-segmented__legend:not(#_):where(:not([hidden])),
+.kodza-segmented__input:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-segmented__legend:not(#_):where([hidden]),
+.kodza-segmented__input:not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-segmented:not(#_) {
+  display: inline-block;
+  padding: 0;
+  border: 0;
+  color: var(--kz-segmented-fg);
+}
+
+.kodza-segmented__legend:not(#_) {
+  margin-bottom: 10px;
+  padding: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-segmented-muted);
+}
+
+.kodza-segmented__legend--hidden:not(#_) {
+  position: absolute;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.kodza-segmented__option:not(#_) {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 16px;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-segmented__input:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.kodza-segmented__label svg:not(#_) {
+  display: block;
+}
+
+.kodza-segmented__option:has(.kodza-segmented__input:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-segmented-fg);
+  outline-offset: 2px;
+}
+
+.kodza-segmented:not(.is-ready) .kodza-segmented__option:has(.kodza-segmented__input:checked):not(#_) {
+  background: var(--kz-segmented-ink);
+}
+
+.kodza-segmented--icons .kodza-segmented__option:not(#_) {
+  padding: 0 9px;
+}
+
+.kodza-segmented--block:not(#_) {
+  display: block;
+}
+
+.kodza-segmented--block:not(#_) {
+  width: min(100%, var(--kz-segmented-width));
+}
+
+.kodza-segmented--block .kodza-segmented__option:not(#_) {
+  padding: 0 8px;
+}

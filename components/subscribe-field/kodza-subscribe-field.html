@@ -1,0 +1,46 @@
+<!-- action: your list's form URL (Mailchimp, Brevo, a WordPress plugin), or cancel "kodza:subscribe" and send it yourself -->
+<form class="kodza-subscribe" action="https://example.com/subscribe" method="post">
+  <div class="kodza-subscribe__stage">
+    <div class="kodza-subscribe__pill">
+      <label class="kodza-subscribe__box">
+        <input class="kodza-subscribe__input" type="email" name="email" placeholder=" " autocomplete="email" required data-error="Enter a real email address.">
+        <span class="kodza-subscribe__label">Email</span>
+      </label>
+      <button class="kodza-subscribe__button" type="submit">
+        <span class="kodza-subscribe__word">Subscribe</span>
+        <span class="kodza-subscribe__spinner" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="8.5" pathLength="100" /></svg></span>
+      </button>
+    </div>
+    <p class="kodza-subscribe__done" role="status" tabindex="-1">
+      <span class="kodza-subscribe__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7.5 12.5l3 3 6-6.5" pathLength="1" /></svg></span>
+      <span class="kodza-subscribe__thanks">You're in. Check your inbox.</span>
+    </p>
+  </div>
+  <p class="kodza-subscribe__note">
+    <span class="kodza-subscribe__hint">One email when something ships. Unsubscribe in one click.</span>
+    <span class="kodza-subscribe__error" aria-live="polite"></span>
+  </p>
+</form>
+
+<form class="kodza-subscribe kodza-subscribe--icon" action="https://example.com/subscribe" method="post">
+  <div class="kodza-subscribe__stage">
+    <div class="kodza-subscribe__pill">
+      <label class="kodza-subscribe__box">
+        <input class="kodza-subscribe__input" type="email" name="email" placeholder=" " autocomplete="email" required data-error="Enter a real email address.">
+        <span class="kodza-subscribe__label">Email for the launch</span>
+      </label>
+      <button class="kodza-subscribe__button" type="submit" aria-label="Subscribe">
+        <span class="kodza-subscribe__word" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span>
+        <span class="kodza-subscribe__spinner" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="8.5" pathLength="100" /></svg></span>
+      </button>
+    </div>
+    <p class="kodza-subscribe__done" role="status" tabindex="-1">
+      <span class="kodza-subscribe__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7.5 12.5l3 3 6-6.5" pathLength="1" /></svg></span>
+      <span class="kodza-subscribe__thanks">Saved. We write once, on launch day.</span>
+    </p>
+  </div>
+  <p class="kodza-subscribe__note">
+    <span class="kodza-subscribe__hint">For the launch. Then we leave you alone.</span>
+    <span class="kodza-subscribe__error" aria-live="polite"></span>
+  </p>
+</form>

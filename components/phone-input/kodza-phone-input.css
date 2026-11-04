@@ -1,0 +1,1243 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Phone Input
+   A phone field with its country code on the left, in mono ("FR +33", no coloured flags). The
+   code opens a filtered list of countries (type a name, an ISO code or +44). The number groups
+   itself as it is typed, the way it is written in that country, with the rest of an example
+   number waiting in grey; type or paste "+44 7700…" and the field switches to that country on
+   its own. A tick draws itself once the number has the right length. A real tel input stays
+   underneath, and the form gets the full number (E.164, +447700900123) under its name.
+   Without JS, the tel input stays, styled. Same box as Text Field and Combobox.
+   Everything is tuned with the --kz-phone-* variables; the words, timings and countries, at the
+   top of the script. */
+.kodza-phone {
+  --kz-phone-bg: #ffffff;
+  --kz-phone-fg: #0a0a0a;
+  --kz-phone-muted: rgba(10, 10, 10, 0.6);
+  --kz-phone-line: rgba(10, 10, 10, 0.14);
+  --kz-phone-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-phone-soft: rgba(10, 10, 10, 0.06);
+  --kz-phone-error: #0a0a0a; /* a message, never colour alone: set a red here if you want one */
+  --kz-phone-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  --kz-phone-height: 56px;
+  --kz-phone-radius: calc(12px * var(--kz-radius-scale, 1));
+  --kz-phone-pad: 16px;
+  --kz-phone-width: var(--kz-field-width, 320px);
+  --kz-phone-list-height: 236px; /* the open list of countries, at most: it scrolls past that */
+  --kz-phone-duration: 0.35s;
+  --kz-phone-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  max-width: var(--kz-phone-width);
+  /* The closed list keeps its size, ready to unroll, but never lengthens the page */
+  contain: layout;
+  /* A number, not auto, so it can wait for the list to roll up before dropping back */
+  z-index: 0;
+  transition: z-index 0s linear calc(var(--kz-phone-duration) * var(--kz-motion-scale, 1));
+  color: var(--kz-phone-fg);
+}
+
+/* Open, the field rises above what follows it (its list included) */
+.kodza-phone.is-open {
+  z-index: 20;
+  transition-delay: 0s;
+}
+
+/* The box: label on top, the country code and the number below */
+.kodza-phone__box {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  height: var(--kz-phone-height);
+  margin: 0;
+  padding: 0;
+  border-radius: var(--kz-phone-radius);
+  background: var(--kz-phone-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-phone-line);
+  cursor: text;
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-phone__box:hover,
+.kodza-phone__code:hover ~ .kodza-phone__box {
+  box-shadow: inset 0 0 0 1px var(--kz-phone-line-hover);
+}
+
+/* Typing, or choosing a country: the field is the one in use (it beats the hover above) */
+.kodza-phone .kodza-phone__box:focus-within,
+.kodza-phone.is-open .kodza-phone__box {
+  box-shadow: inset 0 0 0 1.5px var(--kz-phone-fg), 0 0 0 4px var(--kz-phone-soft);
+}
+
+.kodza-phone.is-invalid .kodza-phone__box {
+  box-shadow: inset 0 0 0 1.5px var(--kz-phone-error);
+}
+
+.kodza-phone.is-invalid .kodza-phone__box:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-phone-error), 0 0 0 4px var(--kz-phone-soft);
+}
+
+.kodza-phone.is-disabled .kodza-phone__box {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kodza-phone__label {
+  position: absolute;
+  top: 10px;
+  left: var(--kz-phone-pad);
+  z-index: 1;
+  color: var(--kz-phone-muted);
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Without the script: the tel input fills the box, on the value line */
+.kodza-phone__native {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 25px var(--kz-phone-pad) 9px;
+  border: 0;
+  border-radius: inherit;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: inherit;
+  font-variant-numeric: tabular-nums;
+  caret-color: var(--kz-phone-fg);
+  appearance: none;
+}
+
+.kodza-phone__native:disabled {
+  cursor: not-allowed;
+}
+
+/* The country code, on the value line: the ISO code in grey, the dialling code in ink */
+.kodza-phone__code {
+  position: absolute;
+  top: calc(var(--kz-phone-height) - 33px);
+  left: 8px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 26px;
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  appearance: none;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-phone__code:hover,
+.kodza-phone.is-open .kodza-phone__code {
+  background: var(--kz-phone-soft);
+}
+
+.kodza-phone__code:focus-visible {
+  box-shadow: inset 0 0 0 1.5px var(--kz-phone-fg);
+}
+
+/* One country only: the code is a plain label, nothing to open */
+.kodza-phone__code.is-fixed {
+  cursor: default;
+}
+
+.kodza-phone__code.is-fixed:hover {
+  background: transparent;
+}
+
+.kodza-phone__code:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kodza-phone__code:disabled:hover {
+  background: transparent;
+}
+
+/* The faces: a new country rolls in from below as the old one leaves upwards, and the button
+   eases to its new width */
+.kodza-phone__faces {
+  display: grid;
+  width: var(--kz-phone-face, auto);
+  height: 26px;
+  overflow: hidden;
+  transition: width calc(var(--kz-phone-duration) * var(--kz-motion-scale, 1)) var(--kz-phone-ease);
+}
+
+.kodza-phone__face {
+  display: flex;
+  grid-area: 1 / 1;
+  align-items: center;
+  justify-self: start;
+  gap: 6px;
+  height: 26px;
+  white-space: nowrap;
+}
+
+.kodza-phone__iso {
+  color: var(--kz-phone-muted);
+}
+
+.kodza-phone__code svg {
+  display: block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: var(--kz-phone-muted);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform calc(var(--kz-phone-duration) * var(--kz-motion-scale, 1)) var(--kz-phone-ease);
+}
+
+.kodza-phone.is-open .kodza-phone__code svg {
+  transform: rotate(180deg);
+}
+
+/* A hairline between the code and the number, riding on the code's edge */
+.kodza-phone__sep {
+  position: absolute;
+  top: calc(var(--kz-phone-height) - 28px);
+  left: calc(var(--kz-phone-start, 92px) + 4px);
+  width: 1px;
+  height: 16px;
+  background: var(--kz-phone-line);
+  pointer-events: none;
+  transition: left calc(var(--kz-phone-duration) * var(--kz-motion-scale, 1)) var(--kz-phone-ease);
+}
+
+/* The number line, after the code: the tel input, and the rest of an example number under it */
+.kodza-phone__field {
+  position: absolute;
+  right: 40px;
+  bottom: 9px;
+  left: calc(var(--kz-phone-start, 92px) + 14px);
+  height: 22px;
+  transition: left calc(var(--kz-phone-duration) * var(--kz-motion-scale, 1)) var(--kz-phone-ease);
+}
+
+.kodza-phone.is-ready .kodza-phone__native {
+  position: relative;
+  z-index: 1;
+  height: 22px;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* The example: what is typed, kept invisible, then the digits still to come in grey */
+.kodza-phone__example {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: var(--kz-phone-muted);
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: inherit;
+  font-variant-numeric: tabular-nums;
+  white-space: pre;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-phone.is-hinting .kodza-phone__example {
+  opacity: 1;
+}
+
+.kodza-phone__typed {
+  color: transparent;
+}
+
+/* The tick: the number has the length it should have */
+.kodza-phone__done {
+  position: absolute;
+  top: calc(var(--kz-phone-height) - 28px);
+  right: var(--kz-phone-pad);
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--kz-phone-fg);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  pointer-events: none;
+  transition: stroke-dashoffset calc(0.15s * var(--kz-motion-scale, 1)) ease-in;
+}
+
+.kodza-phone.is-complete .kodza-phone__done {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-phone-ease) calc(0.05s * var(--kz-motion-scale, 1));
+}
+
+/* The list of countries unrolls from the field, over the note below it: a search on top */
+.kodza-phone__pop {
+  position: absolute;
+  top: calc(var(--kz-phone-height) + 8px);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: calc(14px * var(--kz-radius-scale, 1));
+  background: var(--kz-phone-bg);
+  box-shadow: 0 0 0 1px var(--kz-phone-line), var(--kz-phone-shadow);
+  visibility: hidden;
+  clip-path: inset(0 0 100% 0 round calc(14px * var(--kz-radius-scale, 1)));
+  transform: translateY(-4px);
+  transition:
+    clip-path calc(var(--kz-phone-duration) * var(--kz-motion-scale, 1)) var(--kz-phone-ease),
+    transform calc(var(--kz-phone-duration) * var(--kz-motion-scale, 1)) var(--kz-phone-ease),
+    visibility 0s linear calc(var(--kz-phone-duration) * var(--kz-motion-scale, 1));
+}
+
+.kodza-phone.is-open .kodza-phone__pop {
+  visibility: visible;
+  clip-path: inset(-40px -40px -60px -40px round calc(14px * var(--kz-radius-scale, 1)));
+  transform: none;
+  transition-delay: 0s;
+}
+
+.kodza-phone.is-above .kodza-phone__pop {
+  top: auto;
+  bottom: calc(100% + 8px);
+  clip-path: inset(100% 0 0 0 round calc(14px * var(--kz-radius-scale, 1)));
+  transform: translateY(4px);
+}
+
+.kodza-phone.is-above.is-open .kodza-phone__pop {
+  clip-path: inset(-60px -40px -40px -40px round calc(14px * var(--kz-radius-scale, 1)));
+  transform: none;
+}
+
+.kodza-phone__find {
+  position: relative;
+  display: block;
+  margin: 0;
+  box-shadow: inset 0 -1px 0 var(--kz-phone-line);
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-phone__find:focus-within {
+  box-shadow: inset 0 -1px 0 var(--kz-phone-fg);
+}
+
+/* The magnifier */
+.kodza-phone__find::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 16px;
+  width: 14px;
+  height: 14px;
+  background: var(--kz-phone-muted);
+  pointer-events: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='7' cy='7' r='4.75' fill='none' stroke='black' stroke-width='1.6'/%3E%3Cpath d='M10.5 10.5 14 14' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='7' cy='7' r='4.75' fill='none' stroke='black' stroke-width='1.6'/%3E%3Cpath d='M10.5 10.5 14 14' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-phone__search {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  padding: 0 14px 0 40px;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  line-height: 44px;
+  letter-spacing: inherit;
+  caret-color: var(--kz-phone-fg);
+  appearance: none;
+}
+
+.kodza-phone__search::placeholder {
+  color: var(--kz-phone-muted);
+  opacity: 1;
+}
+
+.kodza-phone__list {
+  position: relative;
+  box-sizing: border-box;
+  max-height: var(--kz-phone-list-height);
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+
+.kodza-phone__highlight {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  left: 6px;
+  height: var(--kz-hl-h, 36px);
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  background: var(--kz-phone-soft);
+  opacity: var(--kz-hl-on, 0);
+  transform: translateY(var(--kz-hl-y, 0));
+  pointer-events: none;
+}
+
+.kodza-phone.is-open .kodza-phone__highlight {
+  transition:
+    transform calc(0.22s * var(--kz-motion-scale, 1)) var(--kz-phone-ease),
+    opacity calc(0.15s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-phone__option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  margin: 0;
+  padding: 0 10px 0 32px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kodza-phone__option[hidden],
+.kodza-phone__empty[hidden] {
+  display: none;
+}
+
+/* The ISO code, where a flag would be */
+.kodza-phone__abbr {
+  flex: none;
+  width: 2.2em;
+  color: var(--kz-phone-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+}
+
+.kodza-phone__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The letters that match what was typed */
+.kodza-phone__option mark {
+  padding: 0;
+  background: none;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+/* The dialling code on the right */
+.kodza-phone__meta {
+  flex: none;
+  margin-left: auto;
+  color: var(--kz-phone-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The tick of the chosen country draws itself */
+.kodza-phone__option svg {
+  position: absolute;
+  left: 10px;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset calc(0.15s * var(--kz-motion-scale, 1)) ease-in;
+}
+
+.kodza-phone__option[aria-selected="true"] svg {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-phone-ease) calc(0.05s * var(--kz-motion-scale, 1));
+}
+
+/* Nothing matches */
+.kodza-phone__empty {
+  margin: 0;
+  padding: 18px 10px;
+  color: var(--kz-phone-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Hint and error share one line: the hint steps out upward as the error rises in */
+.kodza-phone__note {
+  display: grid;
+  margin: 0;
+  padding: 0 2px;
+  overflow: hidden;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-phone__hint,
+.kodza-phone__error {
+  grid-area: 1 / 1;
+  transition:
+    opacity calc(var(--kz-phone-duration) * 0.625 * var(--kz-motion-scale, 1)) ease,
+    transform calc(var(--kz-phone-duration) * var(--kz-motion-scale, 1)) var(--kz-phone-ease);
+}
+
+.kodza-phone__hint {
+  color: var(--kz-phone-muted);
+}
+
+.kodza-phone__error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--kz-phone-error);
+  font-weight: var(--kz-font-label-weight, 500);
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.kodza-phone__error::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-phone.is-invalid .kodza-phone__hint {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.kodza-phone.is-invalid .kodza-phone__error {
+  opacity: 1;
+  transform: none;
+}
+
+/* What screen readers hear: the count as the list filters, the country found in a pasted number */
+.kodza-phone__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-phone,
+  .kodza-phone__box,
+  .kodza-phone__code,
+  .kodza-phone__faces,
+  .kodza-phone__code svg,
+  .kodza-phone__sep,
+  .kodza-phone__field,
+  .kodza-phone__example,
+  .kodza-phone__done,
+  .kodza-phone__pop,
+  .kodza-phone__find,
+  .kodza-phone.is-open .kodza-phone__highlight,
+  .kodza-phone__option svg,
+  .kodza-phone__hint,
+  .kodza-phone__error {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-phone {
+  --kz-phone-bg: #161616;
+  --kz-phone-fg: #f2f2f0;
+  --kz-phone-muted: rgba(242, 242, 240, 0.62);
+  --kz-phone-line: rgba(255, 255, 255, 0.14);
+  --kz-phone-line-hover: rgba(255, 255, 255, 0.3);
+  --kz-phone-soft: rgba(255, 255, 255, 0.08);
+  --kz-phone-error: #f2f2f0;
+  --kz-phone-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+}
+*/
+
+/* kodza-guard 77852f9b4cec — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-phone__highlight):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-phone__native):not(#_) {
+  position: revert;
+}
+
+:where(.kodza-phone__empty):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-phone__empty):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-phone:not(#_),
+.kodza-phone__faces:not(#_),
+.kodza-phone__face:not(#_),
+.kodza-phone__iso:not(#_),
+.kodza-phone__find:not(#_),
+.kodza-phone__abbr:not(#_),
+.kodza-phone__name:not(#_),
+.kodza-phone__meta:not(#_),
+.kodza-phone__label:not(#_),
+.kodza-phone__sep:not(#_),
+.kodza-phone__field:not(#_),
+.kodza-phone__example:not(#_),
+.kodza-phone__typed:not(#_),
+.kodza-phone__hint:not(#_),
+.kodza-phone__error:not(#_),
+.kodza-phone__live:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-phone__code:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-phone__search:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-phone__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-phone__highlight:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-phone__option:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-phone__empty:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-phone__box:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-phone__native:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-phone__done:not(#_),
+.kodza-phone__option svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-phone__note:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-phone__code svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-phone input:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-phone__list:not(#_):where(:not([hidden])),
+.kodza-phone__highlight:not(#_):where(:not([hidden])),
+.kodza-phone__done:not(#_):where(:not([hidden])),
+.kodza-phone__option svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-phone input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-phone__list:not(#_):where([hidden]),
+.kodza-phone__highlight:not(#_):where([hidden]),
+.kodza-phone__done:not(#_):where([hidden]),
+.kodza-phone__option svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-phone input:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-phone__find:not(#_)::before,
+.kodza-phone__error:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-phone:not(#_) {
+  width: min(100%, var(--kz-phone-width));
+}
+
+.kodza-phone__box:not(#_) {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--kz-phone-radius);
+  background: var(--kz-phone-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-phone-line);
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-phone__box:hover:not(#_),
+.kodza-phone__code:hover ~ .kodza-phone__box:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-phone-line-hover);
+}
+
+.kodza-phone .kodza-phone__box:focus-within:not(#_),
+.kodza-phone.is-open .kodza-phone__box:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-phone-fg), 0 0 0 4px var(--kz-phone-soft);
+}
+
+.kodza-phone.is-invalid .kodza-phone__box:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-phone-error);
+}
+
+.kodza-phone.is-invalid .kodza-phone__box:focus-within:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-phone-error), 0 0 0 4px var(--kz-phone-soft);
+}
+
+.kodza-phone__native:not(#_) {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 25px var(--kz-phone-pad) 9px;
+  border: 0;
+  border-radius: inherit;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: inherit;
+  font-variant-numeric: tabular-nums;
+  caret-color: var(--kz-phone-fg);
+  appearance: none;
+}
+
+.kodza-phone__native:disabled:not(#_) {
+  cursor: not-allowed;
+}
+
+.kodza-phone__code:not(#_) {
+  position: absolute;
+  top: calc(var(--kz-phone-height) - 33px);
+  left: 8px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 26px;
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  appearance: none;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-phone__code:hover:not(#_),
+.kodza-phone.is-open .kodza-phone__code:not(#_) {
+  background: var(--kz-phone-soft);
+}
+
+.kodza-phone__code:focus-visible:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-phone-fg);
+}
+
+.kodza-phone__code.is-fixed:not(#_) {
+  cursor: default;
+}
+
+.kodza-phone__code.is-fixed:hover:not(#_) {
+  background: transparent;
+}
+
+.kodza-phone__code:disabled:not(#_) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kodza-phone__code:disabled:hover:not(#_) {
+  background: transparent;
+}
+
+.kodza-phone__code svg:not(#_) {
+  display: block;
+  transition: transform calc(var(--kz-phone-duration) * var(--kz-motion-scale, 1)) var(--kz-phone-ease);
+}
+
+.kodza-phone.is-ready .kodza-phone__native:not(#_) {
+  position: relative;
+  z-index: 1;
+  height: 22px;
+  padding: 0;
+  border-radius: 0;
+}
+
+.kodza-phone__done:not(#_) {
+  position: absolute;
+  transition: stroke-dashoffset calc(0.15s * var(--kz-motion-scale, 1)) ease-in;
+}
+
+.kodza-phone.is-complete .kodza-phone__done:not(#_) {
+  transition: stroke-dashoffset calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-phone-ease) calc(0.05s * var(--kz-motion-scale, 1));
+}
+
+.kodza-phone__search:not(#_) {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  padding: 0 14px 0 40px;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  line-height: 44px;
+  letter-spacing: inherit;
+  caret-color: var(--kz-phone-fg);
+  appearance: none;
+}
+
+.kodza-phone__search:not(#_)::placeholder {
+  color: var(--kz-phone-muted);
+  opacity: 1;
+}
+
+.kodza-phone__list:not(#_) {
+  position: relative;
+  box-sizing: border-box;
+  max-height: var(--kz-phone-list-height);
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+}
+
+.kodza-phone__highlight:not(#_) {
+  position: absolute;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  background: var(--kz-phone-soft);
+}
+
+.kodza-phone.is-open .kodza-phone__highlight:not(#_) {
+  transition: transform calc(0.22s * var(--kz-motion-scale, 1)) var(--kz-phone-ease),
+    opacity calc(0.15s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-phone__option:not(#_) {
+  position: relative;
+  display: flex;
+  margin: 0;
+  padding: 0 10px 0 32px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.kodza-phone__option[hidden]:not(#_),
+.kodza-phone__empty[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-phone__option svg:not(#_) {
+  position: absolute;
+  transition: stroke-dashoffset calc(0.15s * var(--kz-motion-scale, 1)) ease-in;
+}
+
+.kodza-phone__option[aria-selected="true"] svg:not(#_) {
+  transition: stroke-dashoffset calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-phone-ease) calc(0.05s * var(--kz-motion-scale, 1));
+}
+
+.kodza-phone__empty:not(#_) {
+  margin: 0;
+  padding: 18px 10px;
+  color: var(--kz-phone-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.kodza-phone__note:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0 2px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-phone__box:not(#_),
+  .kodza-phone__code svg:not(#_),
+  .kodza-phone__done:not(#_),
+  .kodza-phone.is-open .kodza-phone__highlight:not(#_),
+  .kodza-phone__option svg:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-phone__code:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

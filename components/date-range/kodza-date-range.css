@@ -1,0 +1,1099 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Date Range
+   Two real date inputs, dressed up as one field: a calendar of two months unrolls under it
+   (one on a phone). The first click sets the start, then the ink band follows the pointer to
+   the end and the length shows before you commit. Shortcuts (data-presets) slide the band in
+   one go; a step to the next month slides the whole ribbon. Same box as Date Picker.
+   Everything is tuned with the --kz-date-range-* variables. */
+.kodza-date-range {
+  --kz-date-range-bg: #ffffff;
+  --kz-date-range-fg: #0a0a0a;
+  --kz-date-range-muted: rgba(10, 10, 10, 0.6);
+  --kz-date-range-line: rgba(10, 10, 10, 0.14);
+  --kz-date-range-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-date-range-soft: rgba(10, 10, 10, 0.06);
+  --kz-date-range-band: rgba(10, 10, 10, 0.07);
+  --kz-date-range-ink: #0a0a0a;
+  --kz-date-range-on-ink: #ffffff;
+  --kz-date-range-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  --kz-date-range-height: 56px;
+  --kz-date-range-radius: calc(12px * var(--kz-radius-scale, 1));
+  --kz-date-range-pad: 16px;
+  --kz-date-range-cell: 38px;
+  --kz-date-range-gap: 24px; /* between the two months */
+  --kz-date-range-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-date-range-width: var(--kz-field-width, 360px);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  width: 100%;
+  max-width: var(--kz-date-range-width);
+  /* The closed panel keeps its size, ready to unroll, but never lengthens the page */
+  contain: layout;
+  /* A number, not auto, so it can wait for the panel to roll up before dropping back */
+  z-index: 0;
+  transition: z-index 0s linear calc(0.4s * var(--kz-motion-scale, 1));
+  color: var(--kz-date-range-fg);
+}
+
+/* Open, the field rises above what follows it (its panel included) */
+.kodza-date-range.is-open {
+  z-index: 20;
+  transition-delay: 0s;
+}
+
+.kodza-date-range.is-ready {
+  display: block;
+}
+
+/* Without the script: two date boxes side by side */
+.kodza-date-range__end {
+  position: relative;
+  display: block;
+  min-width: 0;
+  margin: 0;
+}
+
+.kodza-date-range__name,
+.kodza-date-range__caption {
+  position: absolute;
+  top: 10px;
+  left: var(--kz-date-range-pad);
+  z-index: 1;
+  color: var(--kz-date-range-muted);
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.kodza-date-range__native {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: var(--kz-date-range-height);
+  margin: 0;
+  padding: 0 10px 9px var(--kz-date-range-pad);
+  border: 0;
+  border-radius: var(--kz-date-range-radius);
+  background: var(--kz-date-range-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-date-range-line);
+  box-sizing: border-box;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-date-range__native:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-date-range-line-hover);
+}
+
+.kodza-date-range__native:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--kz-date-range-fg), 0 0 0 4px var(--kz-date-range-soft);
+}
+
+.kodza-date-range.is-ready .kodza-date-range__end {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+/* With it: one field, two halves */
+.kodza-date-range__field {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  height: var(--kz-date-range-height);
+  border-radius: var(--kz-date-range-radius);
+  background: var(--kz-date-range-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-date-range-line);
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-date-range__field:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-date-range-line-hover);
+}
+
+.kodza-date-range__field:has(.kodza-date-range__half:focus-visible),
+.kodza-date-range.is-open .kodza-date-range__field {
+  box-shadow: inset 0 0 0 1.5px var(--kz-date-range-fg), 0 0 0 4px var(--kz-date-range-soft);
+}
+
+/* The half you are picking, while it's open */
+.kodza-date-range__active {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 8px);
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  background: var(--kz-date-range-soft);
+  opacity: 0;
+  transition:
+    transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-date-range-ease),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-date-range.is-open .kodza-date-range__active {
+  opacity: 1;
+}
+
+.kodza-date-range.is-on-end .kodza-date-range__active {
+  transform: translateX(calc(100% + 8px));
+}
+
+.kodza-date-range__half {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 12px 9px var(--kz-date-range-pad);
+  border: 0;
+  border-radius: var(--kz-date-range-radius);
+  background: none;
+  box-sizing: border-box;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kodza-date-range__half:focus-visible {
+  outline: none;
+}
+
+.kodza-date-range__half + .kodza-date-range__half::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  left: 0;
+  width: 1px;
+  background: var(--kz-date-range-line);
+}
+
+.kodza-date-range__value {
+  display: inline-grid;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.kodza-date-range__value > span {
+  grid-area: 1 / 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kodza-date-range__value .is-empty {
+  color: var(--kz-date-range-muted);
+}
+
+/* The calendar unrolls under the field */
+.kodza-date-range__pop {
+  position: absolute;
+  top: calc(var(--kz-date-range-height) + 8px);
+  left: 0;
+  z-index: 20;
+  width: calc(var(--kz-date-range-cell) * 7 * var(--kz-date-range-n, 1) + var(--kz-date-range-gap) * (var(--kz-date-range-n, 1) - 1) + 24px);
+  padding: 12px;
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-date-range-bg);
+  box-shadow: 0 0 0 1px var(--kz-date-range-line), var(--kz-date-range-shadow);
+  box-sizing: border-box;
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(0 0 100% 0 round calc(16px * var(--kz-radius-scale, 1)));
+  transform: translateY(-4px);
+  transition:
+    clip-path calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-date-range-ease),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-date-range-ease),
+    visibility 0s linear calc(0.4s * var(--kz-motion-scale, 1));
+}
+
+.kodza-date-range.is-open .kodza-date-range__pop {
+  visibility: visible;
+  opacity: 1;
+  clip-path: inset(-40px -40px -60px -40px round calc(16px * var(--kz-radius-scale, 1)));
+  transform: none;
+  transition-delay: 0s;
+}
+
+/* Not enough room on the right: the panel lines up with the right edge of the field */
+.kodza-date-range.is-right .kodza-date-range__pop {
+  left: auto;
+  right: 0;
+}
+
+.kodza-date-range.is-above .kodza-date-range__pop {
+  top: auto;
+  bottom: calc(var(--kz-date-range-height) + 8px);
+  clip-path: inset(100% 0 0 0 round calc(16px * var(--kz-radius-scale, 1)));
+  transform: translateY(4px);
+}
+
+.kodza-date-range.is-above.is-open .kodza-date-range__pop {
+  clip-path: inset(-60px -40px -40px -40px round calc(16px * var(--kz-radius-scale, 1)));
+  transform: none;
+}
+
+/* Shortcuts */
+.kodza-date-range__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 12px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--kz-date-range-soft);
+}
+
+.kodza-date-range__preset {
+  height: 32px;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-date-range-line);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-date-range__preset:hover {
+  background: var(--kz-date-range-soft);
+}
+
+.kodza-date-range__preset[aria-pressed="true"] {
+  background: var(--kz-date-range-ink);
+  box-shadow: inset 0 0 0 1px var(--kz-date-range-ink);
+  color: var(--kz-date-range-on-ink);
+}
+
+.kodza-date-range__preset:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.kodza-date-range__cal {
+  position: relative;
+}
+
+.kodza-date-range__nav,
+.kodza-date-range__clear {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  margin: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-date-range__nav {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  width: 32px;
+  padding: 0;
+}
+
+.kodza-date-range__nav[data-step="-1"] {
+  left: 0;
+}
+
+.kodza-date-range__nav[data-step="1"] {
+  right: 0;
+}
+
+.kodza-date-range__nav:hover,
+.kodza-date-range__clear:hover {
+  background: var(--kz-date-range-soft);
+}
+
+.kodza-date-range__nav svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* The months sit on a ribbon: a step slides it by one month, a jump swaps it */
+.kodza-date-range__view {
+  display: grid;
+  width: calc(var(--kz-date-range-cell) * 7 * var(--kz-date-range-n, 1) + var(--kz-date-range-gap) * (var(--kz-date-range-n, 1) - 1));
+  overflow: hidden;
+}
+
+.kodza-date-range__strip {
+  display: flex;
+  grid-area: 1 / 1;
+  gap: var(--kz-date-range-gap);
+}
+
+.kodza-date-range__month {
+  flex: none;
+  width: calc(var(--kz-date-range-cell) * 7);
+}
+
+.kodza-date-range__title {
+  display: block;
+  height: 32px;
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 32px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.kodza-date-range__weekdays,
+.kodza-date-range__days,
+.kodza-date-range__ghost {
+  display: grid;
+  grid-template-columns: repeat(7, var(--kz-date-range-cell));
+}
+
+.kodza-date-range__weekdays span {
+  display: grid;
+  place-items: center;
+  height: 28px;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-date-range-muted);
+}
+
+.kodza-date-range__days {
+  position: relative;
+  grid-auto-rows: var(--kz-date-range-cell);
+  align-content: start;
+  height: calc(var(--kz-date-range-cell) * 6);
+  isolation: isolate;
+}
+
+/* One band per week. Its two edges are inset from the sides of the row, in half cells
+   (--kz-date-range-l, --kz-date-range-r): from a centre at an end of the range, from a side when the
+   range goes on. An empty row folds to the side the range will come from */
+.kodza-date-range__band {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: var(--kz-date-range-cell);
+  background: var(--kz-date-range-band);
+  clip-path: inset(2px calc(var(--kz-date-range-r, 14) * var(--kz-date-range-cell) / 2) 2px calc(var(--kz-date-range-l, 0) * var(--kz-date-range-cell) / 2) round var(--kz-radius-pill, 999px));
+  pointer-events: none;
+  transition: clip-path calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-date-range-ease);
+}
+
+.kodza-date-range__day {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--kz-date-range-cell);
+  height: var(--kz-date-range-cell);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-date-range__day:hover {
+  background: var(--kz-date-range-soft);
+}
+
+/* Picking the end, the ink mark is the hover */
+.kodza-date-range.is-on-end .kodza-date-range__day:hover,
+.kodza-date-range__day.is-mark:hover {
+  background: none;
+}
+
+.kodza-date-range__day.is-today::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px var(--kz-date-range-line-hover);
+}
+
+.kodza-date-range__day:disabled {
+  color: var(--kz-date-range-muted);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.kodza-date-range__day:focus-visible {
+  outline: none;
+}
+
+/* The focus ring sits above the ink marks: ink on a day, a thin light ring inside a mark */
+.kodza-date-range__day:focus-visible::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--kz-date-range-fg);
+  pointer-events: none;
+}
+
+.kodza-date-range__day.is-mark:focus-visible::after {
+  inset: 2px;
+  box-shadow: inset 0 0 0 3px var(--kz-date-range-ink), inset 0 0 0 4.5px var(--kz-date-range-on-ink);
+}
+
+.kodza-date-range__nav:focus-visible,
+.kodza-date-range__clear:focus-visible,
+.kodza-date-range__preset:focus-visible {
+  outline: 2px solid var(--kz-date-range-fg);
+  outline-offset: 2px;
+}
+
+/* The two ink marks of a month, start and end. Each one carries a light copy of the dates,
+   moved the other way with the same timing: the digits under it turn light exactly at its
+   edge, wherever it travels */
+.kodza-date-range__mark {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  z-index: 2;
+  width: calc(var(--kz-date-range-cell) - 4px);
+  height: calc(var(--kz-date-range-cell) - 4px);
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--kz-date-range-ink);
+  color: var(--kz-date-range-on-ink);
+  pointer-events: none;
+  transform: translate(calc(var(--kz-date-range-x, 0) * var(--kz-date-range-cell)), calc(var(--kz-date-range-y, 0) * var(--kz-date-range-cell)));
+  transition:
+    transform calc(0.36s * var(--kz-motion-scale, 1)) var(--kz-date-range-ease),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-date-range__mark.is-hidden {
+  opacity: 0;
+  transform: translate(calc(var(--kz-date-range-x, 0) * var(--kz-date-range-cell)), calc(var(--kz-date-range-y, 0) * var(--kz-date-range-cell))) scale(0.4);
+}
+
+.kodza-date-range__ghost {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  grid-auto-rows: var(--kz-date-range-cell);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  transform: translate(calc(var(--kz-date-range-x, 0) * var(--kz-date-range-cell) * -1), calc(var(--kz-date-range-y, 0) * var(--kz-date-range-cell) * -1));
+  transition: transform calc(0.36s * var(--kz-motion-scale, 1)) var(--kz-date-range-ease);
+}
+
+.kodza-date-range__ghost span {
+  display: grid;
+  place-items: center;
+}
+
+.kodza-date-range__ghost .is-off {
+  opacity: 0.5;
+}
+
+/* A month that just arrived takes its marks and bands as they are */
+.kodza-date-range__month.is-fresh .kodza-date-range__band,
+.kodza-date-range__month.is-fresh .kodza-date-range__mark,
+.kodza-date-range__month.is-fresh .kodza-date-range__ghost {
+  transition: none;
+}
+
+.kodza-date-range__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--kz-date-range-soft);
+}
+
+.kodza-date-range__sum {
+  display: inline-grid;
+  overflow: hidden;
+  padding-left: 6px;
+  font-size: 14px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-date-range__sum > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.kodza-date-range__sum .is-empty {
+  color: var(--kz-date-range-muted);
+}
+
+.kodza-date-range__clear {
+  padding: 0 12px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-date-range__native,
+  .kodza-date-range__field,
+  .kodza-date-range__active,
+  .kodza-date-range__pop,
+  .kodza-date-range__preset,
+  .kodza-date-range__day,
+  .kodza-date-range__band,
+  .kodza-date-range__mark,
+  .kodza-date-range__ghost {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-date-range {
+  --kz-date-range-bg: #161616;
+  --kz-date-range-fg: #f2f2f0;
+  --kz-date-range-muted: rgba(242, 242, 240, 0.62);
+  --kz-date-range-line: rgba(255, 255, 255, 0.14);
+  --kz-date-range-line-hover: rgba(255, 255, 255, 0.3);
+  --kz-date-range-soft: rgba(255, 255, 255, 0.08);
+  --kz-date-range-band: rgba(255, 255, 255, 0.09);
+  --kz-date-range-ink: #f2f2f0;
+  --kz-date-range-on-ink: #0a0a0a;
+  --kz-date-range-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+}
+*/
+
+/* kodza-guard a0f9e8b11cbb — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-date-range__native):not(#_),
+:where(.kodza-date-range__half):not(#_),
+:where(.kodza-date-range__day):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-date-range__nav):not(#_),
+:where(.kodza-date-range__clear):not(#_),
+:where(.kodza-date-range__preset):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-date-range:not(#_),
+.kodza-date-range__name:not(#_),
+.kodza-date-range__field:not(#_),
+.kodza-date-range__active:not(#_),
+.kodza-date-range__caption:not(#_),
+.kodza-date-range__value:not(#_),
+.kodza-date-range__cal:not(#_),
+.kodza-date-range__view:not(#_),
+.kodza-date-range__strip:not(#_),
+.kodza-date-range__month:not(#_),
+.kodza-date-range__title:not(#_),
+.kodza-date-range__weekdays:not(#_),
+.kodza-date-range__days:not(#_),
+.kodza-date-range__band:not(#_),
+.kodza-date-range__mark:not(#_),
+.kodza-date-range__ghost:not(#_),
+.kodza-date-range__foot:not(#_),
+.kodza-date-range__sum:not(#_),
+.kodza-date-range__presets:not(#_),
+.kodza-date-range__value span:where(:not([class*="kodza-"])):not(#_),
+.kodza-date-range__weekdays span:where(:not([class*="kodza-"])):not(#_),
+.kodza-date-range__ghost span:where(:not([class*="kodza-"])):not(#_),
+.kodza-date-range__sum span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-date-range__end:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-date-range__native:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-date-range__half:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-date-range__nav:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-date-range__day:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-date-range__clear:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-date-range__preset:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-date-range__nav svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-date-range__preset:not(#_):where(:not([hidden])),
+.kodza-date-range__nav svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-date-range__preset:not(#_):where([hidden]),
+.kodza-date-range__nav svg:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-date-range__half:not(#_)::before,
+.kodza-date-range__day:not(#_)::before,
+.kodza-date-range__day:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-date-range:not(#_) {
+  width: min(100%, var(--kz-date-range-width));
+}
+
+.kodza-date-range__end:not(#_) {
+  position: relative;
+  display: block;
+  margin: 0;
+}
+
+.kodza-date-range__native:not(#_) {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: var(--kz-date-range-height);
+  margin: 0;
+  padding: 0 10px 9px var(--kz-date-range-pad);
+  border: 0;
+  border-radius: var(--kz-date-range-radius);
+  background: var(--kz-date-range-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-date-range-line);
+  box-sizing: border-box;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-date-range__native:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-date-range-line-hover);
+}
+
+.kodza-date-range__native:focus-visible:not(#_) {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--kz-date-range-fg), 0 0 0 4px var(--kz-date-range-soft);
+}
+
+.kodza-date-range.is-ready .kodza-date-range__end:not(#_) {
+  position: absolute;
+}
+
+.kodza-date-range__half:not(#_) {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 12px 9px var(--kz-date-range-pad);
+  border: 0;
+  border-radius: var(--kz-date-range-radius);
+  background: none;
+  box-sizing: border-box;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kodza-date-range__half:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-date-range__half + .kodza-date-range__half:not(#_)::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  left: 0;
+  width: 1px;
+  background: var(--kz-date-range-line);
+}
+
+.kodza-date-range__preset:not(#_) {
+  height: 32px;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-date-range-line);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-date-range__preset:hover:not(#_) {
+  background: var(--kz-date-range-soft);
+}
+
+.kodza-date-range__preset[aria-pressed="true"]:not(#_) {
+  background: var(--kz-date-range-ink);
+  box-shadow: inset 0 0 0 1px var(--kz-date-range-ink);
+  color: var(--kz-date-range-on-ink);
+}
+
+.kodza-date-range__preset:disabled:not(#_) {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.kodza-date-range__nav:not(#_),
+.kodza-date-range__clear:not(#_) {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  margin: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-date-range__nav:not(#_) {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  width: 32px;
+  padding: 0;
+}
+
+.kodza-date-range__nav[data-step="-1"]:not(#_) {
+  left: 0;
+}
+
+.kodza-date-range__nav[data-step="1"]:not(#_) {
+  right: 0;
+}
+
+.kodza-date-range__nav:hover:not(#_),
+.kodza-date-range__clear:hover:not(#_) {
+  background: var(--kz-date-range-soft);
+}
+
+.kodza-date-range__day:not(#_) {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--kz-date-range-cell);
+  height: var(--kz-date-range-cell);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-date-range__day:hover:not(#_) {
+  background: var(--kz-date-range-soft);
+}
+
+.kodza-date-range.is-on-end .kodza-date-range__day:hover:not(#_),
+.kodza-date-range__day.is-mark:hover:not(#_) {
+  background: none;
+}
+
+.kodza-date-range__day.is-today:not(#_)::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px var(--kz-date-range-line-hover);
+}
+
+.kodza-date-range__day:disabled:not(#_) {
+  color: var(--kz-date-range-muted);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.kodza-date-range__day:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-date-range__day:focus-visible:not(#_)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--kz-date-range-fg);
+  pointer-events: none;
+}
+
+.kodza-date-range__day.is-mark:focus-visible:not(#_)::after {
+  inset: 2px;
+  box-shadow: inset 0 0 0 3px var(--kz-date-range-ink), inset 0 0 0 4.5px var(--kz-date-range-on-ink);
+}
+
+.kodza-date-range__nav:focus-visible:not(#_),
+.kodza-date-range__clear:focus-visible:not(#_),
+.kodza-date-range__preset:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-date-range-fg);
+  outline-offset: 2px;
+}
+
+.kodza-date-range__clear:not(#_) {
+  padding: 0 12px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-date-range__native:not(#_),
+  .kodza-date-range__preset:not(#_),
+  .kodza-date-range__day:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

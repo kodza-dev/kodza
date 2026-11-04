@@ -51,7 +51,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 161. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 176. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -78,7 +78,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-161 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+176 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
 
 ### Buttons
 
@@ -120,20 +120,35 @@ Written like it's going live tomorrow. Because it probably is.
 | Component | What it does | |
 | --- | --- | --- |
 | [Checkbox](components/checkbox-component/) | Real checkboxes, redrawn: ink grows from the centre and the tick draws itself. A select-all box shows a dash when only some are checked. Cards too. | [Demo](https://kodza.dev/components/checkbox-component/) |
+| [Choice Cards](components/choice-cards/) | Cards to compare and pick, on real radio buttons or checkboxes, with a title, a line and an optional price. The picked card's ink border draws itself around it from the corner while a check draws in its mark. Pure CSS. | [Demo](https://kodza.dev/components/choice-cards/) |
 | [Color Picker](components/color-picker/) | A real colour input with a proper panel: saturation square, hue slider, hex field, presets, eyedropper and copy. Pick a preset and the handles glide to it. | [Demo](https://kodza.dev/components/color-picker/) |
+| [Combobox](components/combobox/) | A real select you can type into: the list filters as you type, accents and case aside, the matched letters underlined and the best match lit for Enter. Codes on the right are searched too. | [Demo](https://kodza.dev/components/combobox/) |
 | [Date Picker](components/date-picker/) | A real date input with a calendar: months slide the way you go, the month name rolls, and the ink mark travels to the day you pick. Full keyboard. | [Demo](https://kodza.dev/components/date-picker/) |
+| [Date Range](components/date-range/) | Two real date inputs behind one field and a two-month calendar: the ink band follows the pointer from the start to the end, the length counted as it goes, with optional shortcuts. Full keyboard. | [Demo](https://kodza.dev/components/date-range/) |
 | [File Upload](components/file-upload/) | A drop zone over a real file input: the border marches when files hover, each file gets a row with a thumbnail and a rolling progress, too-big files say so. | [Demo](https://kodza.dev/components/file-upload/) |
+| [Form Wizard](components/form-wizard/) | One real form cut into steps: Next checks the step first, the steps slide while the height eases, and the last one reads the answers back, each with its Edit. Sends via kodza:submit or a fetch. | [Demo](https://kodza.dev/components/form-wizard/) |
+| [Inline Edit](components/inline-edit/) | Text that becomes its own field when clicked: the caret lands under the pointer, Enter saves with a check, Escape rolls the old text back in. A real input or textarea underneath, with a kodza:save event. | [Demo](https://kodza.dev/components/inline-edit/) |
 | [Multi Select](components/multi-select/) | A real multiple select as a field of tags: type to filter, pick to add a tag. Removed tags shrink away while the others glide into their place. | [Demo](https://kodza.dev/components/multi-select/) |
+| [Number Stepper](components/number-stepper/) | A real number input between − and +. Changed digits roll with the count, a held button speeds up, the edge button dims at the limit. Typed values are put back in range on leaving. | [Demo](https://kodza.dev/components/number-stepper/) |
 | [OTP Input](components/otp-input/) | A one-time code field: one real input drawn as cells. Digits rise into place, paste and SMS autofill just work, and the cells turn to ink once complete. | [Demo](https://kodza.dev/components/otp-input/) |
 | [Password](components/password-field/) | A password field with an eye that crosses itself out, a meter that fills as it gets stronger, a verdict that rolls and rules that tick themselves off. | [Demo](https://kodza.dev/components/password-field/) |
+| [Phone Input](components/phone-input/) | A real tel input with its country code in front and a searchable list of countries: the number groups itself as it is typed, a pasted or typed +44 picks the country, and the form gets the number in E.164. | [Demo](https://kodza.dev/components/phone-input/) |
 | [Radio](components/radio-component/) | Real radio buttons with one dot for the whole group: pick another option and the dot travels to it, stretching on the way like a drop of ink. | [Demo](https://kodza.dev/components/radio-component/) |
 | [Range Slider](components/range-slider/) | Real range inputs on a drawn track: a value bubble pops out of the handle, ticks darken as the fill passes, and two handles push each other instead of crossing. | [Demo](https://kodza.dev/components/range-slider/) |
+| [Rating Scale](components/rating-scale/) | A score on real radio buttons, from 0 to 10 or 1 to 5. The picked score fills with ink from the bottom, its end lights up, and an optional follow-up question unfolds and rolls to match the score. Pure CSS. | [Demo](https://kodza.dev/components/rating-scale/) |
 | [Search Autocomplete](components/search-input/) | A search field over a real datalist: suggestions unroll under it, grouped, with the letters you typed underlined. "/" jumps in, arrows and Enter drive. | [Demo](https://kodza.dev/components/search-input/) |
+| [Segmented Control](components/segmented-control/) | Two to five exclusive choices on real radio buttons. An ink pill slides to the one you pick, stretching on the way, and the labels turn white exactly at its edges. | [Demo](https://kodza.dev/components/segmented-control/) |
 | [Select](components/custom-select/) | A real select, dressed up: the list unrolls from the field, a highlight slides between options and the value rolls to your choice. A pill for toolbars too. | [Demo](https://kodza.dev/components/custom-select/) |
+| [Signature Pad](components/signature-pad/) | A box to sign with a finger, a mouse or a stylus: the ink thins as the pen speeds up, Undo backs the last stroke out along its path, and a typed name signs too. The form gets a trimmed PNG. | [Demo](https://kodza.dev/components/signature-pad/) |
 | [Star Rating](components/rating-component/) | Real radio buttons drawn as stars: they light up one after the other under the pointer, the word rolls from Meh to Shipped it, and a static score fills in view. | [Demo](https://kodza.dev/components/rating-component/) |
+| [Subscribe Field](components/subscribe-field/) | An email field and its button in one pill: the address is checked in place, the button rolls to a turning ring, then the thanks rises where the pill was. Posts to the form action or to your code. | [Demo](https://kodza.dev/components/subscribe-field/) |
 | [Switch](components/switch-toggle/) | A real checkbox redrawn as a switch: the ink fills the track behind the thumb, the thumb stretches while pressed and springs into place. Labels, toolbars too. | [Demo](https://kodza.dev/components/switch-toggle/) |
+| [Tags Input](components/tags-input/) | Free values as tags over a real text input, sent joined by commas. Enter or a comma makes a tag, a pasted list is split, a duplicate shakes its twin. Caps with data-max, checks emails. | [Demo](https://kodza.dev/components/tags-input/) |
 | [Text Field](components/text-field/) | A text field whose label folds up as you type. A button clears it, a check draws itself once it is valid, and the hint gives way to the error. | [Demo](https://kodza.dev/components/text-field/) |
 | [Textarea](components/textarea/) | A textarea whose label folds up, whose height eases to fit the text, and whose ring fills from the first character as you near the limit, with the characters left in the last fifth. | [Demo](https://kodza.dev/components/textarea/) |
+| [Time Picker](components/time-picker/) | A time field over the real input: a wheel that snaps and takes the time once it stops, or the free slots of a day. | [Demo](https://kodza.dev/components/time-picker/) |
+| [Toggle Group](components/toggle-group/) | Several on/off choices on real checkboxes. A picked option fills with ink from its centre and its plus turns into a check; picked days side by side join into one band. Pure CSS. | [Demo](https://kodza.dev/components/toggle-group/) |
+| [Was This Helpful](components/was-this-helpful/) | A question and two thumbs: the chosen one fills with ink, No unfolds an optional note, then the thanks rolls in where the question was. Posts to the form action or to your code. | [Demo](https://kodza.dev/components/was-this-helpful/) |
 
 ### Navigation
 

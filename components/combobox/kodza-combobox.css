@@ -1,0 +1,1063 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Combobox
+   A select you can type into. The script lays a text field over a real select (kept in step,
+   so forms and WordPress get the value): typing filters the list, accents and case don't
+   matter, the matched letters are underlined and the best match is lit, ready for Enter. Groups
+   stay, a short code rides on the right of each option (data-meta, searched too: "+9", "@ines",
+   "FR"), and the list changes height smoothly as it filters. Leave the field on a half-typed
+   name and it takes the only match, or puts the last choice back and says why, under the field.
+   Without JS, the native select stays, styled. Same box as Text Field and Select.
+   Everything is tuned with the --kz-combobox-* variables; the words and timings, at the top of
+   the script. */
+.kodza-combobox {
+  --kz-combobox-bg: #ffffff;
+  --kz-combobox-fg: #0a0a0a;
+  --kz-combobox-muted: rgba(10, 10, 10, 0.6);
+  --kz-combobox-line: rgba(10, 10, 10, 0.14);
+  --kz-combobox-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-combobox-soft: rgba(10, 10, 10, 0.06);
+  --kz-combobox-selection: rgba(128, 128, 128, 0.35); /* the selected text: grey, not the browser blue */
+  --kz-combobox-error: #0a0a0a; /* a message, never colour alone: set a red here if you want one */
+  --kz-combobox-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  --kz-combobox-height: 56px;
+  --kz-combobox-radius: calc(12px * var(--kz-radius-scale, 1));
+  --kz-combobox-pad: 16px;
+  --kz-combobox-width: var(--kz-field-width, 320px);
+  --kz-combobox-list-height: 280px; /* the open list, at most: it scrolls past that */
+  --kz-combobox-duration: 0.35s;
+  --kz-combobox-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  max-width: var(--kz-combobox-width);
+  /* The closed list keeps its size, ready to unroll, but never lengthens the page */
+  contain: layout;
+  /* A number, not auto, so it can wait for the list to roll up before dropping back */
+  z-index: 0;
+  transition: z-index 0s linear calc(var(--kz-combobox-duration) * var(--kz-motion-scale, 1));
+  color: var(--kz-combobox-fg);
+}
+
+/* Open, the field rises above what follows it (its list included) */
+.kodza-combobox.is-open {
+  z-index: 20;
+  transition-delay: 0s;
+}
+
+/* The box: label on top, value below (the native select, or the text field the script adds) */
+.kodza-combobox__box {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  height: var(--kz-combobox-height);
+  margin: 0;
+  padding: 0;
+  border-radius: var(--kz-combobox-radius);
+  background: var(--kz-combobox-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-combobox-line);
+  cursor: text;
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-combobox__box:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-combobox-line-hover);
+}
+
+.kodza-combobox__box:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-combobox-fg), 0 0 0 4px var(--kz-combobox-soft);
+}
+
+.kodza-combobox.is-invalid .kodza-combobox__box {
+  box-shadow: inset 0 0 0 1.5px var(--kz-combobox-error);
+}
+
+.kodza-combobox.is-invalid .kodza-combobox__box:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-combobox-error), 0 0 0 4px var(--kz-combobox-soft);
+}
+
+.kodza-combobox.is-disabled .kodza-combobox__box {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kodza-combobox__label {
+  position: absolute;
+  top: 10px;
+  left: var(--kz-combobox-pad);
+  z-index: 1;
+  color: var(--kz-combobox-muted);
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform calc(var(--kz-combobox-duration) * var(--kz-motion-scale, 1)) var(--kz-combobox-ease);
+}
+
+/* Nothing chosen yet: the label sits in the field at the size of a value, as in Text Field, and
+   rises when the field takes the focus */
+.kodza-combobox.is-empty .kodza-combobox__box:not(:focus-within) .kodza-combobox__label {
+  transform: translateY(calc(var(--kz-combobox-height) / 2 - 17.5px)) scale(1.25);
+}
+
+/* Without the script: the native select, styled like the field */
+.kodza-combobox__native {
+  display: flex;
+  align-items: flex-end;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0 44px 9px var(--kz-combobox-pad);
+  border: 0;
+  border-radius: inherit;
+  outline: none;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10.5l4-4' fill='none' stroke='%23999' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 16px center / 16px no-repeat;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  cursor: pointer;
+  appearance: none;
+}
+
+/* Enhanced: the native select steps back (still in the form), the text field takes its place */
+.kodza-combobox.is-ready .kodza-combobox__native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+/* The value line: the text field, and the old value rolling out above it (ghost) */
+.kodza-combobox__value {
+  position: absolute;
+  right: 44px;
+  bottom: 9px;
+  left: var(--kz-combobox-pad);
+  height: 22px;
+  overflow: hidden;
+}
+
+.kodza-combobox__input,
+.kodza-combobox__ghost {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: inherit;
+  text-overflow: ellipsis;
+  white-space: pre;
+}
+
+.kodza-combobox__input {
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  caret-color: var(--kz-combobox-fg);
+  appearance: none;
+}
+
+/* Clicking in selects the whole name, ready to be typed over */
+.kodza-combobox__input::selection {
+  background: var(--kz-combobox-selection);
+  color: var(--kz-combobox-fg);
+}
+
+.kodza-combobox__input::placeholder {
+  color: transparent;
+  opacity: 1;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-combobox__input:focus::placeholder {
+  color: var(--kz-combobox-muted);
+}
+
+.kodza-combobox__input:disabled {
+  cursor: not-allowed;
+}
+
+.kodza-combobox__ghost {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* The chevron: a click opens the list, or closes it */
+.kodza-combobox__toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  cursor: pointer;
+}
+
+.kodza-combobox.is-disabled .kodza-combobox__toggle {
+  cursor: not-allowed;
+}
+
+.kodza-combobox__toggle svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--kz-combobox-muted);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform calc(var(--kz-combobox-duration) * var(--kz-motion-scale, 1)) var(--kz-combobox-ease);
+}
+
+.kodza-combobox.is-open .kodza-combobox__toggle svg {
+  transform: rotate(180deg);
+}
+
+/* The list unrolls from the field, over the note below it */
+.kodza-combobox__list {
+  position: absolute;
+  top: calc(var(--kz-combobox-height) + 8px);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  box-sizing: border-box;
+  max-height: var(--kz-combobox-list-height);
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: calc(14px * var(--kz-radius-scale, 1));
+  background: var(--kz-combobox-bg);
+  box-shadow: 0 0 0 1px var(--kz-combobox-line), var(--kz-combobox-shadow);
+  list-style: none;
+  visibility: hidden;
+  clip-path: inset(0 0 100% 0 round calc(14px * var(--kz-radius-scale, 1)));
+  transform: translateY(-4px);
+  transition:
+    clip-path calc(var(--kz-combobox-duration) * var(--kz-motion-scale, 1)) var(--kz-combobox-ease),
+    transform calc(var(--kz-combobox-duration) * var(--kz-motion-scale, 1)) var(--kz-combobox-ease),
+    visibility 0s linear calc(var(--kz-combobox-duration) * var(--kz-motion-scale, 1));
+}
+
+.kodza-combobox.is-open .kodza-combobox__list {
+  visibility: visible;
+  clip-path: inset(-40px -40px -60px -40px round calc(14px * var(--kz-radius-scale, 1)));
+  transform: none;
+  transition-delay: 0s;
+}
+
+.kodza-combobox.is-above .kodza-combobox__list {
+  top: auto;
+  bottom: calc(100% + 8px);
+  clip-path: inset(100% 0 0 0 round calc(14px * var(--kz-radius-scale, 1)));
+  transform: translateY(4px);
+}
+
+.kodza-combobox.is-above.is-open .kodza-combobox__list {
+  clip-path: inset(-60px -40px -40px -40px round calc(14px * var(--kz-radius-scale, 1)));
+  transform: none;
+}
+
+.kodza-combobox__highlight {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  left: 6px;
+  height: var(--kz-hl-h, 36px);
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  background: var(--kz-combobox-soft);
+  opacity: var(--kz-hl-on, 0);
+  transform: translateY(var(--kz-hl-y, 0));
+  pointer-events: none;
+}
+
+.kodza-combobox.is-open .kodza-combobox__highlight {
+  transition:
+    transform calc(0.22s * var(--kz-motion-scale, 1)) var(--kz-combobox-ease),
+    opacity calc(0.15s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-combobox__group {
+  margin: 0;
+  padding: 8px 10px 4px 32px;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-combobox-muted);
+}
+
+.kodza-combobox__option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 36px;
+  margin: 0;
+  padding: 0 10px 0 32px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kodza-combobox__option[aria-disabled="true"] {
+  color: var(--kz-combobox-muted);
+  cursor: not-allowed;
+}
+
+.kodza-combobox__group[hidden],
+.kodza-combobox__option[hidden],
+.kodza-combobox__empty[hidden] {
+  display: none;
+}
+
+.kodza-combobox__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The letters that match what was typed */
+.kodza-combobox__option mark {
+  padding: 0;
+  background: none;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+/* The code on the right (data-meta): ISO code, offset, handle */
+.kodza-combobox__meta {
+  flex: none;
+  margin-left: auto;
+  color: var(--kz-combobox-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The tick of the chosen option draws itself */
+.kodza-combobox__option svg {
+  position: absolute;
+  left: 10px;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset calc(0.15s * var(--kz-motion-scale, 1)) ease-in;
+}
+
+.kodza-combobox__option[aria-selected="true"] svg {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-combobox-ease) calc(0.05s * var(--kz-motion-scale, 1));
+}
+
+/* Nothing matches */
+.kodza-combobox__empty {
+  margin: 0;
+  padding: 18px 10px;
+  color: var(--kz-combobox-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Hint and error share one line: the hint steps out upward as the error rises in */
+.kodza-combobox__note {
+  display: grid;
+  margin: 0;
+  padding: 0 2px;
+  overflow: hidden;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-combobox__hint,
+.kodza-combobox__error {
+  grid-area: 1 / 1;
+  transition:
+    opacity calc(var(--kz-combobox-duration) * 0.625 * var(--kz-motion-scale, 1)) ease,
+    transform calc(var(--kz-combobox-duration) * var(--kz-motion-scale, 1)) var(--kz-combobox-ease);
+}
+
+.kodza-combobox__hint {
+  color: var(--kz-combobox-muted);
+}
+
+.kodza-combobox__error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--kz-combobox-error);
+  font-weight: var(--kz-font-label-weight, 500);
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.kodza-combobox__error::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-combobox.is-invalid .kodza-combobox__hint {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.kodza-combobox.is-invalid .kodza-combobox__error {
+  opacity: 1;
+  transform: none;
+}
+
+/* What screen readers hear as the list filters ("4 options") */
+.kodza-combobox__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-combobox__box,
+  .kodza-combobox__label,
+  .kodza-combobox__input::placeholder,
+  .kodza-combobox__toggle svg,
+  .kodza-combobox__list,
+  .kodza-combobox.is-open .kodza-combobox__highlight,
+  .kodza-combobox__option svg,
+  .kodza-combobox__hint,
+  .kodza-combobox__error {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-combobox {
+  --kz-combobox-bg: #161616;
+  --kz-combobox-fg: #f2f2f0;
+  --kz-combobox-muted: rgba(242, 242, 240, 0.62);
+  --kz-combobox-line: rgba(255, 255, 255, 0.14);
+  --kz-combobox-line-hover: rgba(255, 255, 255, 0.3);
+  --kz-combobox-soft: rgba(255, 255, 255, 0.08);
+  --kz-combobox-error: #f2f2f0;
+  --kz-combobox-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+}
+*/
+
+/* kodza-guard bbd3901dc7d7 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-combobox__native):not(#_) {
+  position: revert;
+}
+
+:where(.kodza-combobox__highlight):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-combobox__option):not(#_) {
+  color: revert;
+}
+
+:where(.kodza-combobox__empty):not(#_):where(:not([hidden])),
+:where(.kodza-combobox__group):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-combobox__empty):not(#_):where([hidden]),
+:where(.kodza-combobox__group):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-combobox:not(#_),
+.kodza-combobox__label:not(#_),
+.kodza-combobox__value:not(#_),
+.kodza-combobox__toggle:not(#_),
+.kodza-combobox__text:not(#_),
+.kodza-combobox__meta:not(#_),
+.kodza-combobox__hint:not(#_),
+.kodza-combobox__error:not(#_),
+.kodza-combobox__live:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-combobox__box:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-combobox__input:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-combobox__native:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-combobox__list:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-combobox__highlight:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-combobox__option:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-combobox__empty:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-combobox__note:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-combobox__group:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-combobox__native option:where(:not([class*="kodza-"])):not(#_),
+.kodza-combobox__native optgroup:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+  color: revert;
+}
+
+.kodza-combobox__toggle svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-combobox__option svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-combobox__list:not(#_):where(:not([hidden])),
+.kodza-combobox__highlight:not(#_):where(:not([hidden])),
+.kodza-combobox__option svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-combobox__list:not(#_):where([hidden]),
+.kodza-combobox__highlight:not(#_):where([hidden]),
+.kodza-combobox__option svg:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-combobox__error:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-combobox:not(#_) {
+  width: min(100%, var(--kz-combobox-width));
+}
+
+.kodza-combobox__box:not(#_) {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--kz-combobox-radius);
+  background: var(--kz-combobox-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-combobox-line);
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-combobox__box:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-combobox-line-hover);
+}
+
+.kodza-combobox__box:focus-within:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-combobox-fg), 0 0 0 4px var(--kz-combobox-soft);
+}
+
+.kodza-combobox.is-invalid .kodza-combobox__box:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-combobox-error);
+}
+
+.kodza-combobox.is-invalid .kodza-combobox__box:focus-within:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-combobox-error), 0 0 0 4px var(--kz-combobox-soft);
+}
+
+.kodza-combobox__native:not(#_) {
+  display: flex;
+  align-items: flex-end;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0 44px 9px var(--kz-combobox-pad);
+  border: 0;
+  border-radius: inherit;
+  outline: none;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10.5l4-4' fill='none' stroke='%23999' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 16px center / 16px no-repeat;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  cursor: pointer;
+  appearance: none;
+}
+
+.kodza-combobox.is-ready .kodza-combobox__native:not(#_) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+.kodza-combobox__input:not(#_) {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: inherit;
+  text-overflow: ellipsis;
+  white-space: pre;
+}
+
+.kodza-combobox__input:not(#_) {
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  caret-color: var(--kz-combobox-fg);
+  appearance: none;
+}
+
+.kodza-combobox__input:not(#_)::selection {
+  background: var(--kz-combobox-selection);
+  color: var(--kz-combobox-fg);
+}
+
+.kodza-combobox__input:not(#_)::placeholder {
+  color: transparent;
+  opacity: 1;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-combobox__input:focus:not(#_)::placeholder {
+  color: var(--kz-combobox-muted);
+}
+
+.kodza-combobox__input:disabled:not(#_) {
+  cursor: not-allowed;
+}
+
+.kodza-combobox__toggle svg:not(#_) {
+  display: block;
+  transition: transform calc(var(--kz-combobox-duration) * var(--kz-motion-scale, 1)) var(--kz-combobox-ease);
+}
+
+.kodza-combobox__list:not(#_) {
+  position: absolute;
+  box-sizing: border-box;
+  max-height: var(--kz-combobox-list-height);
+  margin: 0;
+  padding: 6px;
+  border-radius: calc(14px * var(--kz-radius-scale, 1));
+  background: var(--kz-combobox-bg);
+  box-shadow: 0 0 0 1px var(--kz-combobox-line), var(--kz-combobox-shadow);
+  list-style: none;
+  transition: clip-path calc(var(--kz-combobox-duration) * var(--kz-motion-scale, 1)) var(--kz-combobox-ease),
+    transform calc(var(--kz-combobox-duration) * var(--kz-motion-scale, 1)) var(--kz-combobox-ease),
+    visibility 0s linear calc(var(--kz-combobox-duration) * var(--kz-motion-scale, 1));
+}
+
+.kodza-combobox.is-open .kodza-combobox__list:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-combobox__highlight:not(#_) {
+  position: absolute;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  background: var(--kz-combobox-soft);
+}
+
+.kodza-combobox.is-open .kodza-combobox__highlight:not(#_) {
+  transition: transform calc(0.22s * var(--kz-motion-scale, 1)) var(--kz-combobox-ease),
+    opacity calc(0.15s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-combobox__group:not(#_) {
+  margin: 0;
+  padding: 8px 10px 4px 32px;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-combobox-muted);
+}
+
+.kodza-combobox__option:not(#_) {
+  position: relative;
+  display: flex;
+  margin: 0;
+  padding: 0 10px 0 32px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.kodza-combobox__option[aria-disabled="true"]:not(#_) {
+  color: var(--kz-combobox-muted);
+}
+
+.kodza-combobox__group[hidden]:not(#_),
+.kodza-combobox__option[hidden]:not(#_),
+.kodza-combobox__empty[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-combobox__option svg:not(#_) {
+  position: absolute;
+  transition: stroke-dashoffset calc(0.15s * var(--kz-motion-scale, 1)) ease-in;
+}
+
+.kodza-combobox__option[aria-selected="true"] svg:not(#_) {
+  transition: stroke-dashoffset calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-combobox-ease) calc(0.05s * var(--kz-motion-scale, 1));
+}
+
+.kodza-combobox__empty:not(#_) {
+  margin: 0;
+  padding: 18px 10px;
+  color: var(--kz-combobox-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.kodza-combobox__note:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0 2px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-combobox__box:not(#_),
+  .kodza-combobox__toggle svg:not(#_),
+  .kodza-combobox__list:not(#_),
+  .kodza-combobox.is-open .kodza-combobox__highlight:not(#_),
+  .kodza-combobox__option svg:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-combobox__input:not(#_)::placeholder {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

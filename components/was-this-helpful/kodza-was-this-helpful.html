@@ -1,0 +1,44 @@
+<!-- action: where the answer goes (your endpoint, a WordPress plugin), or cancel "kodza:helpful" and send it yourself -->
+<form class="kodza-helpful" action="https://example.com/feedback" method="post">
+  <div class="kodza-helpful__stage">
+    <div class="kodza-helpful__ask" role="group">
+      <p class="kodza-helpful__label">
+        <span class="kodza-helpful__question">Was this page helpful?</span>
+        <span class="kodza-helpful__error" aria-live="polite"></span>
+      </p>
+      <div class="kodza-helpful__choices">
+        <button class="kodza-helpful__choice" type="submit" name="helpful" value="yes" aria-label="Yes">
+          <span class="kodza-helpful__face" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11a1 1 0 0 1 1-1h3v10H4a1 1 0 0 1-1-1z" /><path d="M7 10l3.6-6.2a1.6 1.6 0 0 1 2.9 1.2L12.6 10h5.6a2 2 0 0 1 2 2.4l-1.3 6A2 2 0 0 1 17 20H7" /></svg></span>
+          <span class="kodza-helpful__ink" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11a1 1 0 0 1 1-1h3v10H4a1 1 0 0 1-1-1z" /><path d="M7 10l3.6-6.2a1.6 1.6 0 0 1 2.9 1.2L12.6 10h5.6a2 2 0 0 1 2 2.4l-1.3 6A2 2 0 0 1 17 20H7" /></svg></span>
+        </button>
+        <button class="kodza-helpful__choice kodza-helpful__choice--no" type="submit" name="helpful" value="no" aria-label="No">
+          <span class="kodza-helpful__face" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11a1 1 0 0 1 1-1h3v10H4a1 1 0 0 1-1-1z" /><path d="M7 10l3.6-6.2a1.6 1.6 0 0 1 2.9 1.2L12.6 10h5.6a2 2 0 0 1 2 2.4l-1.3 6A2 2 0 0 1 17 20H7" /></svg></span>
+          <span class="kodza-helpful__ink" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11a1 1 0 0 1 1-1h3v10H4a1 1 0 0 1-1-1z" /><path d="M7 10l3.6-6.2a1.6 1.6 0 0 1 2.9 1.2L12.6 10h5.6a2 2 0 0 1 2 2.4l-1.3 6A2 2 0 0 1 17 20H7" /></svg></span>
+        </button>
+      </div>
+    </div>
+    <p class="kodza-helpful__done" role="status" tabindex="-1">
+      <span class="kodza-helpful__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7.5 12.5l3 3 6-6.5" pathLength="1" /></svg></span>
+      <span class="kodza-helpful__thanks" data-for="yes">Glad it helped.</span>
+      <span class="kodza-helpful__thanks" data-for="no">Thanks. We'll fix it.</span>
+    </p>
+  </div>
+  <div class="kodza-helpful__more">
+    <div class="kodza-helpful__more-inner">
+      <label class="kodza-helpful__box">
+        <span class="kodza-helpful__small">Tell us more</span>
+        <textarea class="kodza-helpful__text" name="more" rows="2" placeholder="What was missing?"></textarea>
+      </label>
+      <div class="kodza-helpful__row">
+        <p class="kodza-helpful__note">
+          <span class="kodza-helpful__hint">Optional. We read every one.</span>
+          <span class="kodza-helpful__error" aria-live="polite"></span>
+        </p>
+        <button class="kodza-helpful__send" type="submit" name="helpful" value="no">
+          <span class="kodza-helpful__word">Send</span>
+          <span class="kodza-helpful__spinner" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="8.5" pathLength="100" /></svg></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</form>

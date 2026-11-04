@@ -1,0 +1,488 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Choice Cards
+   Options worth comparing before you pick (a plan, a delivery method, an onboarding goal), as
+   cards on real radio buttons or real checkboxes. The picked card's ink border draws itself
+   around the card, both ways from the corner, while its mark fills and the check draws in;
+   the other cards stay calm. A round mark means one choice (radio), a square one means several
+   (checkbox): the input type sets it. The price line is optional.
+   Pure CSS: the form gets the value as usual, and the keyboard is the inputs' own.
+   Everything is tuned with the --kz-choice-cards-* variables. */
+/* The sweep is a typed angle so it can transition. "\3c" is the less-than sign, escaped
+   because WordPress refuses one in Additional CSS */
+@property --kz-choice-cards-sweep {
+  syntax: "\3c angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.kodza-choice-cards {
+  --kz-choice-cards-bg: #ffffff;
+  --kz-choice-cards-fg: #0a0a0a;
+  --kz-choice-cards-muted: rgba(10, 10, 10, 0.58);
+  --kz-choice-cards-border: rgba(10, 10, 10, 0.1);
+  --kz-choice-cards-border-hover: rgba(10, 10, 10, 0.28);
+  --kz-choice-cards-ink: #0a0a0a;
+  --kz-choice-cards-on-ink: #ffffff;
+  --kz-choice-cards-width: 720px; /* the whole group, at most */
+  --kz-choice-cards-min: 190px; /* a card never gets narrower: below it, cards stack */
+  --kz-choice-cards-gap: 12px;
+
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: var(--kz-choice-cards-width);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--kz-choice-cards-fg);
+}
+
+.kodza-choice-cards__legend {
+  margin-bottom: 14px;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.kodza-choice-cards__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--kz-choice-cards-min)), 1fr));
+  gap: var(--kz-choice-cards-gap);
+}
+
+.kodza-choice-cards__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: 20px;
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-choice-cards-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-choice-cards-border);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The ink border: drawn from the mark's corner, both ways, and it meets at the opposite one */
+.kodza-choice-cards__card::after {
+  --kz-choice-cards-sweep: 0deg;
+
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border: 1.5px solid var(--kz-choice-cards-ink);
+  border-radius: inherit;
+  -webkit-mask: conic-gradient(from calc(48deg - var(--kz-choice-cards-sweep)), #000 calc(2 * var(--kz-choice-cards-sweep)), transparent 0);
+  mask: conic-gradient(from calc(48deg - var(--kz-choice-cards-sweep)), #000 calc(2 * var(--kz-choice-cards-sweep)), transparent 0);
+  pointer-events: none;
+  transition: --kz-choice-cards-sweep calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-choice-cards__card:has(.kodza-choice-cards__input:checked)::after {
+  --kz-choice-cards-sweep: 180deg;
+
+  transition-duration: calc(0.6s * var(--kz-motion-scale, 1));
+}
+
+/* The real input covers its card: a click anywhere picks it */
+.kodza-choice-cards__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+/* The mark: an empty ring at rest, ink grows from its centre and the check draws in */
+.kodza-choice-cards__mark {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px var(--kz-choice-cards-border-hover);
+  pointer-events: none;
+}
+
+.kodza-choice-cards__card:has([type="checkbox"]) .kodza-choice-cards__mark {
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
+}
+
+.kodza-choice-cards__mark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--kz-choice-cards-ink);
+  transform: scale(0);
+  transition: transform calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-choice-cards__svg {
+  position: relative;
+  display: block;
+  overflow: visible;
+}
+
+.kodza-choice-cards__check {
+  fill: none;
+  stroke: var(--kz-choice-cards-on-ink);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset calc(0.2s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-choice-cards__card:has(.kodza-choice-cards__input:checked) .kodza-choice-cards__mark::before {
+  transform: scale(1);
+}
+
+.kodza-choice-cards__card:has(.kodza-choice-cards__input:checked) .kodza-choice-cards__check {
+  stroke-dashoffset: 0;
+  transition-duration: calc(0.32s * var(--kz-motion-scale, 1));
+  transition-delay: calc(0.12s * var(--kz-motion-scale, 1));
+}
+
+.kodza-choice-cards__title {
+  padding-right: 32px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.kodza-choice-cards__text {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--kz-choice-cards-muted);
+  text-wrap: pretty;
+}
+
+/* Pushed to the bottom: prices line up across a row of cards */
+.kodza-choice-cards__price {
+  margin-top: auto;
+  padding-top: 16px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 600);
+  line-height: var(--kz-font-label-leading, 1.3);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) {
+  .kodza-choice-cards__card:hover {
+    box-shadow: inset 0 0 0 1px var(--kz-choice-cards-border-hover);
+  }
+}
+
+.kodza-choice-cards__card:active {
+  transform: scale(0.99);
+}
+
+.kodza-choice-cards__card:has(.kodza-choice-cards__input:focus-visible) {
+  outline: 2px solid var(--kz-choice-cards-fg);
+  outline-offset: 3px;
+}
+
+.kodza-choice-cards__card:has(.kodza-choice-cards__input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.kodza-choice-cards__card:has(.kodza-choice-cards__input:disabled):active {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-choice-cards__card,
+  .kodza-choice-cards__card::after,
+  .kodza-choice-cards__mark::before,
+  .kodza-choice-cards__check {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-choice-cards {
+  --kz-choice-cards-bg: #161616;
+  --kz-choice-cards-fg: #f2f2f0;
+  --kz-choice-cards-muted: rgba(242, 242, 240, 0.62);
+  --kz-choice-cards-border: rgba(255, 255, 255, 0.12);
+  --kz-choice-cards-border-hover: rgba(255, 255, 255, 0.3);
+  --kz-choice-cards-ink: #f2f2f0;
+  --kz-choice-cards-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard 4cf61ab3aafb — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-choice-cards__card):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-choice-cards:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-choice-cards__legend:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-choice-cards__list:not(#_),
+.kodza-choice-cards__mark:not(#_),
+.kodza-choice-cards__check:not(#_),
+.kodza-choice-cards__title:not(#_),
+.kodza-choice-cards__text:not(#_),
+.kodza-choice-cards__price:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-choice-cards__card:not(#_) {
+  border: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-choice-cards__input:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-choice-cards__svg:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-choice-cards__legend:not(#_):where(:not([hidden])),
+.kodza-choice-cards__input:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-choice-cards__legend:not(#_):where([hidden]),
+.kodza-choice-cards__input:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-choice-cards__input:not(#_)::after,
+.kodza-choice-cards__mark:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-choice-cards:not(#_) {
+  display: block;
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  color: var(--kz-choice-cards-fg);
+}
+
+.kodza-choice-cards:not(#_) {
+  width: min(100%, var(--kz-choice-cards-width));
+}
+
+.kodza-choice-cards__legend:not(#_) {
+  margin-bottom: 14px;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.kodza-choice-cards__card:not(#_) {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 20px;
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-choice-cards-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-choice-cards-border);
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-choice-cards__input:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.kodza-choice-cards__svg:not(#_) {
+  position: relative;
+  display: block;
+}
+
+@media (hover: hover) {
+  .kodza-choice-cards__card:hover:not(#_) {
+    box-shadow: inset 0 0 0 1px var(--kz-choice-cards-border-hover);
+  }
+}
+
+.kodza-choice-cards__card:has(.kodza-choice-cards__input:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-choice-cards-fg);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-choice-cards__card:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

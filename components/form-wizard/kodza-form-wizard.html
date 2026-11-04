@@ -1,0 +1,87 @@
+<form class="kodza-wizard" action="#" method="post" data-next="Next" data-to-review="Back to review" data-sending="Sending…">
+  <ol class="kodza-wizard__steps">
+    <li class="kodza-wizard__step"><button class="kodza-wizard__dot" type="button"><span class="kodza-wizard__num">1</span><svg class="kodza-wizard__check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" pathLength="1"/></svg></button><span class="kodza-wizard__step-label">Project</span></li>
+    <li class="kodza-wizard__step"><button class="kodza-wizard__dot" type="button"><span class="kodza-wizard__num">2</span><svg class="kodza-wizard__check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" pathLength="1"/></svg></button><span class="kodza-wizard__step-label">Budget</span></li>
+    <li class="kodza-wizard__step"><button class="kodza-wizard__dot" type="button"><span class="kodza-wizard__num">3</span><svg class="kodza-wizard__check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" pathLength="1"/></svg></button><span class="kodza-wizard__step-label">Contact</span></li>
+    <li class="kodza-wizard__step"><button class="kodza-wizard__dot" type="button"><span class="kodza-wizard__num">4</span><svg class="kodza-wizard__check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" pathLength="1"/></svg></button><span class="kodza-wizard__step-label">Review</span></li>
+  </ol>
+
+  <div class="kodza-wizard__panels">
+    <fieldset class="kodza-wizard__panel">
+      <legend class="kodza-wizard__title">What are we building?</legend>
+      <fieldset class="kodza-wizard__group">
+        <legend class="kodza-wizard__legend">Project</legend>
+        <div class="kodza-wizard__choices">
+          <label class="kodza-wizard__choice"><input class="kodza-wizard__radio" type="radio" name="project" value="site" required data-error="Pick one. Any one."><span>Marketing site</span></label>
+          <label class="kodza-wizard__choice"><input class="kodza-wizard__radio" type="radio" name="project" value="shop"><span>Online shop</span></label>
+          <label class="kodza-wizard__choice"><input class="kodza-wizard__radio" type="radio" name="project" value="redesign"><span>Redesign</span></label>
+          <label class="kodza-wizard__choice"><input class="kodza-wizard__radio" type="radio" name="project" value="unsure"><span>No idea yet</span></label>
+        </div>
+        <p class="kodza-wizard__note"><span class="kodza-wizard__hint">You can change your mind. We do it all the time.</span><span class="kodza-wizard__error" aria-live="polite"></span></p>
+      </fieldset>
+      <div class="kodza-wizard__field">
+        <label class="kodza-wizard__box">
+          <input class="kodza-wizard__input" type="url" name="current_site" placeholder=" " autocomplete="url" data-error="A full address, with https://.">
+          <span class="kodza-wizard__label">Current site</span>
+        </label>
+        <p class="kodza-wizard__note"><span class="kodza-wizard__hint">Optional. We will not judge it. Much.</span><span class="kodza-wizard__error" aria-live="polite"></span></p>
+      </div>
+    </fieldset>
+
+    <fieldset class="kodza-wizard__panel">
+      <legend class="kodza-wizard__title">What is the budget?</legend>
+      <fieldset class="kodza-wizard__group">
+        <legend class="kodza-wizard__legend">Budget</legend>
+        <div class="kodza-wizard__choices">
+          <label class="kodza-wizard__choice"><input class="kodza-wizard__radio" type="radio" name="budget" value="under-5k" required data-error="A ballpark is fine. Nobody holds you to it."><span>Under €5k</span></label>
+          <label class="kodza-wizard__choice"><input class="kodza-wizard__radio" type="radio" name="budget" value="5-15k"><span>€5k to €15k</span></label>
+          <label class="kodza-wizard__choice"><input class="kodza-wizard__radio" type="radio" name="budget" value="over-15k"><span>Over €15k</span></label>
+        </div>
+        <p class="kodza-wizard__note"><span class="kodza-wizard__hint">A ballpark. Nobody holds you to it.</span><span class="kodza-wizard__error" aria-live="polite"></span></p>
+      </fieldset>
+      <fieldset class="kodza-wizard__group">
+        <legend class="kodza-wizard__legend">Launch</legend>
+        <div class="kodza-wizard__choices">
+          <label class="kodza-wizard__choice"><input class="kodza-wizard__radio" type="radio" name="launch" value="asap" required data-error="Pick one. No rush is an answer too."><span>Yesterday</span></label>
+          <label class="kodza-wizard__choice"><input class="kodza-wizard__radio" type="radio" name="launch" value="quarter"><span>This quarter</span></label>
+          <label class="kodza-wizard__choice"><input class="kodza-wizard__radio" type="radio" name="launch" value="later"><span>No rush</span></label>
+        </div>
+        <p class="kodza-wizard__note"><span class="kodza-wizard__hint">Yesterday costs the same. It just ships later.</span><span class="kodza-wizard__error" aria-live="polite"></span></p>
+      </fieldset>
+    </fieldset>
+
+    <fieldset class="kodza-wizard__panel">
+      <legend class="kodza-wizard__title">Where do we send the quote?</legend>
+      <div class="kodza-wizard__field">
+        <label class="kodza-wizard__box">
+          <input class="kodza-wizard__input" type="text" name="name" placeholder=" " autocomplete="name" required data-error="We need something to call you.">
+          <span class="kodza-wizard__label">Name</span>
+        </label>
+        <p class="kodza-wizard__note"><span class="kodza-wizard__hint">A first name is plenty.</span><span class="kodza-wizard__error" aria-live="polite"></span></p>
+      </div>
+      <div class="kodza-wizard__field">
+        <label class="kodza-wizard__box">
+          <input class="kodza-wizard__input" type="email" name="email" placeholder=" " autocomplete="email" required data-error="That does not look like an email.">
+          <span class="kodza-wizard__label">Email</span>
+        </label>
+        <p class="kodza-wizard__note"><span class="kodza-wizard__hint">One email, with the quote. That is it.</span><span class="kodza-wizard__error" aria-live="polite"></span></p>
+      </div>
+    </fieldset>
+
+    <section class="kodza-wizard__panel kodza-wizard__review" hidden>
+      <h3 class="kodza-wizard__title">Check it. Then send it.</h3>
+      <dl class="kodza-wizard__summary"></dl>
+    </section>
+
+    <section class="kodza-wizard__panel kodza-wizard__done" hidden>
+      <h3 class="kodza-wizard__title">Sent.</h3>
+      <p class="kodza-wizard__text">A human reads it today. The quote lands in your inbox within two days, in plain numbers.</p>
+    </section>
+  </div>
+
+  <div class="kodza-wizard__actions">
+    <button class="kodza-wizard__back" type="button">Back</button>
+    <p class="kodza-wizard__status" aria-live="polite"></p>
+    <button class="kodza-wizard__next" type="submit">Send request</button>
+  </div>
+</form>

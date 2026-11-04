@@ -1,0 +1,1573 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Form Wizard
+   One real form cut into steps, on the line of Stepper. Next checks the step first: the error
+   swaps in under the faulty field and the focus goes there. The card's height eases from one
+   step to the next while the old step leaves on one side and the new one comes in from the
+   other. Back keeps everything. The last step reads the answers back, each with an Edit that
+   jumps to its step (Next then returns straight to the review, and the changed answer rolls in).
+   Without JS, every step shows, one under the other, and the button sends the form.
+   The form is sent its own way (action, method). data-send="fetch" sends it without leaving
+   the page and shows .kodza-wizard__done; so does cancelling the kodza:submit event.
+   Everything is tuned with the --kz-wizard-* variables; the button words in data-* on the form. */
+.kodza-wizard {
+  --kz-wizard-bg: #ffffff;
+  --kz-wizard-fg: #0a0a0a;
+  --kz-wizard-muted: rgba(10, 10, 10, 0.6);
+  --kz-wizard-border: rgba(10, 10, 10, 0.1);
+  --kz-wizard-line: rgba(10, 10, 10, 0.14);
+  --kz-wizard-line-hover: rgba(10, 10, 10, 0.3);
+  --kz-wizard-soft: rgba(10, 10, 10, 0.04);
+  --kz-wizard-ink: #0a0a0a;
+  --kz-wizard-on-ink: #ffffff;
+  --kz-wizard-error: #0a0a0a; /* a message, never colour alone: set a red here if you want one */
+  --kz-wizard-width: 560px;
+  --kz-wizard-dot: 28px;
+  --kz-wizard-field-height: 56px;
+  --kz-wizard-field-radius: calc(12px * var(--kz-radius-scale, 1));
+  --kz-wizard-duration: 0.6s; /* a step change; the field states take 2/3 of it */
+  --kz-wizard-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  gap: 28px;
+  width: 100%;
+  max-width: var(--kz-wizard-width);
+  margin: 0;
+  padding: 28px;
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-wizard-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-border);
+  color: var(--kz-wizard-fg);
+  box-sizing: border-box;
+}
+
+/* The steps, and the line that joins their centres (once the script runs) */
+.kodza-wizard__steps {
+  position: relative;
+  display: none;
+  grid-template-columns: repeat(var(--kz-wizard-n, 4), minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-wizard.is-ready .kodza-wizard__steps {
+  display: grid;
+}
+
+.kodza-wizard__steps::before,
+.kodza-wizard__steps::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--kz-wizard-dot) / 2 - 1px);
+  left: calc(50% / var(--kz-wizard-n, 4));
+  right: calc(50% / var(--kz-wizard-n, 4));
+  height: 2px;
+  border-radius: calc(2px * var(--kz-radius-scale, 1));
+  background: var(--kz-wizard-line);
+}
+
+/* The filled part only scales */
+.kodza-wizard__steps::after {
+  background: var(--kz-wizard-ink);
+  transform: scaleX(var(--kz-wizard-progress, 0));
+  transform-origin: left;
+  transition: transform calc(var(--kz-wizard-duration) * var(--kz-motion-scale, 1)) var(--kz-wizard-ease);
+}
+
+.kodza-wizard__step {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kodza-wizard__dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--kz-wizard-dot);
+  height: var(--kz-wizard-dot);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-wizard-bg);
+  box-shadow: inset 0 0 0 1.5px var(--kz-wizard-line);
+  color: var(--kz-wizard-muted);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  white-space: nowrap;
+  transition:
+    background-color calc(0.35s * var(--kz-motion-scale, 1)) ease,
+    box-shadow calc(0.35s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.35s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-wizard__dot:disabled {
+  cursor: default;
+}
+
+.kodza-wizard__dot:not(:disabled) {
+  cursor: pointer;
+}
+
+.kodza-wizard__dot:focus-visible {
+  outline: 2px solid var(--kz-wizard-fg);
+  outline-offset: 3px;
+}
+
+.kodza-wizard__step.is-current .kodza-wizard__dot,
+.kodza-wizard__step.is-done .kodza-wizard__dot {
+  background: var(--kz-wizard-ink);
+  box-shadow: none;
+  color: var(--kz-wizard-on-ink);
+}
+
+.kodza-wizard__num,
+.kodza-wizard__check {
+  grid-area: 1 / 1;
+}
+
+.kodza-wizard__num {
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-wizard-ease);
+}
+
+.kodza-wizard__check {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-wizard-ease);
+}
+
+/* A finished step: the number leaves, the check draws itself */
+.kodza-wizard__step.is-done .kodza-wizard__num {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.kodza-wizard__step.is-done .kodza-wizard__check {
+  stroke-dashoffset: 0;
+  transition-delay: calc(0.15s * var(--kz-motion-scale, 1));
+}
+
+.kodza-wizard__step-label {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--kz-wizard-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.3);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-overflow: ellipsis;
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  transition: color calc(0.35s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-wizard__step.is-current .kodza-wizard__step-label,
+.kodza-wizard__step.is-done .kodza-wizard__step-label {
+  color: var(--kz-wizard-fg);
+}
+
+/* The steps. Without the script they all show, one under the other. With it, only the current
+   one is in the flow: the old one leaves on top of it (placed by the script) while the card's
+   height eases to the new one */
+.kodza-wizard__panels {
+  position: relative;
+  display: grid;
+  gap: 36px;
+}
+
+.kodza-wizard__panel {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-wizard__panel[hidden],
+.kodza-wizard.is-ready .kodza-wizard__panel:not(.is-current, .is-leaving) {
+  display: none;
+}
+
+.kodza-wizard.is-ready .kodza-wizard__panel.is-leaving {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.kodza-wizard__title {
+  float: left; /* a legend sits in the flow like any title */
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(22px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.2;
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+}
+
+.kodza-wizard__title:focus {
+  outline: none;
+}
+
+.kodza-wizard__text {
+  margin: 0;
+  color: var(--kz-wizard-muted);
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+/* A group of answers (real radios), as pills that fill with ink */
+.kodza-wizard__group {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-wizard__legend {
+  float: left;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  color: var(--kz-wizard-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-wizard__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kodza-wizard__choice {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-wizard-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-line);
+  color: var(--kz-wizard-fg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition:
+    background-color calc(var(--kz-wizard-duration) * 0.42 * var(--kz-motion-scale, 1)) ease,
+    box-shadow calc(var(--kz-wizard-duration) * 0.42 * var(--kz-motion-scale, 1)) ease,
+    color calc(var(--kz-wizard-duration) * 0.42 * var(--kz-motion-scale, 1)) ease;
+}
+
+/* The radio stays real, under the pill, for the keyboard and the form */
+.kodza-wizard__radio {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: inherit;
+  opacity: 0;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .kodza-wizard__choice:hover {
+    box-shadow: inset 0 0 0 1px var(--kz-wizard-line-hover);
+  }
+}
+
+.kodza-wizard__choice:has(.kodza-wizard__radio:checked) {
+  background: var(--kz-wizard-ink);
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-ink);
+  color: var(--kz-wizard-on-ink);
+}
+
+.kodza-wizard__choice:has(.kodza-wizard__radio:focus-visible) {
+  outline: 2px solid var(--kz-wizard-fg);
+  outline-offset: 2px;
+}
+
+.kodza-wizard__group:has(.kodza-wizard__radio[aria-invalid="true"]) .kodza-wizard__choice {
+  box-shadow: inset 0 0 0 1.5px var(--kz-wizard-error);
+}
+
+/* A text field: the box of Text Field, its label folds up once focused or filled */
+.kodza-wizard__field {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kodza-wizard__box {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  height: var(--kz-wizard-field-height);
+  padding: 0 16px 9px;
+  border-radius: var(--kz-wizard-field-radius);
+  background: var(--kz-wizard-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-line);
+  cursor: text;
+  box-sizing: border-box;
+  transition: box-shadow calc(var(--kz-wizard-duration) * 0.42 * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-wizard__box:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-line-hover);
+}
+
+.kodza-wizard__box:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-wizard-ink), 0 0 0 4px var(--kz-wizard-soft);
+}
+
+.kodza-wizard__input {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.kodza-wizard__label {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  color: var(--kz-wizard-muted);
+  font-size: 15px;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transform-origin: left top;
+  transition: transform calc(var(--kz-wizard-duration) * 0.58 * var(--kz-motion-scale, 1)) var(--kz-wizard-ease);
+}
+
+.kodza-wizard__box:focus-within .kodza-wizard__label,
+.kodza-wizard__input:not(:placeholder-shown) ~ .kodza-wizard__label {
+  transform: translateY(-18px) scale(0.8);
+}
+
+.kodza-wizard__field:has(.kodza-wizard__input[aria-invalid="true"]) .kodza-wizard__box {
+  box-shadow: inset 0 0 0 1.5px var(--kz-wizard-error);
+}
+
+/* The note under a field or a group: the hint and the error share one line, and swap */
+.kodza-wizard__note {
+  display: grid;
+  margin: 0;
+  padding: 0 2px;
+  overflow: hidden;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-wizard__hint,
+.kodza-wizard__error {
+  grid-area: 1 / 1;
+  transition:
+    opacity calc(var(--kz-wizard-duration) * 0.42 * var(--kz-motion-scale, 1)) ease,
+    transform calc(var(--kz-wizard-duration) * 0.67 * var(--kz-motion-scale, 1)) var(--kz-wizard-ease);
+}
+
+.kodza-wizard__hint {
+  color: var(--kz-wizard-muted);
+}
+
+.kodza-wizard__error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--kz-wizard-error);
+  font-weight: var(--kz-font-label-weight, 500);
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.kodza-wizard__error::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M8 4.5v4.2M8 10.9v.1' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-wizard__note.is-invalid .kodza-wizard__hint {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.kodza-wizard__note.is-invalid .kodza-wizard__error {
+  opacity: 1;
+  transform: none;
+}
+
+/* The review: one line per answer, each with its Edit */
+.kodza-wizard__summary {
+  display: grid;
+  margin: 0;
+  border-top: 1px solid var(--kz-wizard-border);
+}
+
+.kodza-wizard__row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--kz-wizard-border);
+  box-sizing: border-box;
+}
+
+.kodza-wizard__row dt {
+  color: var(--kz-wizard-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-wizard__row dd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+}
+
+/* A changed answer rolls in: the old one goes up, the new one comes from below */
+.kodza-wizard__value {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.kodza-wizard__value > span {
+  grid-area: 1 / 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kodza-wizard__edit {
+  flex: none;
+  height: 32px;
+  margin-right: -12px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-wizard-fg);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-wizard__edit:hover {
+  background: var(--kz-wizard-soft);
+}
+
+.kodza-wizard__edit:focus-visible {
+  outline: 2px solid var(--kz-wizard-fg);
+  outline-offset: 2px;
+}
+
+/* The buttons. Back waits off the first step; Next is the form's own submit button */
+.kodza-wizard__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kodza-wizard__status {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--kz-wizard-error);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-align: center;
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-wizard__back,
+.kodza-wizard__next {
+  flex: none;
+  height: 40px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-wizard__back {
+  display: none;
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-border);
+  color: var(--kz-wizard-fg);
+}
+
+.kodza-wizard.is-ready .kodza-wizard__back {
+  display: block;
+}
+
+.kodza-wizard__back:hover {
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-muted);
+}
+
+.kodza-wizard__back:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kodza-wizard__next {
+  margin-left: auto;
+  background: var(--kz-wizard-ink);
+  color: var(--kz-wizard-on-ink);
+}
+
+.kodza-wizard__next[aria-busy="true"] {
+  cursor: progress;
+}
+
+.kodza-wizard__back:focus-visible,
+.kodza-wizard__next:focus-visible {
+  outline: 2px solid var(--kz-wizard-fg);
+  outline-offset: 2px;
+}
+
+/* The button label rolls to its new word; the button keeps the width of the longest one */
+.kodza-wizard__roll {
+  display: inline-grid;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.kodza-wizard__roll > span {
+  grid-area: 1 / 1;
+}
+
+/* Sent: the buttons have done their job */
+.kodza-wizard.is-sent .kodza-wizard__actions {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-wizard__steps::after,
+  .kodza-wizard__dot,
+  .kodza-wizard__num,
+  .kodza-wizard__check,
+  .kodza-wizard__step-label,
+  .kodza-wizard__choice,
+  .kodza-wizard__box,
+  .kodza-wizard__label,
+  .kodza-wizard__hint,
+  .kodza-wizard__error {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-wizard {
+  --kz-wizard-bg: #161616;
+  --kz-wizard-fg: #f2f2f0;
+  --kz-wizard-muted: rgba(242, 242, 240, 0.62);
+  --kz-wizard-border: rgba(255, 255, 255, 0.12);
+  --kz-wizard-line: rgba(255, 255, 255, 0.16);
+  --kz-wizard-line-hover: rgba(255, 255, 255, 0.32);
+  --kz-wizard-soft: rgba(255, 255, 255, 0.07);
+  --kz-wizard-ink: #f2f2f0;
+  --kz-wizard-on-ink: #161616;
+  --kz-wizard-error: #f2f2f0;
+}
+*/
+
+/* kodza-guard 3c82d02a3d53 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-wizard__dot):not(#_),
+:where(.kodza-wizard__choice):not(#_),
+:where(.kodza-wizard__back):not(#_),
+:where(.kodza-wizard__next):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-wizard__title):not(#_) {
+  outline: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-wizard:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-wizard__steps:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-wizard__step:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-wizard__dot:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-wizard__num:not(#_),
+.kodza-wizard__step-label:not(#_),
+.kodza-wizard__panels:not(#_),
+.kodza-wizard__choices:not(#_),
+.kodza-wizard__hint:not(#_),
+.kodza-wizard__error:not(#_),
+.kodza-wizard__field:not(#_),
+.kodza-wizard__label:not(#_),
+.kodza-wizard__actions:not(#_),
+.kodza-wizard__roll:not(#_),
+.kodza-wizard__choice span:where(:not([class*="kodza-"])):not(#_),
+.kodza-wizard__roll span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-wizard__check:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-wizard__panel:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-wizard__title:not(#_) {
+  border: revert;
+  border-radius: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-wizard__group:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-wizard__legend:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+}
+
+.kodza-wizard__choice:not(#_) {
+  border: revert;
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-wizard__radio:not(#_) {
+  border: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-wizard__note:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-wizard__box:not(#_) {
+  border: revert;
+  margin: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-wizard__input:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-wizard__summary:not(#_) {
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-wizard__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-wizard__back:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-wizard__status:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-wizard__next:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-wizard__check:not(#_):where(:not([hidden])),
+.kodza-wizard__title:not(#_):where(:not([hidden])),
+.kodza-wizard__legend:not(#_):where(:not([hidden])),
+.kodza-wizard__radio:not(#_):where(:not([hidden])),
+.kodza-wizard__input:not(#_):where(:not([hidden])),
+.kodza-wizard__text:not(#_):where(:not([hidden])),
+.kodza-wizard__status:not(#_):where(:not([hidden])),
+.kodza-wizard__next:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-wizard__check:not(#_):where([hidden]),
+.kodza-wizard__title:not(#_):where([hidden]),
+.kodza-wizard__legend:not(#_):where([hidden]),
+.kodza-wizard__radio:not(#_):where([hidden]),
+.kodza-wizard__input:not(#_):where([hidden]),
+.kodza-wizard__text:not(#_):where([hidden]),
+.kodza-wizard__status:not(#_):where([hidden]),
+.kodza-wizard__next:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-wizard__steps:not(#_)::before,
+.kodza-wizard__steps:not(#_)::after,
+.kodza-wizard__error:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-wizard:not(#_) {
+  display: grid;
+  padding: 28px;
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-wizard-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-border);
+  color: var(--kz-wizard-fg);
+  box-sizing: border-box;
+}
+
+.kodza-wizard:not(#_) {
+  width: min(100%, var(--kz-wizard-width));
+}
+
+.kodza-wizard__steps:not(#_) {
+  position: relative;
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-wizard.is-ready .kodza-wizard__steps:not(#_) {
+  display: grid;
+}
+
+.kodza-wizard__step:not(#_) {
+  position: relative;
+  display: grid;
+}
+
+.kodza-wizard__dot:not(#_) {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--kz-wizard-dot);
+  height: var(--kz-wizard-dot);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-wizard-bg);
+  box-shadow: inset 0 0 0 1.5px var(--kz-wizard-line);
+  color: var(--kz-wizard-muted);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  white-space: nowrap;
+  transition: background-color calc(0.35s * var(--kz-motion-scale, 1)) ease,
+    box-shadow calc(0.35s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.35s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-wizard__dot:disabled:not(#_) {
+  cursor: default;
+}
+
+.kodza-wizard__dot:not(:disabled):not(#_) {
+  cursor: pointer;
+}
+
+.kodza-wizard__dot:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-wizard-fg);
+  outline-offset: 3px;
+}
+
+.kodza-wizard__step.is-current .kodza-wizard__dot:not(#_),
+.kodza-wizard__step.is-done .kodza-wizard__dot:not(#_) {
+  background: var(--kz-wizard-ink);
+  box-shadow: none;
+  color: var(--kz-wizard-on-ink);
+}
+
+.kodza-wizard__check:not(#_) {
+  transition: stroke-dashoffset calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-wizard-ease);
+}
+
+.kodza-wizard__step.is-done .kodza-wizard__check:not(#_) {
+  transition-delay: calc(0.15s * var(--kz-motion-scale, 1));
+}
+
+.kodza-wizard__panel:where(fieldset):not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-wizard__panel[hidden]:where(fieldset):not(#_),
+.kodza-wizard.is-ready .kodza-wizard__panel:not(.is-current, .is-leaving):where(fieldset):not(#_) {
+  display: none;
+}
+
+.kodza-wizard.is-ready .kodza-wizard__panel.is-leaving:where(fieldset):not(#_) {
+  position: absolute;
+}
+
+.kodza-wizard__title:not(#_) {
+  float: left;
+  margin: 0;
+  padding: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(22px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.2;
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+}
+
+.kodza-wizard__title:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-wizard__text:not(#_) {
+  margin: 0;
+  color: var(--kz-wizard-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.kodza-wizard__group:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-wizard__legend:not(#_) {
+  float: left;
+  margin: 0;
+  padding: 0;
+  color: var(--kz-wizard-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-wizard__choice:not(#_) {
+  position: relative;
+  display: inline-flex;
+  padding: 0 18px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-wizard-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-line);
+  color: var(--kz-wizard-fg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  box-sizing: border-box;
+  transition: background-color calc(var(--kz-wizard-duration) * 0.42 * var(--kz-motion-scale, 1)) ease,
+    box-shadow calc(var(--kz-wizard-duration) * 0.42 * var(--kz-motion-scale, 1)) ease,
+    color calc(var(--kz-wizard-duration) * 0.42 * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-wizard__radio:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: inherit;
+  opacity: 0;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .kodza-wizard__choice:hover:not(#_) {
+    box-shadow: inset 0 0 0 1px var(--kz-wizard-line-hover);
+  }
+}
+
+.kodza-wizard__choice:has(.kodza-wizard__radio:checked):not(#_) {
+  background: var(--kz-wizard-ink);
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-ink);
+  color: var(--kz-wizard-on-ink);
+}
+
+.kodza-wizard__choice:has(.kodza-wizard__radio:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-wizard-fg);
+  outline-offset: 2px;
+}
+
+.kodza-wizard__group:has(.kodza-wizard__radio[aria-invalid="true"]) .kodza-wizard__choice:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-wizard-error);
+}
+
+.kodza-wizard__box:not(#_) {
+  position: relative;
+  display: flex;
+  padding: 0 16px 9px;
+  border-radius: var(--kz-wizard-field-radius);
+  background: var(--kz-wizard-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-line);
+  box-sizing: border-box;
+  transition: box-shadow calc(var(--kz-wizard-duration) * 0.42 * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-wizard__box:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-line-hover);
+}
+
+.kodza-wizard__box:focus-within:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-wizard-ink), 0 0 0 4px var(--kz-wizard-soft);
+}
+
+.kodza-wizard__input:not(#_) {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.kodza-wizard__field:has(.kodza-wizard__input[aria-invalid="true"]) .kodza-wizard__box:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-wizard-error);
+}
+
+.kodza-wizard__note:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0 2px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-wizard__summary:not(#_) {
+  display: grid;
+  margin: 0;
+  border-top: 1px solid var(--kz-wizard-border);
+}
+
+.kodza-wizard__status:not(#_) {
+  margin: 0;
+  color: var(--kz-wizard-error);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-align: center;
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-wizard__back:not(#_),
+.kodza-wizard__next:not(#_) {
+  flex: none;
+  height: 40px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    box-shadow calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-wizard__back:not(#_) {
+  display: none;
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-border);
+  color: var(--kz-wizard-fg);
+}
+
+.kodza-wizard.is-ready .kodza-wizard__back:not(#_) {
+  display: block;
+}
+
+.kodza-wizard__back:hover:not(#_) {
+  box-shadow: inset 0 0 0 1px var(--kz-wizard-muted);
+}
+
+.kodza-wizard__back:disabled:not(#_) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kodza-wizard__next:not(#_) {
+  margin-left: auto;
+  background: var(--kz-wizard-ink);
+  color: var(--kz-wizard-on-ink);
+}
+
+.kodza-wizard__next[aria-busy="true"]:not(#_) {
+  cursor: progress;
+}
+
+.kodza-wizard__back:focus-visible:not(#_),
+.kodza-wizard__next:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-wizard-fg);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-wizard__dot:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-wizard__check:not(#_),
+  .kodza-wizard__choice:not(#_),
+  .kodza-wizard__box:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
