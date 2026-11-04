@@ -1,0 +1,415 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Morph Icons
+   Icon buttons that change their mind: the strokes of one icon travel, turn and shorten into the
+   other. Play folds into pause, the sound waves fade out under a cross, plus turns into close, the
+   list closes up into a grid. Nothing is swapped: the same strokes move. Each one is a straight
+   line placed by a transform and cut by stroke-dasharray, never an animated d, so Safari plays it.
+   The state is the button's own aria-pressed (aria-expanded on a disclosure): the script flips it
+   on click, and so can yours. The first icon shows while it is false, the second while it is true.
+   Everything is tuned with the --kz-morph-icons-* variables. */
+.kodza-morph-icons {
+  --kz-morph-icons-size: 44px;
+  --kz-morph-icons-icon: 20px;
+  --kz-morph-icons-stroke: 1.75px; /* in icon units, 24 across */
+  --kz-morph-icons-ink: #0a0a0a;
+  --kz-morph-icons-on-ink: #ffffff;
+  --kz-morph-icons-hover: #2a2a2a; /* the circle under the pointer */
+  --kz-morph-icons-tint: rgba(10, 10, 10, 0.07); /* the bare button under the pointer */
+  --kz-morph-icons-duration: 0.45s;
+  --kz-morph-icons-ease: cubic-bezier(0.65, 0, 0.35, 1); /* in and out, so the strokes are seen travelling */
+
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--kz-morph-icons-size);
+  height: var(--kz-morph-icons-size);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-morph-icons-ink);
+  color: var(--kz-morph-icons-on-ink);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    scale calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-morph-icons:focus-visible {
+  outline: 2px solid var(--kz-morph-icons-ink);
+  outline-offset: 3px;
+}
+
+.kodza-morph-icons:active {
+  scale: 0.92;
+}
+
+/* Bare: no circle, for a toolbar that keeps its buttons plain */
+.kodza-morph-icons--bare {
+  background: transparent;
+  color: var(--kz-morph-icons-ink);
+}
+
+@media (hover: hover) {
+  .kodza-morph-icons:hover {
+    background: var(--kz-morph-icons-hover);
+  }
+
+  .kodza-morph-icons--bare:hover {
+    background: var(--kz-morph-icons-tint);
+  }
+}
+
+.kodza-morph-icons svg {
+  display: block;
+  width: var(--kz-morph-icons-icon);
+  height: var(--kz-morph-icons-icon);
+  overflow: hidden;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--kz-morph-icons-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* Every moving stroke is the same 24-unit line, M-12 0H12. A transform puts its middle in place and
+   turns it; the dash shows L units of it around that middle: dasharray L 48, offset L/2 - 12.
+   A stroke that goes away shrinks to its middle and thins out with it, so its round cap never
+   stays behind as a dot; one that comes back grows the same way, from nothing. */
+.kodza-morph-icons__s {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  transition-property: transform, stroke-dasharray, stroke-dashoffset, stroke-width;
+  transition-duration: 0s;
+  transition-timing-function: var(--kz-morph-icons-ease);
+}
+
+/* Motion starts once the script is ready, so nothing moves on load */
+.kodza-morph-icons.is-ready .kodza-morph-icons__s {
+  transition-duration: calc(var(--kz-morph-icons-duration) * var(--kz-motion-scale, 1));
+}
+
+/* Play ↔ pause: the left edge steps right and stays a bar; the two slopes stand up and shorten into
+   the second bar. Give it aria-label "Play": aria-pressed is true while it plays, and shows pause */
+.kodza-morph-icons--play .kodza-morph-icons__edge {
+  transform: translate(8px, 12px) rotate(90deg);
+  stroke-dasharray: 12px 48px;
+  stroke-dashoffset: -6px;
+}
+
+.kodza-morph-icons--play .kodza-morph-icons__upper {
+  transform: translate(13px, 9px) rotate(30.964deg);
+  stroke-dasharray: 11.662px 48px;
+  stroke-dashoffset: -6.169px;
+}
+
+.kodza-morph-icons--play .kodza-morph-icons__lower {
+  transform: translate(13px, 15px) rotate(-30.964deg);
+  stroke-dasharray: 11.662px 48px;
+  stroke-dashoffset: -6.169px;
+}
+
+.kodza-morph-icons--play:is([aria-pressed="true"], [aria-expanded="true"]) .kodza-morph-icons__edge {
+  transform: translate(9px, 12px) rotate(90deg);
+}
+
+.kodza-morph-icons--play:is([aria-pressed="true"], [aria-expanded="true"]) .kodza-morph-icons__upper {
+  transform: translate(15px, 9px) rotate(90deg);
+  stroke-dasharray: 6px 48px;
+  stroke-dashoffset: -9px;
+}
+
+.kodza-morph-icons--play:is([aria-pressed="true"], [aria-expanded="true"]) .kodza-morph-icons__lower {
+  transform: translate(15px, 15px) rotate(-90deg);
+  stroke-dasharray: 6px 48px;
+  stroke-dashoffset: -9px;
+}
+
+/* Sound ↔ mute: the far wave fades out first, then the near one, each shrinking to its middle,
+   and a cross grows where they were; unmuting plays it backwards. Give it aria-label "Mute" */
+.kodza-morph-icons--sound .kodza-morph-icons__wave {
+  stroke-dasharray: 6.79px 24px; /* the near arc is 6.78 long */
+  stroke-dashoffset: 0;
+  transition-delay: calc(var(--kz-morph-icons-duration) * 0.25 * var(--kz-motion-scale, 1));
+}
+
+.kodza-morph-icons--sound .kodza-morph-icons__wave--far {
+  stroke-dasharray: 14.42px 24px; /* the far arc is 14.42 long */
+  transition-delay: calc(var(--kz-morph-icons-duration) * 0.35 * var(--kz-motion-scale, 1));
+}
+
+.kodza-morph-icons--sound .kodza-morph-icons__cross {
+  transform: translate(17px, 12px) rotate(45deg);
+  stroke-dasharray: 0px 48px;
+  stroke-dashoffset: -12px;
+  stroke-width: 0;
+}
+
+.kodza-morph-icons--sound .kodza-morph-icons__cross--back {
+  transform: translate(17px, 12px) rotate(-45deg);
+}
+
+.kodza-morph-icons--sound:is([aria-pressed="true"], [aria-expanded="true"]) .kodza-morph-icons__wave {
+  stroke-dasharray: 0px 24px;
+  stroke-dashoffset: -3.39px;
+  stroke-width: 0;
+  transition-delay: calc(var(--kz-morph-icons-duration) * 0.08 * var(--kz-motion-scale, 1));
+}
+
+.kodza-morph-icons--sound:is([aria-pressed="true"], [aria-expanded="true"]) .kodza-morph-icons__wave--far {
+  stroke-dashoffset: -7.21px;
+  transition-delay: 0s;
+}
+
+.kodza-morph-icons--sound:is([aria-pressed="true"], [aria-expanded="true"]) .kodza-morph-icons__cross {
+  stroke-dasharray: 8.485px 48px;
+  stroke-dashoffset: -7.757px;
+  stroke-width: var(--kz-morph-icons-stroke);
+  transition-delay: calc(var(--kz-morph-icons-duration) * 0.3 * var(--kz-motion-scale, 1));
+}
+
+.kodza-morph-icons--sound:is([aria-pressed="true"], [aria-expanded="true"]) .kodza-morph-icons__cross--back {
+  transition-delay: calc(var(--kz-morph-icons-duration) * 0.38 * var(--kz-motion-scale, 1));
+}
+
+/* Plus ↔ close: both bars turn a quarter of the way round and lengthen a little, since a cross
+   looks smaller than a plus of the same length. On a disclosure, use aria-expanded */
+.kodza-morph-icons--plus .kodza-morph-icons__bar {
+  transform: translate(12px, 12px) rotate(0deg);
+  stroke-dasharray: 14px 48px;
+  stroke-dashoffset: -5px;
+}
+
+.kodza-morph-icons--plus .kodza-morph-icons__bar--upright {
+  transform: translate(12px, 12px) rotate(90deg);
+}
+
+.kodza-morph-icons--plus:is([aria-pressed="true"], [aria-expanded="true"]) .kodza-morph-icons__bar {
+  transform: translate(12px, 12px) rotate(45deg);
+  stroke-dasharray: 16px 48px;
+  stroke-dashoffset: -4px;
+}
+
+.kodza-morph-icons--plus:is([aria-pressed="true"], [aria-expanded="true"]) .kodza-morph-icons__bar--upright {
+  transform: translate(12px, 12px) rotate(135deg);
+}
+
+/* List ↔ grid: each row keeps its tile; the two lines beside it slide apart into the top and bottom
+   of a second tile, and its sides grow between them. The second row follows a beat later.
+   Give it aria-label "Grid view" */
+.kodza-morph-icons__row {
+  --kz-morph-icons-row: 0;
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+.kodza-morph-icons__row + .kodza-morph-icons__row {
+  --kz-morph-icons-row: 1;
+  transform: translateY(10px);
+}
+
+.kodza-morph-icons--view .kodza-morph-icons__top {
+  transform: translate(17px, 5px) rotate(0deg);
+  stroke-dasharray: 6px 48px;
+  stroke-dashoffset: -9px;
+  transition-delay: calc(var(--kz-morph-icons-duration) * (0.15 + 0.06 * var(--kz-morph-icons-row)) * var(--kz-motion-scale, 1));
+}
+
+.kodza-morph-icons--view .kodza-morph-icons__bottom {
+  transform: translate(16px, 9px) rotate(0deg);
+  stroke-dasharray: 4px 48px;
+  stroke-dashoffset: -10px;
+  transition-delay: calc(var(--kz-morph-icons-duration) * (0.15 + 0.06 * var(--kz-morph-icons-row)) * var(--kz-motion-scale, 1));
+}
+
+.kodza-morph-icons--view .kodza-morph-icons__side {
+  transform: translate(14px, 7px) rotate(90deg);
+  stroke-dasharray: 0px 48px;
+  stroke-dashoffset: -12px;
+  stroke-width: 0;
+  transition-delay: calc(var(--kz-morph-icons-duration) * 0.06 * var(--kz-morph-icons-row) * var(--kz-motion-scale, 1));
+}
+
+.kodza-morph-icons--view .kodza-morph-icons__side--end {
+  transform: translate(20px, 7px) rotate(90deg);
+}
+
+.kodza-morph-icons--view:is([aria-pressed="true"], [aria-expanded="true"]) .kodza-morph-icons__top {
+  transform: translate(17px, 4px) rotate(0deg);
+  transition-delay: calc(var(--kz-morph-icons-duration) * 0.06 * var(--kz-morph-icons-row) * var(--kz-motion-scale, 1));
+}
+
+.kodza-morph-icons--view:is([aria-pressed="true"], [aria-expanded="true"]) .kodza-morph-icons__bottom {
+  transform: translate(17px, 10px) rotate(0deg);
+  stroke-dasharray: 6px 48px;
+  stroke-dashoffset: -9px;
+  transition-delay: calc(var(--kz-morph-icons-duration) * 0.06 * var(--kz-morph-icons-row) * var(--kz-motion-scale, 1));
+}
+
+.kodza-morph-icons--view:is([aria-pressed="true"], [aria-expanded="true"]) .kodza-morph-icons__side {
+  stroke-dasharray: 6px 48px;
+  stroke-dashoffset: -9px;
+  stroke-width: var(--kz-morph-icons-stroke);
+  transition-delay: calc(var(--kz-morph-icons-duration) * (0.2 + 0.06 * var(--kz-morph-icons-row)) * var(--kz-motion-scale, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-morph-icons,
+  .kodza-morph-icons *,
+  .kodza-morph-icons *::before,
+  .kodza-morph-icons *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 553d6022bf74 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-morph-icons):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-morph-icons svg:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-morph-icons:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-morph-icons__s:not(#_),
+.kodza-morph-icons__row:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-morph-icons svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-morph-icons:not(#_) {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--kz-morph-icons-size);
+  height: var(--kz-morph-icons-size);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-morph-icons-ink);
+  color: var(--kz-morph-icons-on-ink);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    scale calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-morph-icons:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-morph-icons-ink);
+  outline-offset: 3px;
+}
+
+.kodza-morph-icons:active:not(#_) {
+  scale: 0.92;
+}
+
+.kodza-morph-icons--bare:not(#_) {
+  background: transparent;
+  color: var(--kz-morph-icons-ink);
+}
+
+@media (hover: hover) {
+  .kodza-morph-icons:hover:not(#_) {
+    background: var(--kz-morph-icons-hover);
+  }
+}
+
+@media (hover: hover) {
+  .kodza-morph-icons--bare:hover:not(#_) {
+    background: var(--kz-morph-icons-tint);
+  }
+}
+
+.kodza-morph-icons svg:not(#_) {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-morph-icons:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-morph-icons *:where(svg):not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

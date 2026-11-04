@@ -17,6 +17,7 @@
   };
   const blocks = new WeakMap(); // block → { html (mask blocks: their markup as written), timer, pace }
   const waiting = new Set(); // armed blocks not in yet (repeat blocks aside)
+  const repeats = new Set(); // armed repeat blocks
 
   // A time read from a variable, "0.9s" or "900ms", in ms
   const time = (el, name, fallback) => {
@@ -138,7 +139,7 @@
         if (!el.classList.contains('is-in')) arriving.push({ el, box: entry.boundingClientRect });
       } else if (entry.boundingClientRect.top < 0) {
         if (!el.classList.contains('is-in')) reveal(el, 0, true);
-      } else if (el.classList.contains('kodza-reveal--repeat')) {
+      } else if (el.classList.contains('kodza-reveal--repeat') && !footed.has(el)) {
         hide(el);
       }
     });
@@ -153,6 +154,45 @@
       });
     }
     order(arriving).forEach(({ el }, i) => reveal(el, i, false));
+  };
+
+  // At the foot of a page the last blocks may never get as far up as the line: once the page goes
+  // no further down (or does not scroll at all), the armed blocks on screen enter, in turn (their top
+  // is enough: armed, a block still sits lower than it will rest, maybe past the bottom edge). One
+  // scroll listener for every block, there while some are armed. A repeat block brought in this
+  // way has no line to cross back: it hides again once below the screen
+  const footed = new Set();
+  let foot = null;
+  let looking = false; // the first look, once the blocks of one start are all armed
+  const atFoot = () => {
+    footed.forEach((el) => {
+      if (el.getBoundingClientRect().top < innerHeight) return;
+      footed.delete(el);
+      hide(el);
+    });
+    if (!follow() || document.documentElement.scrollHeight - innerHeight - scrollY > 1) return;
+    const arriving = [];
+    [...waiting, ...repeats].forEach((el) => {
+      if (el.classList.contains('is-in')) return;
+      const box = el.getBoundingClientRect();
+      if (box.height && box.bottom > 0 && box.top < innerHeight) arriving.push({ el, box });
+    });
+    order(arriving).forEach(({ el }, i) => {
+      if (repeats.has(el)) footed.add(el);
+      reveal(el, i, false);
+    });
+  };
+  // The listener comes with the first armed block and goes with the last; true while it is on
+  const follow = () => {
+    const on = waiting.size + repeats.size > 0;
+    if (on && !foot) {
+      foot = new AbortController();
+      window.addEventListener('scroll', atFoot, { passive: true, signal: foot.signal });
+    } else if (!on && foot) {
+      foot.abort();
+      foot = null;
+    }
+    return on;
   };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
@@ -173,11 +213,22 @@
       }, { signal });
     }
     el.classList.add('is-armed');
-    if (!el.classList.contains('kodza-reveal--repeat')) waiting.add(el);
+    (el.classList.contains('kodza-reveal--repeat') ? repeats : waiting).add(el);
     observer ||= new IntersectionObserver(watch, { rootMargin: '0px 0px -12% 0px' });
     observer.observe(el);
+    follow();
+    if (!looking) {
+      looking = true;
+      queueMicrotask(() => {
+        looking = false;
+        atFoot();
+      });
+    }
     signal.addEventListener('abort', () => {
       waiting.delete(el);
+      repeats.delete(el);
+      footed.delete(el);
+      follow();
       observer.unobserve(el);
       clearTimeout(blocks.get(el).timer);
     });

@@ -26,11 +26,14 @@
     let frame = 0;
     let shown = 0;
 
-    // Where the ink should be: the reading point, between the ends of the rail
+    // Where the ink should be: the reading point, between the ends of the rail. At the foot of a
+    // page the last steps may never get that far up: over the last 40% of a screen of scroll, the
+    // point slides down, reaching the bottom of the screen as the page ends
     const target = () => {
       const box = root.getBoundingClientRect();
       const span = box.height - 16;
-      return { box, span, value: Math.min(1, Math.max(0, (innerHeight * 0.6 - box.top - 8) / span)) };
+      const shift = Math.max(0, innerHeight * 0.4 - (document.documentElement.scrollHeight - innerHeight - scrollY));
+      return { box, span, value: Math.min(1, Math.max(0, (innerHeight * 0.6 + shift - box.top - 8) / span)) };
     };
 
     // The ink glides towards it (a little behind the scroll), the dots follow the ink

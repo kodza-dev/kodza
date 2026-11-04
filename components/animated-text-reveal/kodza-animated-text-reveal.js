@@ -42,8 +42,11 @@
       if (!visible) return;
       const vh = window.innerHeight;
       const rect = root.getBoundingClientRect();
+      // At the foot of a page the last paragraph may never get that far up: over the last 55% of a
+      // screen of scroll, both lines slide down, the 45% one reaching the bottom as the page ends
+      const shift = Math.max(0, vh * 0.55 - (document.documentElement.scrollHeight - vh - window.scrollY));
       // 0 when the top of the paragraph reaches 85% of the screen, 1 when its bottom passes 45%
-      const progress = clamp((vh * 0.85 - rect.top) / (rect.height + vh * 0.4));
+      const progress = clamp((vh * 0.85 + shift - rect.top) / (rect.height + vh * 0.4));
       words.forEach((word, i) => {
         const start = (i / words.length) * (1 - OVERLAP);
         word.style.setProperty('--w', clamp((progress - start) / OVERLAP).toFixed(3));

@@ -1,0 +1,398 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Hover Icons
+   Icon buttons that act out what they do before you click: the bell rings, the bin lifts its lid,
+   the plane leaves and comes back, the cog turns one tooth, the refresh arrows go round, the
+   padlock opens. CSS only, on hover (pointer devices) and on keyboard focus. Each icon is plain
+   inline SVG drawn with currentColor, so it takes the button's colour, and moves by transforms
+   only. Three looks: a white pill with a label, the same pill with the icon alone (--icon, give it
+   an aria-label), and the solid ink pill (--solid). Everything is tuned with the
+   --kz-hover-icons-* variables. */
+.kodza-hover-icons {
+  --kz-hover-icons-height: 40px;
+  --kz-hover-icons-icon: 18px;
+  --kz-hover-icons-stroke: 1.75px; /* in icon units, 24 across */
+  --kz-hover-icons-ink: #0a0a0a;
+  --kz-hover-icons-on-ink: #ffffff; /* text and icon of the solid pill */
+  --kz-hover-icons-bg: #ffffff;
+  --kz-hover-icons-line: rgba(10, 10, 10, 0.12);
+  --kz-hover-icons-line-hover: rgba(10, 10, 10, 0.28);
+  --kz-hover-icons-solid-hover: #2a2a2a;
+  --kz-hover-icons-duration: 0.5s; /* cog, lid and padlock; the bell, the plane and the arrows take longer */
+  --kz-hover-icons-ease: cubic-bezier(0.34, 1.45, 0.64, 1); /* a small overshoot, so the part clicks into place */
+
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: var(--kz-hover-icons-height);
+  margin: 0;
+  padding: 0 16px 0 13px;
+  border: 1px solid var(--kz-hover-icons-line);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-hover-icons-bg);
+  color: var(--kz-hover-icons-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, revert);
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    scale calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The icon alone: a round button, its name in aria-label */
+.kodza-hover-icons--icon {
+  width: var(--kz-hover-icons-height);
+  padding: 0;
+}
+
+.kodza-hover-icons--solid {
+  border-color: var(--kz-hover-icons-ink);
+  background: var(--kz-hover-icons-ink);
+  color: var(--kz-hover-icons-on-ink);
+}
+
+.kodza-hover-icons:focus-visible {
+  outline: 2px solid var(--kz-hover-icons-ink);
+  outline-offset: 3px;
+}
+
+.kodza-hover-icons:active {
+  scale: 0.96;
+}
+
+@media (hover: hover) {
+  .kodza-hover-icons:hover {
+    border-color: var(--kz-hover-icons-line-hover);
+  }
+
+  .kodza-hover-icons--solid:hover {
+    border-color: var(--kz-hover-icons-solid-hover);
+    background: var(--kz-hover-icons-solid-hover);
+  }
+}
+
+.kodza-hover-icons svg {
+  display: block;
+  flex: none;
+  width: var(--kz-hover-icons-icon);
+  height: var(--kz-hover-icons-icon);
+  overflow: hidden; /* the plane leaves through the edge and comes back through the other */
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--kz-hover-icons-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* Every moving part turns around a point of its own icon, in icon units */
+.kodza-hover-icons svg * {
+  transform-box: view-box;
+}
+
+/* At rest: the way back. Each part returns by a transition, from wherever it was */
+.kodza-hover-icons__turn {
+  transform-origin: 12px 12px;
+  transition: transform calc(0.6s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-hover-icons__gear {
+  transform-origin: 12px 12px;
+  transition: transform calc(var(--kz-hover-icons-duration) * var(--kz-motion-scale, 1)) var(--kz-hover-icons-ease);
+}
+
+.kodza-hover-icons__bell,
+.kodza-hover-icons__clapper {
+  transform-origin: 12px 3.25px;
+}
+
+.kodza-hover-icons__lid {
+  transform-origin: 4.5px 7px;
+  transition: transform calc(var(--kz-hover-icons-duration) * var(--kz-motion-scale, 1)) var(--kz-hover-icons-ease);
+}
+
+/* The shackle comes up, then swings open on its left leg; it closes first, then goes down */
+.kodza-hover-icons__shackle {
+  transition: transform calc(0.25s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc(0.12s * var(--kz-motion-scale, 1));
+}
+
+.kodza-hover-icons__swing {
+  transform-origin: 8.25px 10.5px;
+  transition: transform calc(0.2s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The act: on hover with a pointer, and on keyboard focus */
+@media (hover: hover) {
+  .kodza-hover-icons:hover .kodza-hover-icons__turn {
+    transform: rotate(180deg); /* the two arrows are the same at half a turn: it reads as a full turn */
+  }
+
+  .kodza-hover-icons:hover .kodza-hover-icons__gear {
+    transform: rotate(45deg); /* one tooth of eight */
+  }
+
+  .kodza-hover-icons:hover .kodza-hover-icons__bell {
+    animation: kodza-hover-icons-ring calc(0.9s * var(--kz-motion-scale, 1)) ease-out;
+  }
+
+  .kodza-hover-icons:hover .kodza-hover-icons__clapper {
+    animation: kodza-hover-icons-ring calc(0.9s * var(--kz-motion-scale, 1)) ease-out calc(0.06s * var(--kz-motion-scale, 1)) backwards;
+  }
+
+  .kodza-hover-icons:hover .kodza-hover-icons__lid {
+    transform: translateY(-1px) rotate(-12deg);
+  }
+
+  .kodza-hover-icons:hover .kodza-hover-icons__shackle {
+    transform: translateY(-2px);
+    transition-delay: 0s;
+  }
+
+  .kodza-hover-icons:hover .kodza-hover-icons__swing {
+    transform: rotate(-18deg);
+    transition: transform calc(var(--kz-hover-icons-duration) * var(--kz-motion-scale, 1)) var(--kz-hover-icons-ease) calc(0.12s * var(--kz-motion-scale, 1));
+  }
+
+  .kodza-hover-icons:hover .kodza-hover-icons__plane {
+    animation: kodza-hover-icons-fly calc(0.8s * var(--kz-motion-scale, 1)) both;
+  }
+}
+
+.kodza-hover-icons:focus-visible .kodza-hover-icons__turn {
+  transform: rotate(180deg);
+}
+
+.kodza-hover-icons:focus-visible .kodza-hover-icons__gear {
+  transform: rotate(45deg);
+}
+
+.kodza-hover-icons:focus-visible .kodza-hover-icons__bell {
+  animation: kodza-hover-icons-ring calc(0.9s * var(--kz-motion-scale, 1)) ease-out;
+}
+
+.kodza-hover-icons:focus-visible .kodza-hover-icons__clapper {
+  animation: kodza-hover-icons-ring calc(0.9s * var(--kz-motion-scale, 1)) ease-out calc(0.06s * var(--kz-motion-scale, 1)) backwards;
+}
+
+.kodza-hover-icons:focus-visible .kodza-hover-icons__lid {
+  transform: translateY(-1px) rotate(-12deg);
+}
+
+.kodza-hover-icons:focus-visible .kodza-hover-icons__shackle {
+  transform: translateY(-2px);
+  transition-delay: 0s;
+}
+
+.kodza-hover-icons:focus-visible .kodza-hover-icons__swing {
+  transform: rotate(-18deg);
+  transition: transform calc(var(--kz-hover-icons-duration) * var(--kz-motion-scale, 1)) var(--kz-hover-icons-ease) calc(0.12s * var(--kz-motion-scale, 1));
+}
+
+.kodza-hover-icons:focus-visible .kodza-hover-icons__plane {
+  animation: kodza-hover-icons-fly calc(0.8s * var(--kz-motion-scale, 1)) both;
+}
+
+/* A swing that dies down, like a real bell */
+@keyframes kodza-hover-icons-ring {
+  0% { transform: rotate(0deg); }
+  14% { transform: rotate(18deg); }
+  30% { transform: rotate(-14deg); }
+  46% { transform: rotate(9deg); }
+  62% { transform: rotate(-5deg); }
+  78% { transform: rotate(2deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Out through the top right, speeding up; back in from the bottom left, slowing down */
+@keyframes kodza-hover-icons-fly {
+  0% {
+    transform: translate(0, 0);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
+  }
+  40% {
+    transform: translate(20px, -20px);
+    animation-timing-function: steps(1, end);
+  }
+  40.01% {
+    transform: translate(-20px, 20px);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hover-icons,
+  .kodza-hover-icons svg * {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  /* The icons stay still: what they act out is a bonus, the label says it */
+  .kodza-hover-icons svg * {
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* kodza-guard ed4c08481ced — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-hover-icons):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-hover-icons:not(#_) {
+  list-style: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-hover-icons__turn:not(#_),
+.kodza-hover-icons__gear:not(#_),
+.kodza-hover-icons__bell:not(#_),
+.kodza-hover-icons__clapper:not(#_),
+.kodza-hover-icons__shackle:not(#_),
+.kodza-hover-icons__swing:not(#_),
+.kodza-hover-icons__label:not(#_),
+.kodza-hover-icons__lid:not(#_),
+.kodza-hover-icons__plane:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-hover-icons svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-hover-icons:not(#_) {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: var(--kz-hover-icons-height);
+  margin: 0;
+  padding: 0 16px 0 13px;
+  border: 1px solid var(--kz-hover-icons-line);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-hover-icons-bg);
+  color: var(--kz-hover-icons-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, revert);
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    scale calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-hover-icons--icon:not(#_) {
+  width: var(--kz-hover-icons-height);
+  padding: 0;
+}
+
+.kodza-hover-icons--solid:not(#_) {
+  border-color: var(--kz-hover-icons-ink);
+  background: var(--kz-hover-icons-ink);
+  color: var(--kz-hover-icons-on-ink);
+}
+
+.kodza-hover-icons:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-hover-icons-ink);
+  outline-offset: 3px;
+}
+
+.kodza-hover-icons:active:not(#_) {
+  scale: 0.96;
+}
+
+@media (hover: hover) {
+  .kodza-hover-icons:hover:not(#_) {
+    border-color: var(--kz-hover-icons-line-hover);
+  }
+}
+
+@media (hover: hover) {
+  .kodza-hover-icons--solid:hover:not(#_) {
+    border-color: var(--kz-hover-icons-solid-hover);
+    background: var(--kz-hover-icons-solid-hover);
+  }
+}
+
+.kodza-hover-icons svg:not(#_) {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-hover-icons:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

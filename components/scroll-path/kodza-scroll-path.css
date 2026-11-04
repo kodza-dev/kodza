@@ -1,0 +1,601 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Scroll Path
+   One line drawn through the steps of a section as you read. It runs down beside each step,
+   swings across to the next one in an S, inks each marker it reaches, and ends by drawing a
+   ring around the button. The dotted route is there from the start: the plan, then the ink.
+   Without the script, the steps are simply there. Everything is tuned with the
+   --kz-scroll-path-* variables (the route itself with three attributes, see component.js). */
+.kodza-scroll-path {
+  --kz-scroll-path-fg: #0a0a0a;
+  --kz-scroll-path-muted: rgba(10, 10, 10, 0.62);
+  --kz-scroll-path-bg: #f2f2f0; /* the page behind the markers and around the pen */
+  --kz-scroll-path-ink: #0a0a0a; /* the line, the pen and the markers it reached */
+  --kz-scroll-path-on-ink: #ffffff;
+  --kz-scroll-path-track: rgba(10, 10, 10, 0.26); /* the dotted route, before the ink */
+  --kz-scroll-path-rim: rgba(10, 10, 10, 0.16); /* a marker not reached yet */
+  --kz-scroll-path-width: 2px; /* thickness of the line */
+  --kz-scroll-path-marker: 44px;
+  --kz-scroll-path-column: 440px; /* width of a step */
+  --kz-scroll-path-gap: 200px; /* between two steps: the swings live there */
+  --kz-scroll-path-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  isolation: isolate;
+  color: var(--kz-scroll-path-fg);
+}
+
+/* The drawing, laid by the script under the steps: a block with a background hides the line
+   that passes behind it */
+.kodza-scroll-path__svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.kodza-scroll-path__track,
+.kodza-scroll-path__ink {
+  fill: none;
+  stroke-width: var(--kz-scroll-path-width);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-scroll-path__track {
+  stroke: var(--kz-scroll-path-track);
+  stroke-dasharray: 0 8;
+}
+
+.kodza-scroll-path__ink {
+  stroke: var(--kz-scroll-path-ink);
+}
+
+.kodza-scroll-path__pen {
+  fill: var(--kz-scroll-path-ink);
+  stroke: var(--kz-scroll-path-bg);
+  stroke-width: 3;
+  transition: opacity calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-scroll-path__pen.is-away {
+  opacity: 0;
+}
+
+/* The steps, one on each side (a step's width short of the full width on a phone, so the
+   line still swings) */
+.kodza-scroll-path__list {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--kz-scroll-path-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-scroll-path__stop {
+  display: grid;
+  grid-template-columns: var(--kz-scroll-path-marker) minmax(0, 1fr);
+  column-gap: 22px;
+  align-items: start;
+  width: min(calc(100% - var(--kz-scroll-path-marker)), var(--kz-scroll-path-column));
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-scroll-path__stop:nth-child(even) {
+  align-self: flex-end;
+}
+
+/* The marker the line passes through: it fills with ink from its centre when the line reaches it */
+.kodza-scroll-path__marker {
+  position: relative;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  width: var(--kz-scroll-path-marker);
+  height: var(--kz-scroll-path-marker);
+  border-radius: 50%;
+  background: var(--kz-scroll-path-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-scroll-path-rim);
+  color: var(--kz-scroll-path-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  transition: color calc(0.35s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-scroll-path__marker::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--kz-scroll-path-ink);
+  transform: scale(0);
+  transition: transform calc(0.5s * var(--kz-motion-scale, 1)) cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.kodza-scroll-path__stop.is-reached .kodza-scroll-path__marker {
+  color: var(--kz-scroll-path-on-ink);
+}
+
+.kodza-scroll-path__stop.is-reached .kodza-scroll-path__marker::before {
+  transform: scale(1);
+}
+
+.kodza-scroll-path__body {
+  display: grid;
+  gap: 10px;
+  padding-top: 9px;
+}
+
+.kodza-scroll-path__title {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(24px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.03em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-scroll-path__text {
+  max-width: 40ch;
+  margin: 0;
+  color: var(--kz-scroll-path-muted);
+  font-size: 15px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* The end: the line arrives on top of the button and draws its ring */
+.kodza-scroll-path__end {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+  margin-top: var(--kz-scroll-path-gap);
+  text-align: center;
+}
+
+.kodza-scroll-path__cta {
+  display: inline-flex;
+  align-items: center;
+  height: 52px;
+  padding: 0 28px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-scroll-path-ink);
+  color: var(--kz-scroll-path-on-ink);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, revert);
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-scroll-path-ease);
+}
+
+.kodza-scroll-path__cta:active {
+  transform: scale(0.97);
+}
+
+.kodza-scroll-path__cta:focus-visible {
+  outline: 2px solid var(--kz-scroll-path-ink);
+  outline-offset: 3px;
+}
+
+.kodza-scroll-path__note {
+  margin: 0;
+  color: var(--kz-scroll-path-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+/* Each step arrives the first time it is seen (only once the script is there): the marker
+   grows, the title rises from behind its own edge (the clip moves against the text, so its
+   window stays put), then the text fades up */
+.kodza-scroll-path__marker,
+.kodza-scroll-path__title,
+.kodza-scroll-path__text {
+  transition:
+    color calc(0.35s * var(--kz-motion-scale, 1)) ease,
+    opacity calc(0.6s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.8s * var(--kz-motion-scale, 1)) var(--kz-scroll-path-ease),
+    clip-path calc(0.8s * var(--kz-motion-scale, 1)) var(--kz-scroll-path-ease);
+}
+
+.kodza-scroll-path__title {
+  clip-path: inset(-20% -20% -20% -20%);
+}
+
+.kodza-scroll-path.is-ready .kodza-scroll-path__stop:not(.is-seen) .kodza-scroll-path__marker {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.kodza-scroll-path.is-ready .kodza-scroll-path__stop:not(.is-seen) .kodza-scroll-path__title {
+  transform: translateY(120%);
+  clip-path: inset(-140% -20% 100% -20%);
+}
+
+.kodza-scroll-path.is-ready .kodza-scroll-path__stop:not(.is-seen) .kodza-scroll-path__text {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.kodza-scroll-path__stop.is-seen .kodza-scroll-path__title {
+  transition-delay: 0s, 0s, calc(0.08s * var(--kz-motion-scale, 1)), calc(0.08s * var(--kz-motion-scale, 1));
+}
+
+.kodza-scroll-path__stop.is-seen .kodza-scroll-path__text {
+  transition-delay: 0s, calc(0.2s * var(--kz-motion-scale, 1)), calc(0.2s * var(--kz-motion-scale, 1)), 0s;
+}
+
+@media (hover: hover) {
+  .kodza-scroll-path__cta:hover {
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-scroll-path *,
+  .kodza-scroll-path *::before,
+  .kodza-scroll-path *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* kodza-guard 8bc520d851a4 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-scroll-path__svg):not(#_),
+:where(.kodza-scroll-path__list):not(#_),
+:where(.kodza-scroll-path__stop):not(#_),
+:where(.kodza-scroll-path__note):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-scroll-path__cta):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-scroll-path:not(#_),
+.kodza-scroll-path__track:not(#_),
+.kodza-scroll-path__ink:not(#_),
+.kodza-scroll-path__pen:not(#_),
+.kodza-scroll-path__marker:not(#_),
+.kodza-scroll-path__body:not(#_),
+.kodza-scroll-path__end:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-scroll-path__svg:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-scroll-path__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-scroll-path__stop:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-scroll-path__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-scroll-path__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-scroll-path__cta:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-scroll-path__note:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-scroll-path__svg:not(#_):where(:not([hidden])),
+.kodza-scroll-path__title:not(#_):where(:not([hidden])),
+.kodza-scroll-path__text:not(#_):where(:not([hidden])),
+.kodza-scroll-path__note:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-scroll-path__svg:not(#_):where([hidden]),
+.kodza-scroll-path__title:not(#_):where([hidden]),
+.kodza-scroll-path__text:not(#_):where([hidden]),
+.kodza-scroll-path__note:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-scroll-path__marker:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-scroll-path__svg:not(#_) {
+  position: absolute;
+}
+
+.kodza-scroll-path__list:not(#_) {
+  position: relative;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-scroll-path__stop:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-scroll-path__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(24px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.03em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-scroll-path__text:not(#_) {
+  max-width: 40ch;
+  margin: 0;
+  color: var(--kz-scroll-path-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.kodza-scroll-path__cta:not(#_) {
+  display: inline-flex;
+  padding: 0 28px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-scroll-path-ink);
+  color: var(--kz-scroll-path-on-ink);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, revert);
+  text-decoration: none;
+  transition: transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-scroll-path-ease);
+}
+
+.kodza-scroll-path__cta:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-scroll-path-ink);
+  outline-offset: 3px;
+}
+
+.kodza-scroll-path__note:not(#_) {
+  margin: 0;
+  color: var(--kz-scroll-path-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-scroll-path__title:not(#_),
+.kodza-scroll-path__text:not(#_) {
+  transition: color calc(0.35s * var(--kz-motion-scale, 1)) ease,
+    opacity calc(0.6s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.8s * var(--kz-motion-scale, 1)) var(--kz-scroll-path-ease),
+    clip-path calc(0.8s * var(--kz-motion-scale, 1)) var(--kz-scroll-path-ease);
+}
+
+.kodza-scroll-path__stop.is-seen .kodza-scroll-path__title:not(#_) {
+  transition-delay: 0s, 0s, calc(0.08s * var(--kz-motion-scale, 1)), calc(0.08s * var(--kz-motion-scale, 1));
+}
+
+.kodza-scroll-path__stop.is-seen .kodza-scroll-path__text:not(#_) {
+  transition-delay: 0s, calc(0.2s * var(--kz-motion-scale, 1)), calc(0.2s * var(--kz-motion-scale, 1)), 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-scroll-path *:where(svg, ol, li, h3, p, a):not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

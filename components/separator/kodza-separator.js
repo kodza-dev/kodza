@@ -34,13 +34,27 @@
       if (signal.aborted) return;
       const pace = paceOf(el);
       if (!pace) return el.classList.add('is-drawn');
-      const io = new IntersectionObserver(([entry]) => {
-        if (!entry.isIntersecting) return;
+      // At the foot of a page the line may never get that far up: once the page goes no further
+      // down (or does not scroll at all), a line in full view is drawn
+      const wait = new AbortController();
+      signal.addEventListener('abort', () => wait.abort());
+      const play = () => {
         io.disconnect();
-        draw(entry.target, pace);
+        wait.abort();
+        draw(el, pace);
+      };
+      const io = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) play();
       }, { threshold: 0, rootMargin: '0px 0px -12% 0px' });
       io.observe(el);
       signal.addEventListener('abort', () => io.disconnect());
+      const foot = () => {
+        const box = el.getBoundingClientRect();
+        const end = document.documentElement.scrollHeight - innerHeight - scrollY <= 1;
+        if (end && (box.width || box.height) && box.top >= 0 && box.bottom <= innerHeight) play();
+      };
+      window.addEventListener('scroll', foot, { passive: true, signal: wait.signal });
+      foot();
     });
   }
 

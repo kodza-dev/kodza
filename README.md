@@ -51,7 +51,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 180. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 186. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -78,7 +78,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-180 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+186 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
 
 ### Buttons
 
@@ -304,6 +304,17 @@ Written like it's going live tomorrow. Because it probably is.
 | [Shared Element Morph](components/shared-element-morph/) | Between two real pages, the picture you click grows into its place on the next page while the rest of it plays its entrance. Back, it shrinks into its card. Chrome, Edge, Safari. | [Demo](https://kodza.dev/components/shared-element-morph/) |
 | [Soft Swap](components/soft-swap/) | Between two real pages, the one you leave fades out drifting up while the next slides in from just below, and the header stays put. CSS only, no script. Chrome, Edge, Safari; Firefox loads plainly for now. | [Demo](https://kodza.dev/components/soft-swap/) |
 | [Stairs Transition](components/stairs-transition/) | Between two real pages, five ink bands climb over the page like a staircase, then step off onto the next one. Back starts from the other edge. Chrome, Edge, Safari. | [Demo](https://kodza.dev/components/stairs-transition/) |
+
+### SVG & Drawing
+
+| Component | What it does | |
+| --- | --- | --- |
+| [Annotation Arrow](components/annotation-arrow/) | A note that draws a hand-drawn arrow to the element it points at, picked by a CSS selector. The curve avoids both boxes and redraws when the layout moves. | [Demo](https://kodza.dev/components/annotation-arrow/) |
+| [Hover Icons](components/hover-icons/) | Stroke icons that act out their meaning on hover or keyboard focus: the bell rings, the bin lifts its lid, the plane flies off and back, the cog turns, refresh spins, the padlock opens. CSS only. | [Demo](https://kodza.dev/components/hover-icons/) |
+| [Morph Icons](components/morph-icons/) | Icon buttons whose strokes travel into the other icon: play to pause, sound to mute, plus to close, list to grid. They follow aria-pressed or aria-expanded and fire kodza:morph-icons. | [Demo](https://kodza.dev/components/morph-icons/) |
+| [Path Draw](components/path-draw/) | Any SVG drawn with strokes draws itself stroke by stroke at a steady pen speed, then fills in. Once on entering the screen, or tied to the scroll. | [Demo](https://kodza.dev/components/path-draw/) |
+| [Scroll Path](components/scroll-path/) | A line drawn through the steps of a section as you read: it swings from step to step, fills each marker it reaches and ends with a ring around the button. | [Demo](https://kodza.dev/components/scroll-path/) |
+| [Section Curve](components/section-curve/) | A section whose top edge comes up curved and pulls flat as it lands, tied to the scroll; scroll back up and it bends again. | [Demo](https://kodza.dev/components/section-curve/) |
 
 ### Hero
 

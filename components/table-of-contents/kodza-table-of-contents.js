@@ -90,14 +90,17 @@
 
     let active = -2;
     const update = () => {
-      // The section being read: the last heading above the top third of the screen
-      const line = innerHeight * 0.3;
+      // The section being read: the last heading above the top third of the screen. At the foot of
+      // a page the last headings may never get that far up: over the last 70% of a screen of
+      // scroll, the line slides down, reaching the bottom of the screen as the page ends
+      const third = innerHeight * 0.3;
+      const line = third + Math.max(0, innerHeight * 0.7 - (document.documentElement.scrollHeight - innerHeight - scrollY));
       let index = -1;
       headings.forEach((heading, i) => {
         if (heading.getBoundingClientRect().top <= line) index = i;
       });
       const box = article.getBoundingClientRect();
-      const read = Math.min(1, Math.max(0, (line - box.top) / Math.max(1, box.height - innerHeight * 0.5)));
+      const read = Math.min(1, Math.max(0, (third - box.top) / Math.max(1, box.height - innerHeight * 0.5)));
       root.style.setProperty('--kz-toc-read', read.toFixed(4));
       if (percent) percent.textContent = `${Math.round(read * 100)}%`;
       if (left) left.textContent = read > 0.98 ? 'All read' : `${Math.max(1, Math.ceil(minutes * (1 - read)))} min left`;

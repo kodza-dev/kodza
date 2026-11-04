@@ -212,17 +212,31 @@
     if (still) return;
 
     root.classList.add('is-armed');
-    const start = new IntersectionObserver((entries) => {
-      if (!entries[0].isIntersecting) return;
+    // At the foot of a page the sentence may never get that far up: once the page goes no further
+    // down (or does not scroll at all), a sentence in full view starts
+    const footing = new AbortController();
+    const begin = () => {
       start.disconnect();
+      footing.abort();
       // Lines are measured with the page's own font
       document.fonts.ready.then(() => !signal.aborted && !run && play());
+    };
+    const start = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) begin();
     }, { rootMargin: START });
     start.observe(root);
+    const foot = () => {
+      const box = root.getBoundingClientRect();
+      const end = document.documentElement.scrollHeight - innerHeight - scrollY <= 1;
+      if (end && box.height && box.top >= 0 && box.bottom <= innerHeight) begin();
+    };
+    window.addEventListener('scroll', foot, { passive: true, signal: footing.signal });
+    foot();
     root.addEventListener('kodza:replay', play, { signal });
     // An entrance still playing would put its lines back into the restored markup
     signal.addEventListener('abort', () => {
       start.disconnect();
+      footing.abort();
       run += 1;
       stop();
     });
