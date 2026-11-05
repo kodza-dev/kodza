@@ -1,0 +1,731 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Expanding Panels
+   Full-height photo panels side by side, one open at a time: hover or focus one and it widens
+   while the others close in, each photo recropped, never stretched. The title lying on its
+   spine slides away as the same title rises upright from its mask, with a line of text and a
+   link. Stacked in narrow containers: the open panel grows in height.
+   Tuned with the --kz-expanding-panels-* variables; the script's timing sits under its SELECTOR. */
+.kodza-expanding-panels {
+  --kz-expanding-panels-height: 520px; /* side by side */
+  --kz-expanding-panels-grow: 4; /* the open panel, against 1 for a closed one */
+  --kz-expanding-panels-gap: 8px;
+  --kz-expanding-panels-strip: 72px; /* a closed panel, stacked (under 600px of container) */
+  --kz-expanding-panels-open-height: 380px; /* the open panel, stacked */
+  --kz-expanding-panels-pad: 24px; /* title and text, from the photo's edges */
+  --kz-expanding-panels-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-expanding-panels-bg: #1c1c1c; /* behind a photo still loading */
+  --kz-expanding-panels-fg: #ffffff;
+  --kz-expanding-panels-muted: rgba(255, 255, 255, 0.86);
+  --kz-expanding-panels-veil: rgba(10, 10, 10, 0.3); /* over a closed photo */
+  --kz-expanding-panels-shade: rgba(10, 10, 10, 0.72); /* at the foot of every photo, under the text */
+  --kz-expanding-panels-link-bg: #ffffff;
+  --kz-expanding-panels-link-fg: #0a0a0a;
+  --kz-expanding-panels-focus: #0a0a0a;
+  --kz-expanding-panels-line: transparent; /* a hairline round each photo, for dark photos on a dark page */
+
+  container: kodza-expanding-panels / inline-size;
+}
+
+.kodza-expanding-panels__list {
+  display: flex;
+  gap: var(--kz-expanding-panels-gap);
+  height: var(--kz-expanding-panels-height);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The panel holds the place; only its frame takes the pointer, so a panel that slides under
+   a resting pointer never opens by itself */
+.kodza-expanding-panels__panel {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+.kodza-expanding-panels__panel.is-open {
+  flex-grow: var(--kz-expanding-panels-grow);
+}
+
+/* The script slides and resizes the frame from its old place to its new one */
+.kodza-expanding-panels__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--kz-expanding-panels-radius);
+  background: var(--kz-expanding-panels-bg);
+  pointer-events: auto;
+}
+
+.kodza-expanding-panels__frame:has(.kodza-expanding-panels__toggle:focus-visible) {
+  outline: 2px solid var(--kz-expanding-panels-focus);
+  outline-offset: 3px;
+}
+
+.kodza-expanding-panels__image {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The veil darkens the closed photos and lifts off the open one; the shade keeps the text
+   readable at the foot of every photo */
+.kodza-expanding-panels__frame::before,
+.kodza-expanding-panels__frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.kodza-expanding-panels__frame::before {
+  background: var(--kz-expanding-panels-veil);
+  transition: opacity calc(0.5s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-expanding-panels__frame::after {
+  border-radius: inherit;
+  background: linear-gradient(to top, var(--kz-expanding-panels-shade), var(--kz-expanding-panels-shade) 22%, transparent 78%);
+  box-shadow: inset 0 0 0 1px var(--kz-expanding-panels-line);
+}
+
+.kodza-expanding-panels__panel.is-open .kodza-expanding-panels__frame::before {
+  opacity: 0;
+}
+
+/* The button covers the whole photo: hover, focus or tap it to open the panel */
+.kodza-expanding-panels__toggle {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--kz-expanding-panels-fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-expanding-panels__toggle:focus-visible {
+  outline: none;
+}
+
+.kodza-expanding-panels__panel.is-open .kodza-expanding-panels__toggle {
+  cursor: default;
+}
+
+/* The title on the spine, read bottom to top like the back of a book. Opening, it slides out
+   past the photo's edge; closing, it comes back once the panel has closed in */
+.kodza-expanding-panels__spine {
+  position: absolute;
+  bottom: var(--kz-expanding-panels-pad);
+  left: var(--kz-expanding-panels-pad);
+  display: block;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(20px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  text-transform: var(--kz-font-display-case, inherit);
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    translate calc(0.5s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc(0.2s * var(--kz-motion-scale, 1)),
+    opacity 0s linear calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-expanding-panels__index {
+  margin-bottom: 4px;
+  color: var(--kz-expanding-panels-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+}
+
+.kodza-expanding-panels__panel.is-open .kodza-expanding-panels__spine {
+  translate: calc(-100% - var(--kz-expanding-panels-pad) - 4px) 0;
+  opacity: 0;
+  transition:
+    translate calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 0s linear calc(0.35s * var(--kz-motion-scale, 1));
+}
+
+/* The text, as wide as an open panel (--kz-expanding-panels-open, measured by the script):
+   it never rewraps while the panel grows, the panel's edge uncovers it */
+.kodza-expanding-panels__content {
+  position: absolute;
+  bottom: var(--kz-expanding-panels-pad);
+  left: var(--kz-expanding-panels-pad);
+  z-index: 2;
+  width: calc(var(--kz-expanding-panels-open, 100%) - 2 * var(--kz-expanding-panels-pad));
+  box-sizing: border-box;
+  color: var(--kz-expanding-panels-fg);
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-expanding-panels__panel.is-open .kodza-expanding-panels__content {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+/* Each block rises from behind its own mask, one after the other (the clip moves with it:
+   together they show the block's final box only) */
+.kodza-expanding-panels__content > * {
+  transform: translateY(100%);
+  clip-path: inset(-10px -20px 100% -20px);
+  transition:
+    transform calc(0.18s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    clip-path calc(0.18s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-expanding-panels__content > :nth-child(2) {
+  --kz-expanding-panels-step: 1;
+}
+
+.kodza-expanding-panels__content > :nth-child(3) {
+  --kz-expanding-panels-step: 2;
+}
+
+.kodza-expanding-panels__content > :nth-child(4) {
+  --kz-expanding-panels-step: 3;
+}
+
+.kodza-expanding-panels__panel.is-open .kodza-expanding-panels__content > * {
+  transform: none;
+  clip-path: inset(-10px -20px -10px -20px);
+  transition:
+    transform calc(0.6s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc((0.3s + var(--kz-expanding-panels-step, 0) * 0.07s) * var(--kz-motion-scale, 1)),
+    clip-path calc(0.6s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc((0.3s + var(--kz-expanding-panels-step, 0) * 0.07s) * var(--kz-motion-scale, 1));
+}
+
+.kodza-expanding-panels__title {
+  margin: 0 0 8px;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(30px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  letter-spacing: var(--kz-font-display-tracking, -0.035em);
+  text-transform: var(--kz-font-display-case, inherit);
+  line-height: 1.1;
+}
+
+.kodza-expanding-panels__meta {
+  margin: 0 0 12px;
+  color: var(--kz-expanding-panels-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+}
+
+.kodza-expanding-panels__text {
+  max-width: 36ch;
+  margin: 0 0 18px;
+  color: var(--kz-expanding-panels-muted);
+  font-size: 15px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.kodza-expanding-panels__link {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 18px;
+  box-sizing: border-box;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-expanding-panels-link-bg);
+  color: var(--kz-expanding-panels-link-fg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* A drawn chevron, nudged on hover */
+.kodza-expanding-panels__link::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-left: 9px;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform calc(0.2s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-expanding-panels__panel.is-open .kodza-expanding-panels__link {
+  pointer-events: auto;
+}
+
+.kodza-expanding-panels__link:focus-visible {
+  outline: 2px solid var(--kz-expanding-panels-fg);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .kodza-expanding-panels__link:hover::after {
+    transform: translateX(3px) rotate(45deg);
+  }
+}
+
+/* Stacked: the panels pile up and the open one grows in height; the title lies flat */
+@container kodza-expanding-panels (max-width: 599px) {
+  .kodza-expanding-panels__list {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .kodza-expanding-panels__panel {
+    flex: none;
+    height: var(--kz-expanding-panels-strip);
+  }
+
+  .kodza-expanding-panels__panel.is-open {
+    height: var(--kz-expanding-panels-open-height);
+  }
+
+  .kodza-expanding-panels__spine {
+    top: calc(var(--kz-expanding-panels-strip) / 2);
+    bottom: auto;
+    writing-mode: horizontal-tb;
+    transform: translateY(-50%);
+  }
+
+  .kodza-expanding-panels__index {
+    margin: 0 4px 0 0;
+  }
+
+  .kodza-expanding-panels__panel.is-open .kodza-expanding-panels__spine {
+    translate: 0 calc(-1 * var(--kz-expanding-panels-strip));
+  }
+
+  .kodza-expanding-panels__text {
+    margin-bottom: 16px;
+  }
+
+  /* The text climbs higher on a short, wide photo: so does the shade */
+  .kodza-expanding-panels__frame::after {
+    background: linear-gradient(to top, var(--kz-expanding-panels-shade), var(--kz-expanding-panels-shade) 34%, transparent 92%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-expanding-panels__frame::before,
+  .kodza-expanding-panels__spine,
+  .kodza-expanding-panels__content,
+  .kodza-expanding-panels__content > *,
+  .kodza-expanding-panels__link::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-expanding-panels {
+  --kz-expanding-panels-bg: #1c1c1c;
+  --kz-expanding-panels-focus: #f2f2f0;
+}
+*/
+
+/* kodza-guard 80180f194deb — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-expanding-panels__toggle):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-expanding-panels__link):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-expanding-panels:not(#_),
+.kodza-expanding-panels__frame:not(#_),
+.kodza-expanding-panels__spine:not(#_),
+.kodza-expanding-panels__index:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-expanding-panels__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-expanding-panels__panel:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-expanding-panels__image:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-expanding-panels__toggle:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-expanding-panels__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-expanding-panels__meta:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-expanding-panels__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-expanding-panels__link:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-expanding-panels__panel:not(#_):where(:not([hidden])),
+.kodza-expanding-panels__title:not(#_):where(:not([hidden])),
+.kodza-expanding-panels__meta:not(#_):where(:not([hidden])),
+.kodza-expanding-panels__text:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-expanding-panels__panel:not(#_):where([hidden]),
+.kodza-expanding-panels__title:not(#_):where([hidden]),
+.kodza-expanding-panels__meta:not(#_):where([hidden]),
+.kodza-expanding-panels__text:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-expanding-panels__frame:not(#_)::before,
+.kodza-expanding-panels__frame:not(#_)::after,
+.kodza-expanding-panels__link:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-expanding-panels__list:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-expanding-panels__panel:not(#_) {
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-expanding-panels__image:not(#_) {
+  display: block;
+  max-width: none;
+}
+
+.kodza-expanding-panels__toggle:not(#_) {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--kz-expanding-panels-fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-expanding-panels__toggle:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-expanding-panels__panel.is-open .kodza-expanding-panels__toggle:not(#_) {
+  cursor: default;
+}
+
+.kodza-expanding-panels__content > *:not(#_) {
+  transition: transform calc(0.18s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    clip-path calc(0.18s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-expanding-panels__panel.is-open .kodza-expanding-panels__content > *:not(#_) {
+  transition: transform calc(0.6s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc((0.3s + var(--kz-expanding-panels-step, 0) * 0.07s) * var(--kz-motion-scale, 1)),
+    clip-path calc(0.6s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc((0.3s + var(--kz-expanding-panels-step, 0) * 0.07s) * var(--kz-motion-scale, 1));
+}
+
+.kodza-expanding-panels__title:not(#_) {
+  margin: 0 0 8px;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(30px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  letter-spacing: var(--kz-font-display-tracking, -0.035em);
+  text-transform: var(--kz-font-display-case, inherit);
+  line-height: 1.1;
+}
+
+.kodza-expanding-panels__meta:not(#_) {
+  margin: 0 0 12px;
+  color: var(--kz-expanding-panels-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+}
+
+.kodza-expanding-panels__text:not(#_) {
+  max-width: 36ch;
+  margin: 0 0 18px;
+  color: var(--kz-expanding-panels-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.kodza-expanding-panels__link:not(#_) {
+  display: inline-flex;
+  padding: 0 18px;
+  box-sizing: border-box;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-expanding-panels-link-bg);
+  color: var(--kz-expanding-panels-link-fg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  line-height: 1;
+  text-decoration: none;
+}
+
+.kodza-expanding-panels__link:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-expanding-panels-fg);
+  outline-offset: 3px;
+}
+
+@container kodza-expanding-panels (max-width: 599px) {
+  .kodza-expanding-panels__text:not(#_) {
+    margin-bottom: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-expanding-panels__content > *:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

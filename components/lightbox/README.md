@@ -66,7 +66,7 @@ CSS variables, set on `.kodza-lightbox` itself:
 
 ## Images
 
-The images are Kodza placeholders, served from kodza.dev. Swap them for your own before you ship.
+The images are Kodza house images, free to use in what you ship ([Kodza License](../../LICENSE)). The code loads them from kodza.dev, whose addresses can change: keep your own copy in your project.
 
 ---
 

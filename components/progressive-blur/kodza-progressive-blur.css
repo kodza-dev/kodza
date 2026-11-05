@@ -1,0 +1,557 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Progressive Blur
+   A blur that builds up toward an edge with no hard line: eight backdrop-filter layers, each
+   twice as strong as the one before, blended by bands of mask 12.5% wide. Under a caption on a
+   photo, under a bar on top of a list, at the bottom of anything that scrolls: the content goes
+   under it and is never cut. CSS only. Everything is tuned with the --kz-progressive-blur-*
+   variables; variants: (default) a photo with its caption, --list. */
+.kodza-progressive-blur {
+  --kz-progressive-blur-height: 200px; /* the blur at the bottom: about twice the caption on it */
+  --kz-progressive-blur-top-height: 72px; /* the blur under a bar on top: the bar and a little more */
+  --kz-progressive-blur-strength: 30px; /* at the very edge; each layer before it is half as strong */
+  --kz-progressive-blur-tint: rgba(242, 242, 240, 0.62); /* a veil that thickens toward the edge, for the words on it */
+  --kz-progressive-blur-ratio: 4 / 5;
+  --kz-progressive-blur-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-progressive-blur-ink: #0a0a0a;
+  --kz-progressive-blur-muted: rgba(10, 10, 10, 0.66);
+  --kz-progressive-blur-placeholder: rgba(10, 10, 10, 0.06); /* under a photo while it loads */
+  /* The scrolling list */
+  --kz-progressive-blur-list-height: 450px;
+  --kz-progressive-blur-surface: #ffffff;
+  --kz-progressive-blur-border: rgba(10, 10, 10, 0.1);
+  --kz-progressive-blur-line: rgba(10, 10, 10, 0.08);
+  --kz-progressive-blur-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0;
+  overflow: clip;
+  border-radius: var(--kz-progressive-blur-radius);
+  background: var(--kz-progressive-blur-placeholder);
+  color: var(--kz-progressive-blur-ink);
+}
+
+/* The photo: a real image, cropped by its frame, never stretched */
+.kodza-progressive-blur__image {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  margin: 0;
+  aspect-ratio: var(--kz-progressive-blur-ratio);
+  object-fit: cover;
+}
+
+/* The blur, on the bottom edge (--top: under a bar on top). It must stay free of opacity, filter,
+   mask and isolation: any of them would cut the layers off from what lies under them. */
+.kodza-progressive-blur__blur {
+  --kz-progressive-blur-to: to bottom;
+
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  height: var(--kz-progressive-blur-height);
+  pointer-events: none;
+}
+
+.kodza-progressive-blur__blur--top {
+  --kz-progressive-blur-to: to top;
+
+  inset: 0 0 auto;
+  height: var(--kz-progressive-blur-top-height);
+}
+
+/* Each layer blurs what is under it, seen through a band of mask; the bands overlap by half, so
+   the strength doubles eight times with no step to see */
+.kodza-progressive-blur__layer {
+  position: absolute;
+  inset: 0;
+  -webkit-backdrop-filter: blur(var(--kz-progressive-blur-layer));
+  backdrop-filter: blur(var(--kz-progressive-blur-layer));
+  -webkit-mask-image: var(--kz-progressive-blur-band);
+  mask-image: var(--kz-progressive-blur-band);
+}
+
+.kodza-progressive-blur__layer:nth-child(1) {
+  --kz-progressive-blur-layer: calc(var(--kz-progressive-blur-strength) / 128);
+  --kz-progressive-blur-band: linear-gradient(var(--kz-progressive-blur-to), transparent 0%, #000 12.5%, #000 25%, transparent 37.5%);
+}
+
+.kodza-progressive-blur__layer:nth-child(2) {
+  --kz-progressive-blur-layer: calc(var(--kz-progressive-blur-strength) / 64);
+  --kz-progressive-blur-band: linear-gradient(var(--kz-progressive-blur-to), transparent 12.5%, #000 25%, #000 37.5%, transparent 50%);
+}
+
+.kodza-progressive-blur__layer:nth-child(3) {
+  --kz-progressive-blur-layer: calc(var(--kz-progressive-blur-strength) / 32);
+  --kz-progressive-blur-band: linear-gradient(var(--kz-progressive-blur-to), transparent 25%, #000 37.5%, #000 50%, transparent 62.5%);
+}
+
+.kodza-progressive-blur__layer:nth-child(4) {
+  --kz-progressive-blur-layer: calc(var(--kz-progressive-blur-strength) / 16);
+  --kz-progressive-blur-band: linear-gradient(var(--kz-progressive-blur-to), transparent 37.5%, #000 50%, #000 62.5%, transparent 75%);
+}
+
+.kodza-progressive-blur__layer:nth-child(5) {
+  --kz-progressive-blur-layer: calc(var(--kz-progressive-blur-strength) / 8);
+  --kz-progressive-blur-band: linear-gradient(var(--kz-progressive-blur-to), transparent 50%, #000 62.5%, #000 75%, transparent 87.5%);
+}
+
+.kodza-progressive-blur__layer:nth-child(6) {
+  --kz-progressive-blur-layer: calc(var(--kz-progressive-blur-strength) / 4);
+  --kz-progressive-blur-band: linear-gradient(var(--kz-progressive-blur-to), transparent 62.5%, #000 75%, #000 87.5%, transparent 100%);
+}
+
+.kodza-progressive-blur__layer:nth-child(7) {
+  --kz-progressive-blur-layer: calc(var(--kz-progressive-blur-strength) / 2);
+  --kz-progressive-blur-band: linear-gradient(var(--kz-progressive-blur-to), transparent 75%, #000 87.5%, #000 100%);
+}
+
+.kodza-progressive-blur__layer:nth-child(8) {
+  --kz-progressive-blur-layer: var(--kz-progressive-blur-strength);
+  --kz-progressive-blur-band: linear-gradient(var(--kz-progressive-blur-to), transparent 87.5%, #000 100%);
+}
+
+/* The veil, over the layers and not blurred by them */
+.kodza-progressive-blur__blur::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(var(--kz-progressive-blur-to), transparent, var(--kz-progressive-blur-tint) 65%);
+}
+
+/* The caption, on the strongest part of the blur */
+.kodza-progressive-blur__caption {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 28px 26px;
+}
+
+.kodza-progressive-blur__label,
+.kodza-progressive-blur__count,
+.kodza-progressive-blur__year {
+  font-family: var(--kz-font-label, var(--kz-progressive-blur-mono));
+  font-size: var(--kz-font-label-size, 11.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  line-height: var(--kz-font-label-leading, 16px);
+  color: var(--kz-progressive-blur-muted);
+}
+
+.kodza-progressive-blur__title {
+  margin-top: 8px;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(22px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  text-transform: var(--kz-font-display-case, none);
+  line-height: 1.2;
+}
+
+.kodza-progressive-blur__text {
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-progressive-blur-muted);
+  text-wrap: pretty;
+}
+
+/* The list: a card of a fixed height, its bar and both blurs laid over what scrolls */
+.kodza-progressive-blur--list {
+  --kz-progressive-blur-height: 120px;
+  --kz-progressive-blur-tint: rgba(255, 255, 255, 0.72);
+
+  height: var(--kz-progressive-blur-list-height);
+  background: var(--kz-progressive-blur-surface);
+}
+
+/* The border, drawn over everything, and the focus ring when the list has the keyboard */
+.kodza-progressive-blur--list::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px var(--kz-progressive-blur-border);
+  pointer-events: none;
+}
+
+.kodza-progressive-blur--list:has(.kodza-progressive-blur__scroll:focus-visible)::before {
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+
+.kodza-progressive-blur__bar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 2;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  box-sizing: border-box;
+  padding: 18px 22px;
+}
+
+.kodza-progressive-blur__heading {
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(17px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  text-transform: var(--kz-font-display-case, none);
+  line-height: 1.2;
+}
+
+/* Room on top for the bar, and at the bottom for the last line to rise clear of the blur */
+.kodza-progressive-blur__scroll {
+  box-sizing: border-box;
+  height: 100%;
+  padding: 60px 10px calc(var(--kz-progressive-blur-height) - 8px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  outline: none;
+}
+
+.kodza-progressive-blur__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-progressive-blur__item {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: 14px;
+  align-items: center;
+  margin: 0;
+  padding: 10px 12px;
+  border-top: 1px solid var(--kz-progressive-blur-line);
+}
+
+.kodza-progressive-blur__item:first-child {
+  border-top-color: transparent;
+}
+
+.kodza-progressive-blur__thumb {
+  grid-row: 1 / 3;
+  display: block;
+  width: 52px;
+  max-width: none;
+  height: 52px;
+  margin: 0;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  object-fit: cover;
+  background: var(--kz-progressive-blur-placeholder);
+}
+
+.kodza-progressive-blur__name {
+  align-self: end;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.kodza-progressive-blur__place {
+  grid-column: 2;
+  align-self: start;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--kz-progressive-blur-muted);
+}
+
+.kodza-progressive-blur__year {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  font-variant-numeric: tabular-nums;
+}
+
+/* kodza-guard 46253f12fd79 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-progressive-blur:not(#_) {
+  border: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-progressive-blur__image:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-progressive-blur__blur:not(#_),
+.kodza-progressive-blur__layer:not(#_),
+.kodza-progressive-blur__label:not(#_),
+.kodza-progressive-blur__title:not(#_),
+.kodza-progressive-blur__text:not(#_),
+.kodza-progressive-blur__heading:not(#_),
+.kodza-progressive-blur__count:not(#_),
+.kodza-progressive-blur__name:not(#_),
+.kodza-progressive-blur__place:not(#_),
+.kodza-progressive-blur__year:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-progressive-blur__caption:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-progressive-blur__scroll:not(#_) {
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+.kodza-progressive-blur__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-progressive-blur__item:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-progressive-blur__thumb:not(#_) {
+  border: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-progressive-blur__list:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-progressive-blur__list:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-progressive-blur__blur:not(#_)::after,
+.kodza-progressive-blur__scroll:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-progressive-blur:where(figure):not(#_) {
+  position: relative;
+  display: block;
+  border-radius: var(--kz-progressive-blur-radius);
+  background: var(--kz-progressive-blur-placeholder);
+  color: var(--kz-progressive-blur-ink);
+}
+
+.kodza-progressive-blur__image:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-progressive-blur__caption:not(#_) {
+  position: absolute;
+  display: flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 28px 26px;
+}
+
+.kodza-progressive-blur__scroll:not(#_) {
+  outline: none;
+}
+
+.kodza-progressive-blur__list:not(#_) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-progressive-blur__item:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 10px 12px;
+  border-top: 1px solid var(--kz-progressive-blur-line);
+}
+
+.kodza-progressive-blur__item:first-child:not(#_) {
+  border-top-color: transparent;
+}
+
+.kodza-progressive-blur__thumb:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  background: var(--kz-progressive-blur-placeholder);
+}

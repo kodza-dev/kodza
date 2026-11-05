@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 192. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 198. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-192 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+198 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -286,13 +286,19 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Image effects</b> · 3</summary>
+<summary><b>Image effects</b> · 9</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
+| [Direction-Aware Hover](components/direction-aware-hover/) | Tiles whose caption, or a second photo, slides in from the edge the pointer comes from and leaves by the edge it goes out. The keyboard opens it from the bottom; on touch the caption sits under the photo. | [Demo](https://kodza.dev/components/direction-aware-hover/) |
+| [Expanding Panels](components/expanding-panels/) | Full-height photo panels side by side: the one you hover, focus or tap widens as the others close in, its spine title slides away and rises upright with a line of text and a link. Stacked when narrow. | [Demo](https://kodza.dev/components/expanding-panels/) |
 | [Hover List Preview](components/hover-list-preview/) | Point at a row and its picture shows in one frame that follows the pointer, wiping to the next picture as you move down the list. Panel mode, keyboard and touch thumbnails included. | [Demo](https://kodza.dev/components/hover-list-preview/) |
 | [Image Hover](components/image-scale/) | Four ways for an image to answer the pointer, inside its own frame: a slow zoom, coming into focus, rounding off, or drifting with the cursor. | [Demo](https://kodza.dev/components/image-scale/) |
 | [Image Reveal](components/image-reveal/) | A picture that unveils itself when it comes into view: a curtain opens from below, from the side or like an iris while the picture settles from a slight zoom. | [Demo](https://kodza.dev/components/image-reveal/) |
+| [Ken Burns Slider](components/ken-burns-slider/) | A background slideshow behind fixed words: each photo drifts slowly toward its point of interest, and the next is uncovered by a slow curtain in the same direction. A thin line counts the time, with a pause button. | [Demo](https://kodza.dev/components/ken-burns-slider/) |
+| [Make Way Grid](components/make-way-grid/) | A grid of pictures where the one you click takes two by two cells and the others slide out of its way, then its caption card unfolds from the name pill. Two columns in narrow containers. | [Demo](https://kodza.dev/components/make-way-grid/) |
+| [Pixel Reveal](components/pixel-reveal/) | Lazy images come into focus: a flat placeholder holds their place, then the decoded image is drawn on a canvas in four pixel steps before turning sharp. Cached images show at once. | [Demo](https://kodza.dev/components/pixel-reveal/) |
+| [Progressive Blur](components/progressive-blur/) | A blur that builds up toward an edge with no hard line, eight backdrop-filter layers deep. Under a photo caption, under a bar on top of a list, at the bottom of what scrolls. CSS only. | [Demo](https://kodza.dev/components/progressive-blur/) |
 
 </details>
 
@@ -440,6 +446,6 @@ It mirrors [kodza.dev](https://kodza.dev): when a component ships or changes the
 
 ## License
 
-The [Kodza License](LICENSE). Use the components in any project, personal or commercial, client work included, no attribution needed. Don't resell or redistribute them, and don't offer them through another catalogue, registry or MCP server.
+The [Kodza License](LICENSE). Use the components in any project, personal or commercial, client work included, no attribution needed, and the house images that come with them too. Don't resell or redistribute them, and don't offer them through another catalogue, registry or MCP server.
 
 Use it anywhere. Don't resell it.

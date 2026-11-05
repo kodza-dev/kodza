@@ -1,0 +1,625 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Direction-Aware Hover
+   A grid of tiles where the caption, or a second photo, comes in from the side the pointer
+   comes from and leaves by the side it goes out: the small script reads the side, a clip-path
+   does the rest. The keyboard opens it from the bottom; on a touch screen the caption sits under
+   the photo and nothing sticks. Everything is tuned with the --kz-direction-hover-* variables. */
+.kodza-direction-hover {
+  --kz-direction-hover-columns: 4;
+  --kz-direction-hover-columns-narrow: 2; /* when the grid is narrower than 640px */
+  --kz-direction-hover-ratio: 4 / 5;
+  --kz-direction-hover-gap: 28px 16px;
+  --kz-direction-hover-radius: calc(12px * var(--kz-radius-scale, 1));
+  --kz-direction-hover-duration: 0.5s;
+  --kz-direction-hover-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-direction-hover-ink: #0a0a0a;
+  --kz-direction-hover-muted: rgba(10, 10, 10, 0.62);
+  --kz-direction-hover-placeholder: rgba(10, 10, 10, 0.06); /* under a photo while it loads */
+  /* The caption laid over the photo */
+  --kz-direction-hover-veil: rgba(10, 10, 10, 0.64);
+  --kz-direction-hover-paper: #ffffff;
+  --kz-direction-hover-faint: rgba(255, 255, 255, 0.86);
+  --kz-direction-hover-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+
+  container: kodza-direction-hover / inline-size;
+  display: block;
+  width: 100%;
+  margin: 0;
+  color: var(--kz-direction-hover-ink);
+}
+
+.kodza-direction-hover__grid {
+  display: grid;
+  grid-template-columns: repeat(var(--kz-direction-hover-columns), minmax(0, 1fr));
+  gap: var(--kz-direction-hover-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@container kodza-direction-hover (max-width: 640px) {
+  .kodza-direction-hover__grid {
+    grid-template-columns: repeat(var(--kz-direction-hover-columns-narrow), minmax(0, 1fr));
+  }
+
+  /* A narrow column: the place goes under the title instead of squeezing it onto two lines */
+  .kodza-direction-hover__words {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}
+
+.kodza-direction-hover__item {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-direction-hover__link {
+  /* How far the words and the second photo travel in from the edge (set by data-edge, below) */
+  --kz-direction-hover-shift: 0 14px;
+  --kz-direction-hover-drift: 0 8%;
+
+  position: relative;
+  display: block;
+  border-radius: var(--kz-direction-hover-radius);
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-direction-hover__link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+/* The photo: a real image, cropped by its frame, never stretched */
+.kodza-direction-hover__media {
+  position: relative;
+  display: block;
+  aspect-ratio: var(--kz-direction-hover-ratio);
+  overflow: clip;
+  border-radius: var(--kz-direction-hover-radius);
+  background: var(--kz-direction-hover-placeholder);
+}
+
+.kodza-direction-hover__image,
+.kodza-direction-hover__photo {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+}
+
+/* The second photo only shows under a pointer: on a touch screen it is never even loaded */
+.kodza-direction-hover__photo {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+/* The caption, under the photo on a touch screen: title and place, then the meta */
+.kodza-direction-hover__caption {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.kodza-direction-hover__top,
+.kodza-direction-hover__words {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.kodza-direction-hover__meta {
+  font-family: var(--kz-font-label, var(--kz-direction-hover-mono));
+  font-size: var(--kz-font-label-size, 11.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  line-height: var(--kz-font-label-leading, 16px);
+  color: var(--kz-direction-hover-muted);
+}
+
+.kodza-direction-hover__arrow {
+  display: none;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-direction-hover__title {
+  min-width: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(17px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  text-transform: var(--kz-font-display-case, none);
+  line-height: 1.2;
+}
+
+.kodza-direction-hover__place {
+  flex: none;
+  font-size: 13.5px;
+  line-height: 1.3;
+  color: var(--kz-direction-hover-muted);
+}
+
+/* The product: name and price, then a line about it */
+.kodza-direction-hover__info {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 12px;
+  margin-top: 12px;
+}
+
+.kodza-direction-hover__name,
+.kodza-direction-hover__price {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.kodza-direction-hover__price {
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-direction-hover__note {
+  grid-column: 1 / -1;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--kz-direction-hover-muted);
+}
+
+/* With a pointer: the caption covers the photo, and both covers wait, folded on an edge */
+@media (hover: hover) {
+  .kodza-direction-hover__caption {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0;
+    margin: 0;
+    padding: 16px 18px 17px;
+    border-radius: var(--kz-direction-hover-radius);
+    background: var(--kz-direction-hover-veil);
+    color: var(--kz-direction-hover-paper);
+  }
+
+  .kodza-direction-hover__caption .kodza-direction-hover__meta,
+  .kodza-direction-hover__caption .kodza-direction-hover__place {
+    color: var(--kz-direction-hover-faint);
+  }
+
+  .kodza-direction-hover__caption .kodza-direction-hover__words {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+
+  .kodza-direction-hover__caption .kodza-direction-hover__title {
+    font-size: calc(20px * var(--kz-font-display-scale, 1));
+  }
+
+  .kodza-direction-hover__arrow {
+    display: block;
+  }
+
+  .kodza-direction-hover__photo {
+    display: block;
+  }
+
+  /* Folded on the bottom edge by default; the script folds it on the side the pointer uses */
+  .kodza-direction-hover__caption,
+  .kodza-direction-hover__photo {
+    clip-path: inset(100% 0 0 0);
+    transition:
+      clip-path calc(var(--kz-direction-hover-duration) * var(--kz-motion-scale, 1)) var(--kz-direction-hover-ease),
+      translate calc(var(--kz-direction-hover-duration) * var(--kz-motion-scale, 1)) var(--kz-direction-hover-ease);
+  }
+
+  .kodza-direction-hover__link[data-edge="top"] {
+    --kz-direction-hover-shift: 0 -14px;
+    --kz-direction-hover-drift: 0 -8%;
+  }
+
+  .kodza-direction-hover__link[data-edge="top"] .kodza-direction-hover__caption,
+  .kodza-direction-hover__link[data-edge="top"] .kodza-direction-hover__photo {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  .kodza-direction-hover__link[data-edge="right"] {
+    --kz-direction-hover-shift: 14px 0;
+    --kz-direction-hover-drift: 8% 0;
+  }
+
+  .kodza-direction-hover__link[data-edge="right"] .kodza-direction-hover__caption,
+  .kodza-direction-hover__link[data-edge="right"] .kodza-direction-hover__photo {
+    clip-path: inset(0 0 0 100%);
+  }
+
+  .kodza-direction-hover__link[data-edge="left"] {
+    --kz-direction-hover-shift: -14px 0;
+    --kz-direction-hover-drift: -8% 0;
+  }
+
+  .kodza-direction-hover__link[data-edge="left"] .kodza-direction-hover__caption,
+  .kodza-direction-hover__link[data-edge="left"] .kodza-direction-hover__photo {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  /* The words and the second photo come in from that edge too, a little behind the cover */
+  .kodza-direction-hover__photo {
+    translate: var(--kz-direction-hover-drift);
+  }
+
+  .kodza-direction-hover__top,
+  .kodza-direction-hover__words {
+    translate: var(--kz-direction-hover-shift);
+    transition: translate calc(var(--kz-direction-hover-duration) * var(--kz-motion-scale, 1)) var(--kz-direction-hover-ease);
+  }
+
+  /* Open: under the pointer or the keyboard focus (and on hover alone, without the script) */
+  .kodza-direction-hover__link.is-open .kodza-direction-hover__caption,
+  .kodza-direction-hover__link.is-open .kodza-direction-hover__photo,
+  .kodza-direction-hover:not(.is-ready) .kodza-direction-hover__link:is(:hover, :focus-visible) .kodza-direction-hover__caption,
+  .kodza-direction-hover:not(.is-ready) .kodza-direction-hover__link:is(:hover, :focus-visible) .kodza-direction-hover__photo {
+    clip-path: inset(0);
+    translate: none;
+  }
+
+  .kodza-direction-hover__link.is-open .kodza-direction-hover__top,
+  .kodza-direction-hover__link.is-open .kodza-direction-hover__words,
+  .kodza-direction-hover:not(.is-ready) .kodza-direction-hover__link:is(:hover, :focus-visible) .kodza-direction-hover__top,
+  .kodza-direction-hover:not(.is-ready) .kodza-direction-hover__link:is(:hover, :focus-visible) .kodza-direction-hover__words {
+    translate: none;
+  }
+
+  /* Folded on a new edge in one go: it is hidden either way */
+  .kodza-direction-hover__link.is-placing .kodza-direction-hover__caption,
+  .kodza-direction-hover__link.is-placing .kodza-direction-hover__photo,
+  .kodza-direction-hover__link.is-placing .kodza-direction-hover__top,
+  .kodza-direction-hover__link.is-placing .kodza-direction-hover__words {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-direction-hover *,
+  .kodza-direction-hover *::before,
+  .kodza-direction-hover *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 6821fab8e2f4 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-direction-hover__grid):not(#_),
+:where(.kodza-direction-hover__item):not(#_),
+:where(.kodza-direction-hover__image):not(#_),
+:where(.kodza-direction-hover__arrow):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-direction-hover__link):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+}
+
+:where(.kodza-direction-hover__photo):not(#_) {
+  transition: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-direction-hover:not(#_),
+.kodza-direction-hover__media:not(#_),
+.kodza-direction-hover__top:not(#_),
+.kodza-direction-hover__meta:not(#_),
+.kodza-direction-hover__words:not(#_),
+.kodza-direction-hover__title:not(#_),
+.kodza-direction-hover__place:not(#_),
+.kodza-direction-hover__info:not(#_),
+.kodza-direction-hover__name:not(#_),
+.kodza-direction-hover__price:not(#_),
+.kodza-direction-hover__note:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-direction-hover__grid:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-direction-hover__item:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-direction-hover__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-direction-hover__image:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-direction-hover__arrow:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-direction-hover__photo:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-direction-hover__item:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-direction-hover__item:not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-direction-hover__grid:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-direction-hover__item:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-direction-hover__link:not(#_) {
+  position: relative;
+  display: block;
+  border-radius: var(--kz-direction-hover-radius);
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-direction-hover__link:focus-visible:not(#_) {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+.kodza-direction-hover__image:not(#_),
+.kodza-direction-hover__photo:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-direction-hover__photo:not(#_) {
+  position: absolute;
+  display: none;
+}
+
+.kodza-direction-hover__arrow:not(#_) {
+  display: none;
+}
+
+@media (hover: hover) {
+  .kodza-direction-hover__arrow:not(#_) {
+    display: block;
+  }
+}
+
+@media (hover: hover) {
+  .kodza-direction-hover__photo:not(#_) {
+    display: block;
+  }
+}
+
+@media (hover: hover) {
+  .kodza-direction-hover__photo:not(#_) {
+    transition: clip-path calc(var(--kz-direction-hover-duration) * var(--kz-motion-scale, 1)) var(--kz-direction-hover-ease),
+        translate calc(var(--kz-direction-hover-duration) * var(--kz-motion-scale, 1)) var(--kz-direction-hover-ease);
+  }
+}
+
+@media (hover: hover) {
+  .kodza-direction-hover__link.is-placing .kodza-direction-hover__photo:not(#_) {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-direction-hover *:where(ul, li, a, img, svg):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

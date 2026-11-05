@@ -1,0 +1,772 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Ken Burns Slider
+   A slideshow behind words that stay put, like a hotel's hero: each photo drifts slowly toward its
+   point of interest (data-focus on the slide), and the next one is uncovered by a slow curtain in
+   the direction of that drift while the last one is still moving. A thin line counts each photo's
+   time; the slideshow waits while it is paused, out of view, in a hidden tab or holds the focus.
+   Everything is tuned with the --kz-ken-burns-slider-* variables (and data-interval, in ms). */
+.kodza-ken-burns-slider {
+  --kz-ken-burns-slider-height: 640px; /* 100svh for a full-screen hero */
+  --kz-ken-burns-slider-ink: #0a0a0a;
+  --kz-ken-burns-slider-paper: #ffffff;
+  --kz-ken-burns-slider-text: rgba(255, 255, 255, 0.9);
+  --kz-ken-burns-slider-faint: rgba(255, 255, 255, 0.9);
+  --kz-ken-burns-slider-track: rgba(255, 255, 255, 0.3);
+  --kz-ken-burns-slider-backdrop: #1c1c1c; /* under the photos while they load */
+  /* The shade under the words: measured in px from the bottom edge, where the words stand
+     whatever the height, and a little from the left where they sit */
+  --kz-ken-burns-slider-shade: linear-gradient(to top, rgba(10, 10, 10, 0.82), rgba(10, 10, 10, 0.66) 300px, rgba(10, 10, 10, 0.54) 460px, rgba(10, 10, 10, 0.16)), linear-gradient(to right, rgba(10, 10, 10, 0.3), rgba(10, 10, 10, 0) 60%);
+  --kz-ken-burns-slider-pad: clamp(22px, 4.4vw, 56px);
+  --kz-ken-burns-slider-radius: 0px;
+  --kz-ken-burns-slider-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-ken-burns-slider-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-ken-burns-slider / inline-size;
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  /* The words at the bottom left, the controls at the bottom right, under the words when narrow */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  align-content: flex-end;
+  justify-content: space-between;
+  gap: 24px 40px;
+  width: 100%;
+  min-height: var(--kz-ken-burns-slider-height);
+  margin: 0;
+  padding: var(--kz-ken-burns-slider-pad);
+  overflow: clip;
+  border-radius: var(--kz-ken-burns-slider-radius);
+  background: var(--kz-ken-burns-slider-backdrop);
+  color: var(--kz-ken-burns-slider-paper);
+}
+
+/* The photos: stacked in the same box, behind the words */
+.kodza-ken-burns-slider__slides {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-ken-burns-slider__slides::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  background: var(--kz-ken-burns-slider-shade);
+  pointer-events: none;
+}
+
+.kodza-ken-burns-slider__slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  overflow: clip;
+  visibility: hidden;
+}
+
+/* The one on show above the one leaving; the others wait, hidden */
+.kodza-ken-burns-slider__slide.is-current {
+  z-index: 2;
+  visibility: visible;
+}
+
+.kodza-ken-burns-slider__slide.is-leaving {
+  z-index: 1;
+  visibility: visible;
+}
+
+.kodza-ken-burns-slider__image {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+}
+
+/* The words */
+.kodza-ken-burns-slider__content {
+  flex: 0 1 680px;
+  min-width: 0;
+}
+
+.kodza-ken-burns-slider__label {
+  margin: 0 0 18px;
+  font-family: var(--kz-font-label, var(--kz-ken-burns-slider-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  line-height: var(--kz-font-label-leading, 16px);
+  color: var(--kz-ken-burns-slider-faint);
+}
+
+.kodza-ken-burns-slider__title {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(36px, 5.2vw, 72px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  line-height: 1.02;
+  color: inherit;
+  text-wrap: balance;
+}
+
+/* One sentence per line, each balanced on its own when it has to wrap */
+.kodza-ken-burns-slider__phrase {
+  display: block;
+}
+
+.kodza-ken-burns-slider__text {
+  max-width: 44ch;
+  margin: 20px 0 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--kz-ken-burns-slider-text);
+  text-wrap: pretty;
+}
+
+.kodza-ken-burns-slider__button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  margin-top: 28px;
+  padding: 0 24px 0 26px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-ken-burns-slider-paper);
+  color: var(--kz-ken-burns-slider-ink);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.kodza-ken-burns-slider__arrow {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-ken-burns-slider-ease);
+}
+
+@media (hover: hover) {
+  .kodza-ken-burns-slider__button:hover .kodza-ken-burns-slider__arrow {
+    transform: translateX(3px);
+  }
+}
+
+.kodza-ken-burns-slider__button:focus-visible,
+.kodza-ken-burns-slider__pause:focus-visible {
+  outline: 2px solid var(--kz-ken-burns-slider-paper);
+  outline-offset: 3px;
+}
+
+/* Which photo, the time it has left, and the pause button */
+.kodza-ken-burns-slider__controls {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--kz-font-label, var(--kz-ken-burns-slider-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: 16px;
+  color: var(--kz-ken-burns-slider-faint);
+}
+
+/* Nothing to count or pause without the script, or with a single still photo */
+.kodza-ken-burns-slider:not(.is-ready) .kodza-ken-burns-slider__controls,
+.kodza-ken-burns-slider.is-still .kodza-ken-burns-slider__controls {
+  display: none;
+}
+
+.kodza-ken-burns-slider__count {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.kodza-ken-burns-slider__index {
+  display: inline-grid;
+  overflow: clip;
+  vertical-align: top;
+}
+
+.kodza-ken-burns-slider__index > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-ken-burns-slider__line {
+  position: relative;
+  display: block;
+  width: 88px;
+  height: 2px;
+  overflow: clip;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-ken-burns-slider-track);
+}
+
+.kodza-ken-burns-slider__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--kz-ken-burns-slider-paper);
+  transform: translateX(-100%);
+}
+
+.kodza-ken-burns-slider__pause {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--kz-ken-burns-slider-track);
+  border-radius: 50%;
+  background: rgba(10, 10, 10, 0.2);
+  color: var(--kz-ken-burns-slider-paper);
+  cursor: pointer;
+  transition: border-color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-ken-burns-slider__pause:hover {
+    border-color: var(--kz-ken-burns-slider-paper);
+  }
+}
+
+.kodza-ken-burns-slider__icon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-ken-burns-slider__play {
+  fill: currentColor;
+  stroke-width: 1.2;
+  opacity: 0;
+  transform: scale(0.6);
+  transform-origin: 50% 50%;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-ken-burns-slider-ease);
+}
+
+.kodza-ken-burns-slider__bars {
+  transform-origin: 50% 50%;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-ken-burns-slider-ease);
+}
+
+.kodza-ken-burns-slider__pause[aria-pressed="true"] .kodza-ken-burns-slider__bars {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.kodza-ken-burns-slider__pause[aria-pressed="true"] .kodza-ken-burns-slider__play {
+  opacity: 1;
+  transform: none;
+}
+
+/* Narrow: a slightly smaller text */
+@container kodza-ken-burns-slider (max-width: 640px) {
+  .kodza-ken-burns-slider__text {
+    font-size: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-ken-burns-slider *,
+  .kodza-ken-burns-slider *::before,
+  .kodza-ken-burns-slider *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard d2a496d7d49b — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-ken-burns-slider__slides):not(#_),
+:where(.kodza-ken-burns-slider__slide):not(#_),
+:where(.kodza-ken-burns-slider__image):not(#_),
+:where(.kodza-ken-burns-slider__label):not(#_),
+:where(.kodza-ken-burns-slider__title):not(#_),
+:where(.kodza-ken-burns-slider__text):not(#_),
+:where(.kodza-ken-burns-slider__icon):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-ken-burns-slider__button):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+}
+
+:where(.kodza-ken-burns-slider__pause):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-ken-burns-slider__slides:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-ken-burns-slider__slide:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-ken-burns-slider__image:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-ken-burns-slider__content:not(#_),
+.kodza-ken-burns-slider__phrase:not(#_),
+.kodza-ken-burns-slider__controls:not(#_),
+.kodza-ken-burns-slider__count:not(#_),
+.kodza-ken-burns-slider__index:not(#_),
+.kodza-ken-burns-slider__total:not(#_),
+.kodza-ken-burns-slider__line:not(#_),
+.kodza-ken-burns-slider__fill:not(#_),
+.kodza-ken-burns-slider__bars:not(#_),
+.kodza-ken-burns-slider__play:not(#_),
+.kodza-ken-burns-slider__index span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-ken-burns-slider__label:not(#_),
+.kodza-ken-burns-slider__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-ken-burns-slider__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-ken-burns-slider__button:not(#_) {
+  border: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-ken-burns-slider__arrow:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-ken-burns-slider__pause:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-ken-burns-slider__icon:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-ken-burns-slider__slides:not(#_):where(:not([hidden])),
+.kodza-ken-burns-slider__slide:not(#_):where(:not([hidden])),
+.kodza-ken-burns-slider__label:not(#_):where(:not([hidden])),
+.kodza-ken-burns-slider__title:not(#_):where(:not([hidden])),
+.kodza-ken-burns-slider__text:not(#_):where(:not([hidden])),
+.kodza-ken-burns-slider__arrow:not(#_):where(:not([hidden])),
+.kodza-ken-burns-slider__icon:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-ken-burns-slider__slides:not(#_):where([hidden]),
+.kodza-ken-burns-slider__slide:not(#_):where([hidden]),
+.kodza-ken-burns-slider__label:not(#_):where([hidden]),
+.kodza-ken-burns-slider__title:not(#_):where([hidden]),
+.kodza-ken-burns-slider__text:not(#_):where([hidden]),
+.kodza-ken-burns-slider__arrow:not(#_):where([hidden]),
+.kodza-ken-burns-slider__icon:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-ken-burns-slider__slides:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-ken-burns-slider__slides:not(#_) {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-ken-burns-slider__slide:not(#_) {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-ken-burns-slider__image:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-ken-burns-slider__label:not(#_) {
+  margin: 0 0 18px;
+  font-family: var(--kz-font-label, var(--kz-ken-burns-slider-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  line-height: var(--kz-font-label-leading, 16px);
+  color: var(--kz-ken-burns-slider-faint);
+}
+
+.kodza-ken-burns-slider__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(36px, 5.2vw, 72px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  line-height: 1.02;
+  color: inherit;
+}
+
+.kodza-ken-burns-slider__text:not(#_) {
+  max-width: 44ch;
+  margin: 20px 0 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--kz-ken-burns-slider-text);
+}
+
+.kodza-ken-burns-slider__button:not(#_) {
+  box-sizing: border-box;
+  display: inline-flex;
+  margin-top: 28px;
+  padding: 0 24px 0 26px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-ken-burns-slider-paper);
+  color: var(--kz-ken-burns-slider-ink);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  line-height: 1;
+  text-decoration: none;
+}
+
+.kodza-ken-burns-slider__arrow:not(#_) {
+  transition: transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-ken-burns-slider-ease);
+}
+
+.kodza-ken-burns-slider__button:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-ken-burns-slider-paper);
+  outline-offset: 3px;
+}
+
+.kodza-ken-burns-slider__pause:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-ken-burns-slider-paper);
+  outline-offset: 3px;
+}
+
+.kodza-ken-burns-slider__pause:not(#_) {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--kz-ken-burns-slider-track);
+  border-radius: 50%;
+  background: rgba(10, 10, 10, 0.2);
+  color: var(--kz-ken-burns-slider-paper);
+  cursor: pointer;
+  transition: border-color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-ken-burns-slider__pause:hover:not(#_) {
+    border-color: var(--kz-ken-burns-slider-paper);
+  }
+}
+
+@container kodza-ken-burns-slider (max-width: 640px) {
+  .kodza-ken-burns-slider__text:not(#_) {
+    font-size: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-ken-burns-slider *:not(#_),
+  .kodza-ken-burns-slider *:not(#_)::before,
+  .kodza-ken-burns-slider *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
