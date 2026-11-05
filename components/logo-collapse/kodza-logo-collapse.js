@@ -68,12 +68,15 @@
           done++;
           return;
         }
+        // Whichever comes first takes both off: `once` would leave the other one on a settled image
         const one = () => {
+          img.removeEventListener('load', one);
+          img.removeEventListener('error', one);
           done++;
           tick();
         };
-        img.addEventListener('load', one, { once: true, signal });
-        img.addEventListener('error', one, { once: true, signal });
+        img.addEventListener('load', one, { signal });
+        img.addEventListener('error', one, { signal });
       });
       document.fonts.ready.then(() => {
         done++;

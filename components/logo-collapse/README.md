@@ -12,7 +12,7 @@ The logo fills the screen while the page loads, then flies into the header as th
 | --- | ---: | --- |
 | [`kodza-logo-collapse.html`](kodza-logo-collapse.html) | 0.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-logo-collapse.css`](kodza-logo-collapse.css) | 4.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-logo-collapse.js`](kodza-logo-collapse.js) | 15.0 KB | The script. One copy per page runs every instance. |
+| [`kodza-logo-collapse.js`](kodza-logo-collapse.js) | 15.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
