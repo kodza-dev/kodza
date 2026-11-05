@@ -1,0 +1,43 @@
+<form class="kodza-book-visit" action="#" method="post" data-place="Es Pinar" data-address="Carrer de la Roca 14, 07460 Pollença, Mallorca" data-hours="mon closed; tue-fri 10:00-14:00, 16:00-19:00; sat 10:00-14:00; sun closed" data-length="40" data-timezone="Europe/Madrid" data-days="7" data-notice="60" data-taken="tue 11:20, wed 16:40, thu 10:40, thu 16:00, fri 11:20, sat 10:00">
+  <p class="kodza-book-visit__eyebrow">Visits · 40 min</p>
+  <h2 class="kodza-book-visit__title" data-done="Thank you, {name}.">Come and see Es&nbsp;Pinar at the right hour.</h2>
+  <div class="kodza-book-visit__stage">
+    <div class="kodza-book-visit__form">
+      <div class="kodza-book-visit__fields kodza-book-visit__fields--when">
+        <label class="kodza-book-visit__box kodza-book-visit__box--fixed">
+          <input class="kodza-book-visit__input" type="date" name="date" required>
+          <span class="kodza-book-visit__label">Day</span>
+        </label>
+        <label class="kodza-book-visit__box kodza-book-visit__box--fixed">
+          <input class="kodza-book-visit__input" type="time" name="time" required>
+          <span class="kodza-book-visit__label">Time</span>
+        </label>
+      </div>
+      <div class="kodza-book-visit__fields kodza-book-visit__fields--who">
+        <label class="kodza-book-visit__box">
+          <input class="kodza-book-visit__input" type="text" name="name" autocomplete="name" placeholder=" " required>
+          <span class="kodza-book-visit__label">Your name</span>
+        </label>
+        <label class="kodza-book-visit__box">
+          <input class="kodza-book-visit__input" type="email" name="email" autocomplete="email" placeholder=" " required>
+          <span class="kodza-book-visit__label">Email</span>
+        </label>
+      </div>
+      <div class="kodza-book-visit__foot">
+        <p class="kodza-book-visit__note" aria-live="polite">
+          <span class="kodza-book-visit__help">We confirm by email. No call.</span>
+          <span class="kodza-book-visit__error"></span>
+        </p>
+        <button class="kodza-book-visit__send" type="submit">Book the visit</button>
+      </div>
+    </div>
+    <div class="kodza-book-visit__done" hidden>
+      <p class="kodza-book-visit__when">Your visit</p>
+      <p class="kodza-book-visit__text">The details are on their way to <span data-value="email">your inbox</span>. Plans change? Reply to that email. Nobody will call you.</p>
+      <div class="kodza-book-visit__actions">
+        <a class="kodza-book-visit__calendar" href="#" download="visit.ics">Add to calendar</a>
+        <button class="kodza-book-visit__again" type="reset">Book another</button>
+      </div>
+    </div>
+  </div>
+</form>

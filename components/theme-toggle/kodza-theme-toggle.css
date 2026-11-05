@@ -1,0 +1,418 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Theme Toggle
+   A real button that switches the page between light and dark. Its sun becomes a moon with the
+   strokes of Morph Icons: the rays draw back into the disc, the disc swells, and a shadow slides
+   over it from the top right. The page puts its lights out; images that have a night version
+   (a logo, a screenshot, a lamp lit) get it laid over the day one, in the same box, so nothing
+   moves and the logo never stays dark on a dark page.
+   The button shows the theme the page is in: the sun while aria-pressed is false, the moon while it
+   is true. The script sets it, and keeps every toggle of the page in step.
+   Everything is tuned with the --kz-theme-toggle-* variables. */
+.kodza-theme-toggle {
+  --kz-theme-toggle-size: 40px;
+  --kz-theme-toggle-icon: 20px;
+  --kz-theme-toggle-stroke: 1.75px; /* in icon units, 24 across */
+  --kz-theme-toggle-ink: #0a0a0a;
+  --kz-theme-toggle-surface: rgba(10, 10, 10, 0.06); /* the button at rest */
+  --kz-theme-toggle-hover: rgba(10, 10, 10, 0.11); /* under the pointer */
+  --kz-theme-toggle-duration: 0.5s;
+  --kz-theme-toggle-ease: cubic-bezier(0.65, 0, 0.35, 1); /* in and out, so the strokes are seen travelling */
+  --kz-theme-toggle-recolor: 0s; /* when the ink flips: at once for a page that switches at once, half its
+                                    colour transition for one that fades, so it never goes grey on grey */
+
+  display: inline-grid;
+  grid-auto-flow: column;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--kz-theme-toggle-size);
+  height: var(--kz-theme-toggle-size);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-theme-toggle-surface);
+  color: var(--kz-theme-toggle-ink);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    color 0s linear calc(var(--kz-theme-toggle-recolor) * var(--kz-motion-scale, 1)),
+    scale calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-theme-toggle:focus-visible {
+  outline: 2px solid var(--kz-theme-toggle-ink);
+  outline-offset: 3px;
+}
+
+.kodza-theme-toggle:active {
+  scale: 0.94;
+}
+
+@media (hover: hover) {
+  .kodza-theme-toggle:hover {
+    background: var(--kz-theme-toggle-hover);
+  }
+}
+
+/* With its word: Light or Dark beside the icon, the old word rolls out as the new one comes in */
+.kodza-theme-toggle--label {
+  gap: 8px;
+  width: auto;
+  padding: 0 16px 0 12px;
+}
+
+.kodza-theme-toggle__words {
+  display: grid;
+  overflow: hidden;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 20px);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+}
+
+.kodza-theme-toggle__word {
+  grid-area: 1 / 1;
+  transition: transform 0s var(--kz-theme-toggle-ease);
+}
+
+.kodza-theme-toggle__word + .kodza-theme-toggle__word,
+.kodza-theme-toggle[aria-pressed="true"] .kodza-theme-toggle__word {
+  transform: translateY(105%);
+}
+
+.kodza-theme-toggle[aria-pressed="true"] .kodza-theme-toggle__word:first-child {
+  transform: translateY(-105%);
+}
+
+.kodza-theme-toggle[aria-pressed="true"] .kodza-theme-toggle__word + .kodza-theme-toggle__word {
+  transform: none;
+}
+
+/* The icon. The moon's shadow is a hole in a mask that slides over the disc: waiting off the top
+   right corner on the sun, over the disc on the moon. No id, no animated d, so Safari plays it */
+.kodza-theme-toggle__icon {
+  --kz-theme-toggle-hole: calc(var(--kz-theme-toggle-icon) * 0.2708); /* 6.5 icon units */
+
+  display: block;
+  width: var(--kz-theme-toggle-icon);
+  height: var(--kz-theme-toggle-icon);
+  overflow: hidden;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--kz-theme-toggle-stroke);
+  stroke-linecap: round;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle, transparent calc(var(--kz-theme-toggle-hole) - 0.4px), #000 calc(var(--kz-theme-toggle-hole) + 0.4px));
+  mask-image: radial-gradient(circle, transparent calc(var(--kz-theme-toggle-hole) - 0.4px), #000 calc(var(--kz-theme-toggle-hole) + 0.4px));
+  -webkit-mask-size: calc(var(--kz-theme-toggle-icon) * 3) calc(var(--kz-theme-toggle-icon) * 3);
+  mask-size: calc(var(--kz-theme-toggle-icon) * 3) calc(var(--kz-theme-toggle-icon) * 3);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: calc(var(--kz-theme-toggle-icon) * -0.2) calc(var(--kz-theme-toggle-icon) * -1.8);
+  mask-position: calc(var(--kz-theme-toggle-icon) * -0.2) calc(var(--kz-theme-toggle-icon) * -1.8);
+  transition-property: -webkit-mask-position, mask-position;
+  transition-duration: 0s;
+  transition-timing-function: var(--kz-theme-toggle-ease);
+}
+
+.kodza-theme-toggle[aria-pressed="true"] .kodza-theme-toggle__icon {
+  -webkit-mask-position: calc(var(--kz-theme-toggle-icon) * -0.8083) calc(var(--kz-theme-toggle-icon) * -1.1917);
+  mask-position: calc(var(--kz-theme-toggle-icon) * -0.8083) calc(var(--kz-theme-toggle-icon) * -1.1917);
+}
+
+.kodza-theme-toggle__disc {
+  fill: currentColor;
+  stroke: none;
+  transform-box: view-box;
+  transform-origin: 12px 12px;
+  transition: transform 0s var(--kz-theme-toggle-ease);
+}
+
+.kodza-theme-toggle[aria-pressed="true"] .kodza-theme-toggle__disc {
+  transform: scale(2.125); /* radius 4 to 8.5 */
+}
+
+.kodza-theme-toggle__rays {
+  transform-box: view-box;
+  transform-origin: 12px 12px;
+  transition: transform 0s var(--kz-theme-toggle-ease);
+}
+
+.kodza-theme-toggle[aria-pressed="true"] .kodza-theme-toggle__rays {
+  transform: rotate(45deg);
+}
+
+/* Every ray is the 24-unit line of Morph Icons, M-12 0H12, turned and pushed out from the middle by
+   a transform; the dash shows 2 units of it: dasharray 2 48, offset 2/2 - 12. On the moon it draws
+   back towards the disc, shrinks to its middle and thins out with it. The rays go one after the
+   other from the top right, where the shadow comes in */
+.kodza-theme-toggle__ray {
+  --kz-theme-toggle-turn: 0deg;
+  --kz-theme-toggle-rank: 1;
+
+  transform: translate(12px, 12px) rotate(var(--kz-theme-toggle-turn)) translateX(8.25px);
+  transform-box: view-box;
+  transform-origin: 0 0;
+  stroke-dasharray: 2px 48px;
+  stroke-dashoffset: -11px;
+  transition-property: transform, stroke-dasharray, stroke-dashoffset, stroke-width;
+  transition-duration: 0s;
+  transition-timing-function: var(--kz-theme-toggle-ease);
+}
+
+.kodza-theme-toggle__ray:nth-child(2) { --kz-theme-toggle-turn: 45deg; --kz-theme-toggle-rank: 2; }
+.kodza-theme-toggle__ray:nth-child(3) { --kz-theme-toggle-turn: 90deg; --kz-theme-toggle-rank: 3; }
+.kodza-theme-toggle__ray:nth-child(4) { --kz-theme-toggle-turn: 135deg; --kz-theme-toggle-rank: 4; }
+.kodza-theme-toggle__ray:nth-child(5) { --kz-theme-toggle-turn: 180deg; --kz-theme-toggle-rank: 3; }
+.kodza-theme-toggle__ray:nth-child(6) { --kz-theme-toggle-turn: 225deg; --kz-theme-toggle-rank: 2; }
+.kodza-theme-toggle__ray:nth-child(7) { --kz-theme-toggle-turn: 270deg; --kz-theme-toggle-rank: 1; }
+.kodza-theme-toggle__ray:nth-child(8) { --kz-theme-toggle-turn: 315deg; --kz-theme-toggle-rank: 0; }
+
+.kodza-theme-toggle[aria-pressed="true"] .kodza-theme-toggle__ray {
+  transform: translate(12px, 12px) rotate(var(--kz-theme-toggle-turn)) translateX(6px);
+  stroke-dasharray: 0px 48px;
+  stroke-dashoffset: -12px;
+  stroke-width: 0;
+}
+
+/* Motion starts once the script is ready, so nothing moves on load. To the moon: the rays first,
+   then the disc swells and the shadow slides in. Back to the sun: the shadow leaves first, the disc
+   shrinks, and the rays come back last, the top right one first */
+.kodza-theme-toggle.is-ready :is(.kodza-theme-toggle__icon, .kodza-theme-toggle__disc, .kodza-theme-toggle__rays, .kodza-theme-toggle__ray, .kodza-theme-toggle__word) {
+  transition-duration: calc(var(--kz-theme-toggle-duration) * var(--kz-motion-scale, 1));
+}
+
+.kodza-theme-toggle.is-ready .kodza-theme-toggle__ray {
+  transition-delay: calc(var(--kz-theme-toggle-duration) * (0.3 + 0.05 * var(--kz-theme-toggle-rank)) * var(--kz-motion-scale, 1));
+}
+
+.kodza-theme-toggle.is-ready .kodza-theme-toggle__disc {
+  transition-delay: calc(var(--kz-theme-toggle-duration) * 0.1 * var(--kz-motion-scale, 1));
+}
+
+.kodza-theme-toggle.is-ready[aria-pressed="true"] .kodza-theme-toggle__ray {
+  transition-delay: calc(var(--kz-theme-toggle-duration) * 0.05 * var(--kz-theme-toggle-rank) * var(--kz-motion-scale, 1));
+}
+
+.kodza-theme-toggle.is-ready[aria-pressed="true"] .kodza-theme-toggle__disc {
+  transition-delay: calc(var(--kz-theme-toggle-duration) * 0.08 * var(--kz-motion-scale, 1));
+}
+
+.kodza-theme-toggle.is-ready[aria-pressed="true"] .kodza-theme-toggle__icon {
+  transition-delay: calc(var(--kz-theme-toggle-duration) * 0.18 * var(--kz-motion-scale, 1));
+}
+
+/* Night images, outside the button: the script wraps each img[data-dark-src] of the page in a pair,
+   the day image and its night twin in the same grid cell. The night one lights up over the day one,
+   which fades out under it, so a logo with a transparent background never shows both */
+.kodza-theme-toggle-pair {
+  --kz-theme-toggle-fade: 0.6s;
+  --kz-theme-toggle-lag: 0.12s; /* the lamp comes on just after the page goes dark (none on the way back) */
+
+  display: inline-grid;
+  max-width: 100%;
+}
+
+.kodza-theme-toggle-pair--block {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.kodza-theme-toggle-pair > img {
+  grid-area: 1 / 1;
+}
+
+.kodza-theme-toggle-night {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kodza-theme-toggle-pair.is-night > img:first-child {
+  opacity: 0;
+}
+
+.kodza-theme-toggle-pair.is-night > .kodza-theme-toggle-night {
+  opacity: 1;
+}
+
+/* Back to day, no wait: both images turn with the page, so the night one never lingers on a white page */
+.kodza-theme-toggle-pair.is-ready > img {
+  transition: opacity calc(var(--kz-theme-toggle-fade) * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* To night, the lamp comes on just after the page has gone dark */
+.kodza-theme-toggle-pair.is-ready.is-night > img {
+  transition: opacity calc(var(--kz-theme-toggle-fade) * var(--kz-motion-scale, 1)) cubic-bezier(0.55, 0, 1, 0.45) calc(var(--kz-theme-toggle-lag) * var(--kz-motion-scale, 1));
+}
+
+.kodza-theme-toggle-pair.is-ready.is-night > .kodza-theme-toggle-night {
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-theme-toggle,
+  .kodza-theme-toggle *,
+  .kodza-theme-toggle-pair > img {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* kodza-guard 171ad3d0177f — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-theme-toggle):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-theme-toggle__icon):not(#_) {
+  transition-delay: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-theme-toggle:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-theme-toggle__icon:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-theme-toggle__rays:not(#_),
+.kodza-theme-toggle__ray:not(#_),
+.kodza-theme-toggle__disc:not(#_),
+.kodza-theme-toggle__words:not(#_),
+.kodza-theme-toggle__word:not(#_) {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-theme-toggle:not(#_) {
+  display: inline-grid;
+  grid-auto-flow: column;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--kz-theme-toggle-size);
+  height: var(--kz-theme-toggle-size);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-theme-toggle-surface);
+  color: var(--kz-theme-toggle-ink);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    color 0s linear calc(var(--kz-theme-toggle-recolor) * var(--kz-motion-scale, 1)),
+    scale calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-theme-toggle:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-theme-toggle-ink);
+  outline-offset: 3px;
+}
+
+.kodza-theme-toggle:active:not(#_) {
+  scale: 0.94;
+}
+
+@media (hover: hover) {
+  .kodza-theme-toggle:hover:not(#_) {
+    background: var(--kz-theme-toggle-hover);
+  }
+}
+
+.kodza-theme-toggle--label:not(#_) {
+  gap: 8px;
+  width: auto;
+  padding: 0 16px 0 12px;
+}
+
+.kodza-theme-toggle__icon:not(#_) {
+  display: block;
+  transition-property: -webkit-mask-position, mask-position;
+  transition-duration: 0s;
+  transition-timing-function: var(--kz-theme-toggle-ease);
+}
+
+.kodza-theme-toggle.is-ready :is(.kodza-theme-toggle__icon, .kodza-theme-toggle__disc, .kodza-theme-toggle__rays, .kodza-theme-toggle__ray, .kodza-theme-toggle__word):where(svg):not(#_) {
+  transition-duration: calc(var(--kz-theme-toggle-duration) * var(--kz-motion-scale, 1));
+}
+
+.kodza-theme-toggle.is-ready[aria-pressed="true"] .kodza-theme-toggle__icon:not(#_) {
+  transition-delay: calc(var(--kz-theme-toggle-duration) * 0.18 * var(--kz-motion-scale, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-theme-toggle:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-theme-toggle *:where(svg):not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

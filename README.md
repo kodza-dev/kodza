@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 198. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 200. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-198 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+200 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -124,10 +124,11 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Forms</b> · 30</summary>
+<summary><b>Forms</b> · 31</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
+| [Book a Visit](components/book-a-visit/) | A booking form: the coming days, the free times worked out from the opening hours, name and email. On send it rolls up into the answer, with Add to calendar as an .ics file. | [Demo](https://kodza.dev/components/book-a-visit/) |
 | [Checkbox](components/checkbox-component/) | Real checkboxes, redrawn: ink grows from the centre and the tick draws itself. A select-all box shows a dash when only some are checked. Cards too. | [Demo](https://kodza.dev/components/checkbox-component/) |
 | [Choice Cards](components/choice-cards/) | Cards to compare and pick, on real radio buttons or checkboxes, with a title, a line and an optional price. The picked card's ink border draws itself around it from the corner while a check draws in its mark. Pure CSS. | [Demo](https://kodza.dev/components/choice-cards/) |
 | [Color Picker](components/color-picker/) | A real colour input with a proper panel: saturation square, hue slider, hex field, presets, eyedropper and copy. Pick a preset and the handles glide to it. | [Demo](https://kodza.dev/components/color-picker/) |
@@ -162,7 +163,7 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Navigation</b> · 20</summary>
+<summary><b>Navigation</b> · 21</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -185,6 +186,7 @@ Written like it's going live tomorrow. Because it probably is.
 | [Stepper](components/stepper/) | A flow in four steps: the line fills, a check draws itself on each finished step and the content slides in from where you are heading. | [Demo](https://kodza.dev/components/stepper/) |
 | [Table of Contents](components/table-of-contents/) | A summary card built from your headings: an ink marker follows the section you read, a ring fills, the time left counts down. A bar on phones. | [Demo](https://kodza.dev/components/table-of-contents/) |
 | [Tabs](components/tabs-component/) | Tabs with a pill (or a line) that slides to the chosen one, a panel that comes in from its side, and the full keyboard pattern. | [Demo](https://kodza.dev/components/tabs-component/) |
+| [Theme Toggle](components/theme-toggle/) | A button that switches the page between light and dark, sun to moon. It starts from the system, keeps the visitor's choice, and swaps images that have a night version. | [Demo](https://kodza.dev/components/theme-toggle/) |
 | [Trapdoor Menu](components/trapdoor-menu/) | Press Menu and the page swings down on its hinge like a trapdoor, showing the menu underneath: links rise as the edge passes them, an image follows your pointer. Closing replays it backwards. No GSAP. | [Demo](https://kodza.dev/components/trapdoor-menu/) |
 
 </details>
