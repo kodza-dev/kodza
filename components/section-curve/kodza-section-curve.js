@@ -2,6 +2,7 @@
 // Kodza — Section Curve
 // The section's top edge comes up curved and pulls flat as it lands: deepest while its top is
 // low on the screen, flat once it has come up to TO, and it bends again when you scroll back up.
+// A last section the page can't bring up that far (a footer) is flat at the bottom of the page.
 // The edge follows the scroll with a little give, like cloth (GLIDE). Reduced motion, or the
 // site's pace at 0: the curve stays as it is. The figures you can tune are the constants below;
 // the colours and the depth of the curve are in the CSS.
@@ -32,7 +33,11 @@
     const measure = () => {
       const screen = window.innerHeight;
       const top = root.getBoundingClientRect().top;
-      const p = Math.min(Math.max((screen * FROM - top) / (screen * (FROM - TO)), 0), 1);
+      // Where its top stops once the page can't scroll any further: lower than TO, it lands there
+      const page = document.documentElement;
+      const end = top + window.scrollY - (page.scrollHeight - page.clientHeight);
+      const span = Math.max(screen * FROM - Math.max(screen * TO, end), 1);
+      const p = Math.min(Math.max((screen * FROM - top) / span, 0), 1);
       target = 1 - p * p * (3 - 2 * p); // it starts and ends softly
     };
     const render = () => root.style.setProperty('--kz-section-curve-k', shown.toFixed(4));

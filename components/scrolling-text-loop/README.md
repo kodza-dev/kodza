@@ -2,7 +2,7 @@
 
 [![Marquee, live on kodza.dev](https://kodza.dev/anim/scrolling-text-loop/og.jpg)](https://kodza.dev/components/scrolling-text-loop/)
 
-An endless ticker that never jumps, eases to a stop under the pointer and fades at both edges. Runs either way.
+An endless ticker that never jumps, eases to a stop under the pointer and fades at both edges. Runs either way, with words or with logos, every logo given the same visual weight.
 
 **[Live demo](https://kodza.dev/components/scrolling-text-loop/)** · Text effects · HTML, CSS, JS · No dependencies
 
@@ -10,9 +10,9 @@ An endless ticker that never jumps, eases to a stop under the pointer and fades 
 
 | File | Size | What it is |
 | --- | ---: | --- |
-| [`kodza-scrolling-text-loop.html`](kodza-scrolling-text-loop.html) | 0.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-scrolling-text-loop.css`](kodza-scrolling-text-loop.css) | 3.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-scrolling-text-loop.js`](kodza-scrolling-text-loop.js) | 7.6 KB | The script. One copy per page runs every instance. |
+| [`kodza-scrolling-text-loop.html`](kodza-scrolling-text-loop.html) | 9.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
+| [`kodza-scrolling-text-loop.css`](kodza-scrolling-text-loop.css) | 6.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-scrolling-text-loop.js`](kodza-scrolling-text-loop.js) | 8.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -50,8 +50,27 @@ CSS variables, set on `.kodza-marquee` itself:
 | `--kz-marquee-gap` | `0.6em` |  |
 | `--kz-marquee-dot` | `0.16em` |  |
 | `--kz-marquee-fade` | `8%` |  |
+| `--kz-marquee-area` | `2600` | square pixels per logo: every logo weighs the same |
+| `--kz-marquee-area-narrow` | `1600` | under 560px |
+| `--kz-marquee-logo-max` | `44px` | the tallest a logo gets |
+| `--kz-marquee-logo-opacity` | `0.56` | the logos at rest; the one under the pointer goes to 1 |
+| `--kz-marquee-img-filter` | `grayscale(1)` | a logo given as an img; on a dark band: brightness(0) invert(1) |
 
-- Modifiers: `.kodza-marquee--reverse`
+- Modifiers: `.kodza-marquee--logos`, `.kodza-marquee--reverse`
+
+## Dark mode
+
+The values Kodza uses on a dark background, after the component's CSS:
+
+```css
+@media (prefers-color-scheme: dark) {
+  .kodza-marquee {
+    --kz-marquee-img-filter: brightness(0) invert(1);
+  }
+}
+```
+
+A site with its own theme switch puts the same rules under its dark selector instead.
 
 ---
 

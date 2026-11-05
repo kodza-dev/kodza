@@ -1,0 +1,835 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Result Quote
+   A case study in one block: the result very large, and beside it the sentence of the person who
+   got it, who they are, and the link to the full story. Played once, as it comes into view, the
+   result first: its digits roll up to their value and the rule under it draws itself, then the
+   lines of the quote rise from behind their masks, then the person and the link. --flip puts the
+   result on the right (on a phone it always comes first). With reduced motion it is all there.
+   Everything is tuned with the --kz-result-quote-* variables. */
+.kodza-result-quote {
+  --kz-result-quote-ink: #0a0a0a;
+  --kz-result-quote-dim: rgba(10, 10, 10, 0.64);
+  --kz-result-quote-rule: rgba(10, 10, 10, 0.22); /* the line under the result */
+  --kz-result-quote-face: #e6e6e3;
+  --kz-result-quote-bg: transparent;
+  --kz-result-quote-width: 1200px;
+  --kz-result-quote-measure: 680px; /* the longest line of the quote */
+  --kz-result-quote-result-col: 5fr; /* the two columns, from 860px of room */
+  --kz-result-quote-story-col: 7fr;
+  --kz-result-quote-hang: 0.4em; /* the opening quote mark hangs in the margin by its width */
+  --kz-result-quote-pad-y: clamp(64px, 8vw, 112px);
+  --kz-result-quote-gutter: clamp(16px, 4vw, 40px);
+  --kz-result-quote-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-result-quote-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-result-quote / inline-size;
+  box-sizing: border-box;
+  width: 100%;
+  padding-block: var(--kz-result-quote-pad-y);
+  padding-left: max(var(--kz-result-quote-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-result-quote-gutter), env(safe-area-inset-right, 0px));
+  background: var(--kz-result-quote-bg);
+  color: var(--kz-result-quote-ink);
+}
+
+.kodza-result-quote__inner {
+  max-width: var(--kz-result-quote-width);
+  margin: 0 auto;
+}
+
+/* The optional heading */
+.kodza-result-quote__head {
+  margin-bottom: clamp(40px, 5vw, 72px);
+}
+
+.kodza-result-quote__eyebrow {
+  margin: 0 0 18px;
+  font-family: var(--kz-font-label, var(--kz-result-quote-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-result-quote-dim);
+}
+
+.kodza-result-quote__title {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4.6vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+  color: inherit;
+}
+
+/* The result over the story; side by side once there is room */
+.kodza-result-quote__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 36px;
+}
+
+@container kodza-result-quote (min-width: 860px) {
+  .kodza-result-quote__body {
+    grid-template-columns: minmax(0, var(--kz-result-quote-result-col)) minmax(0, var(--kz-result-quote-story-col));
+    column-gap: clamp(40px, 6cqi, 96px);
+    align-items: start;
+  }
+
+  .kodza-result-quote--flip .kodza-result-quote__body {
+    grid-template-columns: minmax(0, var(--kz-result-quote-story-col)) minmax(0, var(--kz-result-quote-result-col));
+  }
+
+  .kodza-result-quote--flip .kodza-result-quote__result {
+    order: 2;
+  }
+}
+
+.kodza-result-quote__result,
+.kodza-result-quote__story {
+  min-width: 0;
+}
+
+/* The result: the figure, the rule, what it measures */
+.kodza-result-quote__value {
+  display: flex;
+  margin: -0.142em 0 0; /* the top of the digits level with the top of the quote's first line */
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(72px, 15cqi, 184px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.06em);
+  text-transform: var(--kz-font-display-case, none);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: inherit;
+}
+
+.kodza-result-quote__label {
+  position: relative;
+  margin: 18px 0 0;
+  padding-top: 16px;
+  overflow: hidden;
+  overflow: clip;
+  font-family: var(--kz-font-label, var(--kz-result-quote-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-result-quote-dim);
+}
+
+.kodza-result-quote__label::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--kz-result-quote-rule);
+  transform-origin: 0 50%;
+}
+
+.kodza-result-quote__label-text {
+  display: block;
+}
+
+/* The rolling figure (the engine of Counter): a column of digits per digit */
+.kodza-result-quote__digit {
+  position: relative;
+  display: inline-block;
+  height: 1.1em;
+  overflow: hidden; /* the digit's ink sits inside its 1.1em slot: no clip margin, the neighbours stay out */
+}
+
+.kodza-result-quote__fit {
+  visibility: hidden;
+}
+
+.kodza-result-quote__strip {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50% 0;
+  text-align: center;
+}
+
+.kodza-result-quote__strip > span {
+  display: block;
+  height: 1.1em;
+  line-height: 1.1;
+}
+
+.kodza-result-quote__char {
+  white-space: pre;
+}
+
+/* The story: the quote, who said it, the link */
+.kodza-result-quote__figure {
+  margin: 0;
+}
+
+.kodza-result-quote__quote {
+  max-width: var(--kz-result-quote-measure);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(26px, 3.4vw, 40px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1.2;
+  letter-spacing: var(--kz-font-display-tracking, -0.03em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: pretty;
+  color: inherit;
+  quotes: none;
+}
+
+.kodza-result-quote__quote p {
+  margin: 0;
+}
+
+.kodza-result-quote__quote p + p {
+  margin-top: 0.6em;
+}
+
+/* The quote marks, the opening one hung in the margin (the script sets them into the first and
+   last words once it splits the quote) */
+.kodza-result-quote__quote p:first-child::before {
+  content: "\201C";
+  margin-left: calc(var(--kz-result-quote-hang) * -1);
+}
+
+.kodza-result-quote__quote p:last-child::after {
+  content: "\201D";
+}
+
+.kodza-result-quote.is-split .kodza-result-quote__quote p::before,
+.kodza-result-quote.is-split .kodza-result-quote__quote p::after {
+  content: none;
+}
+
+/* Split by the script: each line a mask, the line rising into it */
+.kodza-result-quote__lines {
+  display: flex;
+  flex-direction: column;
+}
+
+.kodza-result-quote__line {
+  display: block;
+  overflow: hidden;
+  overflow: clip;
+  padding: 0.1em 0.5em;
+  margin: -0.1em -0.5em;
+}
+
+.kodza-result-quote__lift {
+  display: block;
+  white-space: nowrap;
+}
+
+.kodza-result-quote__word {
+  display: inline-block;
+}
+
+.kodza-result-quote__mark {
+  margin-left: calc(var(--kz-result-quote-hang) * -1);
+}
+
+.kodza-result-quote__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Who said it: the face on two lines, the name over the role */
+.kodza-result-quote__who {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: "mark name" "mark role";
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 4px;
+  margin-top: 32px;
+}
+
+.kodza-result-quote__face {
+  grid-area: mark;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-result-quote-face);
+  color: var(--kz-result-quote-ink);
+  object-fit: cover;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.kodza-result-quote__name {
+  grid-area: name;
+  align-self: end;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.kodza-result-quote__role {
+  grid-area: role;
+  align-self: start;
+  min-width: 0;
+  font-family: var(--kz-font-label, var(--kz-result-quote-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-result-quote-dim);
+}
+
+/* The link to the case study: the shaft of the arrow draws itself on hover */
+.kodza-result-quote__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  margin-top: 28px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-result-quote__link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+}
+
+.kodza-result-quote__arrow {
+  display: inline-block;
+  flex: none;
+  width: 0.82em;
+  height: 0.82em;
+  overflow: visible;
+}
+
+.kodza-result-quote__arrow svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-result-quote__tip {
+  transform: translateX(-3.5px);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-result-quote-ease);
+}
+
+.kodza-result-quote__shaft {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-result-quote-ease);
+}
+
+.kodza-result-quote__link:focus-visible .kodza-result-quote__tip {
+  transform: translateX(1.5px);
+}
+
+.kodza-result-quote__link:focus-visible .kodza-result-quote__shaft {
+  stroke-dashoffset: 0;
+}
+
+@media (hover: hover) {
+  .kodza-result-quote__link:hover .kodza-result-quote__tip {
+    transform: translateX(1.5px);
+  }
+
+  .kodza-result-quote__link:hover .kodza-result-quote__shaft {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* The entrance. Before it: the rule not drawn, the words below their masks, the person and the
+   link a little lower and clear; the quote hidden until the script has cut it into lines */
+.kodza-result-quote.is-armed:not(.is-split) .kodza-result-quote__quote {
+  visibility: hidden;
+}
+
+.kodza-result-quote.is-armed:not(.is-in) .kodza-result-quote__label::before {
+  transform: scaleX(0);
+}
+
+.kodza-result-quote.is-armed:not(.is-in) .kodza-result-quote__label-text,
+.kodza-result-quote.is-armed:not(.is-in) .kodza-result-quote__lift {
+  transform: translateY(120%);
+}
+
+.kodza-result-quote.is-armed:not(.is-in) .kodza-result-quote__who,
+.kodza-result-quote.is-armed:not(.is-in) .kodza-result-quote__link {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+/* Then, in this order: the rule, what it measures, each line of the quote, the person, the link
+   (--kz-result-quote-i: the line's rank, --kz-result-quote-n: the number of lines, both set by
+   the script). The fades are short and the rises long: all of it is readable within a second */
+.kodza-result-quote.is-in .kodza-result-quote__label::before {
+  transition: transform calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-result-quote-ease);
+}
+
+.kodza-result-quote.is-in .kodza-result-quote__label-text {
+  transition: transform calc(0.75s * var(--kz-motion-scale, 1)) var(--kz-result-quote-ease) calc(0.15s * var(--kz-motion-scale, 1));
+}
+
+.kodza-result-quote.is-in .kodza-result-quote__lift {
+  transition: transform calc(0.8s * var(--kz-motion-scale, 1)) var(--kz-result-quote-ease) calc((0.35s + var(--kz-result-quote-i, 0) * 0.07s) * var(--kz-motion-scale, 1));
+}
+
+/* The person after the fifth line at the latest: a long quote does not keep it waiting */
+.kodza-result-quote.is-in .kodza-result-quote__who {
+  transition:
+    opacity calc(0.3s * var(--kz-motion-scale, 1)) ease calc((0.35s + min(var(--kz-result-quote-n, 4), 5) * 0.07s) * var(--kz-motion-scale, 1)),
+    transform calc(0.8s * var(--kz-motion-scale, 1)) var(--kz-result-quote-ease) calc((0.35s + min(var(--kz-result-quote-n, 4), 5) * 0.07s) * var(--kz-motion-scale, 1));
+}
+
+.kodza-result-quote.is-in .kodza-result-quote__link {
+  transition:
+    opacity calc(0.3s * var(--kz-motion-scale, 1)) ease calc((0.45s + min(var(--kz-result-quote-n, 4), 5) * 0.07s) * var(--kz-motion-scale, 1)),
+    transform calc(0.8s * var(--kz-motion-scale, 1)) var(--kz-result-quote-ease) calc((0.45s + min(var(--kz-result-quote-n, 4), 5) * 0.07s) * var(--kz-motion-scale, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-result-quote *,
+  .kodza-result-quote *::before,
+  .kodza-result-quote *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard fbc5cfd3732a — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-result-quote__eyebrow):not(#_),
+:where(.kodza-result-quote__title):not(#_),
+:where(.kodza-result-quote__value):not(#_),
+:where(.kodza-result-quote__label):not(#_),
+:where(.kodza-result-quote__figure):not(#_),
+:where(.kodza-result-quote__quote):not(#_),
+:where(.kodza-result-quote__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-result-quote__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-result-quote__arrow svg:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-result-quote__who):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-result-quote__link):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  transition: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-result-quote__inner:not(#_),
+.kodza-result-quote__head:not(#_),
+.kodza-result-quote__body:not(#_),
+.kodza-result-quote__result:not(#_),
+.kodza-result-quote__digit:not(#_),
+.kodza-result-quote__fit:not(#_),
+.kodza-result-quote__strip:not(#_),
+.kodza-result-quote__char:not(#_),
+.kodza-result-quote__sr:not(#_),
+.kodza-result-quote__label-text:not(#_),
+.kodza-result-quote__story:not(#_),
+.kodza-result-quote__lines:not(#_),
+.kodza-result-quote__line:not(#_),
+.kodza-result-quote__lift:not(#_),
+.kodza-result-quote__word:not(#_),
+.kodza-result-quote__mark:not(#_),
+.kodza-result-quote__name:not(#_),
+.kodza-result-quote__role:not(#_),
+.kodza-result-quote__arrow:not(#_),
+.kodza-result-quote__shaft:not(#_),
+.kodza-result-quote__tip:not(#_),
+.kodza-result-quote__strip span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-result-quote__eyebrow:not(#_),
+.kodza-result-quote__title:not(#_),
+.kodza-result-quote__value:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-result-quote__label:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  padding-right: revert;
+  padding-bottom: revert;
+  padding-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-result-quote__figure:not(#_),
+.kodza-result-quote__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-result-quote__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-result-quote__quote:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-result-quote__who:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-result-quote__link:not(#_) {
+  border: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-result-quote__arrow svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-result-quote__eyebrow:not(#_):where(:not([hidden])),
+.kodza-result-quote__title:not(#_):where(:not([hidden])),
+.kodza-result-quote__label:not(#_):where(:not([hidden])),
+.kodza-result-quote__figure:not(#_):where(:not([hidden])),
+.kodza-result-quote__quote:not(#_):where(:not([hidden])),
+.kodza-result-quote__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-result-quote__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-result-quote__eyebrow:not(#_):where([hidden]),
+.kodza-result-quote__title:not(#_):where([hidden]),
+.kodza-result-quote__label:not(#_):where([hidden]),
+.kodza-result-quote__figure:not(#_):where([hidden]),
+.kodza-result-quote__quote:not(#_):where([hidden]),
+.kodza-result-quote__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-result-quote__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-result-quote__label:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-result-quote__eyebrow:not(#_) {
+  margin: 0 0 18px;
+  font-family: var(--kz-font-label, var(--kz-result-quote-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-result-quote-dim);
+}
+
+.kodza-result-quote__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4.6vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  color: inherit;
+}
+
+.kodza-result-quote__value:not(#_) {
+  display: flex;
+  margin: -0.142em 0 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(72px, 15cqi, 184px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.06em);
+  text-transform: var(--kz-font-display-case, none);
+  color: inherit;
+}
+
+.kodza-result-quote__label:not(#_) {
+  position: relative;
+  margin: 18px 0 0;
+  padding-top: 16px;
+  font-family: var(--kz-font-label, var(--kz-result-quote-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-result-quote-dim);
+}
+
+.kodza-result-quote__figure:not(#_) {
+  margin: 0;
+}
+
+.kodza-result-quote__quote:not(#_) {
+  max-width: var(--kz-result-quote-measure);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(26px, 3.4vw, 40px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1.2;
+  letter-spacing: var(--kz-font-display-tracking, -0.03em);
+  text-transform: var(--kz-font-display-case, none);
+  color: inherit;
+}
+
+.kodza-result-quote__quote p:not(#_) {
+  margin: 0;
+}
+
+.kodza-result-quote__who:not(#_) {
+  display: grid;
+  margin-top: 32px;
+}
+
+.kodza-result-quote__link:not(#_) {
+  display: inline-flex;
+  margin-top: 28px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-result-quote__link:focus-visible:not(#_) {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+}
+
+.kodza-result-quote__arrow svg:not(#_) {
+  display: block;
+}
+
+.kodza-result-quote.is-in .kodza-result-quote__who:not(#_) {
+  transition: opacity calc(0.3s * var(--kz-motion-scale, 1)) ease calc((0.35s + min(var(--kz-result-quote-n, 4), 5) * 0.07s) * var(--kz-motion-scale, 1)),
+    transform calc(0.8s * var(--kz-motion-scale, 1)) var(--kz-result-quote-ease) calc((0.35s + min(var(--kz-result-quote-n, 4), 5) * 0.07s) * var(--kz-motion-scale, 1));
+}
+
+.kodza-result-quote.is-in .kodza-result-quote__link:not(#_) {
+  transition: opacity calc(0.3s * var(--kz-motion-scale, 1)) ease calc((0.45s + min(var(--kz-result-quote-n, 4), 5) * 0.07s) * var(--kz-motion-scale, 1)),
+    transform calc(0.8s * var(--kz-motion-scale, 1)) var(--kz-result-quote-ease) calc((0.45s + min(var(--kz-result-quote-n, 4), 5) * 0.07s) * var(--kz-motion-scale, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-result-quote *:where(p, h2, figure, blockquote, figcaption, a, svg):not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

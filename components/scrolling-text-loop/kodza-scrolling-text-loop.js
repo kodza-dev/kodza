@@ -3,9 +3,20 @@
 // Copies the words until they fill the width twice (copies are hidden from screen
 // readers), then loops over exactly one set, at a constant speed in pixels per second.
 // Under the pointer it eases to a stop instead of freezing, and starts again the same way.
+// Logos (--logos): each one's width over its height goes to --kz-marquee-ratio, from which the
+// CSS gives them all the same area; the loop waits for the images to know their size.
 (() => {
   const SELECTOR = '.kodza-marquee';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // A logo's width over its height: an svg's viewBox, an image's own size, or its attributes
+  const ratioOf = (logo) => {
+    const box = logo.viewBox?.baseVal;
+    if (box?.width && box.height) return box.width / box.height;
+    if (logo.naturalWidth && logo.naturalHeight) return logo.naturalWidth / logo.naturalHeight;
+    const width = parseFloat(logo.getAttribute('width'));
+    const height = parseFloat(logo.getAttribute('height'));
+    return width && height ? width / height : 0;
+  };
   // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
   // script times it, and 0 moves nothing, like reduced motion
   const paceOf = (el) => {
@@ -19,6 +30,16 @@
     const track = root.querySelector('.kodza-marquee__track');
     if (!track) return;
     const original = [...track.children];
+    const logos = [...track.querySelectorAll('.kodza-marquee__logo')];
+    const fit = (logo) => {
+      const ratio = ratioOf(logo);
+      if (ratio) logo.style.setProperty('--kz-marquee-ratio', ratio.toFixed(3));
+    };
+    logos.forEach(fit);
+    const images = logos.filter((logo) => logo.tagName === 'IMG' && !logo.complete).map((image) => new Promise((resolve) => {
+      image.addEventListener('load', resolve, { once: true, signal });
+      image.addEventListener('error', resolve, { once: true, signal });
+    }));
 
     const fill = () => {
       track.querySelectorAll('[data-copy]').forEach((copy) => copy.remove());
@@ -39,12 +60,13 @@
       root.style.setProperty('--kz-marquee-duration', `${(setWidth / speed) * pace}s`);
     };
 
-    // is-ready comes with the mount, so the loop is held here until the fonts are in (measured
-    // with a fallback font, it would jump when they swap)
+    // is-ready comes with the mount, so the loop is held here until the fonts and the images are
+    // in (measured with a fallback font or a logo of no size yet, it would jump when they arrive)
     let filled = false;
     track.style.animationPlayState = 'paused';
-    document.fonts.ready.then(() => {
+    Promise.all([document.fonts.ready, ...images]).then(() => {
       if (signal.aborted) return;
+      logos.forEach(fit);
       fill();
       filled = true;
       track.style.animationPlayState = '';

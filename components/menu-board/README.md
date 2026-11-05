@@ -11,7 +11,7 @@ A restaurant menu by service: dish, original name, a tabular price on a dotted l
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-menu-board.html`](kodza-menu-board.html) | 8.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-menu-board.css`](kodza-menu-board.css) | 22.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-menu-board.css`](kodza-menu-board.css) | 22.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-menu-board.js`](kodza-menu-board.js) | 13.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.

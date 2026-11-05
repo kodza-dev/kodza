@@ -12,7 +12,7 @@ A section whose top edge comes up curved and pulls flat as it lands, tied to the
 | --- | ---: | --- |
 | [`kodza-section-curve.html`](kodza-section-curve.html) | 0.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-section-curve.css`](kodza-section-curve.css) | 6.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-section-curve.js`](kodza-section-curve.js) | 7.4 KB | The script. One copy per page runs every instance. |
+| [`kodza-section-curve.js`](kodza-section-curve.js) | 7.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

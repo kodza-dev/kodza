@@ -1,0 +1,1019 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Quote Spotlight
+   A testimonials section that gives one quote the whole stage: the quote large, and underneath the
+   people who said them as real tabs (their faces, or the logos of the publications). A ring around
+   the active face, a bar under the active logo, fills while the quote is read; then its lines
+   leave upwards behind their masks while the next quote rises word by word and the name rolls.
+   The quotes share one grid cell, so the section keeps the height of the longest one and nothing
+   below it ever moves. Arrows, Home and End, or a swipe on a phone, change the quote; the pointer
+   over it, the keyboard focus, the pause button, a section out of view or a hidden tab hold it.
+   With reduced motion the tabs swap the quote and nothing turns on its own.
+   Everything is tuned with the --kz-quote-spotlight-* variables, the time per quote with
+   data-interval on the section. */
+.kodza-quote-spotlight {
+  --kz-quote-spotlight-ink: #0a0a0a;
+  --kz-quote-spotlight-dim: rgba(10, 10, 10, 0.64);
+  --kz-quote-spotlight-face: #e6e6e3;
+  --kz-quote-spotlight-track: rgba(10, 10, 10, 0.16);
+  --kz-quote-spotlight-bg: transparent;
+  --kz-quote-spotlight-width: 720px;
+  --kz-quote-spotlight-rest: 0.6; /* the faces and logos not chosen */
+  --kz-quote-spotlight-logo-area: 2300; /* square pixels per logo: a wide one sits lower, a square one taller, all weigh the same */
+  --kz-quote-spotlight-hang: 0.4em; /* the opening quote mark hangs in the margin by its width */
+  --kz-quote-spotlight-pad-y: clamp(64px, 8vw, 112px);
+  --kz-quote-spotlight-gutter: clamp(16px, 4vw, 40px);
+  --kz-quote-spotlight-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-quote-spotlight-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-quote-spotlight / inline-size;
+  box-sizing: border-box;
+  width: 100%;
+  padding-block: var(--kz-quote-spotlight-pad-y);
+  padding-left: max(var(--kz-quote-spotlight-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-quote-spotlight-gutter), env(safe-area-inset-right, 0px));
+  background: var(--kz-quote-spotlight-bg);
+  color: var(--kz-quote-spotlight-ink);
+}
+
+.kodza-quote-spotlight__inner {
+  max-width: var(--kz-quote-spotlight-width);
+  margin: 0 auto;
+}
+
+.kodza-quote-spotlight__eyebrow {
+  margin: 0 0 28px;
+  font-family: var(--kz-font-label, var(--kz-quote-spotlight-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-quote-spotlight-dim);
+}
+
+/* The stage: every quote in the same cell, the tallest sets the height */
+.kodza-quote-spotlight__stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  touch-action: pan-y;
+}
+
+.kodza-quote-spotlight__slide {
+  grid-area: 1 / 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  min-width: 0;
+  margin: 0;
+}
+
+/* Before the script, the first quote; then the chosen one, and the one leaving while it leaves */
+.kodza-quote-spotlight:not(.is-tabbed) .kodza-quote-spotlight__slide:not(:first-child),
+.kodza-quote-spotlight.is-tabbed .kodza-quote-spotlight__slide:not(.is-current):not(.is-leaving) {
+  visibility: hidden;
+}
+
+.kodza-quote-spotlight__slide.is-leaving {
+  pointer-events: none;
+}
+
+.kodza-quote-spotlight__quote {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(26px, 3.4vw, 40px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1.2;
+  letter-spacing: var(--kz-font-display-tracking, -0.03em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: pretty;
+  color: inherit;
+  quotes: none;
+}
+
+.kodza-quote-spotlight__quote p {
+  margin: 0;
+}
+
+.kodza-quote-spotlight__quote p + p {
+  margin-top: 0.6em;
+}
+
+/* The quote marks, the opening one hung in the margin (the script sets them into the first and
+   last words once it splits the quote) */
+.kodza-quote-spotlight__quote p:first-child::before {
+  content: "\201C";
+  margin-left: calc(var(--kz-quote-spotlight-hang) * -1);
+}
+
+.kodza-quote-spotlight__quote p:last-child::after {
+  content: "\201D";
+}
+
+.kodza-quote-spotlight.is-split .kodza-quote-spotlight__quote p::before,
+.kodza-quote-spotlight.is-split .kodza-quote-spotlight__quote p::after {
+  content: none;
+}
+
+/* Split by the script: each line a mask, each word rising into it */
+.kodza-quote-spotlight__lines {
+  display: flex;
+  flex-direction: column;
+}
+
+.kodza-quote-spotlight__line {
+  display: block;
+  overflow: hidden;
+  overflow: clip;
+  padding: 0.1em 0.5em;
+  margin: -0.1em -0.5em;
+}
+
+.kodza-quote-spotlight__lift {
+  display: block;
+  white-space: nowrap;
+}
+
+.kodza-quote-spotlight__word {
+  display: inline-block;
+}
+
+.kodza-quote-spotlight__mark {
+  margin-left: calc(var(--kz-quote-spotlight-hang) * -1);
+}
+
+.kodza-quote-spotlight__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Who said it: the face (or logo) on two lines, the name over the role; once the faces are tabs,
+   the name and role alone, each rolling in its own mask */
+.kodza-quote-spotlight__who {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: "mark name" "mark role";
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 4px;
+  margin-top: auto;
+}
+
+.kodza-quote-spotlight__who > .kodza-quote-spotlight__face,
+.kodza-quote-spotlight__who > .kodza-quote-spotlight__logo {
+  grid-area: mark;
+}
+
+.kodza-quote-spotlight.is-tabbed .kodza-quote-spotlight__who {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "name" "role";
+}
+
+.kodza-quote-spotlight.is-tabbed .kodza-quote-spotlight__who > .kodza-quote-spotlight__face,
+.kodza-quote-spotlight.is-tabbed .kodza-quote-spotlight__who > .kodza-quote-spotlight__logo {
+  display: none;
+}
+
+.kodza-quote-spotlight__name,
+.kodza-quote-spotlight__role {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  overflow: clip;
+  padding-block: 0.1em;
+  margin-block: -0.1em;
+}
+
+.kodza-quote-spotlight__name {
+  grid-area: name;
+  align-self: end;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.kodza-quote-spotlight__role {
+  grid-area: role;
+  align-self: start;
+  font-family: var(--kz-font-label, var(--kz-quote-spotlight-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-quote-spotlight-dim);
+}
+
+.kodza-quote-spotlight__rise {
+  display: block;
+}
+
+.kodza-quote-spotlight__face {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-quote-spotlight-face);
+  color: var(--kz-quote-spotlight-ink);
+  object-fit: cover;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.kodza-quote-spotlight__logo {
+  display: block;
+  width: auto;
+  height: 20px;
+}
+
+/* The controls: the tabs, and the pause button at the end of the row */
+.kodza-quote-spotlight__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  min-height: 56px;
+  margin-top: 40px;
+}
+
+/* A single quote has nothing to choose from */
+.kodza-quote-spotlight__stage:has(> .kodza-quote-spotlight__slide:only-child) + .kodza-quote-spotlight__controls {
+  display: none;
+}
+
+.kodza-quote-spotlight__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.kodza-quote-spotlight__tabs--logos {
+  gap: 16px 28px;
+}
+
+/* A face tab: the face, and the ring that fills while its quote is read */
+.kodza-quote-spotlight__tab {
+  position: relative;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 56px;
+  height: 56px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: transparent;
+  color: var(--kz-quote-spotlight-ink);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-quote-spotlight__tab.is-active {
+  cursor: default;
+}
+
+.kodza-quote-spotlight__tab:focus-visible {
+  outline: 2px solid var(--kz-quote-spotlight-ink);
+  outline-offset: 2px;
+}
+
+.kodza-quote-spotlight__tab > .kodza-quote-spotlight__face,
+.kodza-quote-spotlight__tab > .kodza-quote-spotlight__time {
+  grid-area: 1 / 1;
+}
+
+.kodza-quote-spotlight__tab > .kodza-quote-spotlight__face {
+  width: 44px;
+  height: 44px;
+  font-size: 14px;
+}
+
+.kodza-quote-spotlight__tab > .kodza-quote-spotlight__face,
+.kodza-quote-spotlight__tab > .kodza-quote-spotlight__logo {
+  opacity: var(--kz-quote-spotlight-rest);
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-quote-spotlight__tab.is-active > .kodza-quote-spotlight__face,
+.kodza-quote-spotlight__tab.is-active > .kodza-quote-spotlight__logo {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .kodza-quote-spotlight__tab:hover > .kodza-quote-spotlight__face,
+  .kodza-quote-spotlight__tab:hover > .kodza-quote-spotlight__logo {
+    opacity: 1;
+  }
+}
+
+.kodza-quote-spotlight__time {
+  width: 56px;
+  height: 56px;
+  transform: rotate(-90deg);
+  fill: none;
+  stroke-width: 1.5;
+  opacity: 0;
+  transition: opacity calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-quote-spotlight__track {
+  stroke: var(--kz-quote-spotlight-track);
+}
+
+.kodza-quote-spotlight__time .kodza-quote-spotlight__fill {
+  stroke: currentColor;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+
+/* A logo tab: the logo, and the bar under it */
+.kodza-quote-spotlight__tab.kodza-quote-spotlight__tab--logo {
+  grid-template-rows: 32px 2px;
+  row-gap: 12px;
+  width: auto;
+  height: auto;
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
+}
+
+.kodza-quote-spotlight__tab--logo:focus-visible {
+  outline-offset: 6px;
+}
+
+.kodza-quote-spotlight__tab--logo > .kodza-quote-spotlight__logo {
+  grid-row: 1;
+  height: 22px;
+  height: clamp(14px, calc(sqrt(var(--kz-quote-spotlight-logo-area) / var(--kz-quote-spotlight-ratio, 6)) * 1px), 32px);
+  width: auto;
+  aspect-ratio: var(--kz-quote-spotlight-ratio, 6);
+}
+
+.kodza-quote-spotlight__bar {
+  grid-row: 2;
+  display: block;
+  width: 100%;
+  height: 2px;
+  overflow: hidden;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-quote-spotlight-track);
+  opacity: 0;
+  transition: opacity calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-quote-spotlight__bar .kodza-quote-spotlight__fill {
+  display: block;
+  height: 100%;
+  background: currentColor;
+  transform: translateX(0%) scaleX(0);
+  transform-origin: 0 50%;
+}
+
+.kodza-quote-spotlight__tab.is-active .kodza-quote-spotlight__time,
+.kodza-quote-spotlight__tab.is-emptying .kodza-quote-spotlight__time,
+.kodza-quote-spotlight__tab.is-active .kodza-quote-spotlight__bar,
+.kodza-quote-spotlight__tab.is-emptying .kodza-quote-spotlight__bar {
+  opacity: 1;
+}
+
+/* Still (reduced motion, or a site pace of 0): the chosen tab is marked in full */
+.kodza-quote-spotlight.is-still .kodza-quote-spotlight__tab.is-active .kodza-quote-spotlight__time .kodza-quote-spotlight__fill {
+  stroke-dashoffset: 0;
+}
+
+.kodza-quote-spotlight.is-still .kodza-quote-spotlight__tab.is-active .kodza-quote-spotlight__bar .kodza-quote-spotlight__fill {
+  transform: none;
+}
+
+/* The pause button: a ring, two bars that turn into a play arrow once pressed */
+.kodza-quote-spotlight__pause {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--kz-quote-spotlight-ink);
+  cursor: pointer;
+}
+
+/* Nothing to pause until the quotes turn */
+.kodza-quote-spotlight:not(.is-live) .kodza-quote-spotlight__pause {
+  visibility: hidden;
+}
+
+.kodza-quote-spotlight__pause:focus-visible {
+  outline: 2px solid var(--kz-quote-spotlight-ink);
+  outline-offset: 3px;
+}
+
+.kodza-quote-spotlight__ring,
+.kodza-quote-spotlight__icon {
+  grid-area: 1 / 1;
+}
+
+.kodza-quote-spotlight__ring {
+  width: 40px;
+  height: 40px;
+  fill: none;
+  stroke: var(--kz-quote-spotlight-track);
+  stroke-width: 1.5;
+  transition: stroke calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-quote-spotlight__pause:hover .kodza-quote-spotlight__ring {
+    stroke: var(--kz-quote-spotlight-ink);
+  }
+}
+
+.kodza-quote-spotlight__icon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-quote-spotlight__play {
+  fill: currentColor;
+  stroke-width: 1.2;
+  opacity: 0;
+  transform: scale(0.6);
+  transform-origin: 50% 50%;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-quote-spotlight-ease);
+}
+
+.kodza-quote-spotlight__bars {
+  transform-origin: 50% 50%;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-quote-spotlight-ease);
+}
+
+.kodza-quote-spotlight__pause[aria-pressed="true"] .kodza-quote-spotlight__bars {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.kodza-quote-spotlight__pause[aria-pressed="true"] .kodza-quote-spotlight__play {
+  opacity: 1;
+  transform: none;
+}
+
+/* A phone: smaller faces, lighter logos, the same rhythm */
+@container kodza-quote-spotlight (max-width: 560px) {
+  .kodza-quote-spotlight__inner {
+    --kz-quote-spotlight-logo-area: 1500;
+  }
+
+  .kodza-quote-spotlight__controls {
+    min-height: 48px;
+    margin-top: 32px;
+  }
+
+  .kodza-quote-spotlight__tabs--logos {
+    gap: 12px 20px;
+  }
+
+  .kodza-quote-spotlight__tab {
+    width: 48px;
+    height: 48px;
+  }
+
+  .kodza-quote-spotlight__tab > .kodza-quote-spotlight__face {
+    width: 38px;
+    height: 38px;
+    font-size: 13px;
+  }
+
+  .kodza-quote-spotlight__time {
+    width: 48px;
+    height: 48px;
+    stroke-width: 1.75;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-quote-spotlight *,
+  .kodza-quote-spotlight *::before,
+  .kodza-quote-spotlight *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard a68b43f15687 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-quote-spotlight__eyebrow):not(#_),
+:where(.kodza-quote-spotlight__slide):not(#_),
+:where(.kodza-quote-spotlight__quote):not(#_),
+:where(.kodza-quote-spotlight__who):not(#_),
+:where(.kodza-quote-spotlight__icon):not(#_),
+:where(.kodza-quote-spotlight__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-quote-spotlight__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-quote-spotlight__tab):not(#_),
+:where(.kodza-quote-spotlight__pause):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+}
+
+:where(.kodza-quote-spotlight__logo):not(#_) {
+  transition: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-quote-spotlight__inner:not(#_),
+.kodza-quote-spotlight__stage:not(#_),
+.kodza-quote-spotlight__sr:not(#_),
+.kodza-quote-spotlight__lines:not(#_),
+.kodza-quote-spotlight__line:not(#_),
+.kodza-quote-spotlight__lift:not(#_),
+.kodza-quote-spotlight__word:not(#_),
+.kodza-quote-spotlight__mark:not(#_),
+.kodza-quote-spotlight__name:not(#_),
+.kodza-quote-spotlight__rise:not(#_),
+.kodza-quote-spotlight__role:not(#_),
+.kodza-quote-spotlight__controls:not(#_),
+.kodza-quote-spotlight__tabs:not(#_),
+.kodza-quote-spotlight__track:not(#_),
+.kodza-quote-spotlight__fill:not(#_),
+.kodza-quote-spotlight__bars:not(#_),
+.kodza-quote-spotlight__play:not(#_),
+.kodza-quote-spotlight__bar:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-quote-spotlight__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-quote-spotlight__slide:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-quote-spotlight__quote:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-quote-spotlight__who:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-quote-spotlight__tab:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-quote-spotlight__time:not(#_),
+.kodza-quote-spotlight__ring:not(#_),
+.kodza-quote-spotlight__logo:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quote-spotlight__pause:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-quote-spotlight__icon:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-quote-spotlight__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-quote-spotlight__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-quote-spotlight__eyebrow:not(#_):where(:not([hidden])),
+.kodza-quote-spotlight__quote:not(#_):where(:not([hidden])),
+.kodza-quote-spotlight__time:not(#_):where(:not([hidden])),
+.kodza-quote-spotlight__ring:not(#_):where(:not([hidden])),
+.kodza-quote-spotlight__icon:not(#_):where(:not([hidden])),
+.kodza-quote-spotlight__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-quote-spotlight__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-quote-spotlight__eyebrow:not(#_):where([hidden]),
+.kodza-quote-spotlight__quote:not(#_):where([hidden]),
+.kodza-quote-spotlight__time:not(#_):where([hidden]),
+.kodza-quote-spotlight__ring:not(#_):where([hidden]),
+.kodza-quote-spotlight__icon:not(#_):where([hidden]),
+.kodza-quote-spotlight__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-quote-spotlight__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-quote-spotlight__eyebrow:not(#_) {
+  margin: 0 0 28px;
+  font-family: var(--kz-font-label, var(--kz-quote-spotlight-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-quote-spotlight-dim);
+}
+
+.kodza-quote-spotlight__slide:not(#_) {
+  position: relative;
+  display: flex;
+  margin: 0;
+}
+
+.kodza-quote-spotlight__quote:not(#_) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(26px, 3.4vw, 40px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1.2;
+  letter-spacing: var(--kz-font-display-tracking, -0.03em);
+  text-transform: var(--kz-font-display-case, none);
+  color: inherit;
+}
+
+.kodza-quote-spotlight__quote p:not(#_) {
+  margin: 0;
+}
+
+.kodza-quote-spotlight__who:not(#_) {
+  display: grid;
+  margin-top: auto;
+}
+
+.kodza-quote-spotlight.is-tabbed .kodza-quote-spotlight__who > .kodza-quote-spotlight__logo:not(#_) {
+  display: none;
+}
+
+.kodza-quote-spotlight__logo:not(#_) {
+  display: block;
+}
+
+.kodza-quote-spotlight__tab:not(#_) {
+  position: relative;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 56px;
+  height: 56px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: transparent;
+  color: var(--kz-quote-spotlight-ink);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-quote-spotlight__tab.is-active:not(#_) {
+  cursor: default;
+}
+
+.kodza-quote-spotlight__tab:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-quote-spotlight-ink);
+  outline-offset: 2px;
+}
+
+.kodza-quote-spotlight__tab > .kodza-quote-spotlight__logo:not(#_) {
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-quote-spotlight__time:not(#_) {
+  transition: opacity calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-quote-spotlight__tab.kodza-quote-spotlight__tab--logo:not(#_) {
+  grid-template-rows: 32px 2px;
+  row-gap: 12px;
+  width: auto;
+  height: auto;
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
+}
+
+.kodza-quote-spotlight__tab--logo:focus-visible:not(#_) {
+  outline-offset: 6px;
+}
+
+.kodza-quote-spotlight__pause:not(#_) {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--kz-quote-spotlight-ink);
+  cursor: pointer;
+}
+
+.kodza-quote-spotlight:not(.is-live) .kodza-quote-spotlight__pause:not(#_) {
+  visibility: hidden;
+}
+
+.kodza-quote-spotlight__pause:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-quote-spotlight-ink);
+  outline-offset: 3px;
+}
+
+.kodza-quote-spotlight__ring:not(#_) {
+  transition: stroke calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@container kodza-quote-spotlight (max-width: 560px) {
+  .kodza-quote-spotlight__tab:not(#_) {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-quote-spotlight *:not(#_),
+  .kodza-quote-spotlight *:not(#_)::before,
+  .kodza-quote-spotlight *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

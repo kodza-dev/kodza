@@ -4,7 +4,9 @@
 
 UI components your AI can fetch. Plain HTML, CSS and JavaScript: no framework, no build step, no dependencies.
 
-**[kodza.dev](https://kodza.dev)** · [Catalogue](https://kodza.dev/components/) · [Docs](https://kodza.dev/docs/) · [Request a component](https://github.com/kodza-dev/requests/discussions)
+**[kodza.dev](https://kodza.dev)** · [Catalogue](https://kodza.dev/components/) · [Docs](https://kodza.dev/docs/)
+
+Found a bug, or missing a component? [kodza-dev/requests](https://github.com/kodza-dev/requests): issues for bugs, discussions for requests, with votes.
 
 ## Just ask
 
@@ -51,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 186. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 192. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -78,9 +80,10 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-186 of them, and counting. Each name opens its folder, each demo runs on kodza.dev.
+192 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
-### Buttons
+<details>
+<summary><b>Buttons</b> · 15</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -100,7 +103,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Share Button](components/share-button/) | Press Share and the options slide out from behind it, the last one pushing the pill open, while the arrow takes off and a cross draws itself. Copy link turns into a check; X and LinkedIn open in a small window. | [Demo](https://kodza.dev/components/share-button/) |
 | [Split Button](components/split-button/) | The main action on the left, the other options behind an arrow. One tint slides between the halves; pick another way to do it and the label rolls over, the button easing to its new width. | [Demo](https://kodza.dev/components/split-button/) |
 
-### Links
+</details>
+
+<details>
+<summary><b>Links</b> · 10</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -115,7 +121,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Scramble Link](components/hover-link-text-shuffle/) | Hover a link and its word scrambles, then settles from left to right: symbols that decode, its own letters shuffling, or a split-flap. | [Demo](https://kodza.dev/components/hover-link-text-shuffle/) |
 | [Underline Link](components/hover-link-text-underline/) | An underline that slides in from the left and leaves through the right, or the reverse. Follows the text across lines, like a pen. | [Demo](https://kodza.dev/components/hover-link-text-underline/) |
 
-### Forms
+</details>
+
+<details>
+<summary><b>Forms</b> · 30</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -150,7 +159,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Toggle Group](components/toggle-group/) | Several on/off choices on real checkboxes. A picked option fills with ink from its centre and its plus turns into a check; picked days side by side join into one band. Pure CSS. | [Demo](https://kodza.dev/components/toggle-group/) |
 | [Was This Helpful](components/was-this-helpful/) | A question and two thumbs: the chosen one fills with ink, No unfolds an optional note, then the thanks rolls in where the question was. Posts to the form action or to your code. | [Demo](https://kodza.dev/components/was-this-helpful/) |
 
-### Navigation
+</details>
+
+<details>
+<summary><b>Navigation</b> · 20</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -175,7 +187,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Tabs](components/tabs-component/) | Tabs with a pill (or a line) that slides to the chosen one, a panel that comes in from its side, and the full keyboard pattern. | [Demo](https://kodza.dev/components/tabs-component/) |
 | [Trapdoor Menu](components/trapdoor-menu/) | Press Menu and the page swings down on its hinge like a trapdoor, showing the menu underneath: links rise as the edge passes them, an image follows your pointer. Closing replays it backwards. No GSAP. | [Demo](https://kodza.dev/components/trapdoor-menu/) |
 
-### Overlays
+</details>
+
+<details>
+<summary><b>Overlays</b> · 7</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -187,7 +202,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Toast](components/toast-notification/) | Notifications that stack like a deck and spread out on hover. Time runs out on a thin line, a swipe dismisses, and a loading toast turns into a success. | [Demo](https://kodza.dev/components/toast-notification/) |
 | [Tooltip](components/tooltip-component/) | One bubble per group: it waits on the first hover, then glides from button to button, resizing to its words, with the keyboard shortcut inside. | [Demo](https://kodza.dev/components/tooltip-component/) |
 
-### Feedback & loading
+</details>
+
+<details>
+<summary><b>Feedback & loading</b> · 6</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -198,7 +216,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Spinner](components/loading-spinner/) | A loading status sized on its text: a breathing ring, twelve bars, three dots or a terminal braille cell. Add .is-done and a tick draws itself while the words roll. | [Demo](https://kodza.dev/components/loading-spinner/) |
 | [Top Loading Bar](components/top-loading-bar/) | The thin line at the top of the screen while a page loads: it creeps in shrinking steps, runs to the end and slips off to the right. Starts by itself on the site's links. | [Demo](https://kodza.dev/components/top-loading-bar/) |
 
-### Data display
+</details>
+
+<details>
+<summary><b>Data display</b> · 15</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -218,7 +239,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Table](components/table/) | A data table that sorts when you click a column: rows glide to their new place, the sorted column gets a soft band, the header stays on top and the edges fade while it scrolls. | [Demo](https://kodza.dev/components/table/) |
 | [Timeline](components/timeline-component/) | Dated steps along a rail that fills as you scroll: each dot fills when the ink reaches it, each step rises into place the first time it is seen, the last one reached stays marked. | [Demo](https://kodza.dev/components/timeline-component/) |
 
-### Cards
+</details>
+
+<details>
+<summary><b>Cards</b> · 5</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -228,7 +252,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Pricing Plans](components/pricing-plans/) | Three plans in one block, the featured one inked and lifted out. Switch to yearly and only the digits that change roll to their new value. | [Demo](https://kodza.dev/components/pricing-plans/) |
 | [Sticky Cards](components/sticky-cards/) | Cards that stack as you scroll, each covered card stepping back and darkening. Plain position: sticky and a few lines of JS. No GSAP. | [Demo](https://kodza.dev/components/sticky-cards/) |
 
-### Media
+</details>
+
+<details>
+<summary><b>Media</b> · 6</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -239,21 +266,27 @@ Written like it's going live tomorrow. Because it probably is.
 | [Lightbox](components/lightbox/) | Wrap an article and every picture in it opens large: it grows from its own place to the screen, arrows or a swipe go to the next, and it returns to its place on Escape. | [Demo](https://kodza.dev/components/lightbox/) |
 | [Zoom Lens](components/zoom-lens/) | A closer look under the pointer: a round lens follows with a little lag and shows the detail from a sharper file, or the picture itself zooms towards the pointer. | [Demo](https://kodza.dev/components/zoom-lens/) |
 
-### Text effects
+</details>
+
+<details>
+<summary><b>Text effects</b> · 9</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
 | [Annotated Text](components/text-highlight/) | Hand-drawn marks that draw themselves on key words when the paragraph shows up: underline, strike, circle or marker. | [Demo](https://kodza.dev/components/text-highlight/) |
 | [Eye Glyph](components/eye-glyph/) | Any letter with a hole becomes an eye: the pupil follows the pointer, lashes grow on top, and real lids close it when it blinks. Poke one and it winks. | [Demo](https://kodza.dev/components/eye-glyph/) |
 | [Inline Image Text](components/inline-image-text/) | A large sentence with small pictures set in its lines, at letter height. Lines rise from their mask and each picture opens as its line lands. Sized in em; a muted loop works too. | [Demo](https://kodza.dev/components/inline-image-text/) |
-| [Marquee](components/scrolling-text-loop/) | An endless ticker that never jumps, eases to a stop under the pointer and fades at both edges. Runs either way. | [Demo](https://kodza.dev/components/scrolling-text-loop/) |
+| [Marquee](components/scrolling-text-loop/) | An endless ticker that never jumps, eases to a stop under the pointer and fades at both edges. Runs either way, with words or with logos, every logo given the same visual weight. | [Demo](https://kodza.dev/components/scrolling-text-loop/) |
 | [Scroll Text Reveal](components/animated-text-reveal/) | Words light up one after the other as a paragraph scrolls by, and dim again on the way back. Fade, blur or rise. No GSAP. | [Demo](https://kodza.dev/components/animated-text-reveal/) |
 | [Shimmer Text](components/text-shimmer/) | A band of light that sweeps across text, the way a busy interface says "still working on it". Looping, on hover, or following the pointer. | [Demo](https://kodza.dev/components/text-shimmer/) |
 | [Text Reveal](components/text-split-scroll-reveal/) | Text that writes itself in when it reaches the screen: lines rising from a mask, words coming into focus, or letters. Plays once. | [Demo](https://kodza.dev/components/text-split-scroll-reveal/) |
 | [Typewriter](components/typewriter-effect/) | Phrases typed with a human rhythm and an honest caret. Retypes only what changes, or selects it like an editor before typing over it. | [Demo](https://kodza.dev/components/typewriter-effect/) |
 | [Word Rotator](components/word-rotator/) | One word of a sentence keeps changing: the next one's letters rise as the old ones leave, or the word flips over. The space follows the word, the sentence moves along. | [Demo](https://kodza.dev/components/word-rotator/) |
 
-### Image effects
+</details>
+
+<details>
+<summary><b>Image effects</b> · 3</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -261,7 +294,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Image Hover](components/image-scale/) | Four ways for an image to answer the pointer, inside its own frame: a slow zoom, coming into focus, rounding off, or drifting with the cursor. | [Demo](https://kodza.dev/components/image-scale/) |
 | [Image Reveal](components/image-reveal/) | A picture that unveils itself when it comes into view: a curtain opens from below, from the side or like an iris while the picture settles from a slight zoom. | [Demo](https://kodza.dev/components/image-reveal/) |
 
-### Backgrounds & textures
+</details>
+
+<details>
+<summary><b>Backgrounds & textures</b> · 9</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -275,7 +311,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Ruled Paper](components/ruled-paper/) | A section ruled like a notebook page, with an ink margin line. The rules follow the text's line height and every line of text sits on its rule, at every size. | [Demo](https://kodza.dev/components/ruled-paper/) |
 | [Topographic Lines](components/topographic-lines/) | A hero over a contour map drawn by a native WebGL shader: the lines drift very slowly, the pointer raises a hill under it, and they thin out under the text. Plain CSS rings without WebGL. | [Demo](https://kodza.dev/components/topographic-lines/) |
 
-### Scroll
+</details>
+
+<details>
+<summary><b>Scroll</b> · 7</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -287,13 +326,19 @@ Written like it's going live tomorrow. Because it probably is.
 | [Sticky Scroll Reveal](components/sticky-scroll-reveal/) | A block that pins itself while big statements take turns as you scroll: each line leaves through its own mask while the next one rises. | [Demo](https://kodza.dev/components/sticky-scroll-reveal/) |
 | [Sticky Steps](components/sticky-steps/) | A picture pinned on one side, steps scrolling on the other: each step draws its picture over the last like a curtain, and the counter rolls along. | [Demo](https://kodza.dev/components/sticky-steps/) |
 
-### Cursor
+</details>
+
+<details>
+<summary><b>Cursor</b> · 1</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
 | [Custom Cursor](components/hover-custom-cursor/) | Inside its zone the pointer becomes a dot with a soft lag, and a pill that says what a click will do over each item. No GSAP. | [Demo](https://kodza.dev/components/hover-custom-cursor/) |
 
-### Preloaders & transitions
+</details>
+
+<details>
+<summary><b>Preloaders & transitions</b> · 7</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -305,7 +350,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Soft Swap](components/soft-swap/) | Between two real pages, the one you leave fades out drifting up while the next slides in from just below, and the header stays put. CSS only, no script. Chrome, Edge, Safari; Firefox loads plainly for now. | [Demo](https://kodza.dev/components/soft-swap/) |
 | [Stairs Transition](components/stairs-transition/) | Between two real pages, five ink bands climb over the page like a staircase, then step off onto the next one. Back starts from the other edge. Chrome, Edge, Safari. | [Demo](https://kodza.dev/components/stairs-transition/) |
 
-### SVG & Drawing
+</details>
+
+<details>
+<summary><b>SVG & Drawing</b> · 6</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -316,7 +364,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Scroll Path](components/scroll-path/) | A line drawn through the steps of a section as you read: it swings from step to step, fills each marker it reaches and ends with a ring around the button. | [Demo](https://kodza.dev/components/scroll-path/) |
 | [Section Curve](components/section-curve/) | A section whose top edge comes up curved and pulls flat as it lands, tied to the scroll; scroll back up and it bends again. | [Demo](https://kodza.dev/components/section-curve/) |
 
-### Hero
+</details>
+
+<details>
+<summary><b>Hero</b> · 17</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -338,7 +389,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Hero Statement](components/hero-statement/) | A studio statement set very large over a mono line with the city, a live local time and the booking window. The words rise out of their masks one after the other on load. | [Demo](https://kodza.dev/components/hero-statement/) |
 | [Hero Wordmark](components/hero-wordmark/) | A hero that sets the name across the whole width, ink edge to ink edge: its letters rise one by one and a wide picture opens right under them. | [Demo](https://kodza.dev/components/hero-wordmark/) |
 
-### Header
+</details>
+
+<details>
+<summary><b>Header</b> · 7</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -350,7 +404,10 @@ Written like it's going live tomorrow. Because it probably is.
 | [Header Overlay](components/header-overlay/) | A transparent header over the hero photo: once the hero passes under it, a solid bar comes down and the text turns dark along its edge; below 900 px, a full-screen menu. | [Demo](https://kodza.dev/components/header-overlay/) |
 | [Header Shop](components/header-shop/) | A shop header: the name, the categories, a search that opens over them, the account and a bag whose count rolls when something is added. Below 900 px, a menu the page steps aside for. | [Demo](https://kodza.dev/components/header-shop/) |
 
-### Footer
+</details>
+
+<details>
+<summary><b>Footer</b> · 6</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -361,11 +418,25 @@ Written like it's going live tomorrow. Because it probably is.
 | [Footer Venue](components/footer-venue/) | A footer for a place with opening hours: address and Directions, the week with today under an ink pill, a status worked out at the place's own time that rolls when it changes, the phone and Book. | [Demo](https://kodza.dev/components/footer-venue/) |
 | [Footer Wordmark](components/footer-wordmark/) | A site footer that waits under the page: its content rises slower than the scroll while a shade lifts off it, and the brand name is set across the whole width, ink edge to ink edge, its letters rising from their masks. | [Demo](https://kodza.dev/components/footer-wordmark/) |
 
+</details>
+
+<details>
+<summary><b>Testimonials & logos</b> · 6</summary>
+
+| Component | What it does | |
+| --- | --- | --- |
+| [Logo Grid](components/logo-grid/) | Client logos in a hairline grid, grey and all the same weight. A cell can link to its case study: on hover or focus the logo rolls up and the result rises in. Tiers for sponsors. | [Demo](https://kodza.dev/components/logo-grid/) |
+| [Logo Swap](components/logo-swap/) | More customer logos than cells: every few seconds one cell swaps its logo, the old one leaving upwards as the next rises in. Every logo weighs the same; hover or pause holds them. | [Demo](https://kodza.dev/components/logo-swap/) |
+| [Quote Spotlight](components/quote-spotlight/) | One big quote at a time, faces or press logos as tabs under it: a ring fills while it is read, then the next quote rises line by line. Click, swipe or arrow keys pick one; hover or pause holds it. | [Demo](https://kodza.dev/components/quote-spotlight/) |
+| [Result Quote](components/result-quote/) | A case study in one block: the result very large, its digits rolling up to the value, then the quote rising line by line, the person and a link to the full story. Played once, on scroll. | [Demo](https://kodza.dev/components/result-quote/) |
+| [Review Summary](components/review-summary/) | Reviews with their summary: the average rolls up, the stars fill to the decimal, five bars fill in turn. Click a bar to filter, the reviews glide into place. Read more, and a one-line variant. | [Demo](https://kodza.dev/components/review-summary/) |
+| [Testimonial Wall](components/testimonial-wall/) | A testimonials section: three columns of cards drift slowly in opposite directions, with no end and no jump, faded top and bottom. A column under the mouse slows to a stop; a pause button stops the wall. | [Demo](https://kodza.dev/components/testimonial-wall/) |
+
+</details>
+
 ## About this repository
 
 It mirrors [kodza.dev](https://kodza.dev): when a component ships or changes there, it lands here. Every file is generated, none is edited by hand, so pull requests are not merged.
-
-Found a bug, or missing a component? [kodza-dev/requests](https://github.com/kodza-dev/requests): issues for bugs, discussions for requests, with votes.
 
 ## License
 

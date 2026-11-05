@@ -1,0 +1,1553 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Review Summary
+   What the customers say, at a glance: the average rolls up to its value, the stars fill to the
+   decimal (4.7: the last one at 70%) and five bars fill in a cascade as the summary comes into
+   view. Click a bar and the reviews below are filtered: those that leave fade out, those that stay
+   glide to their new place. A long review folds behind "Read more". The --inline variant is one
+   line (stars, average, number of reviews) to put under a buy button.
+   Each row sets its share with style="--kz-share: 0.8", each set of stars its score with
+   style="--kz-score: 4.7". Everything else is tuned with the --kz-review-summary-* variables. */
+.kodza-review-summary {
+  --kz-review-summary-ink: #0a0a0a;
+  --kz-review-summary-dim: rgba(10, 10, 10, 0.64);
+  --kz-review-summary-card: #ffffff;
+  --kz-review-summary-line: rgba(10, 10, 10, 0.1);
+  --kz-review-summary-rail: rgba(10, 10, 10, 0.1); /* empty stars and bar tracks */
+  --kz-review-summary-muted: rgba(10, 10, 10, 0.26); /* the bars not chosen while filtered */
+  --kz-review-summary-face: #e6e6e3;
+  --kz-review-summary-hover: rgba(10, 10, 10, 0.04);
+  --kz-review-summary-pressed: rgba(10, 10, 10, 0.07);
+  --kz-review-summary-bg: transparent;
+  --kz-review-summary-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z' stroke='black' stroke-width='1.2' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --kz-review-summary-lines: 5; /* lines shown before "Read more" */
+  --kz-review-summary-columns: minmax(280px, 340px) minmax(0, 1fr); /* summary, reviews */
+  --kz-review-summary-card-min: 280px; /* the narrowest review card */
+  --kz-review-summary-sticky: 24px; /* where the summary stays while the reviews scroll */
+  --kz-review-summary-width: 1200px;
+  --kz-review-summary-pad-y: clamp(64px, 8vw, 112px);
+  --kz-review-summary-gutter: clamp(16px, 4vw, 40px);
+  --kz-review-summary-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-review-summary-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-review-summary-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-review-summary / inline-size;
+  box-sizing: border-box;
+  width: 100%;
+  padding-block: var(--kz-review-summary-pad-y);
+  padding-left: max(var(--kz-review-summary-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-review-summary-gutter), env(safe-area-inset-right, 0px));
+  background: var(--kz-review-summary-bg);
+  color: var(--kz-review-summary-ink);
+}
+
+.kodza-review-summary__inner {
+  max-width: var(--kz-review-summary-width);
+  margin: 0 auto;
+}
+
+/* The header */
+.kodza-review-summary__head {
+  margin-bottom: clamp(28px, 3.6vw, 48px);
+}
+
+.kodza-review-summary__eyebrow {
+  margin: 0 0 18px;
+  font-family: var(--kz-font-label, var(--kz-review-summary-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-review-summary-dim);
+}
+
+.kodza-review-summary__title {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4.6vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+  color: inherit;
+}
+
+/* The summary on the left, the reviews on the right; one column on a tablet and a phone */
+.kodza-review-summary__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+@container kodza-review-summary (min-width: 860px) {
+  .kodza-review-summary__body {
+    grid-template-columns: var(--kz-review-summary-columns);
+    gap: 32px;
+  }
+
+  .kodza-review-summary__summary {
+    position: sticky;
+    top: var(--kz-review-summary-sticky);
+  }
+}
+
+/* The summary card */
+.kodza-review-summary__summary {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 28px;
+  border: 1px solid var(--kz-review-summary-line);
+  border-radius: var(--kz-review-summary-radius);
+  background: var(--kz-review-summary-card);
+}
+
+.kodza-review-summary__overall {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.kodza-review-summary__score {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(64px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, none);
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-review-summary__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kodza-review-summary__count {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-review-summary-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-review-summary-dim);
+  white-space: nowrap;
+}
+
+/* Stars: an empty star, and over it the ink, scaled to the decimal */
+.kodza-review-summary__stars {
+  --kz-review-summary-star-size: 20px;
+  display: inline-flex;
+  gap: 2px;
+  flex: none;
+}
+
+.kodza-review-summary__stars--small {
+  --kz-review-summary-star-size: 14px;
+  gap: 1px;
+}
+
+.kodza-review-summary__star {
+  --kz-review-summary-i: 0;
+  --kz-review-summary-fill: clamp(0, calc(var(--kz-score, 0) - var(--kz-review-summary-i)), 1);
+  position: relative;
+  width: var(--kz-review-summary-star-size);
+  height: var(--kz-review-summary-star-size);
+  overflow: hidden;
+  background: var(--kz-review-summary-rail);
+  -webkit-mask: var(--kz-review-summary-star) center / contain no-repeat;
+  mask: var(--kz-review-summary-star) center / contain no-repeat;
+}
+
+.kodza-review-summary__star:nth-child(2) { --kz-review-summary-i: 1; }
+.kodza-review-summary__star:nth-child(3) { --kz-review-summary-i: 2; }
+.kodza-review-summary__star:nth-child(4) { --kz-review-summary-i: 3; }
+.kodza-review-summary__star:nth-child(5) { --kz-review-summary-i: 4; }
+
+.kodza-review-summary__star::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--kz-review-summary-ink);
+  transform-origin: left center;
+  scale: var(--kz-review-summary-fill) 1;
+}
+
+/* The share of each rating, as a button that filters the reviews */
+.kodza-review-summary__bars {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 20px 0 0;
+  border-top: 1px solid var(--kz-review-summary-line);
+  list-style: none;
+}
+
+.kodza-review-summary__bars > li {
+  --kz-review-summary-i: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-review-summary__bars > li:nth-child(2) { --kz-review-summary-i: 1; }
+.kodza-review-summary__bars > li:nth-child(3) { --kz-review-summary-i: 2; }
+.kodza-review-summary__bars > li:nth-child(4) { --kz-review-summary-i: 3; }
+.kodza-review-summary__bars > li:nth-child(5) { --kz-review-summary-i: 4; }
+
+.kodza-review-summary__bar {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) 36px;
+  align-items: center;
+  column-gap: 14px;
+  width: 100%;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The hover and pressed background reaches past the row, so the labels stay in line with the card */
+.kodza-review-summary__bar::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 -12px;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  background: transparent;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-review-summary__bar:hover::before {
+    background: var(--kz-review-summary-hover);
+  }
+}
+
+.kodza-review-summary__bar[aria-pressed="true"]::before {
+  background: var(--kz-review-summary-pressed);
+}
+
+.kodza-review-summary__bar:focus-visible {
+  outline: none;
+}
+
+.kodza-review-summary__bar:focus-visible::before {
+  outline: 2px solid var(--kz-review-summary-ink);
+  outline-offset: 0;
+}
+
+.kodza-review-summary__bar-label,
+.kodza-review-summary__share {
+  font-family: var(--kz-font-label, var(--kz-review-summary-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+}
+
+.kodza-review-summary__share {
+  font-weight: var(--kz-font-label-weight, 400);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--kz-review-summary-dim);
+}
+
+.kodza-review-summary__track {
+  position: relative;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-review-summary-rail);
+}
+
+.kodza-review-summary__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--kz-review-summary-ink);
+  clip-path: inset(0 calc(100% - var(--kz-share, 0) * 100%) 0 0 round var(--kz-radius-pill, 999px));
+  transition: background-color calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-review-summary.is-filtered .kodza-review-summary__bar[aria-pressed="false"] .kodza-review-summary__fill {
+  background: var(--kz-review-summary-muted);
+}
+
+/* The entrance: empty until the summary comes into view, then the stars and the bars fill in turn */
+.kodza-review-summary.is-armed:not(.is-in) .kodza-review-summary__meta .kodza-review-summary__star::before,
+.kodza-review-summary--inline.is-armed:not(.is-in) .kodza-review-summary__star::before {
+  scale: 0 1;
+}
+
+.kodza-review-summary.is-armed:not(.is-in) .kodza-review-summary__fill {
+  clip-path: inset(0 100% 0 0 round var(--kz-radius-pill, 999px));
+}
+
+.kodza-review-summary.is-in .kodza-review-summary__meta .kodza-review-summary__star::before,
+.kodza-review-summary--inline.is-in .kodza-review-summary__star::before {
+  transition: scale calc(0.7s * var(--kz-motion-scale, 1)) var(--kz-review-summary-ease) calc((0.15s + var(--kz-review-summary-i) * 0.11s) * var(--kz-motion-scale, 1));
+}
+
+.kodza-review-summary.is-in .kodza-review-summary__fill {
+  transition:
+    clip-path calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-review-summary-ease) calc((0.3s + var(--kz-review-summary-i) * 0.09s) * var(--kz-motion-scale, 1)),
+    background-color calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+/* The rolling average (the engine of Counter): a column of digits per digit */
+.kodza-review-summary__value {
+  display: inline-flex;
+}
+
+.kodza-review-summary__digit {
+  position: relative;
+  display: inline-block;
+  height: 1.1em;
+  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: 0.1em;
+}
+
+.kodza-review-summary__fit {
+  visibility: hidden;
+}
+
+.kodza-review-summary__strip {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50% 0;
+  text-align: center;
+}
+
+.kodza-review-summary__strip > span {
+  display: block;
+  height: 1.1em;
+  line-height: 1.1;
+}
+
+.kodza-review-summary__char {
+  white-space: pre;
+}
+
+.kodza-review-summary__sr,
+.kodza-review-summary__max {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The reviews */
+.kodza-review-summary__list {
+  min-width: 0;
+}
+
+.kodza-review-summary__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 36px;
+  margin-bottom: 16px;
+}
+
+.kodza-review-summary__status {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.kodza-review-summary__status-count {
+  font-family: var(--kz-font-label, var(--kz-review-summary-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  font-variant-numeric: tabular-nums;
+  color: var(--kz-review-summary-dim);
+}
+
+/* A word that changes rolls: the old one goes up, the new one comes from below */
+.kodza-review-summary__slot {
+  display: inline-grid;
+  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: 0.15em;
+  vertical-align: bottom;
+}
+
+.kodza-review-summary__slot > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.kodza-review-summary__clear {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  margin: 0;
+  padding: 0 14px;
+  border: 1px solid var(--kz-review-summary-line);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-review-summary-card);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    opacity calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-review-summary-ease),
+    translate calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-review-summary-ease),
+    border-color calc(0.2s * var(--kz-motion-scale, 1)),
+    visibility 0s;
+}
+
+.kodza-review-summary:not(.is-filtered) .kodza-review-summary__clear {
+  opacity: 0;
+  translate: 0 6px;
+  visibility: hidden;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    translate calc(0.2s * var(--kz-motion-scale, 1)),
+    visibility 0s calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-review-summary__clear:hover {
+    border-color: var(--kz-review-summary-ink);
+  }
+}
+
+.kodza-review-summary__clear:focus-visible {
+  outline: 2px solid var(--kz-review-summary-ink);
+  outline-offset: 3px;
+}
+
+.kodza-review-summary__reviews {
+  position: relative;
+  isolation: isolate; /* a review on its way out goes behind the others, never behind the page */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--kz-review-summary-card-min)), 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+/* While the list takes its new height, what is past it stays hidden */
+.kodza-review-summary__reviews.is-sizing {
+  overflow: hidden;
+  overflow: clip;
+}
+
+.kodza-review-summary__review {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 28px;
+  border: 1px solid var(--kz-review-summary-line);
+  border-radius: var(--kz-review-summary-radius);
+  background: var(--kz-review-summary-card);
+}
+
+.kodza-review-summary__review[hidden] {
+  display: none;
+}
+
+.kodza-review-summary__review-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kodza-review-summary__date,
+.kodza-review-summary__role {
+  font-family: var(--kz-font-label, var(--kz-review-summary-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-review-summary-dim);
+}
+
+.kodza-review-summary__date {
+  white-space: nowrap;
+}
+
+.kodza-review-summary__review-title {
+  margin: 4px 0 -4px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.kodza-review-summary__quote {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.kodza-review-summary__quote p {
+  margin: 0;
+}
+
+.kodza-review-summary__quote p + p {
+  margin-top: 0.8em;
+}
+
+/* "Read more": a long review stops after a few lines and fades out; open, the fade slides away
+   below the text (the mask grows) while the height follows */
+.kodza-review-summary__quote.is-long {
+  max-height: calc(var(--kz-review-summary-lines) * 1.55em);
+  overflow: hidden;
+  -webkit-mask: linear-gradient(to bottom, #000 calc(100% - 1.55em), transparent) top / 100% 100% no-repeat;
+  mask: linear-gradient(to bottom, #000 calc(100% - 1.55em), transparent) top / 100% 100% no-repeat;
+  transition:
+    -webkit-mask-size calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-review-summary-ease),
+    mask-size calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-review-summary-ease);
+}
+
+.kodza-review-summary__quote.is-long.is-open {
+  max-height: none;
+  -webkit-mask-size: 100% 400%;
+  mask-size: 100% 400%;
+}
+
+.kodza-review-summary__quote.is-long.is-closing {
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.kodza-review-summary__more {
+  align-self: flex-start;
+  display: inline-grid;
+  margin: -4px 0 0;
+  padding: 2px 0;
+  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.2);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.kodza-review-summary__more > span {
+  grid-area: 1 / 1;
+  transition:
+    translate calc(0.38s * var(--kz-motion-scale, 1)) var(--kz-review-summary-ease),
+    opacity calc(0.38s * var(--kz-motion-scale, 1)) var(--kz-review-summary-ease);
+}
+
+.kodza-review-summary__more > span:last-child,
+.kodza-review-summary__more.is-open > span:first-child {
+  translate: 0 -110%;
+  opacity: 0;
+}
+
+.kodza-review-summary__more > span:last-child {
+  translate: 0 110%;
+}
+
+.kodza-review-summary__more.is-open > span:last-child {
+  translate: 0 0;
+  opacity: 1;
+}
+
+.kodza-review-summary__more:focus-visible {
+  outline: 2px solid var(--kz-review-summary-ink);
+  outline-offset: 3px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-review-summary__who {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 3px;
+  margin-top: 8px;
+}
+
+.kodza-review-summary__face {
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-review-summary-face);
+  object-fit: cover;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.kodza-review-summary__name {
+  align-self: end;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.kodza-review-summary__role {
+  align-self: start;
+}
+
+.kodza-review-summary__empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 28px;
+  border: 1px dashed var(--kz-review-summary-line);
+  border-radius: var(--kz-review-summary-radius);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-review-summary-dim);
+}
+
+.kodza-review-summary__empty[hidden] {
+  display: none;
+}
+
+/* Between 560px and 860px, the average on the left of the summary and the bars on its right */
+@container kodza-review-summary (min-width: 560px) and (max-width: 859.98px) {
+  .kodza-review-summary__summary {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 32px;
+  }
+
+  .kodza-review-summary__overall {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .kodza-review-summary__bars {
+    padding: 0 0 0 32px;
+    border-top: 0;
+    border-left: 1px solid var(--kz-review-summary-line);
+  }
+}
+
+@container kodza-review-summary (max-width: 559.98px) {
+  .kodza-review-summary__summary,
+  .kodza-review-summary__review {
+    padding: 24px;
+  }
+}
+
+/* The one-line variant, under a buy button: stars, average, number of reviews */
+.kodza-review-summary--inline {
+  container-type: normal;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0;
+}
+
+.kodza-review-summary--inline .kodza-review-summary__stars {
+  --kz-review-summary-star-size: 16px;
+  gap: 1px;
+}
+
+.kodza-review-summary--inline > .kodza-review-summary__value {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-review-summary--inline > .kodza-review-summary__count {
+  font-size: var(--kz-font-label-size, 12.5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-review-summary *,
+  .kodza-review-summary *::before,
+  .kodza-review-summary *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard e8ff9acde7ea — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-review-summary__count):not(#_),
+:where(.kodza-review-summary__eyebrow):not(#_),
+:where(.kodza-review-summary__title):not(#_),
+:where(.kodza-review-summary__score):not(#_),
+:where(.kodza-review-summary__status):not(#_),
+:where(.kodza-review-summary__review):not(#_),
+:where(.kodza-review-summary__date):not(#_),
+:where(.kodza-review-summary__review-title):not(#_),
+:where(.kodza-review-summary__who):not(#_),
+:where(.kodza-review-summary__empty):not(#_),
+:where(.kodza-review-summary__bars li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-review-summary__bars :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-review-summary__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-review-summary__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-review-summary__bars):not(#_) {
+  border-left-width: revert;
+  border-left-style: revert;
+  border-left-color: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-review-summary__bar):not(#_) {
+  outline: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-review-summary__clear):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-review-summary__quote):not(#_) {
+  transition: revert;
+  max-height: revert;
+}
+
+:where(.kodza-review-summary__more):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-review-summary__empty):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-review-summary__empty):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-review-summary__stars:not(#_),
+.kodza-review-summary__star:not(#_),
+.kodza-review-summary__value:not(#_),
+.kodza-review-summary__digit:not(#_),
+.kodza-review-summary__fit:not(#_),
+.kodza-review-summary__strip:not(#_),
+.kodza-review-summary__char:not(#_),
+.kodza-review-summary__sr:not(#_),
+.kodza-review-summary__max:not(#_),
+.kodza-review-summary__inner:not(#_),
+.kodza-review-summary__head:not(#_),
+.kodza-review-summary__body:not(#_),
+.kodza-review-summary__overall:not(#_),
+.kodza-review-summary__meta:not(#_),
+.kodza-review-summary__bar-label:not(#_),
+.kodza-review-summary__track:not(#_),
+.kodza-review-summary__fill:not(#_),
+.kodza-review-summary__share:not(#_),
+.kodza-review-summary__list:not(#_),
+.kodza-review-summary__toolbar:not(#_),
+.kodza-review-summary__status-label:not(#_),
+.kodza-review-summary__status-count:not(#_),
+.kodza-review-summary__reviews:not(#_),
+.kodza-review-summary__review-top:not(#_),
+.kodza-review-summary__face:not(#_),
+.kodza-review-summary__name:not(#_),
+.kodza-review-summary__role:not(#_),
+.kodza-review-summary__strip span:where(:not([class*="kodza-"])):not(#_),
+.kodza-review-summary__status-label span:where(:not([class*="kodza-"])):not(#_),
+.kodza-review-summary__status-count span:where(:not([class*="kodza-"])):not(#_),
+.kodza-review-summary__more span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-review-summary__count:not(#_),
+.kodza-review-summary__eyebrow:not(#_),
+.kodza-review-summary__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-review-summary__score:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-review-summary__bars:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-review-summary__bar:not(#_) {
+  border-radius: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-review-summary__status:not(#_),
+.kodza-review-summary__review-title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-review-summary__clear:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-review-summary__review:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-review-summary__date:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-review-summary__quote:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-review-summary__who:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-review-summary__more:not(#_) {
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-review-summary__empty:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-review-summary__bars li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-review-summary__bars :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-review-summary__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-review-summary__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-review-summary__count:not(#_):where(:not([hidden])),
+.kodza-review-summary__eyebrow:not(#_):where(:not([hidden])),
+.kodza-review-summary__title:not(#_):where(:not([hidden])),
+.kodza-review-summary__score:not(#_):where(:not([hidden])),
+.kodza-review-summary__date:not(#_):where(:not([hidden])),
+.kodza-review-summary__review-title:not(#_):where(:not([hidden])),
+.kodza-review-summary__quote:not(#_):where(:not([hidden])),
+.kodza-review-summary__bars li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-review-summary__bars :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-review-summary__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-review-summary__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-review-summary__count:not(#_):where([hidden]),
+.kodza-review-summary__eyebrow:not(#_):where([hidden]),
+.kodza-review-summary__title:not(#_):where([hidden]),
+.kodza-review-summary__score:not(#_):where([hidden]),
+.kodza-review-summary__date:not(#_):where([hidden]),
+.kodza-review-summary__review-title:not(#_):where([hidden]),
+.kodza-review-summary__quote:not(#_):where([hidden]),
+.kodza-review-summary__bars li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-review-summary__bars :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-review-summary__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-review-summary__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-review-summary__star:not(#_)::before,
+.kodza-review-summary__bar:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-review-summary__eyebrow:not(#_) {
+  margin: 0 0 18px;
+  font-family: var(--kz-font-label, var(--kz-review-summary-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-review-summary-dim);
+}
+
+.kodza-review-summary__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4.6vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  color: inherit;
+}
+
+.kodza-review-summary__score:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(64px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, none);
+}
+
+.kodza-review-summary__count:where(p):not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-review-summary-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-review-summary-dim);
+}
+
+.kodza-review-summary__bars:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 20px 0 0;
+  border-top: 1px solid var(--kz-review-summary-line);
+  list-style: none;
+}
+
+.kodza-review-summary__bars > li:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-review-summary__bar:not(#_) {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) 36px;
+  align-items: center;
+  column-gap: 14px;
+  width: 100%;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-review-summary__bar:not(#_)::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 -12px;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  background: transparent;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-review-summary__bar:hover:not(#_)::before {
+    background: var(--kz-review-summary-hover);
+  }
+}
+
+.kodza-review-summary__bar[aria-pressed="true"]:not(#_)::before {
+  background: var(--kz-review-summary-pressed);
+}
+
+.kodza-review-summary__bar:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-review-summary__bar:focus-visible:not(#_)::before {
+  outline: 2px solid var(--kz-review-summary-ink);
+  outline-offset: 0;
+}
+
+.kodza-review-summary.is-in .kodza-review-summary__fill:not(#_) {
+  transition: clip-path calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-review-summary-ease) calc((0.3s + var(--kz-review-summary-i) * 0.09s) * var(--kz-motion-scale, 1)),
+    background-color calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-review-summary__status:not(#_) {
+  display: flex;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.kodza-review-summary__clear:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  margin: 0;
+  padding: 0 14px;
+  border: 1px solid var(--kz-review-summary-line);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-review-summary-card);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-review-summary-ease),
+    translate calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-review-summary-ease),
+    border-color calc(0.2s * var(--kz-motion-scale, 1)),
+    visibility 0s;
+}
+
+.kodza-review-summary:not(.is-filtered) .kodza-review-summary__clear:not(#_) {
+  opacity: 0;
+  translate: 0 6px;
+  visibility: hidden;
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    translate calc(0.2s * var(--kz-motion-scale, 1)),
+    visibility 0s calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-review-summary__clear:hover:not(#_) {
+    border-color: var(--kz-review-summary-ink);
+  }
+}
+
+.kodza-review-summary__clear:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-review-summary-ink);
+  outline-offset: 3px;
+}
+
+.kodza-review-summary__review:not(#_) {
+  box-sizing: border-box;
+  display: flex;
+  margin: 0;
+  padding: 28px;
+  border: 1px solid var(--kz-review-summary-line);
+  border-radius: var(--kz-review-summary-radius);
+  background: var(--kz-review-summary-card);
+}
+
+.kodza-review-summary__review[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-review-summary__date:not(#_) {
+  font-family: var(--kz-font-label, var(--kz-review-summary-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-review-summary-dim);
+}
+
+.kodza-review-summary__review-title:not(#_) {
+  margin: 4px 0 -4px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+}
+
+.kodza-review-summary__quote:not(#_) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.kodza-review-summary__quote p:not(#_) {
+  margin: 0;
+}
+
+.kodza-review-summary__quote p + p:not(#_) {
+  margin-top: 0.8em;
+}
+
+.kodza-review-summary__quote.is-long:not(#_) {
+  max-height: calc(var(--kz-review-summary-lines) * 1.55em);
+  transition: -webkit-mask-size calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-review-summary-ease),
+    mask-size calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-review-summary-ease);
+}
+
+.kodza-review-summary__quote.is-long.is-open:not(#_) {
+  max-height: none;
+}
+
+.kodza-review-summary__more:not(#_) {
+  align-self: flex-start;
+  display: inline-grid;
+  margin: -4px 0 0;
+  padding: 2px 0;
+  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.2);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.kodza-review-summary__more:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-review-summary-ink);
+  outline-offset: 3px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-review-summary__who:not(#_) {
+  display: grid;
+  margin-top: 8px;
+}
+
+.kodza-review-summary__empty:not(#_) {
+  margin: 0;
+  padding: 28px;
+  border: 1px dashed var(--kz-review-summary-line);
+  border-radius: var(--kz-review-summary-radius);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-review-summary-dim);
+}
+
+.kodza-review-summary__empty[hidden]:not(#_) {
+  display: none;
+}
+
+@container kodza-review-summary (min-width: 560px) and (max-width: 859.98px) {
+  .kodza-review-summary__bars:not(#_) {
+    padding: 0 0 0 32px;
+    border-top: 0;
+    border-left: 1px solid var(--kz-review-summary-line);
+  }
+}
+
+@container kodza-review-summary (max-width: 559.98px) {
+  .kodza-review-summary__review:not(#_) {
+    padding: 24px;
+  }
+}
+
+.kodza-review-summary--inline > .kodza-review-summary__count:where(p):not(#_) {
+  font-size: var(--kz-font-label-size, 12.5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-review-summary *:not(#_),
+  .kodza-review-summary *:not(#_)::before,
+  .kodza-review-summary *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+  }
+}

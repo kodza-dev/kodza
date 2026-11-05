@@ -1,0 +1,687 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Testimonial Wall
+   A testimonials section: cards in three columns that drift slowly, one up, the next down, with
+   no end and no jump, faded at the top and bottom. Point at a column and it eases to a stop while
+   the card under the pointer firms its border; the pause button in the header stops the whole wall
+   (so do the focus inside, a wall out of view and a hidden tab). Two columns on a tablet, one on a
+   phone, and a still wall in reduced motion.
+   Everything is tuned with the --kz-testimonial-wall-* variables. */
+.kodza-testimonial-wall {
+  --kz-testimonial-wall-ink: #0a0a0a;
+  --kz-testimonial-wall-dim: rgba(10, 10, 10, 0.64);
+  --kz-testimonial-wall-card: #ffffff;
+  --kz-testimonial-wall-line: rgba(10, 10, 10, 0.1);
+  --kz-testimonial-wall-line-strong: rgba(10, 10, 10, 0.42); /* the pointed card */
+  --kz-testimonial-wall-face: #e6e6e3;
+  --kz-testimonial-wall-track: rgba(10, 10, 10, 0.16);
+  --kz-testimonial-wall-bg: transparent;
+  --kz-testimonial-wall-columns: 3; /* 2 under 860px, 1 under 560px (below) */
+  --kz-testimonial-wall-height: 640px; /* the window the columns drift through */
+  --kz-testimonial-wall-speed: 24; /* pixels per second */
+  --kz-testimonial-wall-fade: 112px;
+  --kz-testimonial-wall-gap: 16px;
+  --kz-testimonial-wall-width: 1200px;
+  --kz-testimonial-wall-pad-y: clamp(64px, 8vw, 112px);
+  --kz-testimonial-wall-gutter: clamp(16px, 4vw, 40px);
+  --kz-testimonial-wall-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-testimonial-wall-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-testimonial-wall-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-testimonial-wall / inline-size;
+  box-sizing: border-box;
+  width: 100%;
+  padding-block: var(--kz-testimonial-wall-pad-y);
+  padding-left: max(var(--kz-testimonial-wall-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-testimonial-wall-gutter), env(safe-area-inset-right, 0px));
+  background: var(--kz-testimonial-wall-bg);
+  color: var(--kz-testimonial-wall-ink);
+}
+
+.kodza-testimonial-wall__inner {
+  max-width: var(--kz-testimonial-wall-width);
+  margin: 0 auto;
+}
+
+/* The header: label and title on the left, the pause button at the end of the title's line */
+.kodza-testimonial-wall__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: clamp(28px, 3.6vw, 48px);
+}
+
+.kodza-testimonial-wall__heading {
+  min-width: 0;
+}
+
+.kodza-testimonial-wall__eyebrow {
+  margin: 0 0 18px;
+  font-family: var(--kz-font-label, var(--kz-testimonial-wall-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-testimonial-wall-dim);
+}
+
+.kodza-testimonial-wall__title {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4.6vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+  color: inherit;
+}
+
+/* The pause button: a ring, two bars that turn into a play arrow once pressed */
+.kodza-testimonial-wall__pause {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--kz-testimonial-wall-ink);
+  cursor: pointer;
+}
+
+/* Nothing to pause until the wall moves */
+.kodza-testimonial-wall:not(.is-live) .kodza-testimonial-wall__pause {
+  visibility: hidden;
+}
+
+.kodza-testimonial-wall__pause:focus-visible {
+  outline: 2px solid var(--kz-testimonial-wall-ink);
+  outline-offset: 3px;
+}
+
+.kodza-testimonial-wall__ring,
+.kodza-testimonial-wall__icon {
+  grid-area: 1 / 1;
+}
+
+.kodza-testimonial-wall__ring {
+  width: 40px;
+  height: 40px;
+  fill: none;
+  stroke: var(--kz-testimonial-wall-track);
+  stroke-width: 1.5;
+  transition: stroke calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-testimonial-wall__pause:hover .kodza-testimonial-wall__ring {
+    stroke: var(--kz-testimonial-wall-ink);
+  }
+}
+
+.kodza-testimonial-wall__icon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-testimonial-wall__play {
+  fill: currentColor;
+  stroke-width: 1.2;
+  opacity: 0;
+  transform: scale(0.6);
+  transform-origin: 50% 50%;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-testimonial-wall-ease);
+}
+
+.kodza-testimonial-wall__bars {
+  transform-origin: 50% 50%;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-testimonial-wall-ease);
+}
+
+.kodza-testimonial-wall__pause[aria-pressed="true"] .kodza-testimonial-wall__bars {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.kodza-testimonial-wall__pause[aria-pressed="true"] .kodza-testimonial-wall__play {
+  opacity: 1;
+  transform: none;
+}
+
+/* The window: a fixed height, faded top and bottom (so the loop's seam is never seen) */
+.kodza-testimonial-wall__wall {
+  height: var(--kz-testimonial-wall-height);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--kz-testimonial-wall-fade), #000 calc(100% - var(--kz-testimonial-wall-fade)), transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--kz-testimonial-wall-fade), #000 calc(100% - var(--kz-testimonial-wall-fade)), transparent);
+}
+
+/* Before the script, a plain grid; then one column element per column, dealt by the script */
+.kodza-testimonial-wall__cards {
+  display: grid;
+  grid-template-columns: repeat(var(--kz-testimonial-wall-columns), minmax(0, 1fr));
+  align-items: start;
+  gap: var(--kz-testimonial-wall-gap);
+}
+
+.kodza-testimonial-wall__column {
+  min-width: 0;
+}
+
+.kodza-testimonial-wall__track {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kz-testimonial-wall-gap);
+}
+
+.kodza-testimonial-wall__card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin: 0;
+  padding: 28px;
+  border: 1px solid var(--kz-testimonial-wall-line);
+  border-radius: var(--kz-testimonial-wall-radius);
+  background: var(--kz-testimonial-wall-card);
+  transition: border-color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+/* The pointed card firms its border while its column slows to a stop */
+@media (hover: hover) {
+  .kodza-testimonial-wall__card:hover {
+    border-color: var(--kz-testimonial-wall-line-strong);
+  }
+}
+
+.kodza-testimonial-wall__quote {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.kodza-testimonial-wall__quote p {
+  margin: 0;
+}
+
+.kodza-testimonial-wall__quote p + p {
+  margin-top: 0.8em;
+}
+
+/* The person: the face on two lines, the name over the role and company */
+.kodza-testimonial-wall__who {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 3px;
+}
+
+.kodza-testimonial-wall__face {
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-testimonial-wall-face);
+  object-fit: cover;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.kodza-testimonial-wall__name {
+  align-self: end;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.kodza-testimonial-wall__role {
+  align-self: start;
+  font-family: var(--kz-font-label, var(--kz-testimonial-wall-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-testimonial-wall-dim);
+}
+
+/* A still wall (reduced motion, or a site pace of 0): every card in full, nothing faded */
+.kodza-testimonial-wall.is-still .kodza-testimonial-wall__wall {
+  height: auto;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+/* Two columns on a tablet, one on a phone, with a shorter window */
+@container kodza-testimonial-wall (max-width: 860px) {
+  .kodza-testimonial-wall__wall {
+    --kz-testimonial-wall-columns: 2;
+  }
+}
+
+@container kodza-testimonial-wall (max-width: 560px) {
+  .kodza-testimonial-wall__wall {
+    --kz-testimonial-wall-columns: 1;
+    --kz-testimonial-wall-height: 560px;
+    --kz-testimonial-wall-fade: 88px;
+  }
+
+  .kodza-testimonial-wall__card {
+    padding: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-testimonial-wall .kodza-testimonial-wall__wall {
+    height: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .kodza-testimonial-wall *,
+  .kodza-testimonial-wall *::before,
+  .kodza-testimonial-wall *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 879f5e34b5c0 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-testimonial-wall__eyebrow):not(#_),
+:where(.kodza-testimonial-wall__title):not(#_),
+:where(.kodza-testimonial-wall__icon):not(#_),
+:where(.kodza-testimonial-wall__quote):not(#_),
+:where(.kodza-testimonial-wall__who):not(#_),
+:where(.kodza-testimonial-wall__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-testimonial-wall__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-testimonial-wall__pause):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-testimonial-wall__inner:not(#_),
+.kodza-testimonial-wall__head:not(#_),
+.kodza-testimonial-wall__heading:not(#_),
+.kodza-testimonial-wall__bars:not(#_),
+.kodza-testimonial-wall__play:not(#_),
+.kodza-testimonial-wall__wall:not(#_),
+.kodza-testimonial-wall__cards:not(#_),
+.kodza-testimonial-wall__column:not(#_),
+.kodza-testimonial-wall__track:not(#_),
+.kodza-testimonial-wall__face:not(#_),
+.kodza-testimonial-wall__name:not(#_),
+.kodza-testimonial-wall__role:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-testimonial-wall__eyebrow:not(#_),
+.kodza-testimonial-wall__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-testimonial-wall__pause:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-testimonial-wall__ring:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-testimonial-wall__icon:not(#_),
+.kodza-testimonial-wall__who:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-testimonial-wall__card:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-testimonial-wall__quote:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-testimonial-wall__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-testimonial-wall__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-testimonial-wall__eyebrow:not(#_):where(:not([hidden])),
+.kodza-testimonial-wall__title:not(#_):where(:not([hidden])),
+.kodza-testimonial-wall__ring:not(#_):where(:not([hidden])),
+.kodza-testimonial-wall__icon:not(#_):where(:not([hidden])),
+.kodza-testimonial-wall__quote:not(#_):where(:not([hidden])),
+.kodza-testimonial-wall__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-testimonial-wall__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-testimonial-wall__eyebrow:not(#_):where([hidden]),
+.kodza-testimonial-wall__title:not(#_):where([hidden]),
+.kodza-testimonial-wall__ring:not(#_):where([hidden]),
+.kodza-testimonial-wall__icon:not(#_):where([hidden]),
+.kodza-testimonial-wall__quote:not(#_):where([hidden]),
+.kodza-testimonial-wall__quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-testimonial-wall__quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-testimonial-wall__eyebrow:not(#_) {
+  margin: 0 0 18px;
+  font-family: var(--kz-font-label, var(--kz-testimonial-wall-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-testimonial-wall-dim);
+}
+
+.kodza-testimonial-wall__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4.6vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  color: inherit;
+}
+
+.kodza-testimonial-wall__pause:not(#_) {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--kz-testimonial-wall-ink);
+  cursor: pointer;
+}
+
+.kodza-testimonial-wall:not(.is-live) .kodza-testimonial-wall__pause:not(#_) {
+  visibility: hidden;
+}
+
+.kodza-testimonial-wall__pause:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-testimonial-wall-ink);
+  outline-offset: 3px;
+}
+
+.kodza-testimonial-wall__ring:not(#_) {
+  transition: stroke calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-testimonial-wall__card:not(#_) {
+  box-sizing: border-box;
+  display: flex;
+  margin: 0;
+  padding: 28px;
+  border: 1px solid var(--kz-testimonial-wall-line);
+  border-radius: var(--kz-testimonial-wall-radius);
+  background: var(--kz-testimonial-wall-card);
+  transition: border-color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-testimonial-wall__card:hover:not(#_) {
+    border-color: var(--kz-testimonial-wall-line-strong);
+  }
+}
+
+.kodza-testimonial-wall__quote:not(#_) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.kodza-testimonial-wall__quote p:not(#_) {
+  margin: 0;
+}
+
+.kodza-testimonial-wall__who:not(#_) {
+  display: grid;
+}
+
+@container kodza-testimonial-wall (max-width: 560px) {
+  .kodza-testimonial-wall__card:not(#_) {
+    padding: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-testimonial-wall *:not(#_),
+  .kodza-testimonial-wall *:not(#_)::before,
+  .kodza-testimonial-wall *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
