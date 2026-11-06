@@ -11,7 +11,7 @@ Inside its zone the pointer becomes a dot with a soft lag, and a pill that says 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hover-custom-cursor.html`](kodza-hover-custom-cursor.html) | 0.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hover-custom-cursor.css`](kodza-hover-custom-cursor.css) | 5.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hover-custom-cursor.css`](kodza-hover-custom-cursor.css) | 6.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hover-custom-cursor.js`](kodza-hover-custom-cursor.js) | 7.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-cursor-zone` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-cursor-bg` | `#0a0a0a` |  |
-| `--kz-cursor-fg` | `#ffffff` |  |
+| `--kz-cursor-bg` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-cursor-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-cursor-dot` | `10px` |  |
 | `--kz-cursor-ratio` | `4 / 5` |  |
 | `--kz-cursor-radius` | `calc(4px * var(--kz-radius-scale, 1))` |  |
-| `--kz-cursor-placeholder` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-cursor-placeholder` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 6%, transparent)` |  |
 
 - Attributes: `data-cursor` (e.g. `View`, `Open`, `Ship it`)
 

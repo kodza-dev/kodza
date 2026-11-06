@@ -11,7 +11,7 @@ A hero over a field of fine dots. The pointer pushes them aside like a hand in s
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-interactive-dots.html`](kodza-interactive-dots.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-interactive-dots.css`](kodza-interactive-dots.css) | 12.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-interactive-dots.css`](kodza-interactive-dots.css) | 12.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-interactive-dots.js`](kodza-interactive-dots.js) | 20.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,9 +46,9 @@ CSS variables, set on `[data-kodza-interactive-dots]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-interactive-dots-bg` | `#f2f2f0` | the paper |
-| `--kz-interactive-dots-ink` | `#0a0a0a` | the dots, the text, the button |
-| `--kz-interactive-dots-muted` | `rgba(10, 10, 10, 0.62)` |  |
+| `--kz-interactive-dots-bg` | `var(--kz-color-page, #f2f2f0)` | the paper |
+| `--kz-interactive-dots-ink` | `var(--kz-color-ink, #0a0a0a)` | the dots, the text, the button |
+| `--kz-interactive-dots-muted` | `color-mix(in srgb, var(--kz-interactive-dots-ink) 62%, transparent)` |  |
 | `--kz-interactive-dots-gap` | `22px` | from one dot to the next |
 | `--kz-interactive-dots-size` | `1.2px` | dot radius at rest |
 | `--kz-interactive-dots-rest` | `0.24` | dot opacity at rest |

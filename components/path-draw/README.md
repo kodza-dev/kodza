@@ -48,7 +48,7 @@ CSS variables, set on `.kodza-path-draw` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-path-draw-ink` | `#0a0a0a` | the colour of a drawing in currentColor |
+| `--kz-path-draw-ink` | `var(--kz-color-ink, #0a0a0a)` | the colour of a drawing in currentColor |
 | `--kz-path-draw-width` | `auto` | the drawing's width (auto: the width written on the svg) |
 | `--kz-path-draw-fill-time` | `0.7s` | the fills coming in once the last stroke is down |
 

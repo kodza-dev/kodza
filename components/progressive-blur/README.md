@@ -11,7 +11,7 @@ A blur that builds up toward an edge with no hard line, eight backdrop-filter la
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-progressive-blur.html`](kodza-progressive-blur.html) | 5.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-progressive-blur.css`](kodza-progressive-blur.css) | 15.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-progressive-blur.css`](kodza-progressive-blur.css) | 16.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -45,16 +45,16 @@ CSS variables, set on `.kodza-progressive-blur` itself:
 | `--kz-progressive-blur-height` | `200px` | the blur at the bottom: about twice the caption on it |
 | `--kz-progressive-blur-top-height` | `72px` | the blur under a bar on top: the bar and a little more |
 | `--kz-progressive-blur-strength` | `30px` | at the very edge; each layer before it is half as strong |
-| `--kz-progressive-blur-tint` | `rgba(242, 242, 240, 0.62)` | a veil that thickens toward the edge, for the words on it |
+| `--kz-progressive-blur-tint` | `color-mix(in srgb, var(--kz-color-page, #f2f2f0) 62%, transparent)` | a veil that thickens toward the edge, for the words on it |
 | `--kz-progressive-blur-ratio` | `4 / 5` |  |
 | `--kz-progressive-blur-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
-| `--kz-progressive-blur-ink` | `#0a0a0a` |  |
-| `--kz-progressive-blur-muted` | `rgba(10, 10, 10, 0.66)` |  |
-| `--kz-progressive-blur-placeholder` | `rgba(10, 10, 10, 0.06)` | under a photo while it loads |
+| `--kz-progressive-blur-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-progressive-blur-muted` | `color-mix(in srgb, var(--kz-progressive-blur-ink) 66%, transparent)` |  |
+| `--kz-progressive-blur-placeholder` | `color-mix(in srgb, var(--kz-progressive-blur-ink) 6%, transparent)` | under a photo while it loads |
 | `--kz-progressive-blur-list-height` | `450px` |  |
-| `--kz-progressive-blur-surface` | `#ffffff` |  |
-| `--kz-progressive-blur-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-progressive-blur-line` | `rgba(10, 10, 10, 0.08)` |  |
+| `--kz-progressive-blur-surface` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-progressive-blur-border` | `color-mix(in srgb, var(--kz-progressive-blur-ink) 10%, transparent)` |  |
+| `--kz-progressive-blur-line` | `color-mix(in srgb, var(--kz-progressive-blur-ink) 8%, transparent)` |  |
 | `--kz-progressive-blur-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 
 - Modifiers: `.kodza-progressive-blur--list`

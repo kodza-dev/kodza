@@ -11,7 +11,7 @@ Bones drawn from the content itself, one shine across them all. When it loads, a
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-skeleton-loader.html`](kodza-skeleton-loader.html) | 1.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-skeleton-loader.css`](kodza-skeleton-loader.css) | 15.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-skeleton-loader.css`](kodza-skeleton-loader.css) | 16.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-skeleton-loader.js`](kodza-skeleton-loader.js) | 12.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-skeleton` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-skel-bg` | `#ffffff` |  |
-| `--kz-skel-fg` | `#0a0a0a` |  |
-| `--kz-skel-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-skel-border` | `rgba(10, 10, 10, 0.1)` |  |
+| `--kz-skel-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-skel-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-skel-muted` | `color-mix(in srgb, var(--kz-skel-fg) 62%, transparent)` |  |
+| `--kz-skel-border` | `color-mix(in srgb, var(--kz-skel-fg) 10%, transparent)` |  |
 | `--kz-skel-bone` | `#ededeb` |  |
-| `--kz-skel-shine` | `rgba(255, 255, 255, 0.85)` |  |
+| `--kz-skel-shine` | `color-mix(in srgb, var(--kz-color-paper, #ffffff) 85%, transparent)` |  |
 | `--kz-skel-speed` | `1.6s` |  |
 | `--kz-skel-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-skel-pad` | `28px` |  |

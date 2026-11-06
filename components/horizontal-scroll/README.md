@@ -48,9 +48,9 @@ CSS variables, set on `.kodza-hscroll` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hscroll-fg` | `#0a0a0a` |  |
-| `--kz-hscroll-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hscroll-line` | `rgba(10, 10, 10, 0.12)` |  |
+| `--kz-hscroll-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hscroll-muted` | `color-mix(in srgb, var(--kz-hscroll-fg) 62%, transparent)` |  |
+| `--kz-hscroll-line` | `color-mix(in srgb, var(--kz-hscroll-fg) 12%, transparent)` |  |
 | `--kz-hscroll-card` | `46vh` |  |
 | `--kz-hscroll-gap` | `16px` |  |
 | `--kz-hscroll-gutter` | `max(24px, calc((100vw - 1080px) / 2))` |  |

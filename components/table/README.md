@@ -11,7 +11,7 @@ A data table that sorts when you click a column: rows glide to their new place, 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-table.html`](kodza-table.html) | 5.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-table.css`](kodza-table.css) | 21.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-table.css`](kodza-table.css) | 22.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-table.js`](kodza-table.js) | 7.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,14 +46,14 @@ CSS variables, set on `.kodza-table` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-table-bg` | `#ffffff` |  |
-| `--kz-table-fg` | `#0a0a0a` |  |
-| `--kz-table-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-table-line` | `rgba(10, 10, 10, 0.09)` |  |
-| `--kz-table-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-table-soft` | `rgba(10, 10, 10, 0.035)` |  |
-| `--kz-table-ink` | `#0a0a0a` |  |
-| `--kz-table-on-ink` | `#ffffff` |  |
+| `--kz-table-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-table-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-table-muted` | `color-mix(in srgb, var(--kz-table-fg) 60%, transparent)` |  |
+| `--kz-table-line` | `color-mix(in srgb, var(--kz-table-fg) 9%, transparent)` |  |
+| `--kz-table-border` | `color-mix(in srgb, var(--kz-table-fg) 10%, transparent)` |  |
+| `--kz-table-soft` | `color-mix(in srgb, var(--kz-table-fg) 3.5%, transparent)` |  |
+| `--kz-table-ink` | `var(--kz-color-accent, var(--kz-table-fg))` |  |
+| `--kz-table-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-table-max` | `none` |  |
 | `--kz-table-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 

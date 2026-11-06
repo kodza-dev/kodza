@@ -11,7 +11,7 @@ A real select you can type into: the list filters as you type, accents and case 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-combobox.html`](kodza-combobox.html) | 7.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-combobox.css`](kodza-combobox.css) | 29.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-combobox.css`](kodza-combobox.css) | 29.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-combobox.js`](kodza-combobox.js) | 27.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,14 +46,14 @@ CSS variables, set on `.kodza-combobox` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-combobox-bg` | `#ffffff` |  |
-| `--kz-combobox-fg` | `#0a0a0a` |  |
-| `--kz-combobox-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-combobox-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-combobox-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-combobox-soft` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-combobox-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-combobox-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-combobox-muted` | `color-mix(in srgb, var(--kz-combobox-fg) 60%, transparent)` |  |
+| `--kz-combobox-line` | `color-mix(in srgb, var(--kz-combobox-fg) 14%, transparent)` |  |
+| `--kz-combobox-line-hover` | `color-mix(in srgb, var(--kz-combobox-fg) 30%, transparent)` |  |
+| `--kz-combobox-soft` | `color-mix(in srgb, var(--kz-combobox-fg) 6%, transparent)` |  |
 | `--kz-combobox-selection` | `rgba(128, 128, 128, 0.35)` | the selected text: grey, not the browser blue |
-| `--kz-combobox-error` | `#0a0a0a` | a message, never colour alone: set a red here if you want one |
+| `--kz-combobox-error` | `var(--kz-color-error, var(--kz-combobox-fg))` | a message, never colour alone: set a red here if you want one |
 | `--kz-combobox-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-combobox-height` | `56px` |  |
 | `--kz-combobox-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |

@@ -11,7 +11,7 @@ A message in the page: note, success, warning or error, told apart by the icon, 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-alert.html`](kodza-alert.html) | 2.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-alert.css`](kodza-alert.css) | 17.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-alert.css`](kodza-alert.css) | 17.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-alert.js`](kodza-alert.js) | 10.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,15 +46,15 @@ CSS variables, set on `.kodza-alert` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-alert-bg` | `#ffffff` |  |
-| `--kz-alert-fg` | `#0a0a0a` |  |
-| `--kz-alert-muted` | `rgba(10, 10, 10, 0.64)` |  |
-| `--kz-alert-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-alert-soft` | `rgba(10, 10, 10, 0.05)` |  |
-| `--kz-alert-error-bg` | `#0a0a0a` |  |
-| `--kz-alert-error-fg` | `#ffffff` |  |
-| `--kz-alert-error-muted` | `rgba(255, 255, 255, 0.68)` |  |
-| `--kz-alert-error-soft` | `rgba(255, 255, 255, 0.08)` |  |
+| `--kz-alert-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-alert-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-alert-muted` | `color-mix(in srgb, var(--kz-alert-fg) 64%, transparent)` |  |
+| `--kz-alert-line` | `color-mix(in srgb, var(--kz-alert-fg) 10%, transparent)` |  |
+| `--kz-alert-soft` | `color-mix(in srgb, var(--kz-alert-fg) 5%, transparent)` |  |
+| `--kz-alert-error-bg` | `var(--kz-color-error, var(--kz-alert-fg))` |  |
+| `--kz-alert-error-fg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-alert-error-muted` | `color-mix(in srgb, var(--kz-alert-error-fg) 68%, transparent)` |  |
+| `--kz-alert-error-soft` | `color-mix(in srgb, var(--kz-alert-error-fg) 8%, transparent)` |  |
 | `--kz-alert-radius` | `calc(14px * var(--kz-radius-scale, 1))` |  |
 | `--kz-alert-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-alert-tone` | `var(--kz-alert-fg)` |  |

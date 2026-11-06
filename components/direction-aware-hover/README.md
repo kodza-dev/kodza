@@ -11,7 +11,7 @@ Tiles whose caption, or a second photo, slides in from the edge the pointer come
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-direction-aware-hover.html`](kodza-direction-aware-hover.html) | 6.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-direction-aware-hover.css`](kodza-direction-aware-hover.css) | 17.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-direction-aware-hover.css`](kodza-direction-aware-hover.css) | 17.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-direction-aware-hover.js`](kodza-direction-aware-hover.js) | 7.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -53,9 +53,9 @@ CSS variables, set on `.kodza-direction-hover` itself:
 | `--kz-direction-hover-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-direction-hover-duration` | `0.5s` |  |
 | `--kz-direction-hover-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
-| `--kz-direction-hover-ink` | `#0a0a0a` |  |
-| `--kz-direction-hover-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-direction-hover-placeholder` | `rgba(10, 10, 10, 0.06)` | under a photo while it loads |
+| `--kz-direction-hover-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-direction-hover-muted` | `color-mix(in srgb, var(--kz-direction-hover-ink) 62%, transparent)` |  |
+| `--kz-direction-hover-placeholder` | `color-mix(in srgb, var(--kz-direction-hover-ink) 6%, transparent)` | under a photo while it loads |
 | `--kz-direction-hover-veil` | `rgba(10, 10, 10, 0.64)` |  |
 | `--kz-direction-hover-paper` | `#ffffff` |  |
 | `--kz-direction-hover-faint` | `rgba(255, 255, 255, 0.86)` |  |

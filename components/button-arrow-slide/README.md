@@ -11,7 +11,7 @@ An arrow that draws itself in on hover, nudges the label aside, then carries on 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-button-arrow-slide.html`](kodza-button-arrow-slide.html) | 0.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-button-arrow-slide.css`](kodza-button-arrow-slide.css) | 7.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-button-arrow-slide.css`](kodza-button-arrow-slide.css) | 7.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-button-arrow-slide.js`](kodza-button-arrow-slide.js) | 6.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,8 +46,8 @@ CSS variables, set on `.kodza-arrow-button` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-arrow-bg` | `#0a0a0a` |  |
-| `--kz-arrow-fg` | `#ffffff` |  |
+| `--kz-arrow-bg` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-arrow-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-arrow-border` | `transparent` |  |
 | `--kz-arrow-height` | `52px` |  |
 | `--kz-arrow-pad-x` | `28px` |  |

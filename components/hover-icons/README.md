@@ -11,7 +11,7 @@ Stroke icons that act out their meaning on hover or keyboard focus: the bell rin
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hover-icons.html`](kodza-hover-icons.html) | 2.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hover-icons.css`](kodza-hover-icons.css) | 12.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hover-icons.css`](kodza-hover-icons.css) | 12.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -45,12 +45,12 @@ CSS variables, set on `.kodza-hover-icons` itself:
 | `--kz-hover-icons-height` | `40px` |  |
 | `--kz-hover-icons-icon` | `18px` |  |
 | `--kz-hover-icons-stroke` | `1.75px` | in icon units, 24 across |
-| `--kz-hover-icons-ink` | `#0a0a0a` |  |
-| `--kz-hover-icons-on-ink` | `#ffffff` | text and icon of the solid pill |
-| `--kz-hover-icons-bg` | `#ffffff` |  |
-| `--kz-hover-icons-line` | `rgba(10, 10, 10, 0.12)` |  |
-| `--kz-hover-icons-line-hover` | `rgba(10, 10, 10, 0.28)` |  |
-| `--kz-hover-icons-solid-hover` | `#2a2a2a` |  |
+| `--kz-hover-icons-ink` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-hover-icons-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` | text and icon of the solid pill |
+| `--kz-hover-icons-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-hover-icons-line` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 12%, transparent)` |  |
+| `--kz-hover-icons-line-hover` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 28%, transparent)` |  |
+| `--kz-hover-icons-solid-hover` | `color-mix(in srgb, var(--kz-hover-icons-ink) 86.94%, var(--kz-hover-icons-on-ink))` |  |
 | `--kz-hover-icons-duration` | `0.5s` | cog, lid and padlock; the bell, the plane and the arrows take longer |
 | `--kz-hover-icons-ease` | `cubic-bezier(0.34, 1.45, 0.64, 1)` | a small overshoot, so the part clicks into place |
 

@@ -11,7 +11,7 @@ A button that leans towards the pointer as it comes near, its words a little fur
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-magnetic-button.html`](kodza-magnetic-button.html) | 0.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-magnetic-button.css`](kodza-magnetic-button.css) | 4.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-magnetic-button.css`](kodza-magnetic-button.css) | 4.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-magnetic-button.js`](kodza-magnetic-button.js) | 7.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,8 +46,8 @@ CSS variables, set on `.kodza-magnetic` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-magnetic-bg` | `#0a0a0a` |  |
-| `--kz-magnetic-fg` | `#ffffff` |  |
+| `--kz-magnetic-bg` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-magnetic-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-magnetic-height` | `52px` |  |
 | `--kz-magnetic-pad-x` | `30px` |  |
 

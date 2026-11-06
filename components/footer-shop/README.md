@@ -11,7 +11,7 @@ A shop footer: four promises with icons, a newsletter field whose button rolls t
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-footer-shop.html`](kodza-footer-shop.html) | 8.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-footer-shop.css`](kodza-footer-shop.css) | 59.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-footer-shop.css`](kodza-footer-shop.css) | 59.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-footer-shop.js`](kodza-footer-shop.js) | 18.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,14 +46,14 @@ CSS variables, set on `.kodza-footer-shop` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-footer-shop-bg` | `#ffffff` |  |
-| `--kz-footer-shop-fg` | `#0a0a0a` |  |
-| `--kz-footer-shop-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-footer-shop-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-footer-shop-edge` | `rgba(10, 10, 10, 0.16)` | the field and the country button |
-| `--kz-footer-shop-edge-hover` | `rgba(10, 10, 10, 0.32)` |  |
-| `--kz-footer-shop-soft` | `rgba(10, 10, 10, 0.05)` | the highlight in the menu, a done button |
-| `--kz-footer-shop-raised` | `#ffffff` | the field and the menu |
+| `--kz-footer-shop-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-footer-shop-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-footer-shop-muted` | `color-mix(in srgb, var(--kz-footer-shop-fg) 62%, transparent)` |  |
+| `--kz-footer-shop-line` | `color-mix(in srgb, var(--kz-footer-shop-fg) 10%, transparent)` |  |
+| `--kz-footer-shop-edge` | `color-mix(in srgb, var(--kz-footer-shop-fg) 16%, transparent)` | the field and the country button |
+| `--kz-footer-shop-edge-hover` | `color-mix(in srgb, var(--kz-footer-shop-fg) 32%, transparent)` |  |
+| `--kz-footer-shop-soft` | `color-mix(in srgb, var(--kz-footer-shop-fg) 5%, transparent)` | the highlight in the menu, a done button |
+| `--kz-footer-shop-raised` | `var(--kz-color-paper, #ffffff)` | the field and the menu |
 | `--kz-footer-shop-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-footer-shop-width` | `1200px` | the content, centred |
 | `--kz-footer-shop-pad` | `24px` |  |

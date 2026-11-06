@@ -11,7 +11,7 @@ A breadcrumb trail that folds its middle behind a "…" button when it would not
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-breadcrumbs.html`](kodza-breadcrumbs.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-breadcrumbs.css`](kodza-breadcrumbs.css) | 10.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-breadcrumbs.css`](kodza-breadcrumbs.css) | 10.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-breadcrumbs.js`](kodza-breadcrumbs.js) | 9.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,11 +46,11 @@ CSS variables, set on `.kodza-breadcrumbs` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-crumbs-fg` | `#0a0a0a` |  |
-| `--kz-crumbs-muted` | `rgba(10, 10, 10, 0.58)` |  |
-| `--kz-crumbs-separator` | `rgba(10, 10, 10, 0.28)` |  |
-| `--kz-crumbs-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-crumbs-soft-fg` | `#ffffff` |  |
+| `--kz-crumbs-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-crumbs-muted` | `color-mix(in srgb, var(--kz-crumbs-fg) 58%, transparent)` |  |
+| `--kz-crumbs-separator` | `color-mix(in srgb, var(--kz-crumbs-fg) 28%, transparent)` |  |
+| `--kz-crumbs-soft` | `color-mix(in srgb, var(--kz-crumbs-fg) 6%, transparent)` |  |
+| `--kz-crumbs-soft-fg` | `var(--kz-color-paper, #ffffff)` |  |
 | `--kz-crumbs-size` | `15px` |  |
 | `--kz-crumbs-gap` | `10px` |  |
 | `--kz-crumbs-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

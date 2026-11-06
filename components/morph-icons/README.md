@@ -11,7 +11,7 @@ Icon buttons whose strokes travel into the other icon: play to pause, sound to m
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-morph-icons.html`](kodza-morph-icons.html) | 2.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-morph-icons.css`](kodza-morph-icons.css) | 13.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-morph-icons.css`](kodza-morph-icons.css) | 14.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-morph-icons.js`](kodza-morph-icons.js) | 5.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -49,10 +49,10 @@ CSS variables, set on `.kodza-morph-icons` itself:
 | `--kz-morph-icons-size` | `44px` |  |
 | `--kz-morph-icons-icon` | `20px` |  |
 | `--kz-morph-icons-stroke` | `1.75px` | in icon units, 24 across |
-| `--kz-morph-icons-ink` | `#0a0a0a` |  |
-| `--kz-morph-icons-on-ink` | `#ffffff` |  |
-| `--kz-morph-icons-hover` | `#2a2a2a` | the circle under the pointer |
-| `--kz-morph-icons-tint` | `rgba(10, 10, 10, 0.07)` | the bare button under the pointer |
+| `--kz-morph-icons-ink` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-morph-icons-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
+| `--kz-morph-icons-hover` | `color-mix(in srgb, var(--kz-morph-icons-ink) 86.94%, var(--kz-morph-icons-on-ink))` | the circle under the pointer |
+| `--kz-morph-icons-tint` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 7%, transparent)` | the bare button under the pointer |
 | `--kz-morph-icons-duration` | `0.45s` |  |
 | `--kz-morph-icons-ease` | `cubic-bezier(0.65, 0, 0.35, 1)` | in and out, so the strokes are seen travelling |
 

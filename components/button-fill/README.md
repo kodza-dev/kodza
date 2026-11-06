@@ -11,7 +11,7 @@ A button that fills from the exact point your cursor enters and empties toward w
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-button-fill.html`](kodza-button-fill.html) | 0.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-button-fill.css`](kodza-button-fill.css) | 8.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-button-fill.css`](kodza-button-fill.css) | 8.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-button-fill.js`](kodza-button-fill.js) | 6.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,11 +46,11 @@ CSS variables, set on `.kodza-fill-button` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-fill-fg` | `#0a0a0a` |  |
+| `--kz-fill-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
 | `--kz-fill-bg` | `transparent` |  |
-| `--kz-fill-border` | `rgba(10, 10, 10, 0.9)` |  |
-| `--kz-fill-fill` | `#0a0a0a` |  |
-| `--kz-fill-fill-fg` | `#ffffff` |  |
+| `--kz-fill-border` | `color-mix(in srgb, var(--kz-fill-fg) 90%, transparent)` |  |
+| `--kz-fill-fill` | `var(--kz-color-accent, var(--kz-fill-fg))` |  |
+| `--kz-fill-fill-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-fill-radius` | `var(--kz-radius-pill, 999px)` |  |
 | `--kz-fill-height` | `52px` |  |
 | `--kz-fill-pad-x` | `28px` |  |

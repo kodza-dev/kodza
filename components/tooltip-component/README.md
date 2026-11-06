@@ -11,7 +11,7 @@ One bubble per group: it waits on the first hover, then glides from button to bu
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-tooltip-component.html`](kodza-tooltip-component.html) | 2.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-tooltip-component.css`](kodza-tooltip-component.css) | 10.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-tooltip-component.css`](kodza-tooltip-component.css) | 10.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-tooltip-component.js`](kodza-tooltip-component.js) | 10.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,14 +46,14 @@ CSS variables, set on `.kodza-tooltip` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-tip-bg` | `#0a0a0a` |  |
-| `--kz-tip-fg` | `#ffffff` |  |
-| `--kz-tip-muted` | `rgba(255, 255, 255, 0.62)` |  |
-| `--kz-tip-key` | `rgba(255, 255, 255, 0.14)` |  |
-| `--kz-tip-surface` | `#ffffff` |  |
-| `--kz-tip-ink` | `#0a0a0a` |  |
-| `--kz-tip-line` | `rgba(10, 10, 10, 0.12)` |  |
-| `--kz-tip-soft` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-tip-bg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-tip-fg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-tip-muted` | `color-mix(in srgb, var(--kz-tip-fg) 62%, transparent)` |  |
+| `--kz-tip-key` | `color-mix(in srgb, var(--kz-tip-fg) 14%, transparent)` |  |
+| `--kz-tip-surface` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-tip-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-tip-line` | `color-mix(in srgb, var(--kz-tip-ink) 12%, transparent)` |  |
+| `--kz-tip-soft` | `color-mix(in srgb, var(--kz-tip-ink) 6%, transparent)` |  |
 | `--kz-tip-delay` | `500ms` |  |
 | `--kz-tip-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 

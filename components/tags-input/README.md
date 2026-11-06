@@ -11,7 +11,7 @@ Free values as tags over a real text input, sent joined by commas. Enter or a co
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-tags-input.html`](kodza-tags-input.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-tags-input.css`](kodza-tags-input.css) | 19.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-tags-input.css`](kodza-tags-input.css) | 19.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-tags-input.js`](kodza-tags-input.js) | 23.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,16 +46,16 @@ CSS variables, set on `.kodza-tags` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-tags-bg` | `#ffffff` |  |
-| `--kz-tags-fg` | `#0a0a0a` |  |
-| `--kz-tags-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-tags-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-tags-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-tags-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-tags-ink` | `#0a0a0a` | the tags |
-| `--kz-tags-on-ink` | `#ffffff` |  |
-| `--kz-tags-cross-hover` | `rgba(255, 255, 255, 0.18)` |  |
-| `--kz-tags-error` | `#0a0a0a` | a message, never colour alone: set a red here if you want one |
+| `--kz-tags-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-tags-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-tags-muted` | `color-mix(in srgb, var(--kz-tags-fg) 60%, transparent)` |  |
+| `--kz-tags-line` | `color-mix(in srgb, var(--kz-tags-fg) 14%, transparent)` |  |
+| `--kz-tags-line-hover` | `color-mix(in srgb, var(--kz-tags-fg) 30%, transparent)` |  |
+| `--kz-tags-soft` | `color-mix(in srgb, var(--kz-tags-fg) 6%, transparent)` |  |
+| `--kz-tags-ink` | `var(--kz-color-accent, var(--kz-tags-fg))` | the tags |
+| `--kz-tags-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
+| `--kz-tags-cross-hover` | `color-mix(in srgb, var(--kz-tags-on-ink) 18%, transparent)` |  |
+| `--kz-tags-error` | `var(--kz-color-error, var(--kz-tags-fg))` | a message, never colour alone: set a red here if you want one |
 | `--kz-tags-height` | `64px` | one row of tags |
 | `--kz-tags-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-tags-pad` | `16px` |  |

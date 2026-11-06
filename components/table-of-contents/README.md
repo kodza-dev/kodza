@@ -11,7 +11,7 @@ A summary card built from your headings: an ink marker follows the section you r
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-table-of-contents.html`](kodza-table-of-contents.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-table-of-contents.css`](kodza-table-of-contents.css) | 17.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-table-of-contents.css`](kodza-table-of-contents.css) | 17.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-table-of-contents.js`](kodza-table-of-contents.js) | 10.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,12 +48,12 @@ CSS variables, set on `.kodza-toc` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-toc-bg` | `#ffffff` |  |
-| `--kz-toc-fg` | `#0a0a0a` |  |
-| `--kz-toc-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-toc-faint` | `rgba(10, 10, 10, 0.4)` |  |
-| `--kz-toc-line` | `rgba(10, 10, 10, 0.08)` |  |
-| `--kz-toc-ink` | `#0a0a0a` |  |
+| `--kz-toc-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-toc-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-toc-muted` | `color-mix(in srgb, var(--kz-toc-fg) 60%, transparent)` |  |
+| `--kz-toc-faint` | `color-mix(in srgb, var(--kz-toc-fg) 40%, transparent)` |  |
+| `--kz-toc-line` | `color-mix(in srgb, var(--kz-toc-fg) 8%, transparent)` |  |
+| `--kz-toc-ink` | `var(--kz-color-accent, var(--kz-toc-fg))` |  |
 | `--kz-toc-top` | `32px` |  |
 | `--kz-toc-offset` | `32px` |  |
 | `--kz-toc-duration` | `0.5s` |  |

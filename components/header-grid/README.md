@@ -11,7 +11,7 @@ A site header placed on your grid: brand, links and actions each take the column
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-grid.html`](kodza-header-grid.html) | 1.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-grid.css`](kodza-header-grid.css) | 51.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-grid.css`](kodza-header-grid.css) | 51.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-header-grid.js`](kodza-header-grid.js) | 22.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -49,13 +49,13 @@ CSS variables, set on `.kodza-header-grid` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-header-grid-bg` | `transparent` | give it your page colour once it sticks |
-| `--kz-header-grid-fg` | `#0a0a0a` | the brand, the page you are on, the link you point at |
-| `--kz-header-grid-muted` | `rgba(10, 10, 10, 0.62)` | the notes |
+| `--kz-header-grid-fg` | `var(--kz-color-ink, #0a0a0a)` | the brand, the page you are on, the link you point at |
+| `--kz-header-grid-muted` | `color-mix(in srgb, var(--kz-header-grid-fg) 62%, transparent)` | the notes |
 | `--kz-header-grid-link` | `var(--kz-header-grid-muted)` | the other links |
 | `--kz-header-grid-rule-color` | `var(--kz-header-grid-fg)` | the rules under the cells |
-| `--kz-header-grid-ink` | `#0a0a0a` | the buttons |
-| `--kz-header-grid-on-ink` | `#ffffff` |  |
-| `--kz-header-grid-soft` | `rgba(10, 10, 10, 0.06)` | the Menu button |
+| `--kz-header-grid-ink` | `var(--kz-color-accent, var(--kz-header-grid-fg))` | the buttons |
+| `--kz-header-grid-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
+| `--kz-header-grid-soft` | `color-mix(in srgb, var(--kz-header-grid-fg) 6%, transparent)` | the Menu button |
 | `--kz-header-grid-columns` | `minmax(0, 1fr) auto minmax(0, 1fr)` | an auto column centres what it holds |
 | `--kz-header-grid-gap` | `16px` | between the columns |
 | `--kz-header-grid-brand-column` | `1` |  |
@@ -79,10 +79,10 @@ CSS variables, set on `.kodza-header-grid` itself:
 | `--kz-header-grid-tighten` | `16px` | --tighten: the height the bar loses |
 | `--kz-header-grid-tighten-after` | `40px` | how far you scroll before it tightens |
 | `--kz-header-grid-shrink` | `0.86` | the brand's size once tight; 1 = it stays |
-| `--kz-header-grid-menu-bg` | `#0a0a0a` |  |
-| `--kz-header-grid-menu-fg` | `#f2f2f0` |  |
-| `--kz-header-grid-menu-muted` | `rgba(242, 242, 240, 0.62)` |  |
-| `--kz-header-grid-menu-line` | `rgba(242, 242, 240, 0.16)` |  |
+| `--kz-header-grid-menu-bg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-header-grid-menu-fg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-header-grid-menu-muted` | `color-mix(in srgb, var(--kz-header-grid-menu-fg) 62%, transparent)` |  |
+| `--kz-header-grid-menu-line` | `color-mix(in srgb, var(--kz-header-grid-menu-fg) 16%, transparent)` |  |
 | `--kz-header-grid-menu-side` | `24px` |  |
 | `--kz-header-grid-menu-size` | `calc(clamp(34px, min(10cqw, calc((100cqh - 240px) / 6)), 96px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-header-grid-menu-duration` | `0.8s` |  |

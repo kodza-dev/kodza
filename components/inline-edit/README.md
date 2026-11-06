@@ -11,7 +11,7 @@ Text that becomes its own field when clicked: the caret lands under the pointer,
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-inline-edit.html`](kodza-inline-edit.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-inline-edit.css`](kodza-inline-edit.css) | 18.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-inline-edit.css`](kodza-inline-edit.css) | 18.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-inline-edit.js`](kodza-inline-edit.js) | 16.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `.kodza-inline-edit` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-inline-edit-fg` | `#0a0a0a` |  |
-| `--kz-inline-edit-muted` | `rgba(10, 10, 10, 0.6)` | label, prefix, placeholder, hint |
-| `--kz-inline-edit-hover` | `rgba(10, 10, 10, 0.05)` | the box under the pointer |
-| `--kz-inline-edit-bg` | `#ffffff` | the box while editing |
-| `--kz-inline-edit-focus` | `#0a0a0a` | its outline |
-| `--kz-inline-edit-halo` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-inline-edit-error` | `#0a0a0a` |  |
+| `--kz-inline-edit-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-inline-edit-muted` | `color-mix(in srgb, var(--kz-inline-edit-fg) 60%, transparent)` | label, prefix, placeholder, hint |
+| `--kz-inline-edit-hover` | `color-mix(in srgb, var(--kz-inline-edit-fg) 5%, transparent)` | the box under the pointer |
+| `--kz-inline-edit-bg` | `var(--kz-color-paper, #ffffff)` | the box while editing |
+| `--kz-inline-edit-focus` | `var(--kz-inline-edit-fg)` | its outline |
+| `--kz-inline-edit-halo` | `color-mix(in srgb, var(--kz-inline-edit-fg) 6%, transparent)` |  |
+| `--kz-inline-edit-error` | `var(--kz-color-error, var(--kz-inline-edit-fg))` |  |
 | `--kz-inline-edit-width` | `var(--kz-field-width, 420px)` |  |
 | `--kz-inline-edit-size` | `15px` |  |
 | `--kz-inline-edit-leading` | `1.55` |  |

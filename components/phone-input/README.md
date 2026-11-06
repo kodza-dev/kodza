@@ -11,7 +11,7 @@ A real tel input with its country code in front and a searchable list of countri
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-phone-input.html`](kodza-phone-input.html) | 1.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-phone-input.css`](kodza-phone-input.css) | 32.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-phone-input.css`](kodza-phone-input.css) | 32.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-phone-input.js`](kodza-phone-input.js) | 38.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `.kodza-phone` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-phone-bg` | `#ffffff` |  |
-| `--kz-phone-fg` | `#0a0a0a` |  |
-| `--kz-phone-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-phone-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-phone-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-phone-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-phone-error` | `#0a0a0a` | a message, never colour alone: set a red here if you want one |
+| `--kz-phone-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-phone-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-phone-muted` | `color-mix(in srgb, var(--kz-phone-fg) 60%, transparent)` |  |
+| `--kz-phone-line` | `color-mix(in srgb, var(--kz-phone-fg) 14%, transparent)` |  |
+| `--kz-phone-line-hover` | `color-mix(in srgb, var(--kz-phone-fg) 30%, transparent)` |  |
+| `--kz-phone-soft` | `color-mix(in srgb, var(--kz-phone-fg) 6%, transparent)` |  |
+| `--kz-phone-error` | `var(--kz-color-error, var(--kz-phone-fg))` | a message, never colour alone: set a red here if you want one |
 | `--kz-phone-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-phone-height` | `56px` |  |
 | `--kz-phone-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |

@@ -11,7 +11,7 @@ A search field over a real datalist: suggestions unroll under it, grouped, with 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-search-input.html`](kodza-search-input.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-search-input.css`](kodza-search-input.css) | 16.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-search-input.css`](kodza-search-input.css) | 16.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-search-input.js`](kodza-search-input.js) | 14.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-search` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-search-bg` | `#ffffff` |  |
-| `--kz-search-fg` | `#0a0a0a` |  |
-| `--kz-search-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-search-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-search-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-search-soft` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-search-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-search-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-search-muted` | `color-mix(in srgb, var(--kz-search-fg) 60%, transparent)` |  |
+| `--kz-search-line` | `color-mix(in srgb, var(--kz-search-fg) 14%, transparent)` |  |
+| `--kz-search-line-hover` | `color-mix(in srgb, var(--kz-search-fg) 30%, transparent)` |  |
+| `--kz-search-soft` | `color-mix(in srgb, var(--kz-search-fg) 6%, transparent)` |  |
 | `--kz-search-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-search-height` | `48px` |  |
 | `--kz-search-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

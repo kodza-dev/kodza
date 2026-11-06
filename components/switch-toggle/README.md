@@ -11,7 +11,7 @@ A real checkbox redrawn as a switch: the ink fills the track behind the thumb, t
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-switch-toggle.html`](kodza-switch-toggle.html) | 1.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-switch-toggle.css`](kodza-switch-toggle.css) | 11.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-switch-toggle.css`](kodza-switch-toggle.css) | 11.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -42,12 +42,12 @@ CSS variables, set on `.kodza-switch` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-switch-bg` | `#ffffff` |  |
-| `--kz-switch-fg` | `#0a0a0a` |  |
-| `--kz-switch-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-switch-off` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-switch-ink` | `#0a0a0a` |  |
-| `--kz-switch-thumb` | `#ffffff` |  |
+| `--kz-switch-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-switch-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-switch-muted` | `color-mix(in srgb, var(--kz-switch-fg) 60%, transparent)` |  |
+| `--kz-switch-off` | `color-mix(in srgb, var(--kz-switch-fg) 14%, transparent)` |  |
+| `--kz-switch-ink` | `var(--kz-color-accent, var(--kz-switch-fg))` |  |
+| `--kz-switch-thumb` | `var(--kz-color-paper, #ffffff)` |  |
 | `--kz-switch-width` | `44px` |  |
 | `--kz-switch-height` | `26px` |  |
 | `--kz-switch-gap` | `3px` |  |

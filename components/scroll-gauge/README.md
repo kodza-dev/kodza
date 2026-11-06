@@ -11,7 +11,7 @@ A figure pinned in a corner of a long page. Each section carries its value, and 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-scroll-gauge.html`](kodza-scroll-gauge.html) | 1.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-scroll-gauge.css`](kodza-scroll-gauge.css) | 16.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-scroll-gauge.css`](kodza-scroll-gauge.css) | 16.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-scroll-gauge.js`](kodza-scroll-gauge.js) | 20.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,11 +48,11 @@ CSS variables, set on `[data-kodza-scroll-gauge]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-scroll-gauge-fg` | `#0a0a0a` |  |
-| `--kz-scroll-gauge-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-scroll-gauge-line` | `rgba(10, 10, 10, 0.1)` | the dial's edge and the rules between sections |
-| `--kz-scroll-gauge-rule` | `rgba(10, 10, 10, 0.24)` | the scale and its ticks |
-| `--kz-scroll-gauge-glass` | `rgba(255, 255, 255, 0.78)` |  |
+| `--kz-scroll-gauge-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-scroll-gauge-muted` | `color-mix(in srgb, var(--kz-scroll-gauge-fg) 62%, transparent)` |  |
+| `--kz-scroll-gauge-line` | `color-mix(in srgb, var(--kz-scroll-gauge-fg) 10%, transparent)` | the dial's edge and the rules between sections |
+| `--kz-scroll-gauge-rule` | `color-mix(in srgb, var(--kz-scroll-gauge-fg) 24%, transparent)` | the scale and its ticks |
+| `--kz-scroll-gauge-glass` | `color-mix(in srgb, var(--kz-color-paper, #ffffff) 78%, transparent)` |  |
 | `--kz-scroll-gauge-shadow` | `0 1px 2px rgba(10, 10, 10, 0.04), 0 14px 32px -14px rgba(10, 10, 10, 0.22)` |  |
 | `--kz-scroll-gauge-size` | `48px` | the figure |
 | `--kz-scroll-gauge-width` | `208px` | the narrowest the dial gets; a longer figure widens it |

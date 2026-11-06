@@ -11,7 +11,7 @@ A fullscreen menu: a curtain comes down with its edge bending as it moves, the p
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-fullscreen-menu.html`](kodza-fullscreen-menu.html) | 2.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-fullscreen-menu.css`](kodza-fullscreen-menu.css) | 22.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-fullscreen-menu.css`](kodza-fullscreen-menu.css) | 22.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-fullscreen-menu.js`](kodza-fullscreen-menu.js) | 33.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,11 +48,11 @@ CSS variables, set on `.kodza-fullscreen` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-fullscreen-bg` | `#0a0a0a` | the curtain |
-| `--kz-fullscreen-fg` | `#f2f2f0` |  |
-| `--kz-fullscreen-muted` | `rgba(242, 242, 240, 0.62)` |  |
-| `--kz-fullscreen-ink` | `#0a0a0a` | the Menu button, on the page |
-| `--kz-fullscreen-on-ink` | `#ffffff` |  |
+| `--kz-fullscreen-bg` | `var(--kz-color-ink, #0a0a0a)` | the curtain |
+| `--kz-fullscreen-fg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-fullscreen-muted` | `color-mix(in srgb, var(--kz-fullscreen-fg) 62%, transparent)` |  |
+| `--kz-fullscreen-ink` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` | the Menu button, on the page |
+| `--kz-fullscreen-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-fullscreen-page` | `auto` | the page colour while it backs off; auto = the first background above it |
 | `--kz-fullscreen-top` | `calc(var(--wp-admin--admin-bar--height, 0px) + 20px)` | match your header, so Close lands right where Menu was (below the WordPress admin bar) |
 | `--kz-fullscreen-side` | `24px` |  |

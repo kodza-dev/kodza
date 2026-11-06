@@ -48,9 +48,9 @@ CSS variables, set on `.kodza-top` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-top-bg` | `#ffffff` |  |
-| `--kz-top-fg` | `#0a0a0a` |  |
-| `--kz-top-line` | `rgba(10, 10, 10, 0.1)` |  |
+| `--kz-top-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-top-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-top-line` | `color-mix(in srgb, var(--kz-top-fg) 10%, transparent)` |  |
 | `--kz-top-shadow` | `0 10px 30px -10px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-top-size` | `48px` |  |
 | `--kz-top-gap` | `24px` |  |

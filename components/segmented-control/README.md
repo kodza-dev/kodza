@@ -11,7 +11,7 @@ Two to five exclusive choices on real radio buttons. An ink pill slides to the o
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-segmented-control.html`](kodza-segmented-control.html) | 3.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-segmented-control.css`](kodza-segmented-control.css) | 14.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-segmented-control.css`](kodza-segmented-control.css) | 14.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-segmented-control.js`](kodza-segmented-control.js) | 11.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,14 +46,14 @@ CSS variables, set on `.kodza-segmented` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-segmented-bg` | `#ffffff` |  |
-| `--kz-segmented-fg` | `#0a0a0a` |  |
-| `--kz-segmented-muted` | `rgba(10, 10, 10, 0.58)` |  |
-| `--kz-segmented-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-segmented-ink` | `#0a0a0a` |  |
-| `--kz-segmented-on-ink` | `#ffffff` |  |
-| `--kz-segmented-badge` | `rgba(10, 10, 10, 0.07)` | the badge on the track |
-| `--kz-segmented-badge-on-ink` | `rgba(255, 255, 255, 0.2)` | the badge under the pill |
+| `--kz-segmented-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-segmented-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-segmented-muted` | `color-mix(in srgb, var(--kz-segmented-fg) 58%, transparent)` |  |
+| `--kz-segmented-border` | `color-mix(in srgb, var(--kz-segmented-fg) 10%, transparent)` |  |
+| `--kz-segmented-ink` | `var(--kz-color-accent, var(--kz-segmented-fg))` |  |
+| `--kz-segmented-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
+| `--kz-segmented-badge` | `color-mix(in srgb, var(--kz-segmented-fg) 7%, transparent)` | the badge on the track |
+| `--kz-segmented-badge-on-ink` | `color-mix(in srgb, var(--kz-segmented-on-ink) 20%, transparent)` | the badge under the pill |
 | `--kz-segmented-height` | `44px` | the whole pill; the options are 2 × --kz-segmented-pad shorter |
 | `--kz-segmented-pad` | `4px` | the room around the ink pill |
 | `--kz-segmented-width` | `var(--kz-field-width, 360px)` | --block: the width it fills, at most |

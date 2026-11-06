@@ -11,7 +11,7 @@ A one-line site footer: the logo, the ©, three links and Back to top, whose arr
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-footer-minimal.html`](kodza-footer-minimal.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-footer-minimal.css`](kodza-footer-minimal.css) | 19.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-footer-minimal.css`](kodza-footer-minimal.css) | 19.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-footer-minimal.js`](kodza-footer-minimal.js) | 6.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,11 +46,11 @@ CSS variables, set on `.kodza-footer-minimal` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-footer-minimal-bg` | `#ffffff` |  |
-| `--kz-footer-minimal-fg` | `#0a0a0a` |  |
-| `--kz-footer-minimal-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-footer-minimal-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-footer-minimal-soft` | `rgba(10, 10, 10, 0.05)` | Back to top, under the pointer |
+| `--kz-footer-minimal-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-footer-minimal-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-footer-minimal-muted` | `color-mix(in srgb, var(--kz-footer-minimal-fg) 62%, transparent)` |  |
+| `--kz-footer-minimal-line` | `color-mix(in srgb, var(--kz-footer-minimal-fg) 10%, transparent)` |  |
+| `--kz-footer-minimal-soft` | `color-mix(in srgb, var(--kz-footer-minimal-fg) 5%, transparent)` | Back to top, under the pointer |
 | `--kz-footer-minimal-width` | `1200px` | the line, centred |
 | `--kz-footer-minimal-pad` | `24px` |  |
 | `--kz-footer-minimal-mono` | `var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace))` | the © |

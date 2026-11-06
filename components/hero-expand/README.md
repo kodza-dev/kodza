@@ -11,7 +11,7 @@ A big title with a small picture set between two words. On scroll the scene pins
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-expand.html`](kodza-hero-expand.html) | 2.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-expand.css`](kodza-hero-expand.css) | 21.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-expand.css`](kodza-hero-expand.css) | 21.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-expand.js`](kodza-hero-expand.js) | 16.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,13 +48,13 @@ CSS variables, set on `.kodza-hero-expand` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-expand-ink` | `#0a0a0a` |  |
-| `--kz-hero-expand-dim` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hero-expand-faint` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-hero-expand-soft` | `rgba(10, 10, 10, 0.07)` |  |
+| `--kz-hero-expand-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-expand-dim` | `color-mix(in srgb, var(--kz-hero-expand-ink) 62%, transparent)` |  |
+| `--kz-hero-expand-faint` | `color-mix(in srgb, var(--kz-hero-expand-ink) 60%, transparent)` |  |
+| `--kz-hero-expand-soft` | `color-mix(in srgb, var(--kz-hero-expand-ink) 7%, transparent)` |  |
 | `--kz-hero-expand-bg` | `transparent` |  |
 | `--kz-hero-expand-light` | `#f2f2f0` | words and button over the picture, both themes |
-| `--kz-hero-expand-dark` | `#0a0a0a` | the button's label |
+| `--kz-hero-expand-dark` | `var(--kz-color-ink, #0a0a0a)` | the button's label |
 | `--kz-hero-expand-shade` | `rgba(10, 10, 10, 0.72)` | the readability veil, at its darkest |
 | `--kz-hero-expand-width` | `1240px` |  |
 | `--kz-hero-expand-gutter` | `clamp(16px, 4vw, 40px)` |  |

@@ -11,7 +11,7 @@ A cover hero: a full-width picture under a monochrome veil with the title at the
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-cover.html`](kodza-hero-cover.html) | 1.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-cover.css`](kodza-hero-cover.css) | 18.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-cover.css`](kodza-hero-cover.css) | 19.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -42,11 +42,11 @@ CSS variables, set on `.kodza-hero-cover` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-cover-light` | `#f2f2f0` |  |
-| `--kz-hero-cover-ink` | `#0a0a0a` |  |
-| `--kz-hero-cover-dim` | `rgba(242, 242, 240, 0.8)` |  |
-| `--kz-hero-cover-faint` | `rgba(242, 242, 240, 0.7)` |  |
-| `--kz-hero-cover-glass` | `rgba(242, 242, 240, 0.14)` |  |
+| `--kz-hero-cover-light` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-cover-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-cover-dim` | `color-mix(in srgb, var(--kz-hero-cover-light) 80%, transparent)` |  |
+| `--kz-hero-cover-faint` | `color-mix(in srgb, var(--kz-hero-cover-light) 70%, transparent)` |  |
+| `--kz-hero-cover-glass` | `color-mix(in srgb, var(--kz-hero-cover-light) 14%, transparent)` |  |
 | `--kz-hero-cover-shade` | `rgba(10, 10, 10, 0.8)` |  |
 | `--kz-hero-cover-base` | `transparent` |  |
 | `--kz-hero-cover-bg` | `transparent` |  |

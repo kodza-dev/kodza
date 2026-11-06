@@ -11,7 +11,7 @@ Point at a row and its picture shows in one frame that follows the pointer, wipi
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hover-list-preview.html`](kodza-hover-list-preview.html) | 3.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hover-list-preview.css`](kodza-hover-list-preview.css) | 23.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hover-list-preview.css`](kodza-hover-list-preview.css) | 23.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hover-list-preview.js`](kodza-hover-list-preview.js) | 18.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,11 +46,11 @@ CSS variables, set on `.kodza-hover-list` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hover-list-ink` | `#0a0a0a` |  |
-| `--kz-hover-list-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hover-list-dim` | `rgba(10, 10, 10, 0.26)` |  |
-| `--kz-hover-list-line` | `rgba(10, 10, 10, 0.12)` |  |
-| `--kz-hover-list-placeholder` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-hover-list-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hover-list-muted` | `color-mix(in srgb, var(--kz-hover-list-ink) 62%, transparent)` |  |
+| `--kz-hover-list-dim` | `color-mix(in srgb, var(--kz-hover-list-ink) 26%, transparent)` |  |
+| `--kz-hover-list-line` | `color-mix(in srgb, var(--kz-hover-list-ink) 12%, transparent)` |  |
+| `--kz-hover-list-placeholder` | `color-mix(in srgb, var(--kz-hover-list-ink) 6%, transparent)` |  |
 | `--kz-hover-list-glass` | `auto` | behind the words that cross the picture: auto = the background behind the list, see-through |
 | `--kz-hover-list-size` | `calc(clamp(22px, 2.6vw, 30px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-hover-list-columns` | `minmax(0, 1fr) minmax(0, 13em) auto` |  |

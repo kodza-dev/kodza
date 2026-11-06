@@ -11,7 +11,7 @@ A time field over the real input: a wheel that snaps and takes the time once it 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-time-picker.html`](kodza-time-picker.html) | 0.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-time-picker.css`](kodza-time-picker.css) | 22.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-time-picker.css`](kodza-time-picker.css) | 22.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-time-picker.js`](kodza-time-picker.js) | 33.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,14 +46,14 @@ CSS variables, set on `.kodza-time` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-time-bg` | `#ffffff` |  |
-| `--kz-time-fg` | `#0a0a0a` |  |
-| `--kz-time-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-time-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-time-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-time-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-time-ink` | `#0a0a0a` |  |
-| `--kz-time-on-ink` | `#ffffff` |  |
+| `--kz-time-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-time-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-time-muted` | `color-mix(in srgb, var(--kz-time-fg) 60%, transparent)` |  |
+| `--kz-time-line` | `color-mix(in srgb, var(--kz-time-fg) 14%, transparent)` |  |
+| `--kz-time-line-hover` | `color-mix(in srgb, var(--kz-time-fg) 30%, transparent)` |  |
+| `--kz-time-soft` | `color-mix(in srgb, var(--kz-time-fg) 6%, transparent)` |  |
+| `--kz-time-ink` | `var(--kz-color-accent, var(--kz-time-fg))` |  |
+| `--kz-time-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-time-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-time-height` | `56px` |  |
 | `--kz-time-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |

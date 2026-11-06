@@ -11,7 +11,7 @@ The next departures from a place, worked out at its own time: the day's timetabl
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-departure-board.html`](kodza-departure-board.html) | 3.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-departure-board.css`](kodza-departure-board.css) | 18.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-departure-board.css`](kodza-departure-board.css) | 18.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-departure-board.js`](kodza-departure-board.js) | 25.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `.kodza-departure-board` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-departure-board-fg` | `#0a0a0a` |  |
-| `--kz-departure-board-muted` | `rgba(10, 10, 10, 0.62)` | gone trips, via, duration, labels |
-| `--kz-departure-board-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-departure-board-bg` | `#ffffff` |  |
-| `--kz-departure-board-ink` | `#0a0a0a` | the countdown pill |
-| `--kz-departure-board-on-ink` | `#ffffff` |  |
-| `--kz-departure-board-mark` | `rgba(10, 10, 10, 0.05)` | behind the next trip |
+| `--kz-departure-board-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-departure-board-muted` | `color-mix(in srgb, var(--kz-departure-board-fg) 62%, transparent)` | gone trips, via, duration, labels |
+| `--kz-departure-board-line` | `color-mix(in srgb, var(--kz-departure-board-fg) 10%, transparent)` |  |
+| `--kz-departure-board-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-departure-board-ink` | `var(--kz-color-ink, #0a0a0a)` | the countdown pill |
+| `--kz-departure-board-on-ink` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-departure-board-mark` | `color-mix(in srgb, var(--kz-departure-board-fg) 5%, transparent)` | behind the next trip |
 | `--kz-departure-board-width` | `520px` |  |
 | `--kz-departure-board-duration` | `0.5s` | a gone trip fading |
 | `--kz-departure-board-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

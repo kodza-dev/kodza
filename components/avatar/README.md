@@ -11,7 +11,7 @@ Initials or a picture in four sizes, a status told by a shape (full, ring, bar, 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-avatar.html`](kodza-avatar.html) | 1.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-avatar.css`](kodza-avatar.css) | 7.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-avatar.css`](kodza-avatar.css) | 7.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-avatar.js`](kodza-avatar.js) | 4.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,10 +48,10 @@ CSS variables, set on `.kodza-avatar` itself:
 | --- | --- | --- |
 | `--kz-avatar-size` | `40px` |  |
 | `--kz-avatar-bg` | `#e6e6e3` |  |
-| `--kz-avatar-fg` | `#0a0a0a` |  |
-| `--kz-avatar-ring` | `#f2f2f0` |  |
-| `--kz-avatar-ink` | `#0a0a0a` |  |
-| `--kz-avatar-on-ink` | `#ffffff` |  |
+| `--kz-avatar-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-avatar-ring` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-avatar-ink` | `var(--kz-color-accent, var(--kz-avatar-fg))` |  |
+| `--kz-avatar-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-avatar-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Modifiers: `.kodza-avatar--lg`, `.kodza-avatar--more`, `.kodza-avatar--sm`, `.kodza-avatar--square`, `.kodza-avatar--xl`

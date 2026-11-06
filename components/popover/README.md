@@ -11,7 +11,7 @@ A panel that grows out of its trigger, arrow pointing back at it, and flips when
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-popover.html`](kodza-popover.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-popover.css`](kodza-popover.css) | 15.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-popover.css`](kodza-popover.css) | 15.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-popover.js`](kodza-popover.js) | 13.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `.kodza-popover` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-pop-bg` | `#ffffff` |  |
-| `--kz-pop-fg` | `#0a0a0a` |  |
-| `--kz-pop-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-pop-line` | `rgba(10, 10, 10, 0.12)` |  |
-| `--kz-pop-soft` | `rgba(10, 10, 10, 0.05)` |  |
-| `--kz-pop-ink` | `#0a0a0a` |  |
-| `--kz-pop-on-ink` | `#ffffff` |  |
+| `--kz-pop-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-pop-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-pop-muted` | `color-mix(in srgb, var(--kz-pop-fg) 60%, transparent)` |  |
+| `--kz-pop-line` | `color-mix(in srgb, var(--kz-pop-fg) 12%, transparent)` |  |
+| `--kz-pop-soft` | `color-mix(in srgb, var(--kz-pop-fg) 5%, transparent)` |  |
+| `--kz-pop-ink` | `var(--kz-color-accent, var(--kz-pop-fg))` |  |
+| `--kz-pop-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-pop-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-pop-width` | `300px` |  |
 | `--kz-pop-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

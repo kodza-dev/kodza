@@ -11,7 +11,7 @@ A button that switches the page between light and dark, sun to moon. It starts f
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-theme-toggle.html`](kodza-theme-toggle.html) | 1.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-theme-toggle.css`](kodza-theme-toggle.css) | 14.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-theme-toggle.css`](kodza-theme-toggle.css) | 15.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-theme-toggle.js`](kodza-theme-toggle.js) | 10.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -49,9 +49,9 @@ CSS variables, set on `[data-kodza-theme-toggle]` itself:
 | `--kz-theme-toggle-size` | `40px` |  |
 | `--kz-theme-toggle-icon` | `20px` |  |
 | `--kz-theme-toggle-stroke` | `1.75px` | in icon units, 24 across |
-| `--kz-theme-toggle-ink` | `#0a0a0a` |  |
-| `--kz-theme-toggle-surface` | `rgba(10, 10, 10, 0.06)` | the button at rest |
-| `--kz-theme-toggle-hover` | `rgba(10, 10, 10, 0.11)` | under the pointer |
+| `--kz-theme-toggle-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-theme-toggle-surface` | `color-mix(in srgb, var(--kz-theme-toggle-ink) 6%, transparent)` | the button at rest |
+| `--kz-theme-toggle-hover` | `color-mix(in srgb, var(--kz-theme-toggle-ink) 11%, transparent)` | under the pointer |
 | `--kz-theme-toggle-duration` | `0.5s` |  |
 | `--kz-theme-toggle-ease` | `cubic-bezier(0.65, 0, 0.35, 1)` | in and out, so the strokes are seen travelling |
 | `--kz-theme-toggle-recolor` | `0s` | when the ink flips: at once for a page that switches at once, half its                                     colour transition for one that fades, so it never goes grey on grey |

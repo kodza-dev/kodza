@@ -48,8 +48,8 @@ CSS variables, set on `[data-kodza-logo-collapse]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-logo-collapse-bg` | `#0a0a0a` |  |
-| `--kz-logo-collapse-fg` | `#f2f2f0` |  |
+| `--kz-logo-collapse-bg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-logo-collapse-fg` | `var(--kz-color-page, #f2f2f0)` |  |
 | `--kz-logo-collapse-size` | `clamp(44px, 8.5vw, 120px)` | the logo while it fills the screen |
 | `--kz-logo-collapse-duration` | `1s` | the flight |
 | `--kz-logo-collapse-ease` | `cubic-bezier(0.76, 0, 0.24, 1)` |  |

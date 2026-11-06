@@ -11,7 +11,7 @@ A studio statement set very large over a mono line with the city, a live local t
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-statement.html`](kodza-hero-statement.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-statement.css`](kodza-hero-statement.css) | 15.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-statement.css`](kodza-hero-statement.css) | 15.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-statement.js`](kodza-hero-statement.js) | 8.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,10 +46,10 @@ CSS variables, set on `.kodza-hero-statement` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-statement-ink` | `#0a0a0a` |  |
-| `--kz-hero-statement-muted` | `rgba(10, 10, 10, 0.5)` |  |
-| `--kz-hero-statement-dim` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hero-statement-rule` | `rgba(10, 10, 10, 0.14)` |  |
+| `--kz-hero-statement-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-statement-muted` | `color-mix(in srgb, var(--kz-hero-statement-ink) 50%, transparent)` |  |
+| `--kz-hero-statement-dim` | `color-mix(in srgb, var(--kz-hero-statement-ink) 62%, transparent)` |  |
+| `--kz-hero-statement-rule` | `color-mix(in srgb, var(--kz-hero-statement-ink) 14%, transparent)` |  |
 | `--kz-hero-statement-bg` | `transparent` |  |
 | `--kz-hero-statement-width` | `1280px` |  |
 | `--kz-hero-statement-top` | `clamp(96px, 13vw, 200px)` |  |

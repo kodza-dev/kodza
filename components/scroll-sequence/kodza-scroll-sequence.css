@@ -1,0 +1,529 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Scroll Sequence
+   A numbered series of pictures (a turn around an object, an assembly, a time lapse) drawn on one
+   canvas, frame by frame, as the scroll runs through the section. The stage holds the screen,
+   the captions roll in at their own point of the sequence, and a rail with a frame counter says
+   where you are. No video file: the frames are plain images, loaded coarse to fine.
+   Without the script, or with reduced motion, the first picture sits above the captions.
+   Tuned with the --kz-scroll-sequence-* variables; the frames are set on the root
+   (data-frames, data-src, data-pad), the pacing in the constants at the top of component.js. */
+.kodza-scroll-sequence {
+  /* How much scroll the whole sequence takes, on top of the screen the stage holds */
+  --kz-scroll-sequence-distance: 300svh;
+  /* How the frames fill the stage, and which part of them a crop keeps */
+  --kz-scroll-sequence-fit: cover;
+  --kz-scroll-sequence-position: 50% 50%;
+  /* On a tall screen (a phone, a tablet, a narrow window) the frames sit in a box at the bottom,
+     under the captions: its share of the stage's height (at most a square), and the part of the
+     frames it keeps */
+  --kz-scroll-sequence-media-portrait: 56%;
+  --kz-scroll-sequence-position-portrait: 83% 25%;
+  /* The room kept around the captions and the rail */
+  --kz-scroll-sequence-gutter: clamp(20px, 5cqi, 72px);
+  /* The colour behind the frames: match the sky of your pictures, so a portrait screen reads as
+     one picture with a tall sky */
+  --kz-scroll-sequence-sky: #e5e3e1;
+  --kz-scroll-sequence-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-scroll-sequence-muted: color-mix(in srgb, var(--kz-scroll-sequence-ink) 66%, transparent);
+  --kz-scroll-sequence-rail: color-mix(in srgb, var(--kz-scroll-sequence-ink) 18%, transparent);
+  --kz-scroll-sequence-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-scroll-sequence-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
+
+  position: relative;
+  display: block;
+  container-type: inline-size;
+  color: var(--kz-scroll-sequence-ink);
+}
+
+/* At rest (no script, reduced motion): the first picture, the captions under it */
+.kodza-scroll-sequence__stage {
+  box-sizing: border-box;
+  display: grid;
+  gap: 32px;
+  width: min(1080px, 100% - 2 * var(--kz-scroll-sequence-gutter));
+  margin-inline: auto;
+}
+
+.kodza-scroll-sequence__poster {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  margin: 0;
+  border-radius: var(--kz-scroll-sequence-radius);
+  background: var(--kz-scroll-sequence-sky);
+  aspect-ratio: 16 / 9;
+  object-fit: var(--kz-scroll-sequence-fit);
+  object-position: var(--kz-scroll-sequence-position);
+}
+
+.kodza-scroll-sequence__panel {
+  display: grid;
+  gap: 28px;
+}
+
+/* The frame counter and the rail: only while the frames follow the scroll */
+.kodza-scroll-sequence__meter {
+  display: none;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  margin: 0;
+}
+
+.kodza-scroll-sequence__captions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 28px;
+}
+
+.kodza-scroll-sequence__caption {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.kodza-scroll-sequence__label,
+.kodza-scroll-sequence__counter {
+  margin: 0;
+  color: var(--kz-scroll-sequence-muted);
+  font-family: var(--kz-font-label, var(--kz-scroll-sequence-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-scroll-sequence__title {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(28px, 3.6cqi, 52px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+}
+
+/* At rest the captions share a row: a smaller title keeps each to two lines, and the label, title
+   and text rows line up across the columns */
+.kodza-scroll-sequence:not(.is-live) .kodza-scroll-sequence__title {
+  font-size: calc(clamp(24px, 2.6cqi, 34px) * var(--kz-font-display-scale, 1));
+}
+
+.kodza-scroll-sequence:not(.is-live) .kodza-scroll-sequence__caption {
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+}
+
+.kodza-scroll-sequence__text {
+  max-width: 30em;
+  margin: 0;
+  color: var(--kz-scroll-sequence-muted);
+  font-size: 16px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+/* Running: the section is a track, the stage holds the screen while the scroll runs through it */
+.kodza-scroll-sequence.is-live::after {
+  content: "";
+  display: block;
+  height: var(--kz-scroll-sequence-distance);
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__stage {
+  position: sticky;
+  top: 0;
+  display: block;
+  width: auto;
+  height: 100svh;
+  overflow: clip;
+  background: var(--kz-scroll-sequence-sky);
+  container: kodza-scroll-sequence / size;
+}
+
+/* The picture under the canvas until the first frame is drawn, then the canvas over it */
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__poster,
+.kodza-scroll-sequence__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+  border-radius: 0;
+  aspect-ratio: auto;
+  object-fit: var(--kz-scroll-sequence-fit);
+  object-position: var(--kz-scroll-sequence-position);
+}
+
+/* Once a frame is drawn, the picture steps back (still read out: its alt names the sequence) */
+.kodza-scroll-sequence.is-drawn .kodza-scroll-sequence__poster {
+  opacity: 0;
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__panel {
+  position: absolute;
+  top: clamp(28px, 9cqh, 96px);
+  left: var(--kz-scroll-sequence-gutter);
+  width: min(420px, 34cqw);
+  gap: clamp(20px, 4cqh, 36px);
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__meter {
+  display: grid;
+}
+
+.kodza-scroll-sequence__counter {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The rail: it fills with the scroll (--kz-scroll-sequence-progress, 0 to 1), and a dot marks
+   where each caption comes in, inked once passed */
+.kodza-scroll-sequence__rail {
+  position: relative;
+  display: block;
+  height: 1px;
+  background: var(--kz-scroll-sequence-rail);
+}
+
+.kodza-scroll-sequence__rail::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--kz-scroll-sequence-ink);
+  transform: scaleX(var(--kz-scroll-sequence-progress, 0));
+  transform-origin: left center;
+}
+
+.kodza-scroll-sequence__tick {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--kz-scroll-sequence-at, 0) * 100%);
+  box-sizing: border-box;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--kz-scroll-sequence-rail);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-scroll-sequence-sky);
+  transform: translate(-50%, -50%);
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease, border-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-scroll-sequence__tick:first-child {
+  transform: translate(0, -50%);
+}
+
+.kodza-scroll-sequence__tick.is-passed {
+  border-color: var(--kz-scroll-sequence-ink);
+  background: var(--kz-scroll-sequence-ink);
+}
+
+/* The captions share one cell. The one on now stands; the next waits below, the last one has
+   gone up: scrolling on rolls them up, scrolling back rolls them down */
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__captions {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__caption {
+  grid-area: 1 / 1;
+  pointer-events: none;
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__caption > * {
+  opacity: 0;
+  transform: translateY(18px);
+  /* Leaving: it fades as it slides, on the same curve, so the way out reads */
+  transition: opacity calc(0.24s * var(--kz-motion-scale, 1)) cubic-bezier(0.4, 0, 1, 1), transform calc(0.24s * var(--kz-motion-scale, 1)) cubic-bezier(0.4, 0, 1, 1);
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__caption.is-past > * {
+  transform: translateY(-18px);
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__caption.is-current {
+  pointer-events: auto;
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__caption.is-current > * {
+  opacity: 1;
+  transform: none;
+  transition: opacity calc(0.5s * var(--kz-motion-scale, 1)) ease, transform calc(0.7s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+  /* In once the last one is nearly gone, so two titles never stand over each other */
+  transition-delay: calc(0.16s * var(--kz-motion-scale, 1));
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__caption.is-current > :nth-child(2) {
+  transition-delay: calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__caption.is-current > :nth-child(n + 3) {
+  transition-delay: calc(0.24s * var(--kz-motion-scale, 1));
+}
+
+/* A tall stage (a phone, a tablet, a 4:3 window): the captions on top, the frames in a box at the
+   bottom that fades into the sky above it. Side by side, the captions would cover the subject. On
+   a wide one (4:3) the box grows to the whole height of a 16:9 frame, as far as the captions let
+   it, so nothing of the subject is cut at the bottom */
+@container kodza-scroll-sequence (max-aspect-ratio: 14 / 9) {
+  .kodza-scroll-sequence.is-live .kodza-scroll-sequence__poster,
+  .kodza-scroll-sequence__canvas {
+    top: auto;
+    height: min(max(var(--kz-scroll-sequence-media-portrait), 56.25cqw), 100cqh - 190px, 100cqw);
+    object-position: var(--kz-scroll-sequence-position-portrait);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%);
+    mask-image: linear-gradient(to bottom, transparent, #000 12%);
+  }
+
+  .kodza-scroll-sequence.is-live .kodza-scroll-sequence__panel {
+    top: clamp(20px, 4cqh, 40px);
+    right: var(--kz-scroll-sequence-gutter);
+    width: auto;
+    max-width: 520px;
+  }
+}
+
+/* kodza-guard f3278ebfb1a9 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-scroll-sequence__poster):not(#_) {
+  position: revert;
+}
+
+:where(.kodza-scroll-sequence__label):not(#_),
+:where(.kodza-scroll-sequence__title):not(#_),
+:where(.kodza-scroll-sequence__text):not(#_) {
+  transition: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-scroll-sequence:not(#_),
+.kodza-scroll-sequence__canvas:not(#_),
+.kodza-scroll-sequence__panel:not(#_),
+.kodza-scroll-sequence__counter:not(#_),
+.kodza-scroll-sequence__rail:not(#_),
+.kodza-scroll-sequence__captions:not(#_),
+.kodza-scroll-sequence__caption:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-scroll-sequence__poster:not(#_) {
+  border: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-scroll-sequence__meter:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-scroll-sequence__label:not(#_),
+.kodza-scroll-sequence__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-scroll-sequence__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-scroll-sequence__label:not(#_):where(:not([hidden])),
+.kodza-scroll-sequence__title:not(#_):where(:not([hidden])),
+.kodza-scroll-sequence__text:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-scroll-sequence__label:not(#_):where([hidden]),
+.kodza-scroll-sequence__title:not(#_):where([hidden]),
+.kodza-scroll-sequence__text:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-scroll-sequence:not(#_)::after,
+.kodza-scroll-sequence__rail:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-scroll-sequence__poster:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+  border-radius: var(--kz-scroll-sequence-radius);
+  background: var(--kz-scroll-sequence-sky);
+}
+
+.kodza-scroll-sequence__meter:not(#_) {
+  display: none;
+  margin: 0;
+}
+
+.kodza-scroll-sequence__label:not(#_) {
+  margin: 0;
+  color: var(--kz-scroll-sequence-muted);
+  font-family: var(--kz-font-label, var(--kz-scroll-sequence-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-scroll-sequence__title:not(#_) {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(28px, 3.6cqi, 52px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-scroll-sequence:not(.is-live) .kodza-scroll-sequence__title:not(#_) {
+  font-size: calc(clamp(24px, 2.6cqi, 34px) * var(--kz-font-display-scale, 1));
+}
+
+.kodza-scroll-sequence__text:not(#_) {
+  max-width: 30em;
+  margin: 0;
+  color: var(--kz-scroll-sequence-muted);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__poster:not(#_) {
+  position: absolute;
+  display: block;
+  max-width: none;
+  margin: 0;
+  border-radius: 0;
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__meter:not(#_) {
+  display: grid;
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__caption > *:not(#_) {
+  transition: opacity calc(0.24s * var(--kz-motion-scale, 1)) cubic-bezier(0.4, 0, 1, 1), transform calc(0.24s * var(--kz-motion-scale, 1)) cubic-bezier(0.4, 0, 1, 1);
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__caption.is-current > *:not(#_) {
+  transition: opacity calc(0.5s * var(--kz-motion-scale, 1)) ease, transform calc(0.7s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(0.16s * var(--kz-motion-scale, 1));
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__caption.is-current > :nth-child(2):not(#_) {
+  transition-delay: calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-scroll-sequence.is-live .kodza-scroll-sequence__caption.is-current > :nth-child(n + 3):not(#_) {
+  transition-delay: calc(0.24s * var(--kz-motion-scale, 1));
+}

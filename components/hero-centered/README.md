@@ -11,7 +11,7 @@ A centred hero with an announcement pill, a headline whose lines rise out of the
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-centered.html`](kodza-hero-centered.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-centered.css`](kodza-hero-centered.css) | 17.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-centered.css`](kodza-hero-centered.css) | 17.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -42,10 +42,10 @@ CSS variables, set on `.kodza-hero-centered` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-centered-ink` | `#0a0a0a` |  |
-| `--kz-hero-centered-paper` | `#f2f2f0` |  |
-| `--kz-hero-centered-dim` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hero-centered-soft` | `rgba(10, 10, 10, 0.07)` |  |
+| `--kz-hero-centered-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-centered-paper` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-centered-dim` | `color-mix(in srgb, var(--kz-hero-centered-ink) 62%, transparent)` |  |
+| `--kz-hero-centered-soft` | `color-mix(in srgb, var(--kz-hero-centered-ink) 7%, transparent)` |  |
 | `--kz-hero-centered-bg` | `transparent` |  |
 | `--kz-hero-centered-width` | `1040px` |  |
 | `--kz-hero-centered-pad-y` | `clamp(88px, 11vw, 168px)` |  |

@@ -11,7 +11,7 @@ A guided tour: the page dims, a spotlight cuts out each element and glides to th
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-product-tour.html`](kodza-product-tour.html) | 0.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-product-tour.css`](kodza-product-tour.css) | 14.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-product-tour.css`](kodza-product-tour.css) | 14.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-product-tour.js`](kodza-product-tour.js) | 13.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,14 +48,14 @@ CSS variables, set on `.kodza-tour` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-tour-bg` | `#ffffff` |  |
-| `--kz-tour-fg` | `#0a0a0a` |  |
-| `--kz-tour-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-tour-line` | `rgba(10, 10, 10, 0.12)` |  |
-| `--kz-tour-ink` | `#0a0a0a` |  |
-| `--kz-tour-on-ink` | `#ffffff` |  |
-| `--kz-tour-dim` | `rgba(10, 10, 10, 0.55)` |  |
-| `--kz-tour-ring` | `rgba(255, 255, 255, 0.9)` |  |
+| `--kz-tour-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-tour-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-tour-muted` | `color-mix(in srgb, var(--kz-tour-fg) 60%, transparent)` |  |
+| `--kz-tour-line` | `color-mix(in srgb, var(--kz-tour-fg) 12%, transparent)` |  |
+| `--kz-tour-ink` | `var(--kz-color-accent, var(--kz-tour-fg))` |  |
+| `--kz-tour-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
+| `--kz-tour-dim` | `color-mix(in srgb, var(--kz-tour-fg) 55%, transparent)` |  |
+| `--kz-tour-ring` | `color-mix(in srgb, var(--kz-color-paper, #ffffff) 90%, transparent)` |  |
 | `--kz-tour-pad` | `6px` |  |
 | `--kz-tour-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-tour-ease` | `cubic-bezier(0.65, 0, 0.35, 1)` |  |

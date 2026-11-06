@@ -1,0 +1,171 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Reading Progress
+   A thin line fixed under the site header that measures the article alone: it slides in when the
+   article reaches the header, fills as you read, leaves once the article has gone by, and is cut
+   at each h2, so the fill crosses a notch when that heading passes under the header.
+   Settings: the --kz-reading-progress-* variables below. On the root: data-target (the article,
+   a CSS selector; default the closest article, main or .entry-content), data-headings (where the
+   notches go, default h2), data-time (adds the time left: "{n} min left") and data-done (its last
+   word, default "Done"). */
+.kodza-reading-progress {
+  --kz-reading-progress-offset: 0px; /* the height of a fixed header above it */
+  --kz-reading-progress-height: 3px;
+  --kz-reading-progress-color: var(--kz-color-ink, #0a0a0a);
+  --kz-reading-progress-track: color-mix(in srgb, var(--kz-reading-progress-color) 10%, transparent);
+  --kz-reading-progress-notch: 2px; /* the cut at each heading; 0 for a plain line */
+  --kz-reading-progress-label-color: var(--kz-color-ink, #0a0a0a);
+  --kz-reading-progress-label-bg: var(--kz-color-paper, #ffffff);
+  --kz-reading-progress-label-border: color-mix(in srgb, var(--kz-reading-progress-label-color) 10%, transparent);
+  --kz-reading-progress-gutter: 16px; /* the label's distance from the screen edge */
+  --kz-reading-progress-layer: 40;
+
+  display: block;
+  height: 0;
+  margin: 0;
+}
+
+.kodza-reading-progress__bar {
+  position: fixed;
+  top: var(--kz-reading-progress-offset);
+  left: 0;
+  right: 0;
+  z-index: var(--kz-reading-progress-layer);
+  display: block;
+  height: var(--kz-reading-progress-height);
+  margin: 0;
+  overflow: hidden;
+  background: var(--kz-reading-progress-track);
+  pointer-events: none;
+  /* hidden above its line until the article reaches the header */
+  transform: translateY(-100%);
+  visibility: hidden;
+  transition:
+    transform calc(0.32s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear calc(0.32s * var(--kz-motion-scale, 1));
+}
+
+.kodza-reading-progress.is-reading .kodza-reading-progress__bar {
+  transform: none;
+  visibility: visible;
+  transition:
+    transform calc(0.32s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s;
+}
+
+.kodza-reading-progress__fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--kz-reading-progress-color);
+  transform: scaleX(var(--kz-reading-progress-value, 0));
+  transform-origin: left center;
+}
+
+.kodza-reading-progress:dir(rtl) .kodza-reading-progress__fill {
+  transform-origin: right center;
+}
+
+/* Where the browser runs animations on the scroll itself, the fill follows the page there
+   (no frame late); the script only gives it the article's start and end */
+.kodza-reading-progress.is-timeline .kodza-reading-progress__fill {
+  animation: kodza-reading-progress-fill linear both;
+  animation-timeline: scroll(root block);
+  animation-range: var(--kz-reading-progress-start, 0px) var(--kz-reading-progress-end, 100%);
+}
+
+@keyframes kodza-reading-progress-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* The time left, under the line, at the end of the screen */
+.kodza-reading-progress__time {
+  position: fixed;
+  top: calc(var(--kz-reading-progress-offset) + var(--kz-reading-progress-height) + 10px);
+  right: var(--kz-reading-progress-gutter);
+  z-index: var(--kz-reading-progress-layer);
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 28px;
+  margin: 0;
+  padding: 0 12px;
+  overflow: hidden;
+  border: 1px solid var(--kz-reading-progress-label-border);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-reading-progress-label-bg);
+  color: var(--kz-reading-progress-label-color);
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+  /* unrolled from the line, like a tab pulled down */
+  clip-path: inset(0 0 100% 0 round var(--kz-radius-pill, 999px));
+  visibility: hidden;
+  transition:
+    clip-path calc(0.42s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    visibility 0s linear calc(0.42s * var(--kz-motion-scale, 1));
+}
+
+.kodza-reading-progress__time:dir(rtl) {
+  right: auto;
+  left: var(--kz-reading-progress-gutter);
+}
+
+.kodza-reading-progress.is-reading .kodza-reading-progress__time {
+  clip-path: inset(0 0 0 0 round var(--kz-radius-pill, 999px));
+  visibility: visible;
+  transition:
+    clip-path calc(0.42s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc(0.08s * var(--kz-motion-scale, 1)),
+    visibility 0s;
+}
+
+/* Each word of the time sits in one cell: the old one leaves upward as the new one comes in */
+.kodza-reading-progress__words {
+  display: grid;
+  overflow: hidden;
+}
+
+.kodza-reading-progress__word {
+  grid-area: 1 / 1;
+  /* At the start of the cell: while the cell narrows to a shorter word, the new one is whole */
+  justify-self: start;
+  display: block;
+  padding: 2px 0;
+}
+
+/* On a phone the text runs the full width and the label would sit on its lines: the line alone */
+@media (max-width: 559.98px) {
+  .kodza-reading-progress__time {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-reading-progress__bar,
+  .kodza-reading-progress__time,
+  .kodza-reading-progress.is-reading .kodza-reading-progress__bar,
+  .kodza-reading-progress.is-reading .kodza-reading-progress__time {
+    transition: none !important;
+  }
+}
+
+/* kodza-guard 5ffb0c19fc64 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-reading-progress:not(#_),
+.kodza-reading-progress__bar:not(#_),
+.kodza-reading-progress__fill:not(#_),
+.kodza-reading-progress__words:not(#_),
+.kodza-reading-progress__word:not(#_) {
+  box-sizing: revert;
+}

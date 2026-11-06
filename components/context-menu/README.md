@@ -11,7 +11,7 @@ A right-click menu that grows from the exact point you clicked, stays on screen 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-context-menu.html`](kodza-context-menu.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-context-menu.css`](kodza-context-menu.css) | 9.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-context-menu.css`](kodza-context-menu.css) | 10.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-context-menu.js`](kodza-context-menu.js) | 11.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-context-menu` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-ctx-bg` | `#ffffff` |  |
-| `--kz-ctx-fg` | `#0a0a0a` |  |
-| `--kz-ctx-muted` | `rgba(10, 10, 10, 0.58)` |  |
-| `--kz-ctx-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-ctx-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-ctx-dots` | `rgba(10, 10, 10, 0.14)` |  |
+| `--kz-ctx-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-ctx-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-ctx-muted` | `color-mix(in srgb, var(--kz-ctx-fg) 58%, transparent)` |  |
+| `--kz-ctx-border` | `color-mix(in srgb, var(--kz-ctx-fg) 10%, transparent)` |  |
+| `--kz-ctx-soft` | `color-mix(in srgb, var(--kz-ctx-fg) 6%, transparent)` |  |
+| `--kz-ctx-dots` | `color-mix(in srgb, var(--kz-ctx-fg) 14%, transparent)` |  |
 | `--kz-ctx-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-ctx-width` | `230px` |  |
 | `--kz-ctx-duration` | `0.22s` |  |

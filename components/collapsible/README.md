@@ -11,7 +11,7 @@ Long content kept short until asked: a text cut by a soft fade, or a list that s
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-collapsible.html`](kodza-collapsible.html) | 1.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-collapsible.css`](kodza-collapsible.css) | 12.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-collapsible.css`](kodza-collapsible.css) | 12.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-collapsible.js`](kodza-collapsible.js) | 7.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,10 +46,10 @@ CSS variables, set on `.kodza-more` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-more-fg` | `#0a0a0a` |  |
-| `--kz-more-muted` | `rgba(10, 10, 10, 0.64)` |  |
-| `--kz-more-line` | `rgba(10, 10, 10, 0.12)` |  |
-| `--kz-more-soft` | `rgba(10, 10, 10, 0.05)` |  |
+| `--kz-more-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-more-muted` | `color-mix(in srgb, var(--kz-more-fg) 64%, transparent)` |  |
+| `--kz-more-line` | `color-mix(in srgb, var(--kz-more-fg) 12%, transparent)` |  |
+| `--kz-more-soft` | `color-mix(in srgb, var(--kz-more-fg) 5%, transparent)` |  |
 | `--kz-more-height` | `9.6em` |  |
 | `--kz-more-fade` | `4em` |  |
 | `--kz-more-width` | `auto` | 100%: the content fills the width, for blocks (cards, a table) |

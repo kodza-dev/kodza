@@ -11,7 +11,7 @@ A hero framed by its own pattern: the grid lines up on your content, four hairli
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-pattern-background.html`](kodza-pattern-background.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-pattern-background.css`](kodza-pattern-background.css) | 25.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-pattern-background.css`](kodza-pattern-background.css) | 25.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-pattern-background.js`](kodza-pattern-background.js) | 10.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,9 +46,9 @@ CSS variables, set on `[data-kodza-pattern-background]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-pattern-background-bg` | `#f2f2f0` | the paper |
-| `--kz-pattern-background-ink` | `#0a0a0a` | the pattern, the text, the button |
-| `--kz-pattern-background-muted` | `rgba(10, 10, 10, 0.62)` |  |
+| `--kz-pattern-background-bg` | `var(--kz-color-page, #f2f2f0)` | the paper |
+| `--kz-pattern-background-ink` | `var(--kz-color-ink, #0a0a0a)` | the pattern, the text, the button |
+| `--kz-pattern-background-muted` | `color-mix(in srgb, var(--kz-pattern-background-ink) 62%, transparent)` |  |
 | `--kz-pattern-background-size` | `40px` | one cell, in px (dots sit at half of it) |
 | `--kz-pattern-background-line` | `1px` | stroke, and dot radius |
 | `--kz-pattern-background-strength` | `1` | 0.5 is fainter, 2 is twice as present |

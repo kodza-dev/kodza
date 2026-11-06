@@ -11,7 +11,7 @@ A split hero, words on the left and a 4:5 picture on the right: the title lines 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-split.html`](kodza-hero-split.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-split.css`](kodza-hero-split.css) | 17.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-split.css`](kodza-hero-split.css) | 17.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-split.js`](kodza-hero-split.js) | 7.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,11 +46,11 @@ CSS variables, set on `.kodza-hero-split` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-split-ink` | `#0a0a0a` |  |
-| `--kz-hero-split-paper` | `#f2f2f0` |  |
-| `--kz-hero-split-dim` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hero-split-faint` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-hero-split-soft` | `rgba(10, 10, 10, 0.07)` |  |
+| `--kz-hero-split-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-split-paper` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-split-dim` | `color-mix(in srgb, var(--kz-hero-split-ink) 62%, transparent)` |  |
+| `--kz-hero-split-faint` | `color-mix(in srgb, var(--kz-hero-split-ink) 60%, transparent)` |  |
+| `--kz-hero-split-soft` | `color-mix(in srgb, var(--kz-hero-split-ink) 7%, transparent)` |  |
 | `--kz-hero-split-bg` | `transparent` |  |
 | `--kz-hero-split-width` | `1240px` |  |
 | `--kz-hero-split-gap` | `clamp(32px, 5vw, 80px)` |  |

@@ -11,7 +11,7 @@ For the actions you cannot take back: hold it down and an ink pill fills the but
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hold-to-confirm.html`](kodza-hold-to-confirm.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hold-to-confirm.css`](kodza-hold-to-confirm.css) | 10.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hold-to-confirm.css`](kodza-hold-to-confirm.css) | 11.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hold-to-confirm.js`](kodza-hold-to-confirm.js) | 12.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,11 +46,11 @@ CSS variables, set on `.kodza-hold-to-confirm` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hold-bg` | `rgba(10, 10, 10, 0.07)` |  |
-| `--kz-hold-fg` | `#0a0a0a` |  |
-| `--kz-hold-fill` | `#0a0a0a` |  |
-| `--kz-hold-fill-fg` | `#ffffff` |  |
-| `--kz-hold-ring` | `#0a0a0a` |  |
+| `--kz-hold-bg` | `color-mix(in srgb, var(--kz-hold-fg) 7%, transparent)` |  |
+| `--kz-hold-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hold-fill` | `var(--kz-color-accent, var(--kz-hold-fg))` |  |
+| `--kz-hold-fill-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
+| `--kz-hold-ring` | `var(--kz-color-ink, #0a0a0a)` | outside the button, on the page |
 | `--kz-hold-height` | `52px` |  |
 | `--kz-hold-pad-x` | `28px` |  |
 | `--kz-hold-icon` | `18px` |  |

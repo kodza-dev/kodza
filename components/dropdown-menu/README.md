@@ -11,7 +11,7 @@ A menu that unrolls from its button, with a highlight that slides from item to i
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-dropdown-menu.html`](kodza-dropdown-menu.html) | 2.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-dropdown-menu.css`](kodza-dropdown-menu.css) | 16.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-dropdown-menu.css`](kodza-dropdown-menu.css) | 16.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-dropdown-menu.js`](kodza-dropdown-menu.js) | 11.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,11 +46,11 @@ CSS variables, set on `.kodza-dropdown` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-menu-bg` | `#ffffff` |  |
-| `--kz-menu-fg` | `#0a0a0a` |  |
-| `--kz-menu-muted` | `rgba(10, 10, 10, 0.58)` |  |
-| `--kz-menu-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-menu-soft` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-menu-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-menu-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-menu-muted` | `color-mix(in srgb, var(--kz-menu-fg) 58%, transparent)` |  |
+| `--kz-menu-border` | `color-mix(in srgb, var(--kz-menu-fg) 10%, transparent)` |  |
+| `--kz-menu-soft` | `color-mix(in srgb, var(--kz-menu-fg) 6%, transparent)` |  |
 | `--kz-menu-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-menu-width` | `220px` |  |
 | `--kz-menu-duration` | `0.35s` |  |

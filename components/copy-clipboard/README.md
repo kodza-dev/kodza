@@ -11,7 +11,7 @@ A command, or a sentence for your AI, with a copy button: the icon turns into a 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-copy-clipboard.html`](kodza-copy-clipboard.html) | 1.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-copy-clipboard.css`](kodza-copy-clipboard.css) | 11.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-copy-clipboard.css`](kodza-copy-clipboard.css) | 11.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-copy-clipboard.js`](kodza-copy-clipboard.js) | 5.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `[data-kodza-copy]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-copy-bg` | `#ffffff` |  |
-| `--kz-copy-fg` | `#0a0a0a` |  |
-| `--kz-copy-muted` | `rgba(10, 10, 10, 0.45)` |  |
-| `--kz-copy-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-copy-button-bg` | `#0a0a0a` |  |
-| `--kz-copy-button-fg` | `#ffffff` |  |
+| `--kz-copy-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-copy-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-copy-muted` | `color-mix(in srgb, var(--kz-copy-fg) 45%, transparent)` |  |
+| `--kz-copy-border` | `color-mix(in srgb, var(--kz-copy-fg) 10%, transparent)` |  |
+| `--kz-copy-button-bg` | `var(--kz-color-accent, var(--kz-copy-fg))` |  |
+| `--kz-copy-button-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-copy-radius` | `calc(14px * var(--kz-radius-scale, 1))` |  |
 | `--kz-copy-font` | `var(--kz-font-mono, ui-monospace, "SF Mono", "Geist Mono", Menlo, monospace)` |  |
 | `--kz-copy-size` | `14px` |  |

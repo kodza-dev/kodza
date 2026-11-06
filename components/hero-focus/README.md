@@ -11,7 +11,7 @@ A title sharp over a blurred picture. On scroll the focus moves to the picture, 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-focus.html`](kodza-hero-focus.html) | 3.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-focus.css`](kodza-hero-focus.css) | 23.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-focus.css`](kodza-hero-focus.css) | 23.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-focus.js`](kodza-hero-focus.js) | 23.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,11 +48,11 @@ CSS variables, set on `.kodza-hero-focus` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-focus-ink` | `#0a0a0a` |  |
-| `--kz-hero-focus-paper` | `#f2f2f0` |  |
-| `--kz-hero-focus-dim` | `rgba(10, 10, 10, 0.66)` |  |
-| `--kz-hero-focus-line` | `rgba(10, 10, 10, 0.12)` |  |
-| `--kz-hero-focus-card` | `#fff` |  |
+| `--kz-hero-focus-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-focus-paper` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-focus-dim` | `color-mix(in srgb, var(--kz-hero-focus-ink) 66%, transparent)` |  |
+| `--kz-hero-focus-line` | `color-mix(in srgb, var(--kz-hero-focus-ink) 12%, transparent)` |  |
+| `--kz-hero-focus-card` | `var(--kz-color-paper, #ffffff)` |  |
 | `--kz-hero-focus-veil` | `242, 242, 240` | the readability veil, rgb of the paper |
 | `--kz-hero-focus-ratio` | `1` | the picture's width / height |
 | `--kz-hero-focus-crop-x` | `0.5` | which part stays in view when the screen crops it, 0 to 1 |

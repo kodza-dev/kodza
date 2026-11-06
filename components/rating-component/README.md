@@ -11,7 +11,7 @@ Real radio buttons drawn as stars: they light up one after the other under the p
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-rating-component.html`](kodza-rating-component.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-rating-component.css`](kodza-rating-component.css) | 10.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-rating-component.css`](kodza-rating-component.css) | 10.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-rating-component.js`](kodza-rating-component.js) | 8.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,10 +46,10 @@ CSS variables, set on `.kodza-rating` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-rating-fg` | `#0a0a0a` |  |
-| `--kz-rating-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-rating-rail` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-rating-ink` | `#0a0a0a` |  |
+| `--kz-rating-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-rating-muted` | `color-mix(in srgb, var(--kz-rating-fg) 60%, transparent)` |  |
+| `--kz-rating-rail` | `color-mix(in srgb, var(--kz-rating-fg) 14%, transparent)` |  |
+| `--kz-rating-ink` | `var(--kz-color-accent, var(--kz-rating-fg))` |  |
 | `--kz-rating-size` | `30px` |  |
 | `--kz-rating-gap` | `6px` |  |
 | `--kz-rating-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

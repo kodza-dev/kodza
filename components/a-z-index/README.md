@@ -11,7 +11,7 @@ A bar of letters over a grouped list: a click glides to the group, an ink pill f
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-a-z-index.html`](kodza-a-z-index.html) | 10.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-a-z-index.css`](kodza-a-z-index.css) | 15.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-a-z-index.css`](kodza-a-z-index.css) | 15.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-a-z-index.js`](kodza-a-z-index.js) | 14.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,13 +48,13 @@ CSS variables, set on `[data-kodza-a-z-index]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-az-index-fg` | `#0a0a0a` |  |
-| `--kz-az-index-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-az-index-faint` | `rgba(10, 10, 10, 0.34)` | letters with nothing under them |
-| `--kz-az-index-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-az-index-hover` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-az-index-ink` | `#0a0a0a` |  |
-| `--kz-az-index-on-ink` | `#ffffff` |  |
+| `--kz-az-index-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-az-index-muted` | `color-mix(in srgb, var(--kz-az-index-fg) 62%, transparent)` |  |
+| `--kz-az-index-faint` | `color-mix(in srgb, var(--kz-az-index-fg) 34%, transparent)` | letters with nothing under them |
+| `--kz-az-index-line` | `color-mix(in srgb, var(--kz-az-index-fg) 10%, transparent)` |  |
+| `--kz-az-index-hover` | `color-mix(in srgb, var(--kz-az-index-fg) 6%, transparent)` |  |
+| `--kz-az-index-ink` | `var(--kz-color-accent, var(--kz-az-index-fg))` |  |
+| `--kz-az-index-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-az-index-veil` | `rgba(255, 255, 255, 0.78)` | behind the bar once it sticks |
 | `--kz-az-index-top` | `0px` | height of a fixed header above it |
 | `--kz-az-index-bleed` | `0px` | how far the veil reaches past the sides |

@@ -1,0 +1,695 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Section Tone Shift
+   Wraps a run of sections. While one marked data-tone-shift holds the middle of the screen, the
+   whole page turns from its own tone to the other one, and back as the section leaves: the
+   background follows the scroll, the text and the hairlines change side at once, halfway, so they
+   never sit grey on grey. Without the script (or with reduced motion), the marked sections simply
+   wear the other tone.
+   Tuned with the --kz-section-tone-shift-* variables (the two tones first); the band, the
+   thresholds and the smoothing are constants at the top of component.js. */
+.kodza-section-tone-shift {
+  /* The page's own tone: background, text, quiet text and hairlines */
+  --kz-section-tone-shift-from: var(--kz-color-page, #f2f2f0);
+  --kz-section-tone-shift-from-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-section-tone-shift-from-muted: color-mix(in srgb, var(--kz-section-tone-shift-from-ink) 66%, transparent);
+  --kz-section-tone-shift-from-line: color-mix(in srgb, var(--kz-section-tone-shift-from-ink) 14%, transparent);
+  /* The tone a marked section turns the page to */
+  --kz-section-tone-shift-to: var(--kz-color-ink, #0a0a0a);
+  --kz-section-tone-shift-to-ink: var(--kz-color-page, #f2f2f0);
+  --kz-section-tone-shift-to-muted: color-mix(in srgb, var(--kz-section-tone-shift-to-ink) 66%, transparent);
+  --kz-section-tone-shift-to-line: color-mix(in srgb, var(--kz-section-tone-shift-to-ink) 16%, transparent);
+  /* How fast the text and the hairlines change side, once the background is halfway: soft at both
+     ends, quick through the middle, where the text passes the grey of the background */
+  --kz-section-tone-shift-duration: 0.3s;
+  --kz-section-tone-shift-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --kz-section-tone-shift-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
+
+  /* The tone the content is in now, for your own elements too: color: var(--kz-section-tone-shift-ink) */
+  --kz-section-tone-shift-bg: var(--kz-section-tone-shift-from);
+  --kz-section-tone-shift-ink: var(--kz-section-tone-shift-from-ink);
+  --kz-section-tone-shift-muted: var(--kz-section-tone-shift-from-muted);
+  --kz-section-tone-shift-line: var(--kz-section-tone-shift-from-line);
+
+  display: block;
+  background-color: var(--kz-section-tone-shift-from);
+  color: var(--kz-section-tone-shift-ink);
+}
+
+/* Without the script, or asked to sit still: each marked section wears the other tone on its own */
+.kodza-section-tone-shift:not(.is-shifting) [data-tone-shift],
+.kodza-section-tone-shift.is-shifted {
+  --kz-section-tone-shift-bg: var(--kz-section-tone-shift-to);
+  --kz-section-tone-shift-ink: var(--kz-section-tone-shift-to-ink);
+  --kz-section-tone-shift-muted: var(--kz-section-tone-shift-to-muted);
+  --kz-section-tone-shift-line: var(--kz-section-tone-shift-to-line);
+}
+
+.kodza-section-tone-shift:not(.is-shifting) [data-tone-shift] {
+  background-color: var(--kz-section-tone-shift-to);
+  color: var(--kz-section-tone-shift-ink);
+}
+
+/* Halfway between the tones, on a mid grey: the soft text takes the full ink to stay readable */
+.kodza-section-tone-shift.is-crossing {
+  --kz-section-tone-shift-muted: var(--kz-section-tone-shift-ink);
+}
+
+/* Running: the whole page paints the mix the script writes (0 its own tone, 1 the other one) */
+.kodza-section-tone-shift.is-shifting {
+  background-color: color-mix(in oklab, var(--kz-section-tone-shift-to) calc(var(--kz-section-tone-shift-mix, 0) * 100%), var(--kz-section-tone-shift-from));
+}
+
+/* The example sections */
+.kodza-section-tone-shift__section {
+  box-sizing: border-box;
+  display: grid;
+  gap: clamp(28px, 4vw, 48px);
+  align-content: start;
+  padding: clamp(96px, 13vw, 168px) max(24px, calc((100% - 1080px) / 2));
+}
+
+.kodza-section-tone-shift__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: clamp(24px, 5vw, 72px);
+  align-items: end;
+}
+
+.kodza-section-tone-shift__lead {
+  display: grid;
+  gap: 22px;
+}
+
+.kodza-section-tone-shift__label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--kz-section-tone-shift-muted);
+  font-family: var(--kz-font-label, var(--kz-section-tone-shift-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+/* A drawn dot before each label */
+.kodza-section-tone-shift__label::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: currentColor;
+}
+
+.kodza-section-tone-shift__title {
+  max-width: 18ch;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(34px, 5.4vw, 72px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+}
+
+.kodza-section-tone-shift__title--statement {
+  max-width: 15ch;
+  font-size: calc(clamp(40px, 7.4vw, 104px) * var(--kz-font-display-scale, 1));
+  line-height: 0.98;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+}
+
+.kodza-section-tone-shift__text {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--kz-section-tone-shift-muted);
+  font-size: 17px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.kodza-section-tone-shift__figures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin: clamp(24px, 4vw, 48px) 0 0;
+  padding: 24px 0 0;
+  border-top: 1px solid var(--kz-section-tone-shift-line);
+}
+
+.kodza-section-tone-shift__figure {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.kodza-section-tone-shift__value {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(28px, 3.4vw, 40px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.05;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+}
+
+.kodza-section-tone-shift__caption,
+.kodza-section-tone-shift__num,
+.kodza-section-tone-shift__note {
+  margin: 0;
+  color: var(--kz-section-tone-shift-muted);
+  font-family: var(--kz-font-label, var(--kz-section-tone-shift-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-section-tone-shift__list {
+  max-width: 720px;
+  margin: clamp(8px, 2vw, 24px) 0 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--kz-section-tone-shift-line);
+}
+
+.kodza-section-tone-shift__item {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: baseline;
+  margin: 0;
+  padding: 20px 0;
+  border-top: 1px solid var(--kz-section-tone-shift-line);
+  text-wrap: pretty;
+  font-size: clamp(18px, 2vw, 22px);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.kodza-section-tone-shift__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+  margin-top: clamp(4px, 1vw, 12px);
+}
+
+.kodza-section-tone-shift__button {
+  display: inline-flex;
+  align-items: center;
+  height: 52px;
+  padding: 0 26px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-section-tone-shift-ink);
+  color: var(--kz-section-tone-shift-bg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, inherit);
+  text-decoration: none;
+}
+
+.kodza-section-tone-shift__button:focus-visible {
+  outline: 2px solid var(--kz-section-tone-shift-ink);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .kodza-section-tone-shift__button:hover {
+    opacity: 0.86;
+  }
+}
+
+/* Moving: the text and the hairlines change side together, in one short crossing */
+.kodza-section-tone-shift.is-moving,
+.kodza-section-tone-shift.is-moving :is(.kodza-section-tone-shift__label, .kodza-section-tone-shift__text, .kodza-section-tone-shift__caption, .kodza-section-tone-shift__num, .kodza-section-tone-shift__note) {
+  transition: color calc(var(--kz-section-tone-shift-duration) * var(--kz-motion-scale, 1)) var(--kz-section-tone-shift-ease);
+}
+
+.kodza-section-tone-shift.is-moving :is(.kodza-section-tone-shift__figures, .kodza-section-tone-shift__list, .kodza-section-tone-shift__item) {
+  transition: border-color calc(var(--kz-section-tone-shift-duration) * var(--kz-motion-scale, 1)) var(--kz-section-tone-shift-ease);
+}
+
+.kodza-section-tone-shift.is-moving .kodza-section-tone-shift__button {
+  transition:
+    background-color calc(var(--kz-section-tone-shift-duration) * var(--kz-motion-scale, 1)) var(--kz-section-tone-shift-ease),
+    color calc(var(--kz-section-tone-shift-duration) * var(--kz-motion-scale, 1)) var(--kz-section-tone-shift-ease),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (max-width: 759.98px) {
+  .kodza-section-tone-shift__head {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+@media (max-width: 559.98px) {
+  .kodza-section-tone-shift__figures {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .kodza-section-tone-shift__item {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-section-tone-shift,
+  .kodza-section-tone-shift *,
+  .kodza-section-tone-shift *::before,
+  .kodza-section-tone-shift *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 8ae6750d6885 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-section-tone-shift__label):not(#_),
+:where(.kodza-section-tone-shift__text):not(#_),
+:where(.kodza-section-tone-shift__caption):not(#_),
+:where(.kodza-section-tone-shift__note):not(#_) {
+  transition: revert;
+  background-color: revert;
+}
+
+:where(.kodza-section-tone-shift__title):not(#_),
+:where(.kodza-section-tone-shift__figures):not(#_),
+:where(.kodza-section-tone-shift__value):not(#_),
+:where(.kodza-section-tone-shift__list):not(#_),
+:where(.kodza-section-tone-shift__item):not(#_) {
+  transition: revert;
+  background-color: revert;
+  color: revert;
+}
+
+:where(.kodza-section-tone-shift__button):not(#_) {
+  outline: revert;
+  transition: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-section-tone-shift:not(#_),
+.kodza-section-tone-shift__head:not(#_),
+.kodza-section-tone-shift__lead:not(#_),
+.kodza-section-tone-shift__figure:not(#_),
+.kodza-section-tone-shift__num:not(#_),
+.kodza-section-tone-shift__actions:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-section-tone-shift__label:not(#_),
+.kodza-section-tone-shift__caption:not(#_),
+.kodza-section-tone-shift__note:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-section-tone-shift__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-section-tone-shift__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-section-tone-shift__figures:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-section-tone-shift__value:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-section-tone-shift__list:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-top-width: revert;
+  border-right-width: revert;
+  border-left-width: revert;
+  border-top-style: revert;
+  border-right-style: revert;
+  border-left-style: revert;
+  border-top-color: revert;
+  border-right-color: revert;
+  border-left-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-section-tone-shift__item:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-section-tone-shift__button:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-section-tone-shift__title:not(#_):where(:not([hidden])),
+.kodza-section-tone-shift__text:not(#_):where(:not([hidden])),
+.kodza-section-tone-shift__caption:not(#_):where(:not([hidden])),
+.kodza-section-tone-shift__value:not(#_):where(:not([hidden])),
+.kodza-section-tone-shift__list:not(#_):where(:not([hidden])),
+.kodza-section-tone-shift__note:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-section-tone-shift__title:not(#_):where([hidden]),
+.kodza-section-tone-shift__text:not(#_):where([hidden]),
+.kodza-section-tone-shift__caption:not(#_):where([hidden]),
+.kodza-section-tone-shift__value:not(#_):where([hidden]),
+.kodza-section-tone-shift__list:not(#_):where([hidden]),
+.kodza-section-tone-shift__note:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-section-tone-shift__label:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-section-tone-shift:not(.is-shifting) [data-tone-shift]:where(a, p, h2, dl, dt, dd, ol, li):not(#_) {
+  background-color: var(--kz-section-tone-shift-to);
+  color: var(--kz-section-tone-shift-ink);
+}
+
+.kodza-section-tone-shift__label:not(#_) {
+  display: flex;
+  margin: 0;
+  color: var(--kz-section-tone-shift-muted);
+  font-family: var(--kz-font-label, var(--kz-section-tone-shift-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-section-tone-shift__title:not(#_) {
+  max-width: 18ch;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(34px, 5.4vw, 72px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-section-tone-shift__title--statement:not(#_) {
+  max-width: 15ch;
+  font-size: calc(clamp(40px, 7.4vw, 104px) * var(--kz-font-display-scale, 1));
+  line-height: 0.98;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+}
+
+.kodza-section-tone-shift__text:not(#_) {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--kz-section-tone-shift-muted);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.kodza-section-tone-shift__figures:not(#_) {
+  display: grid;
+  margin: clamp(24px, 4vw, 48px) 0 0;
+  padding: 24px 0 0;
+  border-top: 1px solid var(--kz-section-tone-shift-line);
+}
+
+.kodza-section-tone-shift__value:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(28px, 3.4vw, 40px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.05;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+}
+
+.kodza-section-tone-shift__caption:not(#_),
+.kodza-section-tone-shift__note:not(#_) {
+  margin: 0;
+  color: var(--kz-section-tone-shift-muted);
+  font-family: var(--kz-font-label, var(--kz-section-tone-shift-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-section-tone-shift__list:not(#_) {
+  max-width: 720px;
+  margin: clamp(8px, 2vw, 24px) 0 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--kz-section-tone-shift-line);
+}
+
+.kodza-section-tone-shift__item:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 20px 0;
+  border-top: 1px solid var(--kz-section-tone-shift-line);
+  font-size: clamp(18px, 2vw, 22px);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.kodza-section-tone-shift__button:not(#_) {
+  display: inline-flex;
+  padding: 0 26px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-section-tone-shift-ink);
+  color: var(--kz-section-tone-shift-bg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, inherit);
+  text-decoration: none;
+}
+
+.kodza-section-tone-shift__button:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-section-tone-shift-ink);
+  outline-offset: 3px;
+}
+
+.kodza-section-tone-shift.is-moving :is(.kodza-section-tone-shift__label, .kodza-section-tone-shift__text, .kodza-section-tone-shift__caption, .kodza-section-tone-shift__num, .kodza-section-tone-shift__note):where(p, h2, dl, dt, dd, ol, li, a):not(#_) {
+  transition: color calc(var(--kz-section-tone-shift-duration) * var(--kz-motion-scale, 1)) var(--kz-section-tone-shift-ease);
+}
+
+.kodza-section-tone-shift.is-moving :is(.kodza-section-tone-shift__figures, .kodza-section-tone-shift__list, .kodza-section-tone-shift__item):where(p, h2, dl, dt, dd, ol, li, a):not(#_) {
+  transition: border-color calc(var(--kz-section-tone-shift-duration) * var(--kz-motion-scale, 1)) var(--kz-section-tone-shift-ease);
+}
+
+.kodza-section-tone-shift.is-moving .kodza-section-tone-shift__button:not(#_) {
+  transition: background-color calc(var(--kz-section-tone-shift-duration) * var(--kz-motion-scale, 1)) var(--kz-section-tone-shift-ease),
+    color calc(var(--kz-section-tone-shift-duration) * var(--kz-motion-scale, 1)) var(--kz-section-tone-shift-ease),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-section-tone-shift *:where(p, h2, dl, dt, dd, ol, li, a):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

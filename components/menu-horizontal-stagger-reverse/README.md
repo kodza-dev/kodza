@@ -11,7 +11,7 @@ A button that lets its links out one by one, nearest first, and calls them back 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-menu-horizontal-stagger-reverse.html`](kodza-menu-horizontal-stagger-reverse.html) | 1.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-menu-horizontal-stagger-reverse.css`](kodza-menu-horizontal-stagger-reverse.css) | 12.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-menu-horizontal-stagger-reverse.css`](kodza-menu-horizontal-stagger-reverse.css) | 12.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-menu-horizontal-stagger-reverse.js`](kodza-menu-horizontal-stagger-reverse.js) | 5.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,10 +46,10 @@ CSS variables, set on `.kodza-stagger-menu` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-stagger-fg` | `#0a0a0a` |  |
-| `--kz-stagger-muted` | `rgba(10, 10, 10, 0.58)` |  |
-| `--kz-stagger-ink` | `#0a0a0a` |  |
-| `--kz-stagger-on-ink` | `#ffffff` |  |
+| `--kz-stagger-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-stagger-muted` | `color-mix(in srgb, var(--kz-stagger-fg) 58%, transparent)` |  |
+| `--kz-stagger-ink` | `var(--kz-color-accent, var(--kz-stagger-fg))` |  |
+| `--kz-stagger-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-stagger-step` | `50ms` |  |
 | `--kz-stagger-travel` | `14px` |  |
 | `--kz-stagger-duration` | `0.45s` |  |

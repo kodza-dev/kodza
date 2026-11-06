@@ -11,7 +11,7 @@ A row of cards where one is always open: click another and it widens while the o
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-expandable-card.html`](kodza-expandable-card.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-expandable-card.css`](kodza-expandable-card.css) | 14.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-expandable-card.css`](kodza-expandable-card.css) | 14.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-expandable-card.js`](kodza-expandable-card.js) | 7.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `.kodza-expand` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-expand-bg` | `#ffffff` |  |
-| `--kz-expand-fg` | `#0a0a0a` |  |
-| `--kz-expand-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-expand-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-expand-open-bg` | `#0a0a0a` |  |
-| `--kz-expand-open-fg` | `#ffffff` |  |
-| `--kz-expand-open-muted` | `rgba(255, 255, 255, 0.68)` |  |
+| `--kz-expand-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-expand-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-expand-muted` | `color-mix(in srgb, var(--kz-expand-fg) 62%, transparent)` |  |
+| `--kz-expand-border` | `color-mix(in srgb, var(--kz-expand-fg) 10%, transparent)` |  |
+| `--kz-expand-open-bg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-expand-open-fg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-expand-open-muted` | `color-mix(in srgb, var(--kz-expand-open-fg) 68%, transparent)` |  |
 | `--kz-expand-height` | `300px` |  |
 | `--kz-expand-grow` | `2.6` |  |
 | `--kz-expand-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |

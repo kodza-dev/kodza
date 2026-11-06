@@ -11,7 +11,7 @@ A line drawn through the steps of a section as you read: it swings from step to 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-scroll-path.html`](kodza-scroll-path.html) | 2.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-scroll-path.css`](kodza-scroll-path.css) | 16.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-scroll-path.css`](kodza-scroll-path.css) | 17.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-scroll-path.js`](kodza-scroll-path.js) | 15.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,13 +48,13 @@ CSS variables, set on `.kodza-scroll-path` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-scroll-path-fg` | `#0a0a0a` |  |
-| `--kz-scroll-path-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-scroll-path-bg` | `#f2f2f0` | the page behind the markers and around the pen |
-| `--kz-scroll-path-ink` | `#0a0a0a` | the line, the pen and the markers it reached |
-| `--kz-scroll-path-on-ink` | `#ffffff` |  |
-| `--kz-scroll-path-track` | `rgba(10, 10, 10, 0.26)` | the dotted route, before the ink |
-| `--kz-scroll-path-rim` | `rgba(10, 10, 10, 0.16)` | a marker not reached yet |
+| `--kz-scroll-path-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-scroll-path-muted` | `color-mix(in srgb, var(--kz-scroll-path-fg) 62%, transparent)` |  |
+| `--kz-scroll-path-bg` | `var(--kz-color-page, #f2f2f0)` | the page behind the markers and around the pen |
+| `--kz-scroll-path-ink` | `var(--kz-color-accent, var(--kz-scroll-path-fg))` | the line, the pen and the markers it reached |
+| `--kz-scroll-path-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
+| `--kz-scroll-path-track` | `color-mix(in srgb, var(--kz-scroll-path-fg) 26%, transparent)` | the dotted route, before the ink |
+| `--kz-scroll-path-rim` | `color-mix(in srgb, var(--kz-scroll-path-fg) 16%, transparent)` | a marker not reached yet |
 | `--kz-scroll-path-width` | `2px` | thickness of the line |
 | `--kz-scroll-path-marker` | `44px` |  |
 | `--kz-scroll-path-column` | `440px` | width of a step |

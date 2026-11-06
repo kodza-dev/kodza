@@ -1,0 +1,328 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Media Expand
+   An image (or a muted video) waits in a rounded frame, set in from the edges. Scrolled to the
+   middle of the screen, it takes the whole width: the corners go square as they reach the edges,
+   the picture settles from a slight zoom, and once it is full the caption rises from its mask.
+   Scroll back up and it all plays in reverse. The width follows the scroll itself; only the
+   caption plays on its own.
+   Tuned with the --kz-media-expand-* variables; the smoothing and the caption's thresholds are
+   constants at the top of component.js. */
+.kodza-media-expand {
+  /* The frame's shape: the picture is cropped to it, never stretched */
+  --kz-media-expand-ratio: 16 / 9;
+  /* The same frame on a medium width (560 to 900px), then on a narrow one (under 560px), where a
+     wide one would be a strip */
+  --kz-media-expand-ratio-medium: 4 / 3;
+  --kz-media-expand-ratio-narrow: 4 / 5;
+  /* Never taller than the screen: past it, the picture is cropped instead */
+  --kz-media-expand-max-height: 100svh;
+  /* How far the frame is set in at rest, on each side (a share of its width and height) */
+  --kz-media-expand-inset: 8%;
+  /* Corners at rest, and once full (0: square, flush with the edges) */
+  --kz-media-expand-radius: calc(24px * var(--kz-radius-scale, 1));
+  --kz-media-expand-radius-end: 0px;
+  /* The picture's zoom at rest; it settles to 1 as the frame opens */
+  --kz-media-expand-zoom: 1.12;
+  /* The caption over the picture, and the veil that keeps it readable */
+  --kz-media-expand-caption-ink: #fff;
+  --kz-media-expand-caption-pad: clamp(20px, 4.5cqi, 56px);
+  --kz-media-expand-veil: rgba(10, 10, 10, 0.6);
+  --kz-media-expand-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
+  --kz-media-expand-duration: 0.7s;
+  --kz-media-expand-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  container-type: inline-size;
+  margin: 0;
+}
+
+/* The frame: clipped from the inset to the full box as the script writes the progress (0 at
+   rest, 1 full). Without the script, it is simply full */
+.kodza-media-expand__frame {
+  --kz-media-expand-rest: calc(1 - var(--kz-media-expand-progress, 1));
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--kz-media-expand-ratio);
+  max-height: var(--kz-media-expand-max-height);
+  overflow: hidden;
+  clip-path: inset(
+    calc(var(--kz-media-expand-inset) * var(--kz-media-expand-rest))
+    round calc(var(--kz-media-expand-radius-end) + (var(--kz-media-expand-radius) - var(--kz-media-expand-radius-end)) * var(--kz-media-expand-rest))
+  );
+}
+
+.kodza-media-expand__frame > img,
+.kodza-media-expand__frame > video,
+.kodza-media-expand__frame > picture,
+.kodza-media-expand__frame > picture > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.kodza-media-expand__frame > img,
+.kodza-media-expand__frame > video,
+.kodza-media-expand__frame > picture {
+  transform: scale(calc(1 + (var(--kz-media-expand-zoom) - 1) * var(--kz-media-expand-rest)));
+}
+
+/* The veil under the caption: a dark falloff from the bottom edge, shown with it */
+.kodza-media-expand__frame::after {
+  content: "";
+  position: absolute;
+  inset: 45% 0 0;
+  background: linear-gradient(to top, var(--kz-media-expand-veil), var(--kz-media-expand-veil) 40%, transparent);
+  pointer-events: none;
+}
+
+.kodza-media-expand__caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  padding: var(--kz-media-expand-caption-pad);
+  color: var(--kz-media-expand-caption-ink);
+  pointer-events: none;
+}
+
+/* Each line rides up from behind its own mask (the script wraps its text in __rise) */
+.kodza-media-expand__label,
+.kodza-media-expand__title {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.kodza-media-expand__label {
+  font-family: var(--kz-font-label, var(--kz-media-expand-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  opacity: 0.88;
+}
+
+.kodza-media-expand__title {
+  /* Room for the descenders inside the mask */
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(26px, 5.2cqi, 64px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+}
+
+.kodza-media-expand__rise {
+  display: block;
+}
+
+/* Moving (the script runs and motion is allowed): the caption and its veil wait below until the
+   frame is full, then rise; they drop back, quicker, as soon as it starts closing */
+.kodza-media-expand.is-moving .kodza-media-expand__rise {
+  transform: translate3d(0, 110%, 0);
+  transition: transform calc(0.4s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-media-expand.is-moving .kodza-media-expand__frame::after {
+  opacity: 0;
+  transition: opacity calc(0.4s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-media-expand.is-moving.is-full .kodza-media-expand__rise {
+  transform: none;
+  transition: transform calc(var(--kz-media-expand-duration) * var(--kz-motion-scale, 1)) var(--kz-media-expand-ease);
+}
+
+.kodza-media-expand.is-moving.is-full .kodza-media-expand__title .kodza-media-expand__rise {
+  transition-delay: calc(0.08s * var(--kz-motion-scale, 1));
+}
+
+.kodza-media-expand.is-moving.is-full .kodza-media-expand__frame::after {
+  opacity: 1;
+  transition: opacity calc(var(--kz-media-expand-duration) * var(--kz-motion-scale, 1)) var(--kz-media-expand-ease);
+}
+
+@container (max-width: 899.98px) {
+  .kodza-media-expand__frame {
+    aspect-ratio: var(--kz-media-expand-ratio-medium);
+  }
+}
+
+@container (max-width: 559.98px) {
+  .kodza-media-expand__frame {
+    aspect-ratio: var(--kz-media-expand-ratio-narrow);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-media-expand *,
+  .kodza-media-expand *::before,
+  .kodza-media-expand *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard f9813a3bac93 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-media-expand__caption):not(#_),
+:where(.kodza-media-expand__frame img:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-media-expand:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-expand__frame:not(#_),
+.kodza-media-expand__label:not(#_),
+.kodza-media-expand__rise:not(#_),
+.kodza-media-expand__title:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-media-expand__caption:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-media-expand__frame img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-media-expand:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-media-expand:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-media-expand__frame:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-media-expand:not(#_) {
+  position: relative;
+}
+
+.kodza-media-expand__frame > img:not(#_) {
+  display: block;
+  max-width: none;
+}
+
+.kodza-media-expand__caption:not(#_) {
+  position: absolute;
+  display: grid;
+  padding: var(--kz-media-expand-caption-pad);
+  color: var(--kz-media-expand-caption-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-media-expand *:where(img, figcaption):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

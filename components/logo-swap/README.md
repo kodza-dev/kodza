@@ -11,7 +11,7 @@ More customer logos than cells: every few seconds one cell swaps its logo, the o
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-logo-swap.html`](kodza-logo-swap.html) | 28.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-logo-swap.css`](kodza-logo-swap.css) | 18.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-logo-swap.css`](kodza-logo-swap.css) | 18.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-logo-swap.js`](kodza-logo-swap.js) | 13.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `[data-kodza-logo-swap]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-logo-swap-ink` | `#0a0a0a` |  |
-| `--kz-logo-swap-dim` | `rgba(10, 10, 10, 0.64)` |  |
-| `--kz-logo-swap-logo` | `rgba(10, 10, 10, 0.72)` | the logos, a step under the ink |
+| `--kz-logo-swap-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-logo-swap-dim` | `color-mix(in srgb, var(--kz-logo-swap-ink) 64%, transparent)` |  |
+| `--kz-logo-swap-logo` | `color-mix(in srgb, var(--kz-logo-swap-ink) 72%, transparent)` | the logos, a step under the ink |
 | `--kz-logo-swap-img-filter` | `grayscale(1) opacity(0.72)` | a logo given as an img; on a dark band: brightness(0) invert(1) opacity(0.72) |
-| `--kz-logo-swap-rule` | `rgba(10, 10, 10, 0.1)` | the hairlines of the grid |
-| `--kz-logo-swap-track` | `rgba(10, 10, 10, 0.16)` |  |
+| `--kz-logo-swap-rule` | `color-mix(in srgb, var(--kz-logo-swap-ink) 10%, transparent)` | the hairlines of the grid |
+| `--kz-logo-swap-track` | `color-mix(in srgb, var(--kz-logo-swap-ink) 16%, transparent)` |  |
 | `--kz-logo-swap-bg` | `transparent` |  |
 | `--kz-logo-swap-columns` | `6` |  |
 | `--kz-logo-swap-rows` | `1` | the cells on show: columns x rows; the other logos wait their turn |

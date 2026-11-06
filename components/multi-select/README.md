@@ -11,7 +11,7 @@ A real multiple select as a field of tags: type to filter, pick to add a tag. Re
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-multi-select.html`](kodza-multi-select.html) | 0.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-multi-select.css`](kodza-multi-select.css) | 22.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-multi-select.css`](kodza-multi-select.css) | 22.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-multi-select.js`](kodza-multi-select.js) | 15.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,14 +46,14 @@ CSS variables, set on `.kodza-multi` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-multi-bg` | `#ffffff` |  |
-| `--kz-multi-fg` | `#0a0a0a` |  |
-| `--kz-multi-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-multi-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-multi-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-multi-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-multi-ink` | `#0a0a0a` |  |
-| `--kz-multi-on-ink` | `#ffffff` |  |
+| `--kz-multi-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-multi-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-multi-muted` | `color-mix(in srgb, var(--kz-multi-fg) 60%, transparent)` |  |
+| `--kz-multi-line` | `color-mix(in srgb, var(--kz-multi-fg) 14%, transparent)` |  |
+| `--kz-multi-line-hover` | `color-mix(in srgb, var(--kz-multi-fg) 30%, transparent)` |  |
+| `--kz-multi-soft` | `color-mix(in srgb, var(--kz-multi-fg) 6%, transparent)` |  |
+| `--kz-multi-ink` | `var(--kz-color-accent, var(--kz-multi-fg))` |  |
+| `--kz-multi-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-multi-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-multi-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-multi-pad` | `16px` |  |

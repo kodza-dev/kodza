@@ -11,7 +11,7 @@ A restaurant menu by service: dish, original name, a tabular price on a dotted l
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-menu-board.html`](kodza-menu-board.html) | 8.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-menu-board.css`](kodza-menu-board.css) | 22.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-menu-board.css`](kodza-menu-board.css) | 23.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-menu-board.js`](kodza-menu-board.js) | 13.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `[data-kodza-menu-board]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-menu-board-fg` | `#0a0a0a` |  |
-| `--kz-menu-board-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-menu-board-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-menu-board-dots` | `rgba(10, 10, 10, 0.34)` | the leader between a dish and its price |
-| `--kz-menu-board-tabs-bg` | `#ffffff` |  |
-| `--kz-menu-board-ink` | `#0a0a0a` |  |
-| `--kz-menu-board-on-ink` | `#ffffff` |  |
+| `--kz-menu-board-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-menu-board-muted` | `color-mix(in srgb, var(--kz-menu-board-fg) 62%, transparent)` |  |
+| `--kz-menu-board-line` | `color-mix(in srgb, var(--kz-menu-board-fg) 10%, transparent)` |  |
+| `--kz-menu-board-dots` | `color-mix(in srgb, var(--kz-menu-board-fg) 34%, transparent)` | the leader between a dish and its price |
+| `--kz-menu-board-tabs-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-menu-board-ink` | `var(--kz-color-accent, var(--kz-menu-board-fg))` |  |
+| `--kz-menu-board-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-menu-board-veil` | `rgba(255, 255, 255, 0.78)` | behind a pinned title (stack layout) |
 | `--kz-menu-board-top` | `0px` | height of a fixed header above it (stack layout) |
 | `--kz-menu-board-width` | `720px` |  |

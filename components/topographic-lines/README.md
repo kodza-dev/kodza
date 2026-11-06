@@ -46,9 +46,9 @@ CSS variables, set on `[data-kodza-topographic-lines]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-topographic-lines-bg` | `#f2f2f0` | the paper |
-| `--kz-topographic-lines-ink` | `#0a0a0a` | the lines, the text, the button |
-| `--kz-topographic-lines-muted` | `rgba(10, 10, 10, 0.62)` |  |
+| `--kz-topographic-lines-bg` | `var(--kz-color-page, #f2f2f0)` | the paper |
+| `--kz-topographic-lines-ink` | `var(--kz-color-ink, #0a0a0a)` | the lines, the text, the button |
+| `--kz-topographic-lines-muted` | `color-mix(in srgb, var(--kz-topographic-lines-ink) 62%, transparent)` |  |
 | `--kz-topographic-lines-minor` | `0.16` | opacity of a contour line, 0 to 1 |
 | `--kz-topographic-lines-major` | `0.34` | every fifth line, the index contour, a little thicker |
 | `--kz-topographic-lines-levels` | `12` | how many lines a hill gets: more for steeper ground |

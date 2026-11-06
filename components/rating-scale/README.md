@@ -11,7 +11,7 @@ A score on real radio buttons, from 0 to 10 or 1 to 5. The picked score fills wi
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-rating-scale.html`](kodza-rating-scale.html) | 6.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-rating-scale.css`](kodza-rating-scale.css) | 18.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-rating-scale.css`](kodza-rating-scale.css) | 19.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -42,14 +42,14 @@ CSS variables, set on `.kodza-rating-scale` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-rating-scale-bg` | `#ffffff` |  |
-| `--kz-rating-scale-fg` | `#0a0a0a` |  |
-| `--kz-rating-scale-muted` | `rgba(10, 10, 10, 0.58)` |  |
-| `--kz-rating-scale-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-rating-scale-border-hover` | `rgba(10, 10, 10, 0.28)` |  |
-| `--kz-rating-scale-ink` | `#0a0a0a` |  |
-| `--kz-rating-scale-on-ink` | `#ffffff` |  |
-| `--kz-rating-scale-soft` | `rgba(10, 10, 10, 0.06)` | the halo of the follow-up box |
+| `--kz-rating-scale-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-rating-scale-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-rating-scale-muted` | `color-mix(in srgb, var(--kz-rating-scale-fg) 58%, transparent)` |  |
+| `--kz-rating-scale-border` | `color-mix(in srgb, var(--kz-rating-scale-fg) 10%, transparent)` |  |
+| `--kz-rating-scale-border-hover` | `color-mix(in srgb, var(--kz-rating-scale-fg) 28%, transparent)` |  |
+| `--kz-rating-scale-ink` | `var(--kz-color-accent, var(--kz-rating-scale-fg))` |  |
+| `--kz-rating-scale-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
+| `--kz-rating-scale-soft` | `color-mix(in srgb, var(--kz-rating-scale-fg) 6%, transparent)` | the halo of the follow-up box |
 | `--kz-rating-scale-shadow` | `rgba(10, 10, 10, 0.18)` | under a lifted score |
 | `--kz-rating-scale-cell` | `44px` | a score's height, and its width when there is room |
 | `--kz-rating-scale-gap` | `4px` |  |

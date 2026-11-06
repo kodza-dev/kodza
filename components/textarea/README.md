@@ -11,7 +11,7 @@ A textarea whose label folds up, whose height eases to fit the text, and whose r
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-textarea.html`](kodza-textarea.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-textarea.css`](kodza-textarea.css) | 13.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-textarea.css`](kodza-textarea.css) | 13.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-textarea.js`](kodza-textarea.js) | 8.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `.kodza-textarea` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-textarea-bg` | `#ffffff` |  |
-| `--kz-textarea-fg` | `#0a0a0a` |  |
-| `--kz-textarea-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-textarea-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-textarea-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-textarea-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-textarea-error` | `#0a0a0a` |  |
+| `--kz-textarea-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-textarea-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-textarea-muted` | `color-mix(in srgb, var(--kz-textarea-fg) 60%, transparent)` |  |
+| `--kz-textarea-line` | `color-mix(in srgb, var(--kz-textarea-fg) 14%, transparent)` |  |
+| `--kz-textarea-line-hover` | `color-mix(in srgb, var(--kz-textarea-fg) 30%, transparent)` |  |
+| `--kz-textarea-soft` | `color-mix(in srgb, var(--kz-textarea-fg) 6%, transparent)` |  |
+| `--kz-textarea-error` | `var(--kz-color-error, var(--kz-textarea-fg))` |  |
 | `--kz-textarea-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-textarea-pad` | `16px` |  |
 | `--kz-textarea-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

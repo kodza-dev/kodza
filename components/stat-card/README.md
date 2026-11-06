@@ -11,7 +11,7 @@ A key figure, its change and the curve behind it: the figure rolls, the curve dr
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-stat-card.html`](kodza-stat-card.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-stat-card.css`](kodza-stat-card.css) | 11.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-stat-card.css`](kodza-stat-card.css) | 11.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-stat-card.js`](kodza-stat-card.js) | 11.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `.kodza-stat` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-stat-bg` | `#ffffff` |  |
-| `--kz-stat-fg` | `#0a0a0a` |  |
-| `--kz-stat-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-stat-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-stat-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-stat-ink` | `#0a0a0a` |  |
-| `--kz-stat-on-ink` | `#ffffff` |  |
+| `--kz-stat-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-stat-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-stat-muted` | `color-mix(in srgb, var(--kz-stat-fg) 62%, transparent)` |  |
+| `--kz-stat-border` | `color-mix(in srgb, var(--kz-stat-fg) 10%, transparent)` |  |
+| `--kz-stat-soft` | `color-mix(in srgb, var(--kz-stat-fg) 6%, transparent)` |  |
+| `--kz-stat-ink` | `var(--kz-color-accent, var(--kz-stat-fg))` |  |
+| `--kz-stat-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-stat-pad` | `28px 28px 22px` |  |
 | `--kz-stat-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 

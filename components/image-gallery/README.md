@@ -11,7 +11,7 @@ An editorial image grid: each image grows into a fullscreen viewer in one contin
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-image-gallery.html`](kodza-image-gallery.html) | 4.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-image-gallery.css`](kodza-image-gallery.css) | 19.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-image-gallery.css`](kodza-image-gallery.css) | 19.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-image-gallery.js`](kodza-image-gallery.js) | 17.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -50,11 +50,11 @@ CSS variables, set on `[data-kodza-gallery]` itself:
 | --- | --- | --- |
 | `--kz-gal-gap` | `clamp(14px, 2vw, 28px)` |  |
 | `--kz-gal-radius` | `calc(4px * var(--kz-radius-scale, 1))` |  |
-| `--kz-gal-ink` | `#0a0a0a` |  |
-| `--kz-gal-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-gal-placeholder` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-gal-viewer-bg` | `#0a0a0a` |  |
-| `--kz-gal-viewer-fg` | `#ffffff` |  |
+| `--kz-gal-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-gal-muted` | `color-mix(in srgb, var(--kz-gal-ink) 60%, transparent)` |  |
+| `--kz-gal-placeholder` | `color-mix(in srgb, var(--kz-gal-ink) 6%, transparent)` |  |
+| `--kz-gal-viewer-bg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-gal-viewer-fg` | `var(--kz-color-paper, #ffffff)` |  |
 | `--kz-gal-duration` | `900ms` |  |
 | `--kz-gal-ease` | `cubic-bezier(0.76, 0, 0.24, 1)` |  |
 

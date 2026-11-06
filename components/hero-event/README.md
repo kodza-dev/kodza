@@ -11,7 +11,7 @@ An event hero that counts down to the start date in its markup, each digit dropp
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-event.html`](kodza-hero-event.html) | 2.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-event.css`](kodza-hero-event.css) | 25.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-event.css`](kodza-hero-event.css) | 25.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-event.js`](kodza-hero-event.js) | 16.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-hero-event` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-event-ink` | `#0a0a0a` |  |
-| `--kz-hero-event-paper` | `#f2f2f0` |  |
-| `--kz-hero-event-dim` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hero-event-faint` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-hero-event-soft` | `rgba(10, 10, 10, 0.07)` |  |
-| `--kz-hero-event-line` | `rgba(10, 10, 10, 0.16)` |  |
+| `--kz-hero-event-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-event-paper` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-event-dim` | `color-mix(in srgb, var(--kz-hero-event-ink) 62%, transparent)` |  |
+| `--kz-hero-event-faint` | `color-mix(in srgb, var(--kz-hero-event-ink) 60%, transparent)` |  |
+| `--kz-hero-event-soft` | `color-mix(in srgb, var(--kz-hero-event-ink) 7%, transparent)` |  |
+| `--kz-hero-event-line` | `color-mix(in srgb, var(--kz-hero-event-ink) 16%, transparent)` |  |
 | `--kz-hero-event-bg` | `transparent` |  |
 | `--kz-hero-event-width` | `1240px` |  |
 | `--kz-hero-event-gap` | `clamp(32px, 5vw, 80px)` |  |

@@ -11,7 +11,7 @@ A full site header whose mega menus share one panel: from a link to the next it 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-mega.html`](kodza-header-mega.html) | 7.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-mega.css`](kodza-header-mega.css) | 53.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-mega.css`](kodza-header-mega.css) | 53.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-header-mega.js`](kodza-header-mega.js) | 57.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -49,14 +49,14 @@ CSS variables, set on `.kodza-header-mega` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-header-mega-bg` | `transparent` |  |
-| `--kz-header-mega-fg` | `#0a0a0a` |  |
-| `--kz-header-mega-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-header-mega-soft` | `rgba(10, 10, 10, 0.06)` | the pill under the pointer, the card |
-| `--kz-header-mega-surface` | `#ffffff` | the panel |
-| `--kz-header-mega-border` | `rgba(10, 10, 10, 0.1)` |  |
+| `--kz-header-mega-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-header-mega-muted` | `color-mix(in srgb, var(--kz-header-mega-fg) 62%, transparent)` |  |
+| `--kz-header-mega-soft` | `color-mix(in srgb, var(--kz-header-mega-fg) 6%, transparent)` | the pill under the pointer, the card |
+| `--kz-header-mega-surface` | `var(--kz-color-paper, #ffffff)` | the panel |
+| `--kz-header-mega-border` | `color-mix(in srgb, var(--kz-header-mega-fg) 10%, transparent)` |  |
 | `--kz-header-mega-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
-| `--kz-header-mega-ink` | `#0a0a0a` | the call to action |
-| `--kz-header-mega-on-ink` | `#ffffff` |  |
+| `--kz-header-mega-ink` | `var(--kz-color-accent, var(--kz-header-mega-fg))` | the call to action |
+| `--kz-header-mega-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-header-mega-height` | `72px` |  |
 | `--kz-header-mega-width` | `1200px` | the row, centred |
 | `--kz-header-mega-pad` | `24px` |  |
@@ -64,12 +64,12 @@ CSS variables, set on `.kodza-header-mega` itself:
 | `--kz-header-mega-radius` | `calc(14px * var(--kz-radius-scale, 1))` |  |
 | `--kz-header-mega-duration` | `0.45s` | the panel changing shape, the pill gliding |
 | `--kz-header-mega-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
-| `--kz-header-mega-menu-bg` | `#0a0a0a` | the drawer, below 900 px |
-| `--kz-header-mega-menu-fg` | `#f2f2f0` |  |
-| `--kz-header-mega-menu-muted` | `rgba(242, 242, 240, 0.62)` |  |
-| `--kz-header-mega-menu-rule` | `rgba(242, 242, 240, 0.14)` |  |
-| `--kz-header-mega-menu-ink` | `rgba(10, 10, 10, 0.06)` | the Menu button |
-| `--kz-header-mega-menu-on-ink` | `#0a0a0a` |  |
+| `--kz-header-mega-menu-bg` | `var(--kz-color-ink, #0a0a0a)` | the drawer, below 900 px |
+| `--kz-header-mega-menu-fg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-header-mega-menu-muted` | `color-mix(in srgb, var(--kz-header-mega-menu-fg) 62%, transparent)` |  |
+| `--kz-header-mega-menu-rule` | `color-mix(in srgb, var(--kz-header-mega-menu-fg) 14%, transparent)` |  |
+| `--kz-header-mega-menu-ink` | `color-mix(in srgb, var(--kz-header-mega-fg) 6%, transparent)` | the Menu button |
+| `--kz-header-mega-menu-on-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
 | `--kz-header-mega-menu-gap` | `10px` | between the drawer and the edges of the screen |
 | `--kz-header-mega-menu-radius` | `calc(20px * var(--kz-radius-scale, 1))` |  |
 | `--kz-header-mega-menu-pad` | `clamp(20px, 6cqw, 28px)` |  |

@@ -11,7 +11,7 @@ A # beside every heading. It slides out of the margin when the heading is pointe
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-heading-anchor.html`](kodza-heading-anchor.html) | 0.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-heading-anchor.css`](kodza-heading-anchor.css) | 18.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-heading-anchor.css`](kodza-heading-anchor.css) | 18.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-heading-anchor.js`](kodza-heading-anchor.js) | 15.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `[data-kodza-heading-anchor]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-heading-anchor-heading` | `#0a0a0a` |  |
-| `--kz-heading-anchor-text` | `rgba(10, 10, 10, 0.72)` |  |
+| `--kz-heading-anchor-heading` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-heading-anchor-text` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 72%, transparent)` |  |
 | `--kz-heading-anchor-ink` | `currentColor` |  |
 | `--kz-heading-anchor-muted` | `color-mix(in srgb, currentColor 50%, transparent)` |  |
-| `--kz-heading-anchor-paper` | `#fff` |  |
-| `--kz-heading-anchor-line` | `rgba(10, 10, 10, 0.1)` |  |
+| `--kz-heading-anchor-paper` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-heading-anchor-line` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 10%, transparent)` |  |
 | `--kz-heading-anchor-gap` | `0.3em` |  |
 | `--kz-heading-anchor-size` | `0.75em` |  |
 | `--kz-heading-anchor-offset` | `24px` |  |

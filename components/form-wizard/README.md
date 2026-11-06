@@ -11,7 +11,7 @@ One real form cut into steps: Next checks the step first, the steps slide while 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-form-wizard.html`](kodza-form-wizard.html) | 6.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-form-wizard.css`](kodza-form-wizard.css) | 39.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-form-wizard.css`](kodza-form-wizard.css) | 40.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-form-wizard.js`](kodza-form-wizard.js) | 21.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,16 +46,16 @@ CSS variables, set on `.kodza-wizard` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-wizard-bg` | `#ffffff` |  |
-| `--kz-wizard-fg` | `#0a0a0a` |  |
-| `--kz-wizard-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-wizard-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-wizard-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-wizard-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-wizard-soft` | `rgba(10, 10, 10, 0.04)` |  |
-| `--kz-wizard-ink` | `#0a0a0a` |  |
-| `--kz-wizard-on-ink` | `#ffffff` |  |
-| `--kz-wizard-error` | `#0a0a0a` | a message, never colour alone: set a red here if you want one |
+| `--kz-wizard-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-wizard-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-wizard-muted` | `color-mix(in srgb, var(--kz-wizard-fg) 60%, transparent)` |  |
+| `--kz-wizard-border` | `color-mix(in srgb, var(--kz-wizard-fg) 10%, transparent)` |  |
+| `--kz-wizard-line` | `color-mix(in srgb, var(--kz-wizard-fg) 14%, transparent)` |  |
+| `--kz-wizard-line-hover` | `color-mix(in srgb, var(--kz-wizard-fg) 30%, transparent)` |  |
+| `--kz-wizard-soft` | `color-mix(in srgb, var(--kz-wizard-fg) 4%, transparent)` |  |
+| `--kz-wizard-ink` | `var(--kz-color-accent, var(--kz-wizard-fg))` |  |
+| `--kz-wizard-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
+| `--kz-wizard-error` | `var(--kz-color-error, var(--kz-wizard-fg))` | a message, never colour alone: set a red here if you want one |
 | `--kz-wizard-width` | `560px` |  |
 | `--kz-wizard-dot` | `28px` |  |
 | `--kz-wizard-field-height` | `56px` |  |

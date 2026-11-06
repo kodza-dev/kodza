@@ -11,7 +11,7 @@ A drop zone over a real file input: the border marches when files hover, each fi
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-file-upload.html`](kodza-file-upload.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-file-upload.css`](kodza-file-upload.css) | 16.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-file-upload.css`](kodza-file-upload.css) | 16.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-file-upload.js`](kodza-file-upload.js) | 12.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `.kodza-upload` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-upload-bg` | `#ffffff` |  |
-| `--kz-upload-fg` | `#0a0a0a` |  |
-| `--kz-upload-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-upload-line` | `rgba(10, 10, 10, 0.24)` |  |
-| `--kz-upload-soft` | `rgba(10, 10, 10, 0.05)` |  |
-| `--kz-upload-ink` | `#0a0a0a` |  |
-| `--kz-upload-on-ink` | `#ffffff` |  |
+| `--kz-upload-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-upload-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-upload-muted` | `color-mix(in srgb, var(--kz-upload-fg) 60%, transparent)` |  |
+| `--kz-upload-line` | `color-mix(in srgb, var(--kz-upload-fg) 24%, transparent)` |  |
+| `--kz-upload-soft` | `color-mix(in srgb, var(--kz-upload-fg) 5%, transparent)` |  |
+| `--kz-upload-ink` | `var(--kz-color-accent, var(--kz-upload-fg))` |  |
+| `--kz-upload-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-upload-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-upload-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-upload-width` | `var(--kz-field-width, 460px)` |  |

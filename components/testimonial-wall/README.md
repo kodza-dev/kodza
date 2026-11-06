@@ -11,7 +11,7 @@ A testimonials section: three columns of cards drift slowly in opposite directio
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-testimonial-wall.html`](kodza-testimonial-wall.html) | 7.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-testimonial-wall.css`](kodza-testimonial-wall.css) | 20.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-testimonial-wall.css`](kodza-testimonial-wall.css) | 20.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-testimonial-wall.js`](kodza-testimonial-wall.js) | 12.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `[data-kodza-testimonial-wall]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-testimonial-wall-ink` | `#0a0a0a` |  |
-| `--kz-testimonial-wall-dim` | `rgba(10, 10, 10, 0.64)` |  |
-| `--kz-testimonial-wall-card` | `#ffffff` |  |
-| `--kz-testimonial-wall-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-testimonial-wall-line-strong` | `rgba(10, 10, 10, 0.42)` | the pointed card |
+| `--kz-testimonial-wall-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-testimonial-wall-dim` | `color-mix(in srgb, var(--kz-testimonial-wall-ink) 64%, transparent)` |  |
+| `--kz-testimonial-wall-card` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-testimonial-wall-line` | `color-mix(in srgb, var(--kz-testimonial-wall-ink) 10%, transparent)` |  |
+| `--kz-testimonial-wall-line-strong` | `color-mix(in srgb, var(--kz-testimonial-wall-ink) 42%, transparent)` | the pointed card |
 | `--kz-testimonial-wall-face` | `#e6e6e3` |  |
-| `--kz-testimonial-wall-track` | `rgba(10, 10, 10, 0.16)` |  |
+| `--kz-testimonial-wall-track` | `color-mix(in srgb, var(--kz-testimonial-wall-ink) 16%, transparent)` |  |
 | `--kz-testimonial-wall-bg` | `transparent` |  |
 | `--kz-testimonial-wall-columns` | `3` | 2 under 860px, 1 under 560px (below) |
 | `--kz-testimonial-wall-height` | `640px` | the window the columns drift through |

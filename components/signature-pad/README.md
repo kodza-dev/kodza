@@ -11,7 +11,7 @@ A box to sign with a finger, a mouse or a stylus: the ink thins as the pen speed
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-signature-pad.html`](kodza-signature-pad.html) | 0.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-signature-pad.css`](kodza-signature-pad.css) | 18.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-signature-pad.css`](kodza-signature-pad.css) | 18.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-signature-pad.js`](kodza-signature-pad.js) | 23.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,14 +46,14 @@ CSS variables, set on `.kodza-signature` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-signature-bg` | `#ffffff` |  |
-| `--kz-signature-fg` | `#0a0a0a` |  |
-| `--kz-signature-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-signature-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-signature-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-signature-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-signature-error` | `#0a0a0a` | a message, never colour alone: set a red here if you want one |
-| `--kz-signature-ink` | `#0a0a0a` | the ink on screen |
+| `--kz-signature-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-signature-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-signature-muted` | `color-mix(in srgb, var(--kz-signature-fg) 60%, transparent)` |  |
+| `--kz-signature-line` | `color-mix(in srgb, var(--kz-signature-fg) 14%, transparent)` |  |
+| `--kz-signature-line-hover` | `color-mix(in srgb, var(--kz-signature-fg) 30%, transparent)` |  |
+| `--kz-signature-soft` | `color-mix(in srgb, var(--kz-signature-fg) 6%, transparent)` |  |
+| `--kz-signature-error` | `var(--kz-color-error, var(--kz-signature-fg))` | a message, never colour alone: set a red here if you want one |
+| `--kz-signature-ink` | `var(--kz-signature-fg)` | the ink on screen |
 | `--kz-signature-print` | `#0a0a0a` | the ink in the image the form gets, for a white page |
 | `--kz-signature-pen-min` | `0.8px` | the thinnest line, at full speed (read by the script) |
 | `--kz-signature-pen-max` | `3.2px` | the thickest, when the pen slows down |

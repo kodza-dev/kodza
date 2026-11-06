@@ -11,7 +11,7 @@ Add-to-cart button that confirms with a tick while a copy of the product picture
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-add-to-cart.html`](kodza-add-to-cart.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-add-to-cart.css`](kodza-add-to-cart.css) | 11.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-add-to-cart.css`](kodza-add-to-cart.css) | 11.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-add-to-cart.js`](kodza-add-to-cart.js) | 18.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,15 +46,15 @@ CSS variables, set on `.kodza-add-to-cart, .kodza-add-to-cart__cart` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-add-to-cart-bg` | `#0a0a0a` |  |
-| `--kz-add-to-cart-fg` | `#ffffff` |  |
+| `--kz-add-to-cart-bg` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-add-to-cart-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-add-to-cart-height` | `52px` |  |
 | `--kz-add-to-cart-pad-x` | `28px` |  |
 | `--kz-add-to-cart-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
-| `--kz-add-to-cart-ink` | `#0a0a0a` |  |
-| `--kz-add-to-cart-paper` | `#ffffff` |  |
+| `--kz-add-to-cart-ink` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-add-to-cart-paper` | `var(--kz-color-paper, #ffffff)` |  |
 | `--kz-add-to-cart-cart-size` | `44px` |  |
-| `--kz-add-to-cart-cart-hover` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-add-to-cart-cart-hover` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 6%, transparent)` |  |
 
 - Modifiers: `.kodza-add-to-cart--soft`
 - Attributes: `data-cart`, `data-count` (e.g. `0`), `data-image`, `data-quantity`

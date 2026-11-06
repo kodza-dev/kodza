@@ -4,14 +4,14 @@
 
 A booking form: the coming days, the free times worked out from the opening hours, name and email. On send it rolls up into the answer, with Add to calendar as an .ics file.
 
-**[Live demo](https://kodza.dev/components/book-a-visit/)** · Forms · HTML, CSS, JS · No dependencies
+**[Live demo](https://kodza.dev/components/book-a-visit/)** · Contact · HTML, CSS, JS · No dependencies
 
 ## Files
 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-book-a-visit.html`](kodza-book-a-visit.html) | 2.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-book-a-visit.css`](kodza-book-a-visit.css) | 37.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-book-a-visit.css`](kodza-book-a-visit.css) | 37.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-book-a-visit.js`](kodza-book-a-visit.js) | 37.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -47,16 +47,16 @@ CSS variables, set on `.kodza-book-visit` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-book-visit-width` | `520px` |  |
-| `--kz-book-visit-bg` | `#fff` |  |
-| `--kz-book-visit-fg` | `#0a0a0a` |  |
-| `--kz-book-visit-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-book-visit-off` | `rgba(10, 10, 10, 0.3)` | closed days, times gone or taken |
-| `--kz-book-visit-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-book-visit-soft` | `rgba(10, 10, 10, 0.04)` | the row of days |
-| `--kz-book-visit-hover` | `rgba(10, 10, 10, 0.05)` |  |
-| `--kz-book-visit-halo` | `rgba(10, 10, 10, 0.06)` | around a field in focus |
-| `--kz-book-visit-ink` | `#0a0a0a` | the pill, the mark, the button |
-| `--kz-book-visit-on-ink` | `#fff` |  |
+| `--kz-book-visit-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-book-visit-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-book-visit-muted` | `color-mix(in srgb, var(--kz-book-visit-fg) 62%, transparent)` |  |
+| `--kz-book-visit-off` | `color-mix(in srgb, var(--kz-book-visit-fg) 30%, transparent)` | closed days, times gone or taken |
+| `--kz-book-visit-line` | `color-mix(in srgb, var(--kz-book-visit-fg) 10%, transparent)` |  |
+| `--kz-book-visit-soft` | `color-mix(in srgb, var(--kz-book-visit-fg) 4%, transparent)` | the row of days |
+| `--kz-book-visit-hover` | `color-mix(in srgb, var(--kz-book-visit-fg) 5%, transparent)` |  |
+| `--kz-book-visit-halo` | `color-mix(in srgb, var(--kz-book-visit-fg) 6%, transparent)` | around a field in focus |
+| `--kz-book-visit-ink` | `var(--kz-color-accent, var(--kz-book-visit-fg))` | the pill, the mark, the button |
+| `--kz-book-visit-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-book-visit-duration` | `0.55s` | the slide of the pill. 0s = no motion |
 | `--kz-book-visit-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 

@@ -11,7 +11,7 @@ Client logos in a hairline grid, grey and all the same weight. A cell can link t
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-logo-grid.html`](kodza-logo-grid.html) | 29.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-logo-grid.css`](kodza-logo-grid.css) | 21.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-logo-grid.css`](kodza-logo-grid.css) | 21.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-logo-grid.js`](kodza-logo-grid.js) | 5.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `[data-kodza-logo-grid]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-logo-grid-ink` | `#0a0a0a` |  |
-| `--kz-logo-grid-dim` | `rgba(10, 10, 10, 0.64)` |  |
-| `--kz-logo-grid-logo` | `rgba(10, 10, 10, 0.56)` | the logos at rest, grey; a link turns its logo to the ink |
+| `--kz-logo-grid-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-logo-grid-dim` | `color-mix(in srgb, var(--kz-logo-grid-ink) 64%, transparent)` |  |
+| `--kz-logo-grid-logo` | `color-mix(in srgb, var(--kz-logo-grid-ink) 56%, transparent)` | the logos at rest, grey; a link turns its logo to the ink |
 | `--kz-logo-grid-img-filter` | `grayscale(1) opacity(0.56)` | a logo given as an img; on a dark band: brightness(0) invert(1) opacity(0.56) |
 | `--kz-logo-grid-img-filter-hover` | `grayscale(1)` | none to give an img logo its colours back on hover |
-| `--kz-logo-grid-rule` | `rgba(10, 10, 10, 0.1)` | the hairlines between cells and tiers |
-| `--kz-logo-grid-hover-bg` | `rgba(10, 10, 10, 0.03)` | a link cell under the pointer |
+| `--kz-logo-grid-rule` | `color-mix(in srgb, var(--kz-logo-grid-ink) 10%, transparent)` | the hairlines between cells and tiers |
+| `--kz-logo-grid-hover-bg` | `color-mix(in srgb, var(--kz-logo-grid-ink) 3%, transparent)` | a link cell under the pointer |
 | `--kz-logo-grid-bg` | `transparent` |  |
 | `--kz-logo-grid-columns` | `4` |  |
 | `--kz-logo-grid-columns-narrow` | `2` | under 760px |

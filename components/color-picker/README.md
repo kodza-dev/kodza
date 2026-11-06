@@ -11,7 +11,7 @@ A real colour input with a proper panel: saturation square, hue slider, hex fiel
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-color-picker.html`](kodza-color-picker.html) | 0.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-color-picker.css`](kodza-color-picker.css) | 21.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-color-picker.css`](kodza-color-picker.css) | 21.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-color-picker.js`](kodza-color-picker.js) | 17.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-color` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-color-bg` | `#ffffff` |  |
-| `--kz-color-fg` | `#0a0a0a` |  |
-| `--kz-color-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-color-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-color-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-color-soft` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-color-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-color-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-color-muted` | `color-mix(in srgb, var(--kz-color-fg) 60%, transparent)` |  |
+| `--kz-color-line` | `color-mix(in srgb, var(--kz-color-fg) 14%, transparent)` |  |
+| `--kz-color-line-hover` | `color-mix(in srgb, var(--kz-color-fg) 30%, transparent)` |  |
+| `--kz-color-soft` | `color-mix(in srgb, var(--kz-color-fg) 6%, transparent)` |  |
 | `--kz-color-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-color-height` | `56px` |  |
 | `--kz-color-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |

@@ -50,7 +50,7 @@ CSS variables, set on `.kodza-image-reveal` itself:
 | `--kz-image-reveal-ease` | `cubic-bezier(0.76, 0, 0.24, 1)` |  |
 | `--kz-image-reveal-settle` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-image-reveal-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
-| `--kz-image-reveal-muted` | `rgba(10, 10, 10, 0.62)` |  |
+| `--kz-image-reveal-muted` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 62%, transparent)` |  |
 | `--kz-image-reveal-ratio` | `4 / 5` | the frame; auto = the picture's own, from its width and height |
 | `--kz-image-reveal-inset` | `0px` | the caption's side margin, for a picture edge to edge |
 

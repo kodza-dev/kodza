@@ -11,7 +11,7 @@ A flow in four steps: the line fills, a check draws itself on each finished step
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-stepper.html`](kodza-stepper.html) | 2.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-stepper.css`](kodza-stepper.css) | 18.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-stepper.css`](kodza-stepper.css) | 18.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-stepper.js`](kodza-stepper.js) | 9.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `.kodza-stepper` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-stepper-bg` | `#ffffff` |  |
-| `--kz-stepper-fg` | `#0a0a0a` |  |
-| `--kz-stepper-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-stepper-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-stepper-line` | `rgba(10, 10, 10, 0.12)` |  |
-| `--kz-stepper-ink` | `#0a0a0a` |  |
-| `--kz-stepper-on-ink` | `#ffffff` |  |
+| `--kz-stepper-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-stepper-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-stepper-muted` | `color-mix(in srgb, var(--kz-stepper-fg) 60%, transparent)` |  |
+| `--kz-stepper-border` | `color-mix(in srgb, var(--kz-stepper-fg) 10%, transparent)` |  |
+| `--kz-stepper-line` | `color-mix(in srgb, var(--kz-stepper-fg) 12%, transparent)` |  |
+| `--kz-stepper-ink` | `var(--kz-color-accent, var(--kz-stepper-fg))` |  |
+| `--kz-stepper-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-stepper-dot` | `28px` |  |
 | `--kz-stepper-duration` | `0.6s` |  |
 | `--kz-stepper-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

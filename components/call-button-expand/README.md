@@ -11,7 +11,7 @@ A round phone icon that opens into a full "Book a call" button, with a little ri
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-call-button-expand.html`](kodza-call-button-expand.html) | 0.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-call-button-expand.css`](kodza-call-button-expand.css) | 6.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-call-button-expand.css`](kodza-call-button-expand.css) | 6.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -42,8 +42,8 @@ CSS variables, set on `.kodza-call-button` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-call-bg` | `#0a0a0a` |  |
-| `--kz-call-fg` | `#ffffff` |  |
+| `--kz-call-bg` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-call-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-call-size` | `52px` |  |
 | `--kz-call-duration` | `0.6s` |  |
 | `--kz-call-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

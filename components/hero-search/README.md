@@ -11,7 +11,7 @@ A hero with a real search card: Buy and Rent swap the budget list under a slidin
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-search.html`](kodza-hero-search.html) | 4.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-search.css`](kodza-hero-search.css) | 49.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-search.css`](kodza-hero-search.css) | 49.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-search.js`](kodza-hero-search.js) | 27.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,15 +46,15 @@ CSS variables, set on `.kodza-hero-search` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-search-ink` | `#0a0a0a` |  |
-| `--kz-hero-search-paper` | `#f2f2f0` |  |
-| `--kz-hero-search-dim` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hero-search-faint` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-hero-search-surface` | `#ffffff` |  |
-| `--kz-hero-search-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-hero-search-field` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-hero-search-field-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-hero-search-soft` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-hero-search-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-search-paper` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-search-dim` | `color-mix(in srgb, var(--kz-hero-search-ink) 62%, transparent)` |  |
+| `--kz-hero-search-faint` | `color-mix(in srgb, var(--kz-hero-search-ink) 60%, transparent)` |  |
+| `--kz-hero-search-surface` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-hero-search-line` | `color-mix(in srgb, var(--kz-hero-search-ink) 10%, transparent)` |  |
+| `--kz-hero-search-field` | `color-mix(in srgb, var(--kz-hero-search-ink) 14%, transparent)` |  |
+| `--kz-hero-search-field-hover` | `color-mix(in srgb, var(--kz-hero-search-ink) 30%, transparent)` |  |
+| `--kz-hero-search-soft` | `color-mix(in srgb, var(--kz-hero-search-ink) 6%, transparent)` |  |
 | `--kz-hero-search-shadow` | `0 24px 48px -24px rgba(10, 10, 10, 0.24)` |  |
 | `--kz-hero-search-pop` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-hero-search-bg` | `transparent` |  |

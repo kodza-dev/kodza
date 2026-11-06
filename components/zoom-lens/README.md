@@ -47,7 +47,7 @@ CSS variables, set on `.kodza-zoom` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-zoom-lens` | `180px` |  |
-| `--kz-zoom-ring` | `#ffffff` |  |
+| `--kz-zoom-ring` | `var(--kz-color-paper, #ffffff)` |  |
 | `--kz-zoom-radius` | `calc(14px * var(--kz-radius-scale, 1))` |  |
 | `--kz-zoom-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 

@@ -11,7 +11,7 @@ A button that shows its work: its words roll from Deploy to Deploying while a ri
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-loading-button.html`](kodza-loading-button.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-loading-button.css`](kodza-loading-button.css) | 8.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-loading-button.css`](kodza-loading-button.css) | 9.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-loading-button.js`](kodza-loading-button.js) | 7.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,8 +46,8 @@ CSS variables, set on `.kodza-loading-button` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-loading-bg` | `#0a0a0a` |  |
-| `--kz-loading-fg` | `#ffffff` |  |
+| `--kz-loading-bg` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-loading-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-loading-height` | `52px` |  |
 | `--kz-loading-pad-x` | `28px` |  |
 | `--kz-loading-icon` | `18px` |  |

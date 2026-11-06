@@ -11,7 +11,7 @@ Several on/off choices on real checkboxes. A picked option fills with ink from i
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-toggle-group.html`](kodza-toggle-group.html) | 4.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-toggle-group.css`](kodza-toggle-group.css) | 16.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-toggle-group.css`](kodza-toggle-group.css) | 17.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -42,13 +42,13 @@ CSS variables, set on `.kodza-toggle-group` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-toggle-group-bg` | `#ffffff` |  |
-| `--kz-toggle-group-fg` | `#0a0a0a` |  |
-| `--kz-toggle-group-muted` | `rgba(10, 10, 10, 0.58)` |  |
-| `--kz-toggle-group-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-toggle-group-border-hover` | `rgba(10, 10, 10, 0.28)` |  |
-| `--kz-toggle-group-ink` | `#0a0a0a` |  |
-| `--kz-toggle-group-on-ink` | `#ffffff` |  |
+| `--kz-toggle-group-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-toggle-group-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-toggle-group-muted` | `color-mix(in srgb, var(--kz-toggle-group-fg) 58%, transparent)` |  |
+| `--kz-toggle-group-border` | `color-mix(in srgb, var(--kz-toggle-group-fg) 10%, transparent)` |  |
+| `--kz-toggle-group-border-hover` | `color-mix(in srgb, var(--kz-toggle-group-fg) 28%, transparent)` |  |
+| `--kz-toggle-group-ink` | `var(--kz-color-accent, var(--kz-toggle-group-fg))` |  |
+| `--kz-toggle-group-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-toggle-group-height` | `40px` | one option; --joined: its diameter |
 | `--kz-toggle-group-gap` | `6px` | the room between options |
 

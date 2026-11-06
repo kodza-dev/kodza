@@ -11,7 +11,7 @@ A menu under the page: the page slides left and shrinks into a card, the menu wa
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-side-reveal-menu.html`](kodza-side-reveal-menu.html) | 2.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-side-reveal-menu.css`](kodza-side-reveal-menu.css) | 21.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-side-reveal-menu.css`](kodza-side-reveal-menu.css) | 21.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-side-reveal-menu.js`](kodza-side-reveal-menu.js) | 32.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,11 +48,11 @@ CSS variables, set on `.kodza-side-reveal` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-side-reveal-bg` | `#0a0a0a` | the menu, under the page |
-| `--kz-side-reveal-fg` | `#f2f2f0` |  |
-| `--kz-side-reveal-muted` | `rgba(242, 242, 240, 0.62)` |  |
-| `--kz-side-reveal-ink` | `#0a0a0a` | the Menu button, on the page |
-| `--kz-side-reveal-on-ink` | `#ffffff` |  |
+| `--kz-side-reveal-bg` | `var(--kz-color-ink, #0a0a0a)` | the menu, under the page |
+| `--kz-side-reveal-fg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-side-reveal-muted` | `color-mix(in srgb, var(--kz-side-reveal-fg) 62%, transparent)` |  |
+| `--kz-side-reveal-ink` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` | the Menu button, on the page |
+| `--kz-side-reveal-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-side-reveal-page` | `auto` | the page colour while it steps aside; auto = the first background above it |
 | `--kz-side-reveal-top` | `calc(var(--wp-admin--admin-bar--height, 0px) + 20px)` | match your header, so Close lands right where Menu was (below the WordPress admin bar) |
 | `--kz-side-reveal-side` | `24px` |  |

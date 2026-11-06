@@ -11,7 +11,7 @@ A hero for a place with opening hours: a status line works out, at the place's o
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-open.html`](kodza-hero-open.html) | 2.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-open.css`](kodza-hero-open.css) | 24.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-open.css`](kodza-hero-open.css) | 24.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-open.js`](kodza-hero-open.js) | 13.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,11 +46,11 @@ CSS variables, set on `.kodza-hero-open` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-open-ink` | `#0a0a0a` |  |
-| `--kz-hero-open-paper` | `#f2f2f0` |  |
-| `--kz-hero-open-dim` | `rgba(10, 10, 10, 0.64)` |  |
-| `--kz-hero-open-faint` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-hero-open-soft` | `rgba(10, 10, 10, 0.07)` |  |
+| `--kz-hero-open-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-open-paper` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-open-dim` | `color-mix(in srgb, var(--kz-hero-open-ink) 64%, transparent)` |  |
+| `--kz-hero-open-faint` | `color-mix(in srgb, var(--kz-hero-open-ink) 60%, transparent)` |  |
+| `--kz-hero-open-soft` | `color-mix(in srgb, var(--kz-hero-open-ink) 7%, transparent)` |  |
 | `--kz-hero-open-bg` | `transparent` |  |
 | `--kz-hero-open-width` | `1240px` |  |
 | `--kz-hero-open-pad-y` | `clamp(48px, 6vw, 96px)` |  |

@@ -1,0 +1,2209 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Contact Brief
+   The project request: what you need (tags that tick), a budget and a timing (an ink pill that
+   slides), then your name and email. Above the button, the brief writes itself as you click, each
+   word rolling in. Sent, the form rolls into a receipt of what you asked for.
+   The settings come first (the variables below); the script sets its words (WORDS) and its
+   timings (the constants under SELECTOR). */
+.kodza-contact-brief {
+  --kz-contact-brief-width: 1200px; /* widest the section gets */
+  --kz-contact-brief-gap: 64px; /* between the two columns */
+  --kz-contact-brief-field: var(--kz-color-paper, #ffffff); /* inside the fields, the tags and the tracks */
+  --kz-contact-brief-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-contact-brief-muted: color-mix(in srgb, var(--kz-contact-brief-fg) 62%, transparent);
+  --kz-contact-brief-line: color-mix(in srgb, var(--kz-contact-brief-fg) 10%, transparent);
+  --kz-contact-brief-soft: color-mix(in srgb, var(--kz-contact-brief-fg) 5%, transparent); /* a tag under the pointer */
+  --kz-contact-brief-halo: color-mix(in srgb, var(--kz-contact-brief-fg) 6%, transparent); /* around a focused field */
+  --kz-contact-brief-ink: var(--kz-color-accent, var(--kz-contact-brief-fg)); /* a picked tag, the pill, the send button, focus rings */
+  --kz-contact-brief-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--kz-contact-brief-width);
+  margin: 0 auto;
+  color: var(--kz-contact-brief-fg);
+  font-family: inherit;
+  text-align: left;
+  container-type: inline-size;
+}
+
+/* The small mono labels: the eyebrow, the status, a group's name, a step's number */
+.kodza-contact-brief__eyebrow,
+.kodza-contact-brief__meta,
+.kodza-contact-brief__key,
+.kodza-contact-brief__num,
+.kodza-contact-brief__row > dt {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--kz-contact-brief-line);
+}
+
+.kodza-contact-brief__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--kz-contact-brief-fg);
+}
+
+.kodza-contact-brief__dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kz-contact-brief-fg);
+}
+
+/* A word that rolls: the old one goes up, the new one comes from below */
+.kodza-contact-brief__roll {
+  display: inline-grid;
+  align-items: center;
+}
+
+.kodza-contact-brief__roll > * {
+  grid-area: 1 / 1;
+  justify-self: start;
+  white-space: nowrap;
+}
+
+.kodza-contact-brief .is-rolling {
+  overflow: clip;
+}
+
+/* The title on the left, the lead on the right, over the two columns below */
+.kodza-contact-brief__head,
+.kodza-contact-brief__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px var(--kz-contact-brief-gap);
+}
+
+.kodza-contact-brief__head {
+  align-items: end;
+  padding: 64px 0 56px;
+}
+
+.kodza-contact-brief__title {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(40px, 6cqi, 72px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.98;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+  color: inherit;
+}
+
+.kodza-contact-brief__lead {
+  max-width: 40ch;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  text-wrap: balance;
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__inner {
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  align-items: start;
+  padding-top: 40px;
+  border-top: 1px solid var(--kz-contact-brief-line);
+}
+
+/* What happens next: three numbered steps, then the address for those who'd rather write */
+.kodza-contact-brief__aside .kodza-contact-brief__key {
+  margin-bottom: 12px;
+}
+
+.kodza-contact-brief__steps {
+  display: grid;
+  margin: 0 0 40px;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-contact-brief__step {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 4px 0;
+  margin: 0;
+  padding: 18px 0;
+  border-top: 1px solid var(--kz-contact-brief-line);
+}
+
+.kodza-contact-brief__step:last-child {
+  border-bottom: 1px solid var(--kz-contact-brief-line);
+}
+
+.kodza-contact-brief__num {
+  grid-row: 1 / span 2;
+  padding-top: 3px;
+}
+
+.kodza-contact-brief__what {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.kodza-contact-brief__how {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  text-wrap: pretty;
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__mail {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--kz-contact-brief-line);
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-contact-brief__mail:hover {
+    text-decoration-color: var(--kz-contact-brief-fg);
+  }
+}
+
+/* The form, straight on the section */
+.kodza-contact-brief__form {
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--kz-contact-brief-fg);
+}
+
+.kodza-contact-brief__stage .kodza-contact-brief__key {
+  margin-bottom: 16px;
+}
+
+/* The form and the answer share one cell: the height goes from one to the other */
+.kodza-contact-brief__stage {
+  display: grid;
+  align-items: start;
+}
+
+.kodza-contact-brief__stage > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+/* A group of choices: its name above, then the tags or the track */
+.kodza-contact-brief__group {
+  min-width: 0;
+  margin: 0 0 28px;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-contact-brief__group > legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+}
+
+.kodza-contact-brief__group > legend + * {
+  clear: both;
+}
+
+/* What you need: real checkboxes, as tags that turn to ink */
+.kodza-contact-brief__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kodza-contact-brief__tag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-contact-brief-field);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-brief-line);
+  color: var(--kz-contact-brief-fg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color calc(0.25s * var(--kz-motion-scale, 1)), color calc(0.25s * var(--kz-motion-scale, 1)), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-brief__tag:has(.kodza-contact-brief__check:checked) {
+  background: var(--kz-contact-brief-ink);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-brief-ink);
+  color: var(--kz-contact-brief-on-ink);
+}
+
+@media (hover: hover) {
+  .kodza-contact-brief__tag:not(:has(.kodza-contact-brief__check:checked)):hover {
+    background: var(--kz-contact-brief-soft);
+    box-shadow: inset 0 0 0 1px var(--kz-contact-brief-fg);
+  }
+}
+
+.kodza-contact-brief__check,
+.kodza-contact-brief__radio {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* The plus turns into a tick: it spins away while the tick draws itself */
+.kodza-contact-brief__tick {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin: 0 8px 0 -2px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+}
+
+.kodza-contact-brief__plus {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  transition: transform calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), opacity calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-brief__mark {
+  stroke-dasharray: 1 1.5;
+  stroke-dashoffset: 1.2;
+  opacity: 0;
+  transition: stroke-dashoffset calc(0.2s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1), opacity 0s linear calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-brief__tag:has(.kodza-contact-brief__check:checked) .kodza-contact-brief__plus {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.4);
+}
+
+.kodza-contact-brief__tag:has(.kodza-contact-brief__check:checked) .kodza-contact-brief__mark {
+  stroke-dashoffset: 0;
+  opacity: 1;
+  transition: stroke-dashoffset calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc(0.08s * var(--kz-motion-scale, 1)), opacity 0s linear calc(0.08s * var(--kz-motion-scale, 1));
+}
+
+/* Budget and timing: real radio buttons in one track, an ink pill slides to the one you pick */
+.kodza-contact-brief__track {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  height: 48px;
+  padding: 4px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-contact-brief-field);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-brief-line);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-brief__option {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 100%;
+  padding: 0 8px;
+  border-radius: var(--kz-radius-pill, 999px);
+  cursor: pointer;
+  user-select: none;
+}
+
+.kodza-contact-brief__option > .kodza-contact-brief__said,
+.kodza-contact-brief__ghost {
+  white-space: nowrap;
+}
+
+.kodza-contact-brief__option > .kodza-contact-brief__said {
+  color: var(--kz-contact-brief-muted);
+  transition: color calc(0.25s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-brief__option:has(.kodza-contact-brief__radio:checked) > .kodza-contact-brief__said {
+  color: var(--kz-contact-brief-fg);
+}
+
+@media (hover: hover) {
+  .kodza-contact-brief__option:hover > .kodza-contact-brief__said {
+    color: var(--kz-contact-brief-fg);
+  }
+}
+
+.kodza-contact-brief__option:has(.kodza-contact-brief__radio:focus-visible) {
+  outline: 2px solid var(--kz-contact-brief-ink);
+  outline-offset: 2px;
+}
+
+/* Before the script (or without it), the picked option is simply inked */
+.kodza-contact-brief__track:not(.is-ready) .kodza-contact-brief__option:has(.kodza-contact-brief__radio:checked) {
+  background: var(--kz-contact-brief-ink);
+}
+
+.kodza-contact-brief__track:not(.is-ready) .kodza-contact-brief__option:has(.kodza-contact-brief__radio:checked) > .kodza-contact-brief__said {
+  color: var(--kz-contact-brief-on-ink);
+}
+
+/* The ink pill (added by the script): two windows slide in the lane, one cut at the pill's left
+   edge, one at its right edge, while the ink inside them holds still. Only transforms move, and
+   the labels turn white exactly at the pill's edges */
+.kodza-contact-brief__lane {
+  position: absolute;
+  inset: 4px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.kodza-contact-brief__pill,
+.kodza-contact-brief__edge,
+.kodza-contact-brief__mirror {
+  position: absolute;
+  inset: 0;
+}
+
+.kodza-contact-brief__pill {
+  overflow: hidden;
+  border-radius: var(--kz-radius-pill, 999px) 0 0 var(--kz-radius-pill, 999px);
+  transform: translateX(var(--kz-contact-brief-pill-l, 0px));
+}
+
+.kodza-contact-brief__edge {
+  overflow: hidden;
+  border-radius: 0 var(--kz-radius-pill, 999px) var(--kz-radius-pill, 999px) 0;
+  transform: translateX(calc(-1 * var(--kz-contact-brief-pill-l, 0px) - var(--kz-contact-brief-pill-r, 100%)));
+}
+
+.kodza-contact-brief__mirror {
+  background: var(--kz-contact-brief-ink);
+  color: var(--kz-contact-brief-on-ink);
+  transform: translateX(var(--kz-contact-brief-pill-r, 100%));
+}
+
+.kodza-contact-brief__ghost {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 8px;
+}
+
+/* A group left empty at sending: its frame turns to ink, the message says why */
+.kodza-contact-brief__group.is-error .kodza-contact-brief__tag:not(:has(.kodza-contact-brief__check:checked)),
+.kodza-contact-brief__group.is-error .kodza-contact-brief__track {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-brief-ink);
+}
+
+/* The brief, written as you click: grey words until you pick, then the choice rolls in */
+.kodza-contact-brief__brief {
+  margin: 28px 0 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--kz-contact-brief-line);
+}
+
+.kodza-contact-brief__brief .kodza-contact-brief__key {
+  margin-bottom: 10px;
+}
+
+.kodza-contact-brief__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 28px;
+  margin: 0;
+  overflow: clip;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(22px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.3;
+  letter-spacing: var(--kz-font-display-tracking, -0.03em);
+  text-transform: var(--kz-font-display-case, none);
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__slot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  white-space: nowrap;
+  transition: color calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-brief__slot.is-set {
+  color: var(--kz-contact-brief-fg);
+}
+
+/* A drawn dot between two parts of the brief (cut off when a part starts a new line) */
+.kodza-contact-brief__slot + .kodza-contact-brief__slot::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -14px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+  transform: translate(-50%, -50%);
+}
+
+/* The receipt, after sending: what you asked for, each line rising from behind its mask */
+.kodza-contact-brief__recap {
+  margin: 24px 0 0;
+}
+
+.kodza-contact-brief__row {
+  display: grid;
+  grid-template-columns: minmax(0, 120px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: baseline;
+  padding: 14px 0;
+  border-top: 1px solid var(--kz-contact-brief-line);
+}
+
+.kodza-contact-brief__row:last-child {
+  border-bottom: 1px solid var(--kz-contact-brief-line);
+}
+
+.kodza-contact-brief__row > dd {
+  margin: 0;
+  overflow: clip;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.kodza-contact-brief__row > dd > span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.kodza-contact-brief__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kodza-contact-brief__box {
+  position: relative;
+  display: block;
+  height: 56px;
+  margin: 0;
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+  background: var(--kz-contact-brief-field);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-brief-line);
+  cursor: text;
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-brief__box:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-brief-ink), 0 0 0 4px var(--kz-contact-brief-halo);
+}
+
+.kodza-contact-brief__box:has([aria-invalid="true"]) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-brief-ink);
+}
+
+.kodza-contact-brief__box:has([aria-invalid="true"]):focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-brief-ink), 0 0 0 4px var(--kz-contact-brief-halo);
+}
+
+.kodza-contact-brief__input {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 22px 16px 6px;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 16px;
+  line-height: 22px;
+  appearance: none;
+  outline: none;
+  box-shadow: none;
+}
+
+/* The message: its box grows with the text, then scrolls */
+.kodza-contact-brief__box--area {
+  grid-column: 1 / -1;
+  height: auto;
+}
+
+.kodza-contact-brief__area {
+  position: relative;
+  display: block;
+  min-height: 132px;
+  max-height: 320px;
+  padding: 26px 16px 30px;
+  overflow-y: hidden;
+  resize: none;
+}
+
+.kodza-contact-brief__area.is-long {
+  overflow-y: auto;
+}
+
+.kodza-contact-brief__label {
+  position: absolute;
+  top: 28px;
+  left: 16px;
+  max-width: calc(100% - 32px);
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--kz-contact-brief-muted);
+  pointer-events: none;
+  transform: translateY(-50%);
+  transform-origin: left center;
+  transition: transform calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-contact-brief__input:focus + .kodza-contact-brief__label,
+.kodza-contact-brief__input:not(:placeholder-shown) + .kodza-contact-brief__label {
+  transform: translateY(calc(-50% - 14px)) scale(0.8);
+}
+
+.kodza-contact-brief__box--area .kodza-contact-brief__input:focus + .kodza-contact-brief__label,
+.kodza-contact-brief__box--area .kodza-contact-brief__input:not(:placeholder-shown) + .kodza-contact-brief__label {
+  transform: translateY(calc(-50% - 12px)) scale(0.8);
+}
+
+.kodza-contact-brief__count {
+  position: absolute;
+  right: 14px;
+  bottom: 10px;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--kz-contact-brief-muted);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity calc(0.25s * var(--kz-motion-scale, 1)), transform calc(0.25s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-contact-brief__box.is-near .kodza-contact-brief__count {
+  opacity: 1;
+  transform: none;
+}
+
+/* Robots fill it, people never see it */
+.kodza-contact-brief__trap {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-contact-brief__trap input {
+  box-sizing: border-box;
+}
+
+.kodza-contact-brief__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+/* Help and error share one line, and swap */
+.kodza-contact-brief__note {
+  display: grid;
+  flex: 1 1 200px;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__help,
+.kodza-contact-brief__error {
+  grid-area: 1 / 1;
+  transition: opacity calc(0.25s * var(--kz-motion-scale, 1)), transform calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear calc(0.35s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-brief__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--kz-contact-brief-fg);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+}
+
+.kodza-contact-brief__error::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 0.1em;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm0 3.25a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0V5A.75.75 0 0 1 8 4.25Zm0 7.75a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm0 3.25a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0V5A.75.75 0 0 1 8 4.25Zm0 7.75a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-contact-brief__form.is-error .kodza-contact-brief__help {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+}
+
+.kodza-contact-brief__form.is-error .kodza-contact-brief__error {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+/* The send button: the spinner takes the word's place, the width stays */
+.kodza-contact-brief__send {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  height: 52px;
+  margin: 0;
+  padding: 0 24px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-contact-brief-ink);
+  color: var(--kz-contact-brief-on-ink);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), opacity calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-brief__word,
+.kodza-contact-brief__spinner {
+  grid-area: 1 / 1;
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)), transform calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-contact-brief__spinner {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.6);
+  animation: kodza-contact-brief-spin calc(0.8s * var(--kz-motion-scale, 1)) linear infinite;
+}
+
+.kodza-contact-brief__send[aria-busy="true"] {
+  cursor: progress;
+}
+
+.kodza-contact-brief__send[aria-busy="true"] .kodza-contact-brief__word {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.kodza-contact-brief__send[aria-busy="true"] .kodza-contact-brief__spinner {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes kodza-contact-brief-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.kodza-contact-brief__send:active,
+.kodza-contact-brief__again:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .kodza-contact-brief__send:hover {
+    opacity: 0.86;
+  }
+}
+
+.kodza-contact-brief__privacy {
+  margin: 18px 0 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__privacy a {
+  color: var(--kz-contact-brief-fg);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* The answer */
+.kodza-contact-brief__done {
+  padding: 4px 0;
+}
+
+.kodza-contact-brief__thanks {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(30px, 3.6cqi, 44px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+  outline: none;
+}
+
+.kodza-contact-brief__next {
+  max-width: 44ch;
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__next [data-value] {
+  color: var(--kz-contact-brief-fg);
+  overflow-wrap: anywhere;
+}
+
+.kodza-contact-brief__again {
+  height: 44px;
+  margin: 24px 0 0;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-contact-brief-line);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-contact-brief__again:hover {
+    box-shadow: inset 0 0 0 1px var(--kz-contact-brief-fg);
+  }
+}
+
+.kodza-contact-brief__mail:focus-visible,
+.kodza-contact-brief__send:focus-visible,
+.kodza-contact-brief__again:focus-visible,
+.kodza-contact-brief__privacy a:focus-visible,
+.kodza-contact-brief__tag:has(.kodza-contact-brief__check:focus-visible) {
+  outline: 2px solid var(--kz-contact-brief-ink);
+  outline-offset: 2px;
+}
+
+.kodza-contact-brief__panel[hidden],
+.kodza-contact-brief__done[hidden] {
+  display: none;
+}
+
+/* A narrow column (a sidebar, a theme's text column): one column */
+@container (max-width: 760px) {
+  .kodza-contact-brief__head,
+  .kodza-contact-brief__inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-contact-brief__head {
+    gap: 20px;
+    padding: 40px 0 36px;
+  }
+
+  .kodza-contact-brief__inner {
+    gap: 48px;
+    padding-top: 32px;
+  }
+
+  /* On a phone the form comes first, the steps after it */
+  .kodza-contact-brief__aside {
+    order: 1;
+  }
+}
+
+/* Below this, the form's column is too narrow for two fields side by side */
+@container (max-width: 1000px) {
+  .kodza-contact-brief__fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* A phone: the four options of a track still fit on one line */
+@container (max-width: 480px) {
+  .kodza-contact-brief__track {
+    font-size: var(--kz-font-label-size, 13px);
+  }
+
+  .kodza-contact-brief__option,
+  .kodza-contact-brief__ghost {
+    padding: 0 4px;
+  }
+
+  .kodza-contact-brief__summary {
+    font-size: calc(20px * var(--kz-font-display-scale, 1));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-contact-brief,
+  .kodza-contact-brief *,
+  .kodza-contact-brief *::before,
+  .kodza-contact-brief *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .kodza-contact-brief__spinner {
+    animation: none;
+  }
+}
+
+/* Dark: set the variables on the section, or on a parent
+.kodza-contact-brief {
+  --kz-contact-brief-field: #161616;
+  --kz-contact-brief-fg: #f2f2f0;
+  --kz-contact-brief-muted: rgba(242, 242, 240, 0.62);
+  --kz-contact-brief-line: rgba(255, 255, 255, 0.12);
+  --kz-contact-brief-soft: rgba(255, 255, 255, 0.06);
+  --kz-contact-brief-halo: rgba(255, 255, 255, 0.08);
+  --kz-contact-brief-ink: #f2f2f0;
+  --kz-contact-brief-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard e9b4f8d96348 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-contact-brief__eyebrow):not(#_),
+:where(.kodza-contact-brief__meta):not(#_),
+:where(.kodza-contact-brief__title):not(#_),
+:where(.kodza-contact-brief__lead):not(#_),
+:where(.kodza-contact-brief__steps):not(#_),
+:where(.kodza-contact-brief__what):not(#_),
+:where(.kodza-contact-brief__how):not(#_),
+:where(.kodza-contact-brief__form):not(#_),
+:where(.kodza-contact-brief__group):not(#_),
+:where(.kodza-contact-brief__check):not(#_),
+:where(.kodza-contact-brief__tick):not(#_),
+:where(.kodza-contact-brief__radio):not(#_),
+:where(.kodza-contact-brief__trap):not(#_),
+:where(.kodza-contact-brief__summary):not(#_),
+:where(.kodza-contact-brief__note):not(#_),
+:where(.kodza-contact-brief__privacy):not(#_),
+:where(.kodza-contact-brief__thanks):not(#_),
+:where(.kodza-contact-brief__recap):not(#_),
+:where(.kodza-contact-brief__next):not(#_),
+:where(.kodza-contact-brief__trap input:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-contact-brief__row dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-brief__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-contact-brief__row dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-brief__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-contact-brief__key):not(#_) {
+  padding: revert;
+  float: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-contact-brief__step):not(#_) {
+  border-bottom-width: revert;
+  border-bottom-style: revert;
+  border-bottom-color: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-contact-brief__mail):not(#_),
+:where(.kodza-contact-brief__tag):not(#_),
+:where(.kodza-contact-brief__send):not(#_),
+:where(.kodza-contact-brief__again):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-contact-brief__option):not(#_) {
+  outline: revert;
+  background-color: revert;
+  background-image: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-contact-brief__input):not(#_) {
+  max-height: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+  min-height: revert;
+}
+
+:where(.kodza-contact-brief__privacy a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-contact-brief__input):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-contact-brief__input):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-contact-brief__bar:not(#_),
+.kodza-contact-brief__dot:not(#_),
+.kodza-contact-brief__head:not(#_),
+.kodza-contact-brief__inner:not(#_),
+.kodza-contact-brief__aside:not(#_),
+.kodza-contact-brief__num:not(#_),
+.kodza-contact-brief__stage:not(#_),
+.kodza-contact-brief__panel:not(#_),
+.kodza-contact-brief__tags:not(#_),
+.kodza-contact-brief__plus:not(#_),
+.kodza-contact-brief__mark:not(#_),
+.kodza-contact-brief__said:not(#_),
+.kodza-contact-brief__lane:not(#_),
+.kodza-contact-brief__pill:not(#_),
+.kodza-contact-brief__edge:not(#_),
+.kodza-contact-brief__mirror:not(#_),
+.kodza-contact-brief__fields:not(#_),
+.kodza-contact-brief__label:not(#_),
+.kodza-contact-brief__count:not(#_),
+.kodza-contact-brief__brief:not(#_),
+.kodza-contact-brief__slot:not(#_),
+.kodza-contact-brief__roll:not(#_),
+.kodza-contact-brief__part:not(#_),
+.kodza-contact-brief__foot:not(#_),
+.kodza-contact-brief__help:not(#_),
+.kodza-contact-brief__error:not(#_),
+.kodza-contact-brief__word:not(#_),
+.kodza-contact-brief__done:not(#_),
+.kodza-contact-brief__row:not(#_),
+.kodza-contact-brief__thanks span:where(:not([class*="kodza-"])):not(#_),
+.kodza-contact-brief__row span:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-brief__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-contact-brief__next span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-contact-brief__eyebrow:not(#_),
+.kodza-contact-brief__meta:not(#_),
+.kodza-contact-brief__title:not(#_),
+.kodza-contact-brief__summary:not(#_),
+.kodza-contact-brief__note:not(#_),
+.kodza-contact-brief__privacy:not(#_),
+.kodza-contact-brief__row dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-brief__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-brief__lead:not(#_),
+.kodza-contact-brief__next:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-brief__key:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+}
+
+.kodza-contact-brief__steps:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-brief__step:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-brief__what:not(#_),
+.kodza-contact-brief__row dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-brief__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-brief__how:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-brief__mail:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-contact-brief__form:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-brief__group:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-brief__tag:not(#_) {
+  border: revert;
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-contact-brief__check:not(#_),
+.kodza-contact-brief__radio:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-contact-brief__tick:not(#_),
+.kodza-contact-brief__recap:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-brief__option:not(#_) {
+  border: revert;
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-brief__box:not(#_) {
+  border: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-contact-brief__input:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  max-width: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+}
+
+.kodza-contact-brief__trap:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-brief__send:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-contact-brief__thanks:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-brief__again:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-contact-brief__trap input:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-contact-brief__privacy a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-brief__eyebrow:not(#_):where(:not([hidden])),
+.kodza-contact-brief__title:not(#_):where(:not([hidden])),
+.kodza-contact-brief__lead:not(#_):where(:not([hidden])),
+.kodza-contact-brief__key:not(#_):where(:not([hidden])),
+.kodza-contact-brief__what:not(#_):where(:not([hidden])),
+.kodza-contact-brief__how:not(#_):where(:not([hidden])),
+.kodza-contact-brief__mail:not(#_):where(:not([hidden])),
+.kodza-contact-brief__form:not(#_):where(:not([hidden])),
+.kodza-contact-brief__group:not(#_):where(:not([hidden])),
+.kodza-contact-brief__check:not(#_):where(:not([hidden])),
+.kodza-contact-brief__tick:not(#_):where(:not([hidden])),
+.kodza-contact-brief__radio:not(#_):where(:not([hidden])),
+.kodza-contact-brief__trap:not(#_):where(:not([hidden])),
+.kodza-contact-brief__privacy:not(#_):where(:not([hidden])),
+.kodza-contact-brief__thanks:not(#_):where(:not([hidden])),
+.kodza-contact-brief__recap:not(#_):where(:not([hidden])),
+.kodza-contact-brief__next:not(#_):where(:not([hidden])),
+.kodza-contact-brief__again:not(#_):where(:not([hidden])),
+.kodza-contact-brief__trap input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-contact-brief__privacy a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-contact-brief__row dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-brief__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-contact-brief__row dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-brief__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-contact-brief__eyebrow:not(#_):where([hidden]),
+.kodza-contact-brief__title:not(#_):where([hidden]),
+.kodza-contact-brief__lead:not(#_):where([hidden]),
+.kodza-contact-brief__key:not(#_):where([hidden]),
+.kodza-contact-brief__what:not(#_):where([hidden]),
+.kodza-contact-brief__how:not(#_):where([hidden]),
+.kodza-contact-brief__mail:not(#_):where([hidden]),
+.kodza-contact-brief__form:not(#_):where([hidden]),
+.kodza-contact-brief__group:not(#_):where([hidden]),
+.kodza-contact-brief__check:not(#_):where([hidden]),
+.kodza-contact-brief__tick:not(#_):where([hidden]),
+.kodza-contact-brief__radio:not(#_):where([hidden]),
+.kodza-contact-brief__trap:not(#_):where([hidden]),
+.kodza-contact-brief__privacy:not(#_):where([hidden]),
+.kodza-contact-brief__thanks:not(#_):where([hidden]),
+.kodza-contact-brief__recap:not(#_):where([hidden]),
+.kodza-contact-brief__next:not(#_):where([hidden]),
+.kodza-contact-brief__again:not(#_):where([hidden]),
+.kodza-contact-brief__trap input:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-contact-brief__privacy a:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-contact-brief__row dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-brief__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-contact-brief__row dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-brief__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-contact-brief__slot:not(#_)::before,
+.kodza-contact-brief__error:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-contact-brief:not(#_) {
+  width: min(100%, var(--kz-contact-brief-width));
+}
+
+.kodza-contact-brief__eyebrow:not(#_),
+.kodza-contact-brief__meta:not(#_),
+.kodza-contact-brief__key:not(#_),
+.kodza-contact-brief__row > dt:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__meta:not(#_) {
+  display: inline-flex;
+  color: var(--kz-contact-brief-fg);
+}
+
+.kodza-contact-brief .is-rolling:not(#_) {
+  overflow: clip;
+}
+
+.kodza-contact-brief__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(40px, 6cqi, 72px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.98;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, none);
+  color: inherit;
+}
+
+.kodza-contact-brief__lead:not(#_) {
+  max-width: 40ch;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__aside .kodza-contact-brief__key:not(#_) {
+  margin-bottom: 12px;
+}
+
+.kodza-contact-brief__steps:not(#_) {
+  display: grid;
+  margin: 0 0 40px;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-contact-brief__step:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 18px 0;
+  border-top: 1px solid var(--kz-contact-brief-line);
+}
+
+.kodza-contact-brief__step:last-child:not(#_) {
+  border-bottom: 1px solid var(--kz-contact-brief-line);
+}
+
+.kodza-contact-brief__what:not(#_) {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.kodza-contact-brief__how:not(#_) {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__mail:not(#_) {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--kz-contact-brief-line);
+  text-underline-offset: 4px;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-contact-brief__mail:hover:not(#_) {
+    text-decoration-color: var(--kz-contact-brief-fg);
+  }
+}
+
+.kodza-contact-brief__form:not(#_) {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--kz-contact-brief-fg);
+}
+
+.kodza-contact-brief__stage .kodza-contact-brief__key:not(#_) {
+  margin-bottom: 16px;
+}
+
+.kodza-contact-brief__group:not(#_) {
+  margin: 0 0 28px;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-contact-brief__group > legend:not(#_) {
+  float: left;
+  padding: 0;
+}
+
+.kodza-contact-brief__tag:not(#_) {
+  position: relative;
+  display: inline-flex;
+  padding: 0 16px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-contact-brief-field);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-brief-line);
+  color: var(--kz-contact-brief-fg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  transition: background-color calc(0.25s * var(--kz-motion-scale, 1)), color calc(0.25s * var(--kz-motion-scale, 1)), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-brief__tag:has(.kodza-contact-brief__check:checked):not(#_) {
+  background: var(--kz-contact-brief-ink);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-brief-ink);
+  color: var(--kz-contact-brief-on-ink);
+}
+
+@media (hover: hover) {
+  .kodza-contact-brief__tag:not(:has(.kodza-contact-brief__check:checked)):hover:not(#_) {
+    background: var(--kz-contact-brief-soft);
+    box-shadow: inset 0 0 0 1px var(--kz-contact-brief-fg);
+  }
+}
+
+.kodza-contact-brief__check:not(#_),
+.kodza-contact-brief__radio:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kodza-contact-brief__tick:not(#_) {
+  margin: 0 8px 0 -2px;
+}
+
+.kodza-contact-brief__tag:has(.kodza-contact-brief__check:checked) .kodza-contact-brief__mark:not(#_) {
+  transition: stroke-dashoffset calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc(0.08s * var(--kz-motion-scale, 1)), opacity 0s linear calc(0.08s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-brief__option:not(#_) {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  padding: 0 8px;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-contact-brief__option:has(.kodza-contact-brief__radio:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-contact-brief-ink);
+  outline-offset: 2px;
+}
+
+.kodza-contact-brief__track:not(.is-ready) .kodza-contact-brief__option:has(.kodza-contact-brief__radio:checked):not(#_) {
+  background: var(--kz-contact-brief-ink);
+}
+
+.kodza-contact-brief__group.is-error .kodza-contact-brief__tag:not(:has(.kodza-contact-brief__check:checked)):not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-brief-ink);
+}
+
+.kodza-contact-brief__brief .kodza-contact-brief__key:not(#_) {
+  margin-bottom: 10px;
+}
+
+.kodza-contact-brief__summary:not(#_) {
+  display: flex;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(22px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.3;
+  letter-spacing: var(--kz-font-display-tracking, -0.03em);
+  text-transform: var(--kz-font-display-case, none);
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__recap:not(#_) {
+  margin: 24px 0 0;
+}
+
+.kodza-contact-brief__row > dd:not(#_) {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.kodza-contact-brief__box:not(#_) {
+  position: relative;
+  display: block;
+  margin: 0;
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+  background: var(--kz-contact-brief-field);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-brief-line);
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-brief__box:focus-within:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-brief-ink), 0 0 0 4px var(--kz-contact-brief-halo);
+}
+
+.kodza-contact-brief__box:has([aria-invalid="true"]):not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-brief-ink);
+}
+
+.kodza-contact-brief__box:has([aria-invalid="true"]):focus-within:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-brief-ink), 0 0 0 4px var(--kz-contact-brief-halo);
+}
+
+.kodza-contact-brief__input:not(#_) {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 22px 16px 6px;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 16px;
+  line-height: 22px;
+  appearance: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.kodza-contact-brief__area:not(#_) {
+  position: relative;
+  display: block;
+  min-height: 132px;
+  max-height: 320px;
+  padding: 26px 16px 30px;
+  overflow-y: hidden;
+  resize: none;
+}
+
+.kodza-contact-brief__area.is-long:not(#_) {
+  overflow-y: auto;
+}
+
+.kodza-contact-brief__trap:not(#_) {
+  position: absolute;
+}
+
+.kodza-contact-brief__trap input:not(#_) {
+  box-sizing: border-box;
+}
+
+.kodza-contact-brief__note:not(#_) {
+  display: grid;
+  margin: 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__form.is-error .kodza-contact-brief__error:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-contact-brief__send:not(#_) {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  height: 52px;
+  margin: 0;
+  padding: 0 24px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-contact-brief-ink);
+  color: var(--kz-contact-brief-on-ink);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), opacity calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-brief__send[aria-busy="true"]:not(#_) {
+  cursor: progress;
+}
+
+.kodza-contact-brief__send:active:not(#_),
+.kodza-contact-brief__again:active:not(#_) {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .kodza-contact-brief__send:hover:not(#_) {
+    opacity: 0.86;
+  }
+}
+
+.kodza-contact-brief__privacy:not(#_) {
+  margin: 18px 0 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__privacy a:not(#_) {
+  color: var(--kz-contact-brief-fg);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-contact-brief__thanks:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(30px, 3.6cqi, 44px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, none);
+  outline: none;
+}
+
+.kodza-contact-brief__next:not(#_) {
+  max-width: 44ch;
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-contact-brief-muted);
+}
+
+.kodza-contact-brief__again:not(#_) {
+  height: 44px;
+  margin: 24px 0 0;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-contact-brief-line);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-contact-brief__again:hover:not(#_) {
+    box-shadow: inset 0 0 0 1px var(--kz-contact-brief-fg);
+  }
+}
+
+.kodza-contact-brief__mail:focus-visible:not(#_),
+.kodza-contact-brief__privacy a:focus-visible:not(#_),
+.kodza-contact-brief__tag:has(.kodza-contact-brief__check:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-contact-brief-ink);
+  outline-offset: 2px;
+}
+
+.kodza-contact-brief__send:focus-visible:not(#_),
+.kodza-contact-brief__again:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-contact-brief-ink);
+  outline-offset: 2px;
+}
+
+@container (max-width: 480px) {
+  .kodza-contact-brief__option:not(#_) {
+    padding: 0 4px;
+  }
+}
+
+@container (max-width: 480px) {
+  .kodza-contact-brief__summary:not(#_) {
+    font-size: calc(20px * var(--kz-font-display-scale, 1));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-contact-brief *:not(#_),
+  .kodza-contact-brief *:not(#_)::before,
+  .kodza-contact-brief *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

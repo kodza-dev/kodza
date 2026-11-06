@@ -11,7 +11,7 @@ Real range inputs on a drawn track: a value bubble pops out of the handle, ticks
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-range-slider.html`](kodza-range-slider.html) | 0.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-range-slider.css`](kodza-range-slider.css) | 12.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-range-slider.css`](kodza-range-slider.css) | 12.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-range-slider.js`](kodza-range-slider.js) | 7.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-range` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-range-bg` | `#ffffff` |  |
-| `--kz-range-fg` | `#0a0a0a` |  |
-| `--kz-range-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-range-rail` | `rgba(10, 10, 10, 0.12)` |  |
-| `--kz-range-ink` | `#0a0a0a` |  |
-| `--kz-range-on-ink` | `#ffffff` |  |
+| `--kz-range-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-range-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-range-muted` | `color-mix(in srgb, var(--kz-range-fg) 60%, transparent)` |  |
+| `--kz-range-rail` | `color-mix(in srgb, var(--kz-range-fg) 12%, transparent)` |  |
+| `--kz-range-ink` | `var(--kz-color-accent, var(--kz-range-fg))` |  |
+| `--kz-range-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-range-thumb` | `22px` |  |
 | `--kz-range-height` | `4px` |  |
 | `--kz-range-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

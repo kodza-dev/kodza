@@ -11,7 +11,7 @@ A password field with an eye that crosses itself out, a meter that fills as it g
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-password-field.html`](kodza-password-field.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-password-field.css`](kodza-password-field.css) | 16.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-password-field.css`](kodza-password-field.css) | 16.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-password-field.js`](kodza-password-field.js) | 8.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-password` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-pass-bg` | `#ffffff` |  |
-| `--kz-pass-fg` | `#0a0a0a` |  |
-| `--kz-pass-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-pass-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-pass-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-pass-soft` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-pass-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-pass-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-pass-muted` | `color-mix(in srgb, var(--kz-pass-fg) 60%, transparent)` |  |
+| `--kz-pass-line` | `color-mix(in srgb, var(--kz-pass-fg) 14%, transparent)` |  |
+| `--kz-pass-line-hover` | `color-mix(in srgb, var(--kz-pass-fg) 30%, transparent)` |  |
+| `--kz-pass-soft` | `color-mix(in srgb, var(--kz-pass-fg) 6%, transparent)` |  |
 | `--kz-pass-height` | `56px` |  |
 | `--kz-pass-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-pass-pad` | `16px` |  |

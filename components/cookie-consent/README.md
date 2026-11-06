@@ -11,7 +11,7 @@ An honest cookie card: Reject weighs as much as Accept, Choose unfolds the categ
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-cookie-consent.html`](kodza-cookie-consent.html) | 1.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-cookie-consent.css`](kodza-cookie-consent.css) | 19.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-cookie-consent.css`](kodza-cookie-consent.css) | 19.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-cookie-consent.js`](kodza-cookie-consent.js) | 8.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `.kodza-cookies` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-cookies-bg` | `#ffffff` |  |
-| `--kz-cookies-fg` | `#0a0a0a` |  |
-| `--kz-cookies-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-cookies-line` | `rgba(10, 10, 10, 0.12)` |  |
-| `--kz-cookies-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-cookies-ink` | `#0a0a0a` |  |
-| `--kz-cookies-on-ink` | `#ffffff` |  |
+| `--kz-cookies-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-cookies-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-cookies-muted` | `color-mix(in srgb, var(--kz-cookies-fg) 60%, transparent)` |  |
+| `--kz-cookies-line` | `color-mix(in srgb, var(--kz-cookies-fg) 12%, transparent)` |  |
+| `--kz-cookies-soft` | `color-mix(in srgb, var(--kz-cookies-fg) 6%, transparent)` |  |
+| `--kz-cookies-ink` | `var(--kz-color-accent, var(--kz-cookies-fg))` |  |
+| `--kz-cookies-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-cookies-shadow` | `0 24px 60px -24px rgba(10, 10, 10, 0.4)` |  |
 | `--kz-cookies-width` | `400px` |  |
 | `--kz-cookies-edge` | `20px` |  |

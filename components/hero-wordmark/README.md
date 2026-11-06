@@ -11,7 +11,7 @@ A hero that sets the name across the whole width, ink edge to ink edge: its lett
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-wordmark.html`](kodza-hero-wordmark.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-wordmark.css`](kodza-hero-wordmark.css) | 17.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-wordmark.css`](kodza-hero-wordmark.css) | 17.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-wordmark.js`](kodza-hero-wordmark.js) | 11.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,11 +46,11 @@ CSS variables, set on `.kodza-hero-wordmark` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-wordmark-ink` | `#0a0a0a` |  |
-| `--kz-hero-wordmark-paper` | `#f2f2f0` |  |
-| `--kz-hero-wordmark-dim` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hero-wordmark-faint` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-hero-wordmark-soft` | `rgba(10, 10, 10, 0.07)` |  |
+| `--kz-hero-wordmark-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-wordmark-paper` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-wordmark-dim` | `color-mix(in srgb, var(--kz-hero-wordmark-ink) 62%, transparent)` |  |
+| `--kz-hero-wordmark-faint` | `color-mix(in srgb, var(--kz-hero-wordmark-ink) 60%, transparent)` |  |
+| `--kz-hero-wordmark-soft` | `color-mix(in srgb, var(--kz-hero-wordmark-ink) 7%, transparent)` |  |
 | `--kz-hero-wordmark-bg` | `transparent` |  |
 | `--kz-hero-wordmark-width` | `none` |  |
 | `--kz-hero-wordmark-pad-top` | `clamp(56px, 7vw, 112px)` |  |

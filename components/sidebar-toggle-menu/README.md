@@ -11,7 +11,7 @@ A side panel that slides in over the page, then big links rise one by one. A rea
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-sidebar-toggle-menu.html`](kodza-sidebar-toggle-menu.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-sidebar-toggle-menu.css`](kodza-sidebar-toggle-menu.css) | 14.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-sidebar-toggle-menu.css`](kodza-sidebar-toggle-menu.css) | 15.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-sidebar-toggle-menu.js`](kodza-sidebar-toggle-menu.js) | 8.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,12 +48,12 @@ CSS variables, set on `.kodza-sidebar` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-sidebar-bg` | `#ffffff` |  |
-| `--kz-sidebar-fg` | `#0a0a0a` |  |
-| `--kz-sidebar-muted` | `rgba(10, 10, 10, 0.5)` |  |
-| `--kz-sidebar-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-sidebar-ink` | `#0a0a0a` |  |
-| `--kz-sidebar-on-ink` | `#ffffff` |  |
+| `--kz-sidebar-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-sidebar-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-sidebar-muted` | `color-mix(in srgb, var(--kz-sidebar-fg) 50%, transparent)` |  |
+| `--kz-sidebar-border` | `color-mix(in srgb, var(--kz-sidebar-fg) 10%, transparent)` |  |
+| `--kz-sidebar-ink` | `var(--kz-color-accent, var(--kz-sidebar-fg))` |  |
+| `--kz-sidebar-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-sidebar-backdrop` | `rgba(10, 10, 10, 0.32)` |  |
 | `--kz-sidebar-width` | `496px` |  |
 | `--kz-sidebar-size` | `calc(clamp(34px, 5vw, 48px) * var(--kz-font-display-scale, 1))` |  |

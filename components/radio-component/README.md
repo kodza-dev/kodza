@@ -11,7 +11,7 @@ Real radio buttons with one dot for the whole group: pick another option and the
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-radio-component.html`](kodza-radio-component.html) | 1.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-radio-component.css`](kodza-radio-component.css) | 12.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-radio-component.css`](kodza-radio-component.css) | 12.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-radio-component.js`](kodza-radio-component.js) | 8.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-radio` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-radio-bg` | `#ffffff` |  |
-| `--kz-radio-fg` | `#0a0a0a` |  |
-| `--kz-radio-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-radio-line` | `rgba(10, 10, 10, 0.2)` |  |
-| `--kz-radio-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-radio-ink` | `#0a0a0a` |  |
+| `--kz-radio-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-radio-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-radio-muted` | `color-mix(in srgb, var(--kz-radio-fg) 60%, transparent)` |  |
+| `--kz-radio-line` | `color-mix(in srgb, var(--kz-radio-fg) 20%, transparent)` |  |
+| `--kz-radio-soft` | `color-mix(in srgb, var(--kz-radio-fg) 6%, transparent)` |  |
+| `--kz-radio-ink` | `var(--kz-color-accent, var(--kz-radio-fg))` |  |
 | `--kz-radio-size` | `20px` |  |
 | `--kz-radio-dot` | `8px` |  |
 | `--kz-radio-duration` | `0.5s` |  |

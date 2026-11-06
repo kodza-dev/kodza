@@ -11,7 +11,7 @@ Tabs with a pill (or a line) that slides to the chosen one, a panel that comes i
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-tabs-component.html`](kodza-tabs-component.html) | 2.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-tabs-component.css`](kodza-tabs-component.css) | 11.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-tabs-component.css`](kodza-tabs-component.css) | 11.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-tabs-component.js`](kodza-tabs-component.js) | 9.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-tabs` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-tabs-bg` | `#ffffff` |  |
-| `--kz-tabs-fg` | `#0a0a0a` |  |
-| `--kz-tabs-muted` | `rgba(10, 10, 10, 0.58)` |  |
-| `--kz-tabs-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-tabs-ink` | `#0a0a0a` |  |
-| `--kz-tabs-on-ink` | `#ffffff` |  |
+| `--kz-tabs-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-tabs-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-tabs-muted` | `color-mix(in srgb, var(--kz-tabs-fg) 58%, transparent)` |  |
+| `--kz-tabs-border` | `color-mix(in srgb, var(--kz-tabs-fg) 10%, transparent)` |  |
+| `--kz-tabs-ink` | `var(--kz-color-accent, var(--kz-tabs-fg))` |  |
+| `--kz-tabs-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-tabs-width` | `520px` |  |
 | `--kz-tabs-duration` | `0.5s` |  |
 | `--kz-tabs-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

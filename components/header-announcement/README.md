@@ -11,7 +11,7 @@ A site header with a strip of news on top: messages roll and pause on hover or f
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-announcement.html`](kodza-header-announcement.html) | 2.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-announcement.css`](kodza-header-announcement.css) | 48.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-announcement.css`](kodza-header-announcement.css) | 49.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-header-announcement.js`](kodza-header-announcement.js) | 18.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -49,25 +49,25 @@ CSS variables, set on `.kodza-header-announcement` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-header-announcement-bg` | `transparent` |  |
-| `--kz-header-announcement-fg` | `#0a0a0a` |  |
-| `--kz-header-announcement-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-header-announcement-soft` | `rgba(10, 10, 10, 0.06)` | the Menu button |
-| `--kz-header-announcement-ink` | `#0a0a0a` | the call to action |
-| `--kz-header-announcement-on-ink` | `#ffffff` |  |
+| `--kz-header-announcement-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-header-announcement-muted` | `color-mix(in srgb, var(--kz-header-announcement-fg) 62%, transparent)` |  |
+| `--kz-header-announcement-soft` | `color-mix(in srgb, var(--kz-header-announcement-fg) 6%, transparent)` | the Menu button |
+| `--kz-header-announcement-ink` | `var(--kz-color-accent, var(--kz-header-announcement-fg))` | the call to action |
+| `--kz-header-announcement-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-header-announcement-height` | `72px` |  |
 | `--kz-header-announcement-width` | `1200px` | the row, centred |
 | `--kz-header-announcement-pad` | `24px` |  |
-| `--kz-header-announcement-strip-bg` | `#0a0a0a` | the strip of news |
-| `--kz-header-announcement-strip-fg` | `#f2f2f0` |  |
-| `--kz-header-announcement-strip-muted` | `rgba(242, 242, 240, 0.62)` |  |
+| `--kz-header-announcement-strip-bg` | `var(--kz-color-ink, #0a0a0a)` | the strip of news |
+| `--kz-header-announcement-strip-fg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-header-announcement-strip-muted` | `color-mix(in srgb, var(--kz-header-announcement-strip-fg) 62%, transparent)` |  |
 | `--kz-header-announcement-strip-height` | `40px` |  |
 | `--kz-header-announcement-interval` | `4.5s` | how long each message stays |
 | `--kz-header-announcement-roll` | `0.7s` | one message rolling to the next |
 | `--kz-header-announcement-fold` | `0.6s` | the strip folding away |
-| `--kz-header-announcement-menu-bg` | `#0a0a0a` | the shutter, below 900 px |
-| `--kz-header-announcement-menu-fg` | `#f2f2f0` |  |
-| `--kz-header-announcement-menu-muted` | `rgba(242, 242, 240, 0.62)` |  |
-| `--kz-header-announcement-menu-line` | `rgba(242, 242, 240, 0.16)` |  |
+| `--kz-header-announcement-menu-bg` | `var(--kz-color-ink, #0a0a0a)` | the shutter, below 900 px |
+| `--kz-header-announcement-menu-fg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-header-announcement-menu-muted` | `color-mix(in srgb, var(--kz-header-announcement-menu-fg) 62%, transparent)` |  |
+| `--kz-header-announcement-menu-line` | `color-mix(in srgb, var(--kz-header-announcement-menu-fg) 16%, transparent)` |  |
 | `--kz-header-announcement-menu-top` | `auto` | where the shutter starts; auto = the bottom of the header |
 | `--kz-header-announcement-menu-side` | `24px` |  |
 | `--kz-header-announcement-menu-size` | `calc(clamp(34px, min(10cqw, calc((100cqh - 240px) / 6)), 96px) * var(--kz-font-display-scale, 1))` |  |

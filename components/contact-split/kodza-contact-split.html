@@ -1,0 +1,77 @@
+<section class="kodza-contact-split" data-timezone="Europe/Paris" data-hours="mon-fri 09:00-18:00" data-reply="2 h">
+  <div class="kodza-contact-split__bar">
+    <p class="kodza-contact-split__eyebrow">Contact</p>
+    <p class="kodza-contact-split__status" hidden><span class="kodza-contact-split__dot" aria-hidden="true"></span><span class="kodza-contact-split__state"></span><span class="kodza-contact-split__time" data-text="{time} in Bordeaux"></span></p>
+  </div>
+  <div class="kodza-contact-split__head">
+    <h2 class="kodza-contact-split__title">Tell us what you’re building.</h2>
+    <p class="kodza-contact-split__lead">No ticket number, no sales sequence. A person reads it and writes back.</p>
+  </div>
+  <div class="kodza-contact-split__inner">
+    <div class="kodza-contact-split__ways">
+      <div class="kodza-contact-split__quick">
+        <a class="kodza-contact-split__big kodza-contact-split__big--call" href="tel:+33556000000">Call</a>
+        <a class="kodza-contact-split__big" href="mailto:hello@halyard.example">Email</a>
+      </div>
+      <dl class="kodza-contact-split__list">
+        <div class="kodza-contact-split__item kodza-contact-split__item--email">
+          <dt class="kodza-contact-split__key">Write to</dt>
+          <dd>
+            <button class="kodza-contact-split__copy" type="button" data-copy="hello@halyard.example">
+              <span class="kodza-contact-split__sr">Copy the address </span>
+              <span class="kodza-contact-split__roll"><span class="kodza-contact-split__said">hello@halyard.example</span></span>
+              <svg class="kodza-contact-split__glyph" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5" /><path d="M10.5 3.5v-.5A1.5 1.5 0 0 0 9 1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5" /></svg>
+            </button>
+            <span class="kodza-contact-split__sr" role="status"></span>
+          </dd>
+        </div>
+        <div class="kodza-contact-split__item kodza-contact-split__item--phone">
+          <dt class="kodza-contact-split__key">Phone</dt>
+          <dd><a class="kodza-contact-split__link" href="tel:+33556000000">+33 5 56 00 00 00</a></dd>
+        </div>
+        <div class="kodza-contact-split__item">
+          <dt class="kodza-contact-split__key">Studio</dt>
+          <dd><address class="kodza-contact-split__address">12 quai des Chartrons<br>33000 Bordeaux</address></dd>
+        </div>
+      </dl>
+    </div>
+
+    <form class="kodza-contact-split__form" action="#" method="post">
+      <div class="kodza-contact-split__stage">
+        <div class="kodza-contact-split__panel">
+          <p class="kodza-contact-split__key">Or right here</p>
+          <div class="kodza-contact-split__fields">
+            <label class="kodza-contact-split__box">
+              <input class="kodza-contact-split__input" type="text" name="name" autocomplete="name" placeholder=" " required>
+              <span class="kodza-contact-split__label">Your name</span>
+            </label>
+            <label class="kodza-contact-split__box">
+              <input class="kodza-contact-split__input" type="email" name="email" autocomplete="email" placeholder=" " required>
+              <span class="kodza-contact-split__label">Email</span>
+            </label>
+            <label class="kodza-contact-split__box kodza-contact-split__box--area">
+              <textarea class="kodza-contact-split__input kodza-contact-split__area" name="message" rows="3" maxlength="1000" placeholder=" " required></textarea>
+              <span class="kodza-contact-split__label">What are you building?</span>
+              <span class="kodza-contact-split__count" aria-hidden="true"></span>
+            </label>
+            <label class="kodza-contact-split__trap" aria-hidden="true">Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+          </div>
+          <div class="kodza-contact-split__foot">
+            <p class="kodza-contact-split__note" aria-live="polite">
+              <span class="kodza-contact-split__help">Two lines is plenty. We ask the rest.</span>
+              <span class="kodza-contact-split__error"></span>
+            </p>
+            <button class="kodza-contact-split__send" type="submit"><span class="kodza-contact-split__word">Send message</span><span class="kodza-contact-split__spinner" aria-hidden="true"></span></button>
+          </div>
+          <p class="kodza-contact-split__privacy">Your details are used to answer you. Nothing else. <a href="/privacy">Privacy</a></p>
+        </div>
+        <div class="kodza-contact-split__done" hidden>
+          <p class="kodza-contact-split__key">Sent</p>
+          <p class="kodza-contact-split__thanks" data-text="Thanks, {name}.">Thanks.</p>
+          <p class="kodza-contact-split__next">We write back to <span data-value="email">your address</span>. From a person, not a sequence.</p>
+          <button class="kodza-contact-split__again" type="reset">Write another</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>

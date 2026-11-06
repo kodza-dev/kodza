@@ -11,7 +11,7 @@ A hero over the floor of a pool in the sun: a net of bright lines ray-traced by 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-caustics.html`](kodza-caustics.html) | 0.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-caustics.css`](kodza-caustics.css) | 12.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-caustics.css`](kodza-caustics.css) | 12.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-caustics.js`](kodza-caustics.js) | 30.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -47,11 +47,11 @@ CSS variables, set on `[data-kodza-caustics]` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-caustics-bg` | `#babab6` | the floor in the shade |
-| `--kz-caustics-light` | `#fff` | the light on it |
+| `--kz-caustics-light` | `var(--kz-color-paper, #ffffff)` | the light on it |
 | `--kz-caustics-strength` | `0.55` | how much light reaches the floor, 0 to 1 |
-| `--kz-caustics-ink` | `#0a0a0a` | the text and the button |
-| `--kz-caustics-muted` | `rgba(10, 10, 10, 0.7)` |  |
-| `--kz-caustics-on-ink` | `#fff` | the button's label |
+| `--kz-caustics-ink` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` | the text and the button |
+| `--kz-caustics-muted` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 70%, transparent)` |  |
+| `--kz-caustics-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` | the button's label |
 | `--kz-caustics-scale` | `480px` | the size of the waves |
 | `--kz-caustics-speed` | `1` | how fast the water moves (0: still water) |
 | `--kz-caustics-calm` | `0.3` | how much the water moves under the text, 0 to 1 |

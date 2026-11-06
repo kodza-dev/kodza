@@ -48,9 +48,9 @@ CSS variables, set on `.kodza-expanding-pill` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-expanding-pill-bg` | `#0a0a0a` | the button, and the card it becomes |
-| `--kz-expanding-pill-fg` | `#f2f2f0` |  |
-| `--kz-expanding-pill-muted` | `rgba(242, 242, 240, 0.62)` |  |
+| `--kz-expanding-pill-bg` | `var(--kz-color-ink, #0a0a0a)` | the button, and the card it becomes |
+| `--kz-expanding-pill-fg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-expanding-pill-muted` | `color-mix(in srgb, var(--kz-expanding-pill-fg) 62%, transparent)` |  |
 | `--kz-expanding-pill-shade` | `rgba(10, 10, 10, 0.2)` | over the page while it is open |
 | `--kz-expanding-pill-width` | `360px` | the card, never wider than the screen minus 12px a side |
 | `--kz-expanding-pill-size` | `calc(34px * var(--kz-font-display-scale, 1))` | the links |

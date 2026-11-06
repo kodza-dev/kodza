@@ -11,7 +11,7 @@ Seven slots that never jump: the ink pill slides to the page and the numbers tha
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-pagination.html`](kodza-pagination.html) | 0.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-pagination.css`](kodza-pagination.css) | 14.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-pagination.css`](kodza-pagination.css) | 15.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-pagination.js`](kodza-pagination.js) | 13.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-pagination` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-pages-fg` | `#0a0a0a` |  |
-| `--kz-pages-muted` | `rgba(10, 10, 10, 0.58)` |  |
-| `--kz-pages-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-pages-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-pages-ink` | `#0a0a0a` |  |
-| `--kz-pages-on-ink` | `#ffffff` |  |
+| `--kz-pages-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-pages-muted` | `color-mix(in srgb, var(--kz-pages-fg) 58%, transparent)` |  |
+| `--kz-pages-border` | `color-mix(in srgb, var(--kz-pages-fg) 10%, transparent)` |  |
+| `--kz-pages-soft` | `color-mix(in srgb, var(--kz-pages-fg) 6%, transparent)` |  |
+| `--kz-pages-ink` | `var(--kz-color-accent, var(--kz-pages-fg))` |  |
+| `--kz-pages-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-pages-size` | `40px` |  |
 | `--kz-pages-gap` | `4px` |  |
 | `--kz-pages-duration` | `0.5s` |  |

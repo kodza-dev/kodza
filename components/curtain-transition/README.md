@@ -11,7 +11,7 @@ Between two real pages, an ink panel rises with the name of the next page, then 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-curtain-transition.html`](kodza-curtain-transition.html) | 1.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-curtain-transition.css`](kodza-curtain-transition.css) | 24.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-curtain-transition.css`](kodza-curtain-transition.css) | 24.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-curtain-transition.js`](kodza-curtain-transition.js) | 26.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -50,16 +50,16 @@ CSS variables, set on `[data-kodza-curtain-transition]` itself:
 | --- | --- | --- |
 | `--kz-curtain-transition-duration` | `1.2s` | the whole curtain: up, a beat on the name, off |
 | `--kz-curtain-transition-ease` | `cubic-bezier(0.76, 0, 0.24, 1)` |  |
-| `--kz-curtain-transition-ink` | `#0a0a0a` | the panel |
-| `--kz-curtain-transition-ink-fg` | `#f2f2f0` | the name on it |
+| `--kz-curtain-transition-ink` | `var(--kz-color-ink, #0a0a0a)` | the panel |
+| `--kz-curtain-transition-ink-fg` | `var(--kz-color-page, #f2f2f0)` | the name on it |
 | `--kz-curtain-transition-way` | `1` | 1: up from the bottom, -1: down from the top |
 | `--kz-curtain-transition-curve` | `0px` | how far its leading edge bows |
 | `--kz-curtain-transition-enter-delay` | `0.8s` | the arrival starts as the curtain lifts off it |
 | `--kz-curtain-transition-enter-ease` | `cubic-bezier(0.2, 0.8, 0.1, 1)` |  |
-| `--kz-curtain-transition-bg` | `#f2f2f0` |  |
-| `--kz-curtain-transition-fg` | `#0a0a0a` |  |
-| `--kz-curtain-transition-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-curtain-transition-line` | `rgba(10, 10, 10, 0.12)` |  |
+| `--kz-curtain-transition-bg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-curtain-transition-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-curtain-transition-muted` | `color-mix(in srgb, var(--kz-curtain-transition-fg) 62%, transparent)` |  |
+| `--kz-curtain-transition-line` | `color-mix(in srgb, var(--kz-curtain-transition-fg) 12%, transparent)` |  |
 | `--kz-curtain-transition-image-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-curtain-transition-side` | `24px` |  |
 

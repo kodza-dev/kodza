@@ -1,0 +1,655 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Image Split Cards
+   One picture laid over a row of cards. As the scroll runs through the section, pinned in the
+   middle of the screen, the picture splits along the gaps and its inner corners round off, then
+   each piece turns over to show its card, one after the other. The text is real HTML from the
+   start. Without the script, or with reduced motion, the picture sits above the cards.
+   Tuned with the --kz-image-split-cards-* variables; the pacing of the turns is in the constants
+   at the top of component.js. */
+.kodza-image-split-cards {
+  /* The column the head and the cards share, and the room kept on each side of a narrow screen */
+  --kz-image-split-cards-width: 1080px;
+  --kz-image-split-cards-gutter: 24px;
+  /* The gap the pieces open between them */
+  --kz-image-split-cards-gap: 16px;
+  /* A card's height side by side, then stacked (a narrow section, under 640px) */
+  --kz-image-split-cards-height: clamp(300px, 52svh, 440px);
+  --kz-image-split-cards-height-stacked: clamp(150px, 21svh, 200px);
+  /* How much scroll the section holds the screen for, on top of its own height */
+  --kz-image-split-cards-distance: 150svh;
+  /* Which part of the picture the cut keeps */
+  --kz-image-split-cards-position: 50% 50%;
+  --kz-image-split-cards-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-image-split-cards-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-image-split-cards-muted: color-mix(in srgb, var(--kz-image-split-cards-ink) 62%, transparent);
+  --kz-image-split-cards-surface: var(--kz-color-paper, #ffffff);
+  --kz-image-split-cards-border: color-mix(in srgb, var(--kz-image-split-cards-ink) 10%, transparent);
+  /* The shadow a card takes as it turns edge-on */
+  --kz-image-split-cards-shade: #0a0a0a;
+  --kz-image-split-cards-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
+
+  position: relative;
+  display: block;
+  container-type: inline-size;
+  color: var(--kz-image-split-cards-ink);
+}
+
+/* The head and the cards. Once the script runs, it holds the screen while the section scrolls by */
+.kodza-image-split-cards__stage {
+  box-sizing: border-box;
+  display: grid;
+  gap: clamp(32px, 6svh, 56px);
+  width: min(var(--kz-image-split-cards-width), 100% - 2 * var(--kz-image-split-cards-gutter));
+  /* Centred like margin: auto, but worked out: Chrome can report a stale 0 for auto right after
+     kodza:init, and the theme bench reads it as a theme taking the margin */
+  margin-inline: max(var(--kz-image-split-cards-gutter), (100% - var(--kz-image-split-cards-width)) / 2);
+}
+
+.kodza-image-split-cards__head {
+  display: grid;
+  gap: 14px;
+}
+
+.kodza-image-split-cards__label {
+  margin: 0;
+  color: var(--kz-image-split-cards-muted);
+  font-family: var(--kz-font-label, var(--kz-image-split-cards-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-image-split-cards__heading {
+  max-width: 16em;
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(28px, 4.2cqi, 48px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+}
+
+.kodza-image-split-cards__deck {
+  display: grid;
+  gap: var(--kz-image-split-cards-gap);
+}
+
+/* At rest (no script, reduced motion): the picture above the cards */
+.kodza-image-split-cards__image {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: clamp(200px, 30cqi, 360px);
+  margin: 0;
+  border-radius: var(--kz-image-split-cards-radius);
+  object-fit: cover;
+  object-position: var(--kz-image-split-cards-position);
+}
+
+.kodza-image-split-cards__list {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: var(--kz-image-split-cards-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A card: the list item itself until the script runs, then its back face */
+.kodza-image-split-cards:not(.is-ready) .kodza-image-split-cards__card,
+.kodza-image-split-cards__back {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 220px;
+  margin: 0;
+  padding: 28px;
+  border: 1px solid var(--kz-image-split-cards-border);
+  border-radius: var(--kz-image-split-cards-radius);
+  background: var(--kz-image-split-cards-surface);
+}
+
+.kodza-image-split-cards__card {
+  position: relative;
+  display: grid;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-image-split-cards__index {
+  color: var(--kz-image-split-cards-muted);
+  font-family: var(--kz-font-label, var(--kz-image-split-cards-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+/* The title and the text sit at the bottom of the card, the number at the top */
+.kodza-image-split-cards__title {
+  margin: auto 0 0;
+  padding-top: 24px;
+  color: inherit;
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.kodza-image-split-cards__text {
+  max-width: 30em;
+  margin: 0;
+  color: var(--kz-image-split-cards-muted);
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.kodza-image-split-cards__text code {
+  color: var(--kz-image-split-cards-ink);
+  font-family: var(--kz-font-mono, var(--kz-image-split-cards-mono));
+  font-size: 0.92em;
+}
+
+/* Running: the section is a track, the stage sticks while the scroll runs through it */
+.kodza-image-split-cards.is-live::after {
+  content: "";
+  display: block;
+  height: var(--kz-image-split-cards-distance);
+}
+
+.kodza-image-split-cards.is-live .kodza-image-split-cards__stage {
+  position: sticky;
+  top: 0;
+  align-content: center;
+  min-height: 100svh;
+  padding-block: clamp(24px, 6svh, 64px);
+}
+
+.kodza-image-split-cards.is-live .kodza-image-split-cards__list {
+  grid-auto-rows: var(--kz-image-split-cards-height);
+}
+
+/* Each card turns in 3D: two faces in one cell, each hiding its back */
+.kodza-image-split-cards.is-live .kodza-image-split-cards__card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.kodza-image-split-cards__front,
+.kodza-image-split-cards.is-live .kodza-image-split-cards__back {
+  grid-area: 1 / 1;
+  min-height: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* The front: the picture, offset so each card shows its own slice. The inner corners stay square
+   while the pieces touch, and round off as they part (--kz-image-split-cards-split, 0 to 1) */
+.kodza-image-split-cards__front {
+  --kz-image-split-cards-inner: calc(var(--kz-image-split-cards-radius) * var(--kz-image-split-cards-split, 1));
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--kz-image-split-cards-inner);
+  background: var(--kz-image-split-cards-border);
+}
+
+.kodza-image-split-cards__card:first-child .kodza-image-split-cards__front {
+  border-radius: var(--kz-image-split-cards-radius) var(--kz-image-split-cards-inner) var(--kz-image-split-cards-inner) var(--kz-image-split-cards-radius);
+}
+
+.kodza-image-split-cards__card:last-child .kodza-image-split-cards__front {
+  border-radius: var(--kz-image-split-cards-inner) var(--kz-image-split-cards-radius) var(--kz-image-split-cards-radius) var(--kz-image-split-cards-inner);
+}
+
+.kodza-image-split-cards__front .kodza-image-split-cards__image {
+  position: absolute;
+  top: 0;
+  left: calc(var(--kz-image-split-cards-i, 0) * -100%);
+  width: calc(var(--kz-image-split-cards-n, 3) * 100%);
+  height: 100%;
+  border-radius: 0;
+}
+
+/* The back starts turned away, the way the card turns */
+.kodza-image-split-cards.is-live .kodza-image-split-cards__back {
+  transform: rotateY(180deg);
+}
+
+/* The text arrives once its side faces you (--kz-image-split-cards-reveal, 0 to 1) */
+.kodza-image-split-cards.is-live .kodza-image-split-cards__back > * {
+  opacity: var(--kz-image-split-cards-reveal, 1);
+  transform: translateY(calc((1 - var(--kz-image-split-cards-reveal, 1)) * 14px));
+}
+
+/* Edge-on, a card falls into shadow (--kz-image-split-cards-turn, 0 to about 0.3) */
+.kodza-image-split-cards__front::after,
+.kodza-image-split-cards.is-live .kodza-image-split-cards__back::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--kz-image-split-cards-shade);
+  opacity: var(--kz-image-split-cards-turn, 0);
+  pointer-events: none;
+}
+
+/* Stacked, in a narrow section: the picture is cut across, and the cards turn top over bottom */
+@container (max-width: 639.98px) {
+  .kodza-image-split-cards__list {
+    grid-auto-columns: auto;
+    grid-auto-flow: row;
+  }
+
+  .kodza-image-split-cards__back {
+    min-height: 0;
+    padding: 22px;
+  }
+
+  .kodza-image-split-cards__title {
+    padding-top: 14px;
+    font-size: 20px;
+  }
+
+  .kodza-image-split-cards.is-live .kodza-image-split-cards__list {
+    grid-auto-rows: minmax(var(--kz-image-split-cards-height-stacked), 1fr);
+  }
+}
+
+.kodza-image-split-cards.is-stacked .kodza-image-split-cards__card:first-child .kodza-image-split-cards__front {
+  border-radius: var(--kz-image-split-cards-radius) var(--kz-image-split-cards-radius) var(--kz-image-split-cards-inner) var(--kz-image-split-cards-inner);
+}
+
+.kodza-image-split-cards.is-stacked .kodza-image-split-cards__card:last-child .kodza-image-split-cards__front {
+  border-radius: var(--kz-image-split-cards-inner) var(--kz-image-split-cards-inner) var(--kz-image-split-cards-radius) var(--kz-image-split-cards-radius);
+}
+
+.kodza-image-split-cards.is-stacked .kodza-image-split-cards__front .kodza-image-split-cards__image {
+  top: calc(var(--kz-image-split-cards-i, 0) * -100%);
+  left: 0;
+  width: 100%;
+  height: calc(var(--kz-image-split-cards-n, 3) * 100%);
+}
+
+.kodza-image-split-cards.is-live.is-stacked .kodza-image-split-cards__back {
+  transform: rotateX(180deg);
+}
+
+/* kodza-guard 6aba800268dc — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-image-split-cards__card):not(#_) {
+  border: revert;
+  border-radius: revert;
+  box-sizing: revert;
+  background-color: revert;
+  background-image: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-image-split-cards:not(#_),
+.kodza-image-split-cards__head:not(#_),
+.kodza-image-split-cards__deck:not(#_),
+.kodza-image-split-cards__front:not(#_),
+.kodza-image-split-cards__index:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-image-split-cards__label:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-image-split-cards__heading:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-image-split-cards__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-image-split-cards__card:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-image-split-cards__image:not(#_) {
+  border: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-image-split-cards__title:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  padding-right: revert;
+  padding-bottom: revert;
+  padding-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-image-split-cards__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-image-split-cards__text code:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-image-split-cards__label:not(#_):where(:not([hidden])),
+.kodza-image-split-cards__heading:not(#_):where(:not([hidden])),
+.kodza-image-split-cards__title:not(#_):where(:not([hidden])),
+.kodza-image-split-cards__text:not(#_):where(:not([hidden])),
+.kodza-image-split-cards__text code:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-image-split-cards__label:not(#_):where([hidden]),
+.kodza-image-split-cards__heading:not(#_):where([hidden]),
+.kodza-image-split-cards__title:not(#_):where([hidden]),
+.kodza-image-split-cards__text:not(#_):where([hidden]),
+.kodza-image-split-cards__text code:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-image-split-cards:not(#_)::after,
+.kodza-image-split-cards__front:not(#_)::after,
+.kodza-image-split-cards__back:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-image-split-cards__label:not(#_) {
+  margin: 0;
+  color: var(--kz-image-split-cards-muted);
+  font-family: var(--kz-font-label, var(--kz-image-split-cards-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-image-split-cards__heading:not(#_) {
+  max-width: 16em;
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(28px, 4.2cqi, 48px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-image-split-cards__image:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+  border-radius: var(--kz-image-split-cards-radius);
+}
+
+.kodza-image-split-cards__list:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-image-split-cards:not(.is-ready) .kodza-image-split-cards__card:not(#_) {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  margin: 0;
+  padding: 28px;
+  border: 1px solid var(--kz-image-split-cards-border);
+  border-radius: var(--kz-image-split-cards-radius);
+  background: var(--kz-image-split-cards-surface);
+}
+
+.kodza-image-split-cards__card:not(#_) {
+  position: relative;
+  display: grid;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-image-split-cards__title:not(#_) {
+  margin: auto 0 0;
+  padding-top: 24px;
+  color: inherit;
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.kodza-image-split-cards__text:not(#_) {
+  max-width: 30em;
+  margin: 0;
+  color: var(--kz-image-split-cards-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.kodza-image-split-cards__text code:not(#_) {
+  color: var(--kz-image-split-cards-ink);
+  font-family: var(--kz-font-mono, var(--kz-image-split-cards-mono));
+  font-size: 0.92em;
+}
+
+.kodza-image-split-cards__front .kodza-image-split-cards__image:not(#_) {
+  position: absolute;
+  border-radius: 0;
+}
+
+@container (max-width: 639.98px) {
+  .kodza-image-split-cards__title:not(#_) {
+    padding-top: 14px;
+    font-size: 20px;
+  }
+}

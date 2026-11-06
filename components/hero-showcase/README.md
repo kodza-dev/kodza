@@ -11,7 +11,7 @@ A title over a wall of project thumbnails laid back like prints on a table. On s
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-showcase.html`](kodza-hero-showcase.html) | 7.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-showcase.css`](kodza-hero-showcase.css) | 24.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-showcase.css`](kodza-hero-showcase.css) | 24.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-showcase.js`](kodza-hero-showcase.js) | 19.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,13 +48,13 @@ CSS variables, set on `.kodza-hero-showcase` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-showcase-ink` | `#0a0a0a` |  |
-| `--kz-hero-showcase-paper` | `#f2f2f0` |  |
-| `--kz-hero-showcase-dim` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hero-showcase-faint` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-hero-showcase-soft` | `rgba(10, 10, 10, 0.07)` |  |
-| `--kz-hero-showcase-well` | `rgba(10, 10, 10, 0.06)` | behind a thumbnail while it loads |
-| `--kz-hero-showcase-edge` | `rgba(10, 10, 10, 0.08)` | hairline round a thumbnail, so a dark picture keeps its edge |
+| `--kz-hero-showcase-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-showcase-paper` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-showcase-dim` | `color-mix(in srgb, var(--kz-hero-showcase-ink) 62%, transparent)` |  |
+| `--kz-hero-showcase-faint` | `color-mix(in srgb, var(--kz-hero-showcase-ink) 60%, transparent)` |  |
+| `--kz-hero-showcase-soft` | `color-mix(in srgb, var(--kz-hero-showcase-ink) 7%, transparent)` |  |
+| `--kz-hero-showcase-well` | `color-mix(in srgb, var(--kz-hero-showcase-ink) 6%, transparent)` | behind a thumbnail while it loads |
+| `--kz-hero-showcase-edge` | `color-mix(in srgb, var(--kz-hero-showcase-ink) 8%, transparent)` | hairline round a thumbnail, so a dark picture keeps its edge |
 | `--kz-hero-showcase-bg` | `transparent` |  |
 | `--kz-hero-showcase-width` | `1240px` |  |
 | `--kz-hero-showcase-gutter` | `clamp(16px, 4vw, 40px)` |  |

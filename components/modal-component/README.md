@@ -11,7 +11,7 @@ A real dialog that grows out of the button that opened it and goes back into it.
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-modal-component.html`](kodza-modal-component.html) | 2.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-modal-component.css`](kodza-modal-component.css) | 24.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-modal-component.css`](kodza-modal-component.css) | 24.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-modal-component.js`](kodza-modal-component.js) | 12.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,13 +48,13 @@ CSS variables, set on `.kodza-dialog` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-dialog-bg` | `#ffffff` |  |
-| `--kz-dialog-fg` | `#0a0a0a` |  |
-| `--kz-dialog-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-dialog-line` | `rgba(10, 10, 10, 0.12)` |  |
-| `--kz-dialog-soft` | `rgba(10, 10, 10, 0.05)` |  |
-| `--kz-dialog-ink` | `#0a0a0a` |  |
-| `--kz-dialog-on-ink` | `#ffffff` |  |
+| `--kz-dialog-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-dialog-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-dialog-muted` | `color-mix(in srgb, var(--kz-dialog-fg) 60%, transparent)` |  |
+| `--kz-dialog-line` | `color-mix(in srgb, var(--kz-dialog-fg) 12%, transparent)` |  |
+| `--kz-dialog-soft` | `color-mix(in srgb, var(--kz-dialog-fg) 5%, transparent)` |  |
+| `--kz-dialog-ink` | `var(--kz-color-accent, var(--kz-dialog-fg))` |  |
+| `--kz-dialog-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-dialog-backdrop` | `rgba(10, 10, 10, 0.3)` |  |
 | `--kz-dialog-shadow` | `0 30px 70px -20px rgba(10, 10, 10, 0.45)` |  |
 | `--kz-dialog-width` | `440px` |  |

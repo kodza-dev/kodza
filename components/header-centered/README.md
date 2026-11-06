@@ -11,7 +11,7 @@ A centred header for a restaurant or a shop: the name in the middle, links on bo
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-centered.html`](kodza-header-centered.html) | 3.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-centered.css`](kodza-header-centered.css) | 49.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-centered.css`](kodza-header-centered.css) | 50.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-header-centered.js`](kodza-header-centered.js) | 46.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,13 +48,13 @@ CSS variables, set on `.kodza-header-centered` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-header-centered-bg` | `#f2f2f0` |  |
-| `--kz-header-centered-fg` | `#0a0a0a` |  |
-| `--kz-header-centered-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-header-centered-soft` | `rgba(10, 10, 10, 0.06)` | the Menu button |
-| `--kz-header-centered-rule` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-header-centered-cta-bg` | `#0a0a0a` |  |
-| `--kz-header-centered-cta-fg` | `#ffffff` |  |
+| `--kz-header-centered-bg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-header-centered-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-header-centered-muted` | `color-mix(in srgb, var(--kz-header-centered-fg) 62%, transparent)` |  |
+| `--kz-header-centered-soft` | `color-mix(in srgb, var(--kz-header-centered-fg) 6%, transparent)` | the Menu button |
+| `--kz-header-centered-rule` | `color-mix(in srgb, var(--kz-header-centered-fg) 10%, transparent)` |  |
+| `--kz-header-centered-cta-bg` | `var(--kz-color-accent, var(--kz-header-centered-fg))` |  |
+| `--kz-header-centered-cta-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-header-centered-mono` | `var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace))` | the line above the bar: address and hours |
 | `--kz-header-centered-top` | `var(--wp-admin--admin-bar--height, 0px)` | below the WordPress admin bar |
 | `--kz-header-centered-strip` | `36px` | the line with the address and the hours |
@@ -69,9 +69,9 @@ CSS variables, set on `.kodza-header-centered` itself:
 | `--kz-header-centered-pad` | `24px` |  |
 | `--kz-header-centered-duration` | `0.6s` |  |
 | `--kz-header-centered-ease` | `cubic-bezier(0.33, 1, 0.68, 1)` |  |
-| `--kz-header-centered-menu-bg` | `#0a0a0a` |  |
-| `--kz-header-centered-menu-fg` | `#f2f2f0` |  |
-| `--kz-header-centered-menu-muted` | `rgba(242, 242, 240, 0.62)` |  |
+| `--kz-header-centered-menu-bg` | `var(--kz-header-centered-fg)` |  |
+| `--kz-header-centered-menu-fg` | `var(--kz-header-centered-bg)` |  |
+| `--kz-header-centered-menu-muted` | `color-mix(in srgb, var(--kz-header-centered-menu-fg) 62%, transparent)` |  |
 | `--kz-header-centered-menu-top` | `calc(var(--wp-admin--admin-bar--height, 0px) + 18px)` | Close lands on Menu on its own; this is where it goes if Menu is somewhere else |
 | `--kz-header-centered-menu-side` | `24px` |  |
 | `--kz-header-centered-menu-size` | `calc(clamp(40px, min(10cqw + 12px, calc((100cqh - 230px) / 5.3)), 132px) * var(--kz-font-display-scale, 1))` |  |

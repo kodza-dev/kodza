@@ -11,7 +11,7 @@ A showreel hero: a muted loop under the title and a Play reel pill that follows 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-showreel.html`](kodza-hero-showreel.html) | 1.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-showreel.css`](kodza-hero-showreel.css) | 31.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-showreel.css`](kodza-hero-showreel.css) | 32.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-showreel.js`](kodza-hero-showreel.js) | 20.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,14 +48,14 @@ CSS variables, set on `.kodza-hero-showreel` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-showreel-light` | `#f2f2f0` |  |
-| `--kz-hero-showreel-ink` | `#0a0a0a` |  |
-| `--kz-hero-showreel-dim` | `rgba(242, 242, 240, 0.8)` |  |
-| `--kz-hero-showreel-faint` | `rgba(242, 242, 240, 0.7)` |  |
-| `--kz-hero-showreel-glass` | `rgba(242, 242, 240, 0.14)` |  |
+| `--kz-hero-showreel-light` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-showreel-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-showreel-dim` | `color-mix(in srgb, var(--kz-hero-showreel-light) 80%, transparent)` |  |
+| `--kz-hero-showreel-faint` | `color-mix(in srgb, var(--kz-hero-showreel-light) 70%, transparent)` |  |
+| `--kz-hero-showreel-glass` | `color-mix(in srgb, var(--kz-hero-showreel-light) 14%, transparent)` |  |
 | `--kz-hero-showreel-shade` | `rgba(10, 10, 10, 0.8)` |  |
 | `--kz-hero-showreel-base` | `#1c1c1c` |  |
-| `--kz-hero-showreel-curtain` | `rgba(10, 10, 10, 0.9)` |  |
+| `--kz-hero-showreel-curtain` | `color-mix(in srgb, var(--kz-hero-showreel-ink) 90%, transparent)` |  |
 | `--kz-hero-showreel-bg` | `transparent` |  |
 | `--kz-hero-showreel-height` | `clamp(560px, 54vw, 800px)` |  |
 | `--kz-hero-showreel-gutter` | `clamp(12px, 2vw, 24px)` |  |

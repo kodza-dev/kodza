@@ -58,9 +58,9 @@ CSS variables, set on `.kodza-expanding-panels` itself:
 | `--kz-expanding-panels-muted` | `rgba(255, 255, 255, 0.86)` |  |
 | `--kz-expanding-panels-veil` | `rgba(10, 10, 10, 0.3)` | over a closed photo |
 | `--kz-expanding-panels-shade` | `rgba(10, 10, 10, 0.72)` | at the foot of every photo, under the text |
-| `--kz-expanding-panels-link-bg` | `#ffffff` |  |
-| `--kz-expanding-panels-link-fg` | `#0a0a0a` |  |
-| `--kz-expanding-panels-focus` | `#0a0a0a` |  |
+| `--kz-expanding-panels-link-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-expanding-panels-link-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-expanding-panels-focus` | `var(--kz-color-ink, #0a0a0a)` |  |
 | `--kz-expanding-panels-line` | `transparent` | a hairline round each photo, for dark photos on a dark page |
 
 ## Dark mode

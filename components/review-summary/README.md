@@ -11,7 +11,7 @@ Reviews with their summary: the average rolls up, the stars fill to the decimal,
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-review-summary.html`](kodza-review-summary.html) | 15.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-review-summary.css`](kodza-review-summary.css) | 44.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-review-summary.css`](kodza-review-summary.css) | 45.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-review-summary.js`](kodza-review-summary.js) | 19.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,15 +46,15 @@ CSS variables, set on `.kodza-review-summary` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-review-summary-ink` | `#0a0a0a` |  |
-| `--kz-review-summary-dim` | `rgba(10, 10, 10, 0.64)` |  |
-| `--kz-review-summary-card` | `#ffffff` |  |
-| `--kz-review-summary-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-review-summary-rail` | `rgba(10, 10, 10, 0.1)` | empty stars and bar tracks |
-| `--kz-review-summary-muted` | `rgba(10, 10, 10, 0.26)` | the bars not chosen while filtered |
+| `--kz-review-summary-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-review-summary-dim` | `color-mix(in srgb, var(--kz-review-summary-ink) 64%, transparent)` |  |
+| `--kz-review-summary-card` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-review-summary-line` | `color-mix(in srgb, var(--kz-review-summary-ink) 10%, transparent)` |  |
+| `--kz-review-summary-rail` | `color-mix(in srgb, var(--kz-review-summary-ink) 10%, transparent)` | empty stars and bar tracks |
+| `--kz-review-summary-muted` | `color-mix(in srgb, var(--kz-review-summary-ink) 26%, transparent)` | the bars not chosen while filtered |
 | `--kz-review-summary-face` | `#e6e6e3` |  |
-| `--kz-review-summary-hover` | `rgba(10, 10, 10, 0.04)` |  |
-| `--kz-review-summary-pressed` | `rgba(10, 10, 10, 0.07)` |  |
+| `--kz-review-summary-hover` | `color-mix(in srgb, var(--kz-review-summary-ink) 4%, transparent)` |  |
+| `--kz-review-summary-pressed` | `color-mix(in srgb, var(--kz-review-summary-ink) 7%, transparent)` |  |
 | `--kz-review-summary-bg` | `transparent` |  |
 | `--kz-review-summary-star` | `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z' stroke='black' stroke-width='1.2' stroke-linejoin='round'/%3E%3C/svg%3E")` |  |
 | `--kz-review-summary-lines` | `5` | lines shown before "Read more" |

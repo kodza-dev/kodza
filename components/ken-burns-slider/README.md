@@ -11,7 +11,7 @@ A background slideshow behind fixed words: each photo drifts slowly toward its p
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-ken-burns-slider.html`](kodza-ken-burns-slider.html) | 3.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-ken-burns-slider.css`](kodza-ken-burns-slider.css) | 20.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-ken-burns-slider.css`](kodza-ken-burns-slider.css) | 21.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-ken-burns-slider.js`](kodza-ken-burns-slider.js) | 14.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -47,11 +47,12 @@ CSS variables, set on `.kodza-ken-burns-slider` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-ken-burns-slider-height` | `640px` | 100svh for a full-screen hero |
-| `--kz-ken-burns-slider-ink` | `#0a0a0a` |  |
-| `--kz-ken-burns-slider-paper` | `#ffffff` |  |
+| `--kz-ken-burns-slider-paper` | `#ffffff` | the words and controls, on the photo |
 | `--kz-ken-burns-slider-text` | `rgba(255, 255, 255, 0.9)` |  |
 | `--kz-ken-burns-slider-faint` | `rgba(255, 255, 255, 0.9)` |  |
 | `--kz-ken-burns-slider-track` | `rgba(255, 255, 255, 0.3)` |  |
+| `--kz-ken-burns-slider-button-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-ken-burns-slider-button-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
 | `--kz-ken-burns-slider-backdrop` | `#1c1c1c` | under the photos while they load |
 | `--kz-ken-burns-slider-shade` | `linear-gradient(to top, rgba(10, 10, 10, 0.82), rgba(10, 10, 10, 0.66) 300px, rgba(10, 10, 10, 0.54) 460px, rgba(10, 10, 10, 0.16)), linear-gradient(to right, rgba(10, 10, 10, 0.3), rgba(10, 10, 10, 0) 60%)` |  |
 | `--kz-ken-burns-slider-pad` | `clamp(22px, 4.4vw, 56px)` |  |

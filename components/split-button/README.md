@@ -11,7 +11,7 @@ The main action on the left, the other options behind an arrow. One tint slides 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-split-button.html`](kodza-split-button.html) | 2.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-split-button.css`](kodza-split-button.css) | 17.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-split-button.css`](kodza-split-button.css) | 18.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-split-button.js`](kodza-split-button.js) | 15.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,19 +46,19 @@ CSS variables, set on `.kodza-split` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-split-bg` | `#0a0a0a` |  |
-| `--kz-split-fg` | `#ffffff` |  |
+| `--kz-split-bg` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-split-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-split-border` | `transparent` |  |
-| `--kz-split-divider` | `rgba(255, 255, 255, 0.22)` |  |
-| `--kz-split-tint` | `rgba(255, 255, 255, 0.14)` | the hover, under one half |
+| `--kz-split-divider` | `color-mix(in srgb, var(--kz-split-fg) 22%, transparent)` |  |
+| `--kz-split-tint` | `color-mix(in srgb, var(--kz-split-fg) 14%, transparent)` | the hover, under one half |
 | `--kz-split-height` | `52px` |  |
 | `--kz-split-pad-x` | `24px` |  |
 | `--kz-split-toggle` | `50px` | the arrow's half |
-| `--kz-split-menu-bg` | `#ffffff` |  |
-| `--kz-split-menu-fg` | `#0a0a0a` |  |
-| `--kz-split-menu-muted` | `rgba(10, 10, 10, 0.58)` |  |
-| `--kz-split-menu-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-split-menu-soft` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-split-menu-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-split-menu-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-split-menu-muted` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 58%, transparent)` |  |
+| `--kz-split-menu-border` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 10%, transparent)` |  |
+| `--kz-split-menu-soft` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 6%, transparent)` |  |
 | `--kz-split-menu-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-split-menu-width` | `240px` |  |
 | `--kz-split-duration` | `0.35s` |  |

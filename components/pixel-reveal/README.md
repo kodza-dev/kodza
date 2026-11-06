@@ -47,7 +47,7 @@ CSS variables, set on `.kodza-pixel-reveal` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-pixel-reveal-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
-| `--kz-pixel-reveal-muted` | `rgba(10, 10, 10, 0.62)` |  |
+| `--kz-pixel-reveal-muted` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 62%, transparent)` |  |
 | `--kz-pixel-reveal-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 
 - Attributes: `data-target`

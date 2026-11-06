@@ -11,7 +11,7 @@ A grid of pictures where the one you click takes two by two cells and the others
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-make-way-grid.html`](kodza-make-way-grid.html) | 6.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-make-way-grid.css`](kodza-make-way-grid.css) | 17.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-make-way-grid.css`](kodza-make-way-grid.css) | 17.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-make-way-grid.js`](kodza-make-way-grid.js) | 14.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -58,10 +58,10 @@ CSS variables, set on `.kodza-make-way` itself:
 | `--kz-make-way-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-make-way-card-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-make-way-bg` | `#e9e9e6` | behind a picture still loading |
-| `--kz-make-way-pill-bg` | `#ffffff` | pill, card and close button |
-| `--kz-make-way-pill-fg` | `#0a0a0a` |  |
-| `--kz-make-way-muted` | `rgba(10, 10, 10, 0.64)` |  |
-| `--kz-make-way-focus` | `#0a0a0a` |  |
+| `--kz-make-way-pill-bg` | `var(--kz-color-paper, #ffffff)` | pill, card and close button |
+| `--kz-make-way-pill-fg` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-make-way-muted` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 64%, transparent)` |  |
+| `--kz-make-way-focus` | `var(--kz-color-ink, #0a0a0a)` |  |
 | `--kz-make-way-line` | `transparent` | a hairline round each picture, for dark pictures on a dark page |
 
 ## Dark mode

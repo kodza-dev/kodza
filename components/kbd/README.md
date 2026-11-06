@@ -11,7 +11,7 @@ Keyboard keys with a little depth, alone, in a combo or in a list of shortcuts. 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-kbd.html`](kodza-kbd.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-kbd.css`](kodza-kbd.css) | 6.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-kbd.css`](kodza-kbd.css) | 6.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-kbd.js`](kodza-kbd.js) | 6.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-kbd` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-kbd-bg` | `#ffffff` |  |
-| `--kz-kbd-fg` | `#0a0a0a` |  |
-| `--kz-kbd-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-kbd-line` | `rgba(10, 10, 10, 0.16)` |  |
-| `--kz-kbd-depth` | `rgba(10, 10, 10, 0.18)` |  |
-| `--kz-kbd-soft` | `rgba(10, 10, 10, 0.05)` |  |
+| `--kz-kbd-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-kbd-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-kbd-muted` | `color-mix(in srgb, var(--kz-kbd-fg) 62%, transparent)` |  |
+| `--kz-kbd-line` | `color-mix(in srgb, var(--kz-kbd-fg) 16%, transparent)` |  |
+| `--kz-kbd-depth` | `color-mix(in srgb, var(--kz-kbd-fg) 18%, transparent)` |  |
+| `--kz-kbd-soft` | `color-mix(in srgb, var(--kz-kbd-fg) 5%, transparent)` |  |
 | `--kz-kbd-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-kbd-s` | `var(--kz-kbd-size, 26px)` |  |
 

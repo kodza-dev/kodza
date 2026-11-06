@@ -47,7 +47,7 @@ CSS variables, set on `.kodza-annotate-text` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-annotate-color` | `currentColor` |  |
-| `--kz-annotate-marker` | `rgba(10, 10, 10, 0.13)` |  |
+| `--kz-annotate-marker` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 13%, transparent)` |  |
 | `--kz-annotate-width` | `2.5px` |  |
 | `--kz-annotate-duration` | `0.8s` |  |
 | `--kz-annotate-gap` | `0.25s` |  |

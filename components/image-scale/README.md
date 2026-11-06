@@ -51,7 +51,7 @@ CSS variables, set on `.kodza-image-hover--parallax` itself:
 | `--kz-image-zoom` | `1.08` |  |
 | `--kz-image-duration` | `1.1s` |  |
 | `--kz-image-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
-| `--kz-image-placeholder` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-image-placeholder` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 6%, transparent)` |  |
 
 - Modifiers: `.kodza-image-hover--focus`, `.kodza-image-hover--parallax`, `.kodza-image-hover--round`
 

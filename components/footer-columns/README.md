@@ -11,7 +11,7 @@ A site footer: the logo and a line, up to five columns of links under mono title
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-footer-columns.html`](kodza-footer-columns.html) | 3.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-footer-columns.css`](kodza-footer-columns.css) | 22.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-footer-columns.css`](kodza-footer-columns.css) | 22.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-footer-columns.js`](kodza-footer-columns.js) | 6.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,11 +46,11 @@ CSS variables, set on `.kodza-footer-columns` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-footer-columns-bg` | `#ffffff` |  |
-| `--kz-footer-columns-fg` | `#0a0a0a` |  |
-| `--kz-footer-columns-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-footer-columns-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-footer-columns-soft` | `rgba(10, 10, 10, 0.05)` | Back to top, under the pointer |
+| `--kz-footer-columns-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-footer-columns-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-footer-columns-muted` | `color-mix(in srgb, var(--kz-footer-columns-fg) 62%, transparent)` |  |
+| `--kz-footer-columns-line` | `color-mix(in srgb, var(--kz-footer-columns-fg) 10%, transparent)` |  |
+| `--kz-footer-columns-soft` | `color-mix(in srgb, var(--kz-footer-columns-fg) 5%, transparent)` | Back to top, under the pointer |
 | `--kz-footer-columns-width` | `1200px` | the content, centred |
 | `--kz-footer-columns-pad` | `24px` |  |
 | `--kz-footer-columns-gap` | `clamp(32px, 5vw, 80px)` | between the brand and the columns |

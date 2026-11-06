@@ -11,7 +11,7 @@ Like button whose heart fills with ink, a small wave riding the surface, and dra
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-ink-like.html`](kodza-ink-like.html) | 1.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-ink-like.css`](kodza-ink-like.css) | 8.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-ink-like.css`](kodza-ink-like.css) | 8.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-ink-like.js`](kodza-ink-like.js) | 15.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,9 +46,9 @@ CSS variables, set on `.kodza-ink-like` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-ink-like-fg` | `#0a0a0a` |  |
-| `--kz-ink-like-bg` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-ink-like-bg-hover` | `rgba(10, 10, 10, 0.1)` |  |
+| `--kz-ink-like-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-ink-like-bg` | `color-mix(in srgb, var(--kz-ink-like-fg) 6%, transparent)` |  |
+| `--kz-ink-like-bg-hover` | `color-mix(in srgb, var(--kz-ink-like-fg) 10%, transparent)` |  |
 | `--kz-ink-like-height` | `52px` |  |
 | `--kz-ink-like-pad-x` | `20px` |  |
 | `--kz-ink-like-icon` | `22px` |  |

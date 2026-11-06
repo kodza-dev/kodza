@@ -11,7 +11,7 @@ Placeholders the size of a post shimmer in, then turn into the posts without a j
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-infinite-scroll.html`](kodza-infinite-scroll.html) | 5.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-infinite-scroll.css`](kodza-infinite-scroll.css) | 19.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-infinite-scroll.css`](kodza-infinite-scroll.css) | 20.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-infinite-scroll.js`](kodza-infinite-scroll.js) | 10.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,13 +48,13 @@ CSS variables, set on `.kodza-feed` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-feed-fg` | `#0a0a0a` |  |
-| `--kz-feed-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-feed-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-feed-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-feed-shine` | `rgba(10, 10, 10, 0.11)` |  |
-| `--kz-feed-ink` | `#0a0a0a` |  |
-| `--kz-feed-on-ink` | `#ffffff` |  |
+| `--kz-feed-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-feed-muted` | `color-mix(in srgb, var(--kz-feed-fg) 62%, transparent)` |  |
+| `--kz-feed-line` | `color-mix(in srgb, var(--kz-feed-fg) 10%, transparent)` |  |
+| `--kz-feed-soft` | `color-mix(in srgb, var(--kz-feed-fg) 6%, transparent)` |  |
+| `--kz-feed-shine` | `color-mix(in srgb, var(--kz-feed-fg) 11%, transparent)` |  |
+| `--kz-feed-ink` | `var(--kz-color-accent, var(--kz-feed-fg))` |  |
+| `--kz-feed-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-feed-media` | `112px` |  |
 | `--kz-feed-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-feed-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

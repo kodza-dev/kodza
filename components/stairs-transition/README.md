@@ -11,7 +11,7 @@ Between two real pages, five ink bands climb over the page like a staircase, the
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-stairs-transition.html`](kodza-stairs-transition.html) | 1.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-stairs-transition.css`](kodza-stairs-transition.css) | 23.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-stairs-transition.css`](kodza-stairs-transition.css) | 23.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-stairs-transition.js`](kodza-stairs-transition.js) | 25.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -51,14 +51,14 @@ CSS variables, set on `[data-kodza-stairs-transition]` itself:
 | `--kz-stairs-transition-duration` | `1.2s` | the whole staircase, first band up to last band off |
 | `--kz-stairs-transition-stagger` | `0.05s` | from one band to the next |
 | `--kz-stairs-transition-ease` | `cubic-bezier(0.76, 0, 0.24, 1)` |  |
-| `--kz-stairs-transition-ink` | `#0a0a0a` | the bands |
+| `--kz-stairs-transition-ink` | `var(--kz-color-ink, #0a0a0a)` | the bands |
 | `--kz-stairs-transition-way` | `1` | 1: up from the bottom, -1: down from the top |
 | `--kz-stairs-transition-enter-delay` | `0.8s` | the arrival starts as the bands step off it |
 | `--kz-stairs-transition-enter-ease` | `cubic-bezier(0.2, 0.8, 0.1, 1)` |  |
-| `--kz-stairs-transition-bg` | `#f2f2f0` |  |
-| `--kz-stairs-transition-fg` | `#0a0a0a` |  |
-| `--kz-stairs-transition-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-stairs-transition-line` | `rgba(10, 10, 10, 0.12)` |  |
+| `--kz-stairs-transition-bg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-stairs-transition-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-stairs-transition-muted` | `color-mix(in srgb, var(--kz-stairs-transition-fg) 62%, transparent)` |  |
+| `--kz-stairs-transition-line` | `color-mix(in srgb, var(--kz-stairs-transition-fg) 12%, transparent)` |  |
 | `--kz-stairs-transition-image-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-stairs-transition-side` | `24px` |  |
 

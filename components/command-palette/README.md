@@ -11,7 +11,7 @@ A ⌘K palette in a real dialog: results filter as you type, matched letters are
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-command-palette.html`](kodza-command-palette.html) | 2.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-command-palette.css`](kodza-command-palette.css) | 15.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-command-palette.css`](kodza-command-palette.css) | 15.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-command-palette.js`](kodza-command-palette.js) | 14.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,11 +48,11 @@ CSS variables, set on `.kodza-command` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-cmdk-bg` | `#ffffff` |  |
-| `--kz-cmdk-fg` | `#0a0a0a` |  |
-| `--kz-cmdk-muted` | `rgba(10, 10, 10, 0.58)` |  |
-| `--kz-cmdk-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-cmdk-soft` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-cmdk-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-cmdk-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-cmdk-muted` | `color-mix(in srgb, var(--kz-cmdk-fg) 58%, transparent)` |  |
+| `--kz-cmdk-border` | `color-mix(in srgb, var(--kz-cmdk-fg) 10%, transparent)` |  |
+| `--kz-cmdk-soft` | `color-mix(in srgb, var(--kz-cmdk-fg) 6%, transparent)` |  |
 | `--kz-cmdk-backdrop` | `rgba(10, 10, 10, 0.32)` |  |
 | `--kz-cmdk-shadow` | `0 30px 70px -24px rgba(10, 10, 10, 0.45)` |  |
 | `--kz-cmdk-width` | `560px` |  |

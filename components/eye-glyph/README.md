@@ -46,7 +46,7 @@ CSS variables, set on `[data-kodza-eye-glyph]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-eye-glyph-ink` | `#0a0a0a` |  |
+| `--kz-eye-glyph-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
 | `--kz-eye-glyph-pupil` | `0.55` | pupil size, from the narrow side of the hole |
 | `--kz-eye-glyph-lashes` | `1` | lash length; 0 hides them |
 | `--kz-eye-glyph-blink` | `340ms` |  |

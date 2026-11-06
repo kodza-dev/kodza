@@ -11,7 +11,7 @@ A real select, dressed up: the list unrolls from the field, a highlight slides b
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-custom-select.html`](kodza-custom-select.html) | 1.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-custom-select.css`](kodza-custom-select.css) | 22.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-custom-select.css`](kodza-custom-select.css) | 22.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-custom-select.js`](kodza-custom-select.js) | 17.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-select` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-select-bg` | `#ffffff` |  |
-| `--kz-select-fg` | `#0a0a0a` |  |
-| `--kz-select-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-select-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-select-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-select-soft` | `rgba(10, 10, 10, 0.06)` |  |
+| `--kz-select-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-select-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-select-muted` | `color-mix(in srgb, var(--kz-select-fg) 60%, transparent)` |  |
+| `--kz-select-line` | `color-mix(in srgb, var(--kz-select-fg) 14%, transparent)` |  |
+| `--kz-select-line-hover` | `color-mix(in srgb, var(--kz-select-fg) 30%, transparent)` |  |
+| `--kz-select-soft` | `color-mix(in srgb, var(--kz-select-fg) 6%, transparent)` |  |
 | `--kz-select-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-select-height` | `56px` |  |
 | `--kz-select-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |

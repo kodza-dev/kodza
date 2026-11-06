@@ -11,7 +11,7 @@ A filterable grid: the ink pill slides to the filter, leaving cards step back, t
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-filter-transitions.html`](kodza-filter-transitions.html) | 3.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-filter-transitions.css`](kodza-filter-transitions.css) | 13.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-filter-transitions.css`](kodza-filter-transitions.css) | 13.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-filter-transitions.js`](kodza-filter-transitions.js) | 10.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-filter` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-filter-bg` | `#ffffff` |  |
-| `--kz-filter-fg` | `#0a0a0a` |  |
-| `--kz-filter-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-filter-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-filter-ink` | `#0a0a0a` |  |
-| `--kz-filter-on-ink` | `#ffffff` |  |
+| `--kz-filter-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-filter-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-filter-muted` | `color-mix(in srgb, var(--kz-filter-fg) 62%, transparent)` |  |
+| `--kz-filter-line` | `color-mix(in srgb, var(--kz-filter-fg) 10%, transparent)` |  |
+| `--kz-filter-ink` | `var(--kz-color-accent, var(--kz-filter-fg))` |  |
+| `--kz-filter-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-filter-columns` | `4` |  |
 | `--kz-filter-gap` | `16px` |  |
 | `--kz-filter-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |

@@ -11,7 +11,7 @@ A pill of links where the highlight slides under the pointer and settles back on
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hover-nav.html`](kodza-hover-nav.html) | 0.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hover-nav.css`](kodza-hover-nav.css) | 6.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hover-nav.css`](kodza-hover-nav.css) | 6.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hover-nav.js`](kodza-hover-nav.js) | 8.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `.kodza-hover-nav` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hnav-bg` | `#ffffff` |  |
-| `--kz-hnav-fg` | `#0a0a0a` |  |
-| `--kz-hnav-muted` | `rgba(10, 10, 10, 0.58)` |  |
-| `--kz-hnav-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-hnav-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-hnav-ink` | `#0a0a0a` |  |
-| `--kz-hnav-on-ink` | `#ffffff` |  |
+| `--kz-hnav-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-hnav-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hnav-muted` | `color-mix(in srgb, var(--kz-hnav-fg) 58%, transparent)` |  |
+| `--kz-hnav-border` | `color-mix(in srgb, var(--kz-hnav-fg) 10%, transparent)` |  |
+| `--kz-hnav-soft` | `color-mix(in srgb, var(--kz-hnav-fg) 6%, transparent)` |  |
+| `--kz-hnav-ink` | `var(--kz-color-accent, var(--kz-hnav-fg))` |  |
+| `--kz-hnav-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-hnav-duration` | `0.45s` |  |
 | `--kz-hnav-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 

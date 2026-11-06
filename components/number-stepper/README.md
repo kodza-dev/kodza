@@ -11,7 +11,7 @@ A real number input between − and +. Changed digits roll with the count, a hel
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-number-stepper.html`](kodza-number-stepper.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-number-stepper.css`](kodza-number-stepper.css) | 20.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-number-stepper.css`](kodza-number-stepper.css) | 20.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-number-stepper.js`](kodza-number-stepper.js) | 21.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,16 +46,16 @@ CSS variables, set on `.kodza-number-stepper` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-number-bg` | `#ffffff` |  |
-| `--kz-number-fg` | `#0a0a0a` |  |
-| `--kz-number-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-number-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-number-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-number-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-number-button` | `rgba(10, 10, 10, 0.05)` | the − and + |
-| `--kz-number-button-hover` | `rgba(10, 10, 10, 0.09)` |  |
-| `--kz-number-button-press` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-number-error` | `#0a0a0a` | a message, never colour alone: set a red here if you want one |
+| `--kz-number-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-number-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-number-muted` | `color-mix(in srgb, var(--kz-number-fg) 60%, transparent)` |  |
+| `--kz-number-line` | `color-mix(in srgb, var(--kz-number-fg) 14%, transparent)` |  |
+| `--kz-number-line-hover` | `color-mix(in srgb, var(--kz-number-fg) 30%, transparent)` |  |
+| `--kz-number-soft` | `color-mix(in srgb, var(--kz-number-fg) 6%, transparent)` |  |
+| `--kz-number-button` | `color-mix(in srgb, var(--kz-number-fg) 5%, transparent)` | the − and + |
+| `--kz-number-button-hover` | `color-mix(in srgb, var(--kz-number-fg) 9%, transparent)` |  |
+| `--kz-number-button-press` | `color-mix(in srgb, var(--kz-number-fg) 14%, transparent)` |  |
+| `--kz-number-error` | `var(--kz-color-error, var(--kz-number-fg))` | a message, never colour alone: set a red here if you want one |
 | `--kz-number-height` | `56px` |  |
 | `--kz-number-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-number-button-size` | `40px` |  |

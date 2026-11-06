@@ -11,7 +11,7 @@ Cards to compare and pick, on real radio buttons or checkboxes, with a title, a 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-choice-cards.html`](kodza-choice-cards.html) | 3.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-choice-cards.css`](kodza-choice-cards.css) | 13.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-choice-cards.css`](kodza-choice-cards.css) | 13.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -42,13 +42,13 @@ CSS variables, set on `.kodza-choice-cards` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-choice-cards-bg` | `#ffffff` |  |
-| `--kz-choice-cards-fg` | `#0a0a0a` |  |
-| `--kz-choice-cards-muted` | `rgba(10, 10, 10, 0.58)` |  |
-| `--kz-choice-cards-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-choice-cards-border-hover` | `rgba(10, 10, 10, 0.28)` |  |
-| `--kz-choice-cards-ink` | `#0a0a0a` |  |
-| `--kz-choice-cards-on-ink` | `#ffffff` |  |
+| `--kz-choice-cards-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-choice-cards-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-choice-cards-muted` | `color-mix(in srgb, var(--kz-choice-cards-fg) 58%, transparent)` |  |
+| `--kz-choice-cards-border` | `color-mix(in srgb, var(--kz-choice-cards-fg) 10%, transparent)` |  |
+| `--kz-choice-cards-border-hover` | `color-mix(in srgb, var(--kz-choice-cards-fg) 28%, transparent)` |  |
+| `--kz-choice-cards-ink` | `var(--kz-color-accent, var(--kz-choice-cards-fg))` |  |
+| `--kz-choice-cards-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-choice-cards-width` | `720px` | the whole group, at most |
 | `--kz-choice-cards-min` | `190px` | a card never gets narrower: below it, cards stack |
 | `--kz-choice-cards-gap` | `12px` |  |

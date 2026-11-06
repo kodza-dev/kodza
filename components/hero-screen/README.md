@@ -11,7 +11,7 @@ A centred title and its buttons over a screenshot of the product, leaning back i
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-screen.html`](kodza-hero-screen.html) | 2.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-screen.css`](kodza-hero-screen.css) | 19.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-screen.css`](kodza-hero-screen.css) | 19.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-screen.js`](kodza-hero-screen.js) | 15.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,14 +48,14 @@ CSS variables, set on `.kodza-hero-screen` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-screen-ink` | `#0a0a0a` |  |
-| `--kz-hero-screen-paper` | `#f2f2f0` |  |
-| `--kz-hero-screen-dim` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hero-screen-faint` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-hero-screen-soft` | `rgba(10, 10, 10, 0.07)` |  |
+| `--kz-hero-screen-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-screen-paper` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-screen-dim` | `color-mix(in srgb, var(--kz-hero-screen-ink) 62%, transparent)` |  |
+| `--kz-hero-screen-faint` | `color-mix(in srgb, var(--kz-hero-screen-ink) 60%, transparent)` |  |
+| `--kz-hero-screen-soft` | `color-mix(in srgb, var(--kz-hero-screen-ink) 7%, transparent)` |  |
 | `--kz-hero-screen-bg` | `transparent` |  |
-| `--kz-hero-screen-bezel` | `#fff` | the frame around the screenshot |
-| `--kz-hero-screen-edge` | `rgba(10, 10, 10, 0.1)` |  |
+| `--kz-hero-screen-bezel` | `var(--kz-color-paper, #ffffff)` | the frame around the screenshot |
+| `--kz-hero-screen-edge` | `color-mix(in srgb, var(--kz-hero-screen-ink) 10%, transparent)` |  |
 | `--kz-hero-screen-shadow-far` | `0 60px 110px -34px rgba(10, 10, 10, 0.34), 0 24px 48px -24px rgba(10, 10, 10, 0.16)` | leaning back |
 | `--kz-hero-screen-shadow-near` | `0 1px 2px rgba(10, 10, 10, 0.06), 0 22px 48px -22px rgba(10, 10, 10, 0.24)` | upright |
 | `--kz-hero-screen-veil` | `linear-gradient(rgba(10, 10, 10, 0.14), rgba(10, 10, 10, 0.03) 70%)` | the shade on the screen while it leans |

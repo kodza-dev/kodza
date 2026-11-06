@@ -11,7 +11,7 @@ What a list shows when it is empty: a CSS drawing that answers when you come nea
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-empty-state.html`](kodza-empty-state.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-empty-state.css`](kodza-empty-state.css) | 15.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-empty-state.css`](kodza-empty-state.css) | 16.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -43,13 +43,13 @@ CSS variables, set on `.kodza-empty` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-empty-bg` | `transparent` |  |
-| `--kz-empty-fg` | `#0a0a0a` |  |
-| `--kz-empty-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-empty-line` | `rgba(10, 10, 10, 0.18)` |  |
-| `--kz-empty-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-empty-card` | `#ffffff` |  |
-| `--kz-empty-ink` | `#0a0a0a` |  |
-| `--kz-empty-on-ink` | `#ffffff` |  |
+| `--kz-empty-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-empty-muted` | `color-mix(in srgb, var(--kz-empty-fg) 62%, transparent)` |  |
+| `--kz-empty-line` | `color-mix(in srgb, var(--kz-empty-fg) 18%, transparent)` |  |
+| `--kz-empty-soft` | `color-mix(in srgb, var(--kz-empty-fg) 6%, transparent)` |  |
+| `--kz-empty-card` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-empty-ink` | `var(--kz-color-accent, var(--kz-empty-fg))` |  |
+| `--kz-empty-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-empty-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 
 - Modifiers: `.kodza-empty--search`

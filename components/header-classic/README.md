@@ -11,7 +11,7 @@ A site header with a logo, links and one button: a line glides under the links, 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-classic.html`](kodza-header-classic.html) | 1.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-classic.css`](kodza-header-classic.css) | 36.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-classic.css`](kodza-header-classic.css) | 37.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-header-classic.js`](kodza-header-classic.js) | 16.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -49,21 +49,21 @@ CSS variables, set on `.kodza-header-classic` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-header-classic-bg` | `transparent` |  |
-| `--kz-header-classic-fg` | `#0a0a0a` |  |
-| `--kz-header-classic-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-header-classic-soft` | `rgba(10, 10, 10, 0.06)` | the Menu button |
-| `--kz-header-classic-ink` | `#0a0a0a` | the call to action |
-| `--kz-header-classic-on-ink` | `#ffffff` |  |
+| `--kz-header-classic-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-header-classic-muted` | `color-mix(in srgb, var(--kz-header-classic-fg) 62%, transparent)` |  |
+| `--kz-header-classic-soft` | `color-mix(in srgb, var(--kz-header-classic-fg) 6%, transparent)` | the Menu button |
+| `--kz-header-classic-ink` | `var(--kz-color-accent, var(--kz-header-classic-fg))` | the call to action |
+| `--kz-header-classic-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-header-classic-height` | `72px` |  |
 | `--kz-header-classic-width` | `1200px` | the row, centred |
 | `--kz-header-classic-pad` | `24px` |  |
 | `--kz-header-classic-duration` | `0.42s` | the line gliding |
 | `--kz-header-classic-lag` | `0.08s` | how long its back edge waits |
 | `--kz-header-classic-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
-| `--kz-header-classic-menu-bg` | `#0a0a0a` | the shutter, below 900 px |
-| `--kz-header-classic-menu-fg` | `#f2f2f0` |  |
-| `--kz-header-classic-menu-muted` | `rgba(242, 242, 240, 0.62)` |  |
-| `--kz-header-classic-menu-line` | `rgba(242, 242, 240, 0.16)` |  |
+| `--kz-header-classic-menu-bg` | `var(--kz-color-ink, #0a0a0a)` | the shutter, below 900 px |
+| `--kz-header-classic-menu-fg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-header-classic-menu-muted` | `color-mix(in srgb, var(--kz-header-classic-menu-fg) 62%, transparent)` |  |
+| `--kz-header-classic-menu-line` | `color-mix(in srgb, var(--kz-header-classic-menu-fg) 16%, transparent)` |  |
 | `--kz-header-classic-menu-top` | `auto` | where the shutter starts; auto = the bottom of the header |
 | `--kz-header-classic-menu-side` | `24px` |  |
 | `--kz-header-classic-menu-size` | `calc(clamp(34px, min(10cqw, calc((100cqh - 240px) / 6)), 96px) * var(--kz-font-display-scale, 1))` |  |

@@ -11,7 +11,7 @@ Two real date inputs behind one field and a two-month calendar: the ink band fol
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-date-range.html`](kodza-date-range.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-date-range.css`](kodza-date-range.css) | 28.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-date-range.css`](kodza-date-range.css) | 29.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-date-range.js`](kodza-date-range.js) | 32.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,15 +46,15 @@ CSS variables, set on `.kodza-date-range` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-date-range-bg` | `#ffffff` |  |
-| `--kz-date-range-fg` | `#0a0a0a` |  |
-| `--kz-date-range-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-date-range-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-date-range-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-date-range-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-date-range-band` | `rgba(10, 10, 10, 0.07)` |  |
-| `--kz-date-range-ink` | `#0a0a0a` |  |
-| `--kz-date-range-on-ink` | `#ffffff` |  |
+| `--kz-date-range-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-date-range-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-date-range-muted` | `color-mix(in srgb, var(--kz-date-range-fg) 60%, transparent)` |  |
+| `--kz-date-range-line` | `color-mix(in srgb, var(--kz-date-range-fg) 14%, transparent)` |  |
+| `--kz-date-range-line-hover` | `color-mix(in srgb, var(--kz-date-range-fg) 30%, transparent)` |  |
+| `--kz-date-range-soft` | `color-mix(in srgb, var(--kz-date-range-fg) 6%, transparent)` |  |
+| `--kz-date-range-band` | `color-mix(in srgb, var(--kz-date-range-fg) 7%, transparent)` |  |
+| `--kz-date-range-ink` | `var(--kz-color-accent, var(--kz-date-range-fg))` |  |
+| `--kz-date-range-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-date-range-shadow` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-date-range-height` | `56px` |  |
 | `--kz-date-range-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |

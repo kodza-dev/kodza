@@ -11,7 +11,7 @@ A case study in one block: the result very large, its digits rolling up to the v
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-result-quote.html`](kodza-result-quote.html) | 3.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-result-quote.css`](kodza-result-quote.css) | 25.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-result-quote.css`](kodza-result-quote.css) | 25.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-result-quote.js`](kodza-result-quote.js) | 11.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,9 +46,9 @@ CSS variables, set on `.kodza-result-quote` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-result-quote-ink` | `#0a0a0a` |  |
-| `--kz-result-quote-dim` | `rgba(10, 10, 10, 0.64)` |  |
-| `--kz-result-quote-rule` | `rgba(10, 10, 10, 0.22)` | the line under the result |
+| `--kz-result-quote-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-result-quote-dim` | `color-mix(in srgb, var(--kz-result-quote-ink) 64%, transparent)` |  |
+| `--kz-result-quote-rule` | `color-mix(in srgb, var(--kz-result-quote-ink) 22%, transparent)` | the line under the result |
 | `--kz-result-quote-face` | `#e6e6e3` |  |
 | `--kz-result-quote-bg` | `transparent` |  |
 | `--kz-result-quote-width` | `1200px` |  |

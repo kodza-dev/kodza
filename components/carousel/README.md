@@ -11,7 +11,7 @@ A native scroll-snap carousel that works before the script loads. Then: page but
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-carousel.html`](kodza-carousel.html) | 7.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-carousel.css`](kodza-carousel.css) | 30.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-carousel.css`](kodza-carousel.css) | 31.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-carousel.js`](kodza-carousel.js) | 27.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -51,17 +51,17 @@ CSS variables, set on `.kodza-carousel` itself:
 | `--kz-carousel-per-view-phone` | `1.1` | carousel narrower than 560px |
 | `--kz-carousel-gap` | `16px` |  |
 | `--kz-carousel-inset` | `0px` | room before the first slide and after the last (full-width layouts) |
-| `--kz-carousel-fg` | `#0a0a0a` |  |
-| `--kz-carousel-muted` | `rgba(10, 10, 10, 0.64)` |  |
-| `--kz-carousel-dim` | `rgba(10, 10, 10, 0.45)` |  |
-| `--kz-carousel-line` | `rgba(10, 10, 10, 0.12)` |  |
-| `--kz-carousel-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-carousel-ink` | `#0a0a0a` | the buttons, the progress bar, the dot pill |
-| `--kz-carousel-ink-hover` | `#2e2e2e` |  |
-| `--kz-carousel-on-ink` | `#ffffff` |  |
-| `--kz-carousel-card` | `#ffffff` |  |
-| `--kz-carousel-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-carousel-placeholder` | `rgba(10, 10, 10, 0.05)` |  |
+| `--kz-carousel-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-carousel-muted` | `color-mix(in srgb, var(--kz-carousel-fg) 64%, transparent)` |  |
+| `--kz-carousel-dim` | `color-mix(in srgb, var(--kz-carousel-fg) 45%, transparent)` |  |
+| `--kz-carousel-line` | `color-mix(in srgb, var(--kz-carousel-fg) 12%, transparent)` |  |
+| `--kz-carousel-soft` | `color-mix(in srgb, var(--kz-carousel-fg) 6%, transparent)` |  |
+| `--kz-carousel-ink` | `var(--kz-color-accent, var(--kz-carousel-fg))` | the buttons, the progress bar, the dot pill |
+| `--kz-carousel-ink-hover` | `color-mix(in srgb, var(--kz-carousel-ink) 85.3%, var(--kz-carousel-on-ink))` |  |
+| `--kz-carousel-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
+| `--kz-carousel-card` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-carousel-border` | `color-mix(in srgb, var(--kz-carousel-fg) 10%, transparent)` |  |
+| `--kz-carousel-placeholder` | `color-mix(in srgb, var(--kz-carousel-fg) 5%, transparent)` |  |
 | `--kz-carousel-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-carousel-ratio` | `4 / 3` | the picture frame of a card |
 | `--kz-carousel-control` | `40px` |  |

@@ -11,7 +11,7 @@ One big quote at a time, faces or press logos as tabs under it: a ring fills whi
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-quote-spotlight.html`](kodza-quote-spotlight.html) | 15.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-quote-spotlight.css`](kodza-quote-spotlight.css) | 27.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-quote-spotlight.css`](kodza-quote-spotlight.css) | 27.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-quote-spotlight.js`](kodza-quote-spotlight.js) | 23.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,10 +46,10 @@ CSS variables, set on `[data-kodza-quote-spotlight]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-quote-spotlight-ink` | `#0a0a0a` |  |
-| `--kz-quote-spotlight-dim` | `rgba(10, 10, 10, 0.64)` |  |
+| `--kz-quote-spotlight-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-quote-spotlight-dim` | `color-mix(in srgb, var(--kz-quote-spotlight-ink) 64%, transparent)` |  |
 | `--kz-quote-spotlight-face` | `#e6e6e3` |  |
-| `--kz-quote-spotlight-track` | `rgba(10, 10, 10, 0.16)` |  |
+| `--kz-quote-spotlight-track` | `color-mix(in srgb, var(--kz-quote-spotlight-ink) 16%, transparent)` |  |
 | `--kz-quote-spotlight-bg` | `transparent` |  |
 | `--kz-quote-spotlight-width` | `720px` |  |
 | `--kz-quote-spotlight-rest` | `0.6` | the faces and logos not chosen |

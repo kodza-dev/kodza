@@ -11,7 +11,7 @@ An editorial card, clickable as a whole through one link: the image drifts close
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-card.html`](kodza-card.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-card.css`](kodza-card.css) | 12.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-card.css`](kodza-card.css) | 12.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -42,11 +42,11 @@ CSS variables, set on `.kodza-card` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-card-bg` | `#ffffff` |  |
-| `--kz-card-fg` | `#0a0a0a` |  |
-| `--kz-card-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-card-border` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-card-border-hover` | `rgba(10, 10, 10, 0.32)` |  |
+| `--kz-card-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-card-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-card-muted` | `color-mix(in srgb, var(--kz-card-fg) 62%, transparent)` |  |
+| `--kz-card-border` | `color-mix(in srgb, var(--kz-card-fg) 10%, transparent)` |  |
+| `--kz-card-border-hover` | `color-mix(in srgb, var(--kz-card-fg) 32%, transparent)` |  |
 | `--kz-card-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-card-pad` | `28px` |  |
 | `--kz-card-ratio` | `4 / 3` |  |

@@ -11,7 +11,7 @@ A shop header: the name, the categories, a search that opens over them, the acco
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-shop.html`](kodza-header-shop.html) | 3.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-shop.css`](kodza-header-shop.css) | 51.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-shop.css`](kodza-header-shop.css) | 51.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-header-shop.js`](kodza-header-shop.js) | 41.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,11 +48,11 @@ CSS variables, set on `.kodza-header-shop` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-header-shop-bg` | `#f2f2f0` |  |
-| `--kz-header-shop-fg` | `#0a0a0a` |  |
-| `--kz-header-shop-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-header-shop-soft` | `rgba(10, 10, 10, 0.06)` | the round buttons under the pointer, the Menu button |
-| `--kz-header-shop-rule` | `rgba(10, 10, 10, 0.1)` |  |
+| `--kz-header-shop-bg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-header-shop-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-header-shop-muted` | `color-mix(in srgb, var(--kz-header-shop-fg) 62%, transparent)` |  |
+| `--kz-header-shop-soft` | `color-mix(in srgb, var(--kz-header-shop-fg) 6%, transparent)` | the round buttons under the pointer, the Menu button |
+| `--kz-header-shop-rule` | `color-mix(in srgb, var(--kz-header-shop-fg) 10%, transparent)` |  |
 | `--kz-header-shop-field` | `color-mix(in srgb, var(--kz-header-shop-fg) 6%, var(--kz-header-shop-bg))` | the search field |
 | `--kz-header-shop-top` | `var(--wp-admin--admin-bar--height, 0px)` | below the WordPress admin bar |
 | `--kz-header-shop-height` | `72px` |  |
@@ -60,9 +60,9 @@ CSS variables, set on `.kodza-header-shop` itself:
 | `--kz-header-shop-pad` | `24px` |  |
 | `--kz-header-shop-search-duration` | `0.6s` |  |
 | `--kz-header-shop-search-ease` | `cubic-bezier(0.76, 0, 0.24, 1)` |  |
-| `--kz-header-shop-menu-bg` | `#0a0a0a` |  |
-| `--kz-header-shop-menu-fg` | `#f2f2f0` |  |
-| `--kz-header-shop-menu-muted` | `rgba(242, 242, 240, 0.62)` |  |
+| `--kz-header-shop-menu-bg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-header-shop-menu-fg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-header-shop-menu-muted` | `color-mix(in srgb, var(--kz-header-shop-menu-fg) 62%, transparent)` |  |
 | `--kz-header-shop-menu-top` | `calc(var(--wp-admin--admin-bar--height, 0px) + 20px)` | Close lands on Menu on its own; this is where it goes if Menu is somewhere else |
 | `--kz-header-shop-menu-side` | `24px` |  |
 | `--kz-header-shop-menu-width` | `min(clamp(340px, 40cqw, 560px), calc(100cqw - 56px))` |  |

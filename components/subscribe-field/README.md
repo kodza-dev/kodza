@@ -11,7 +11,7 @@ An email field and its button in one pill: the address is checked in place, the 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-subscribe-field.html`](kodza-subscribe-field.html) | 2.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-subscribe-field.css`](kodza-subscribe-field.css) | 21.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-subscribe-field.css`](kodza-subscribe-field.css) | 22.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-subscribe-field.js`](kodza-subscribe-field.js) | 11.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,17 +46,17 @@ CSS variables, set on `.kodza-subscribe` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-subscribe-bg` | `#ffffff` |  |
-| `--kz-subscribe-fg` | `#0a0a0a` |  |
-| `--kz-subscribe-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-subscribe-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-subscribe-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-subscribe-focus` | `#0a0a0a` |  |
-| `--kz-subscribe-halo` | `rgba(10, 10, 10, 0.04)` |  |
-| `--kz-subscribe-error` | `#0a0a0a` | monochrome by default: an icon and a message, never colour alone |
-| `--kz-subscribe-ink` | `#0a0a0a` | the button and the tick |
-| `--kz-subscribe-ink-hover` | `#2a2a2a` |  |
-| `--kz-subscribe-on-ink` | `#ffffff` |  |
+| `--kz-subscribe-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-subscribe-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-subscribe-muted` | `color-mix(in srgb, var(--kz-subscribe-fg) 60%, transparent)` |  |
+| `--kz-subscribe-line` | `color-mix(in srgb, var(--kz-subscribe-fg) 14%, transparent)` |  |
+| `--kz-subscribe-line-hover` | `color-mix(in srgb, var(--kz-subscribe-fg) 30%, transparent)` |  |
+| `--kz-subscribe-focus` | `var(--kz-subscribe-fg)` |  |
+| `--kz-subscribe-halo` | `color-mix(in srgb, var(--kz-subscribe-fg) 4%, transparent)` |  |
+| `--kz-subscribe-error` | `var(--kz-color-error, var(--kz-subscribe-fg))` | monochrome by default: an icon and a message, never colour alone |
+| `--kz-subscribe-ink` | `var(--kz-color-accent, var(--kz-subscribe-fg))` | the button and the tick |
+| `--kz-subscribe-ink-hover` | `color-mix(in srgb, var(--kz-subscribe-ink) 86.94%, var(--kz-subscribe-on-ink))` |  |
+| `--kz-subscribe-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-subscribe-width` | `var(--kz-field-width, 440px)` |  |
 | `--kz-subscribe-height` | `56px` |  |
 | `--kz-subscribe-button` | `44px` | the button's height, inside the pill |

@@ -46,9 +46,9 @@ CSS variables, set on `[data-kodza-ruled-paper]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-ruled-paper-bg` | `#f2f2f0` | the paper |
-| `--kz-ruled-paper-ink` | `#0a0a0a` | the rules, the text, the button |
-| `--kz-ruled-paper-muted` | `rgba(10, 10, 10, 0.62)` |  |
+| `--kz-ruled-paper-bg` | `var(--kz-color-page, #f2f2f0)` | the paper |
+| `--kz-ruled-paper-ink` | `var(--kz-color-ink, #0a0a0a)` | the rules, the text, the button |
+| `--kz-ruled-paper-muted` | `color-mix(in srgb, var(--kz-ruled-paper-ink) 62%, transparent)` |  |
 | `--kz-ruled-paper-rule` | `30px` | rule spacing = the line height of the text |
 | `--kz-ruled-paper-lines` | `13%` | strength of the rules, 0% to 100% of the ink |
 | `--kz-ruled-paper-margin-line` | `42%` | strength of the margin line |

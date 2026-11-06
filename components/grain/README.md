@@ -11,7 +11,7 @@ Film grain from one inline SVG noise, jumping ten times a second like the next f
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-grain.html`](kodza-grain.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-grain.css`](kodza-grain.css) | 17.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-grain.css`](kodza-grain.css) | 17.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-grain.js`](kodza-grain.js) | 4.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,9 +46,9 @@ CSS variables, set on `[data-kodza-grain]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-grain-bg` | `#f2f2f0` | the paper, and the light specks on the photo |
-| `--kz-grain-ink` | `#0a0a0a` | the text, and the dark specks |
-| `--kz-grain-muted` | `rgba(10, 10, 10, 0.62)` |  |
+| `--kz-grain-bg` | `var(--kz-color-page, #f2f2f0)` | the paper, and the light specks on the photo |
+| `--kz-grain-ink` | `var(--kz-color-ink, #0a0a0a)` | the text, and the dark specks |
+| `--kz-grain-muted` | `color-mix(in srgb, var(--kz-grain-ink) 62%, transparent)` |  |
 | `--kz-grain-amount` | `0.16` | grain on the section: 0 is clean, 0.25 is pushed |
 | `--kz-grain-photo` | `0.35` | grain on the photo |
 | `--kz-grain-scale` | `1` | 1.5 or 2 for a coarser grain |

@@ -11,7 +11,7 @@ Lines that draw themselves from their middle when they come into view: a plain r
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-separator.html`](kodza-separator.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-separator.css`](kodza-separator.css) | 6.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-separator.css`](kodza-separator.css) | 6.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-separator.js`](kodza-separator.js) | 6.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,9 +46,9 @@ CSS variables, set on `.kodza-separator` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-separator-line` | `rgba(10, 10, 10, 0.16)` |  |
-| `--kz-separator-fg` | `#0a0a0a` |  |
-| `--kz-separator-muted` | `rgba(10, 10, 10, 0.6)` |  |
+| `--kz-separator-line` | `color-mix(in srgb, var(--kz-separator-fg) 16%, transparent)` |  |
+| `--kz-separator-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-separator-muted` | `color-mix(in srgb, var(--kz-separator-fg) 60%, transparent)` |  |
 | `--kz-separator-ease` | `cubic-bezier(0.65, 0, 0.35, 1)` |  |
 | `--kz-separator-duration` | `0.9s` |  |
 

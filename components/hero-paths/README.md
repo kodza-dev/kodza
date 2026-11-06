@@ -11,7 +11,7 @@ A hero that splits visitors in two: a title, then two tall pictures that are lin
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-paths.html`](kodza-hero-paths.html) | 2.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-paths.css`](kodza-hero-paths.css) | 14.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-paths.css`](kodza-hero-paths.css) | 15.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-paths.js`](kodza-hero-paths.js) | 7.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,9 +46,9 @@ CSS variables, set on `.kodza-hero-paths` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-paths-ink` | `#0a0a0a` |  |
-| `--kz-hero-paths-dim` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hero-paths-faint` | `rgba(10, 10, 10, 0.6)` |  |
+| `--kz-hero-paths-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-paths-dim` | `color-mix(in srgb, var(--kz-hero-paths-ink) 62%, transparent)` |  |
+| `--kz-hero-paths-faint` | `color-mix(in srgb, var(--kz-hero-paths-ink) 60%, transparent)` |  |
 | `--kz-hero-paths-on-image` | `#f2f2f0` |  |
 | `--kz-hero-paths-veil` | `rgba(10, 10, 10, 0.62)` |  |
 | `--kz-hero-paths-bg` | `transparent` |  |

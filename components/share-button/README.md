@@ -11,7 +11,7 @@ Press Share and the options slide out from behind it, the last one pushing the p
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-share-button.html`](kodza-share-button.html) | 4.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-share-button.css`](kodza-share-button.css) | 18.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-share-button.css`](kodza-share-button.css) | 18.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-share-button.js`](kodza-share-button.js) | 19.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-share` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-share-bg` | `#0a0a0a` |  |
-| `--kz-share-fg` | `#ffffff` |  |
+| `--kz-share-bg` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-share-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-share-border` | `transparent` |  |
-| `--kz-share-tint` | `rgba(255, 255, 255, 0.14)` | the hover, under one option |
-| `--kz-share-tip-bg` | `#0a0a0a` |  |
-| `--kz-share-tip-fg` | `#ffffff` |  |
+| `--kz-share-tint` | `color-mix(in srgb, var(--kz-share-fg) 14%, transparent)` | the hover, under one option |
+| `--kz-share-tip-bg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-share-tip-fg` | `var(--kz-color-paper, #ffffff)` |  |
 | `--kz-share-height` | `52px` |  |
 | `--kz-share-option` | `44px` |  |
 | `--kz-share-duration` | `0.6s` | opening and closing |

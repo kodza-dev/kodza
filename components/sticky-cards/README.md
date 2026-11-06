@@ -11,7 +11,7 @@ Cards that stack as you scroll, each covered card stepping back and darkening. P
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-sticky-cards.html`](kodza-sticky-cards.html) | 2.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-sticky-cards.css`](kodza-sticky-cards.css) | 8.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-sticky-cards.css`](kodza-sticky-cards.css) | 8.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-sticky-cards.js`](kodza-sticky-cards.js) | 6.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,10 +48,10 @@ CSS variables, set on `.kodza-stack` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-stack-bg` | `#ffffff` |  |
-| `--kz-stack-fg` | `#0a0a0a` |  |
-| `--kz-stack-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-stack-border` | `rgba(10, 10, 10, 0.1)` |  |
+| `--kz-stack-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-stack-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-stack-muted` | `color-mix(in srgb, var(--kz-stack-fg) 62%, transparent)` |  |
+| `--kz-stack-border` | `color-mix(in srgb, var(--kz-stack-fg) 10%, transparent)` |  |
 | `--kz-stack-shade` | `#0a0a0a` |  |
 | `--kz-stack-top` | `10vh` |  |
 | `--kz-stack-offset` | `18px` |  |

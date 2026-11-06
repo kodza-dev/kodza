@@ -11,7 +11,7 @@ A question and two thumbs: the chosen one fills with ink, No unfolds an optional
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-was-this-helpful.html`](kodza-was-this-helpful.html) | 3.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-was-this-helpful.css`](kodza-was-this-helpful.css) | 30.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-was-this-helpful.css`](kodza-was-this-helpful.css) | 30.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-was-this-helpful.js`](kodza-was-this-helpful.js) | 12.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,17 +46,17 @@ CSS variables, set on `.kodza-helpful` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-helpful-bg` | `#ffffff` |  |
-| `--kz-helpful-fg` | `#0a0a0a` |  |
-| `--kz-helpful-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-helpful-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-helpful-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-helpful-focus` | `#0a0a0a` |  |
-| `--kz-helpful-halo` | `rgba(10, 10, 10, 0.04)` |  |
-| `--kz-helpful-error` | `#0a0a0a` | monochrome by default: an icon and a message, never colour alone |
-| `--kz-helpful-ink` | `#0a0a0a` | the chosen thumb, the tick and the Send button |
-| `--kz-helpful-ink-hover` | `#2a2a2a` |  |
-| `--kz-helpful-on-ink` | `#ffffff` |  |
+| `--kz-helpful-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-helpful-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-helpful-muted` | `color-mix(in srgb, var(--kz-helpful-fg) 60%, transparent)` |  |
+| `--kz-helpful-line` | `color-mix(in srgb, var(--kz-helpful-fg) 14%, transparent)` |  |
+| `--kz-helpful-line-hover` | `color-mix(in srgb, var(--kz-helpful-fg) 30%, transparent)` |  |
+| `--kz-helpful-focus` | `var(--kz-helpful-fg)` |  |
+| `--kz-helpful-halo` | `color-mix(in srgb, var(--kz-helpful-fg) 4%, transparent)` |  |
+| `--kz-helpful-error` | `var(--kz-color-error, var(--kz-helpful-fg))` | monochrome by default: an icon and a message, never colour alone |
+| `--kz-helpful-ink` | `var(--kz-color-accent, var(--kz-helpful-fg))` | the chosen thumb, the tick and the Send button |
+| `--kz-helpful-ink-hover` | `color-mix(in srgb, var(--kz-helpful-ink) 86.94%, var(--kz-helpful-on-ink))` |  |
+| `--kz-helpful-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-helpful-width` | `var(--kz-field-width, 380px)` |  |
 | `--kz-helpful-thumb` | `40px` | the size of a thumb's round button |
 | `--kz-helpful-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

@@ -11,7 +11,7 @@ A centred hero with pictures scattered around the title: they open one after the
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-collage.html`](kodza-hero-collage.html) | 2.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-collage.css`](kodza-hero-collage.css) | 17.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-collage.css`](kodza-hero-collage.css) | 17.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-collage.js`](kodza-hero-collage.js) | 10.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,11 +46,11 @@ CSS variables, set on `.kodza-hero-collage` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-collage-ink` | `#0a0a0a` |  |
-| `--kz-hero-collage-paper` | `#f2f2f0` |  |
-| `--kz-hero-collage-dim` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hero-collage-faint` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-hero-collage-soft` | `rgba(10, 10, 10, 0.07)` |  |
+| `--kz-hero-collage-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-collage-paper` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-collage-dim` | `color-mix(in srgb, var(--kz-hero-collage-ink) 62%, transparent)` |  |
+| `--kz-hero-collage-faint` | `color-mix(in srgb, var(--kz-hero-collage-ink) 60%, transparent)` |  |
+| `--kz-hero-collage-soft` | `color-mix(in srgb, var(--kz-hero-collage-ink) 7%, transparent)` |  |
 | `--kz-hero-collage-bg` | `transparent` |  |
 | `--kz-hero-collage-height` | `clamp(640px, 54vw, 820px)` |  |
 | `--kz-hero-collage-gutter` | `clamp(16px, 4vw, 40px)` |  |

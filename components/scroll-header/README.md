@@ -11,7 +11,7 @@ A floating glass pill that clears the top of the page, frosts as you scroll, ste
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-scroll-header.html`](kodza-scroll-header.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-scroll-header.css`](kodza-scroll-header.css) | 26.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-scroll-header.css`](kodza-scroll-header.css) | 26.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-scroll-header.js`](kodza-scroll-header.js) | 12.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,22 +48,22 @@ CSS variables, set on `.kodza-scroll-header` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-header-fg` | `#0a0a0a` |  |
-| `--kz-header-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-header-soft` | `rgba(10, 10, 10, 0.07)` |  |
-| `--kz-header-glass` | `rgba(255, 255, 255, 0.74)` |  |
-| `--kz-header-edge` | `rgba(10, 10, 10, 0.08)` |  |
+| `--kz-header-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-header-muted` | `color-mix(in srgb, var(--kz-header-fg) 60%, transparent)` |  |
+| `--kz-header-soft` | `color-mix(in srgb, var(--kz-header-fg) 7%, transparent)` |  |
+| `--kz-header-glass` | `color-mix(in srgb, var(--kz-color-paper, #ffffff) 74%, transparent)` |  |
+| `--kz-header-edge` | `color-mix(in srgb, var(--kz-header-fg) 8%, transparent)` |  |
 | `--kz-header-shadow` | `rgba(10, 10, 10, 0.08)` |  |
-| `--kz-header-ink` | `#0a0a0a` |  |
-| `--kz-header-on-ink` | `#ffffff` |  |
-| `--kz-header-dark-fg` | `rgba(255, 255, 255, 0.92)` |  |
-| `--kz-header-dark-muted` | `rgba(255, 255, 255, 0.62)` |  |
-| `--kz-header-dark-soft` | `rgba(255, 255, 255, 0.1)` |  |
+| `--kz-header-ink` | `var(--kz-color-accent, var(--kz-header-fg))` |  |
+| `--kz-header-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
+| `--kz-header-dark-fg` | `color-mix(in srgb, var(--kz-color-paper, #ffffff) 92%, transparent)` |  |
+| `--kz-header-dark-muted` | `color-mix(in srgb, var(--kz-color-paper, #ffffff) 62%, transparent)` |  |
+| `--kz-header-dark-soft` | `color-mix(in srgb, var(--kz-color-paper, #ffffff) 10%, transparent)` |  |
 | `--kz-header-dark-glass` | `rgba(30, 30, 30, 0.72)` |  |
-| `--kz-header-dark-edge` | `rgba(255, 255, 255, 0.1)` |  |
+| `--kz-header-dark-edge` | `color-mix(in srgb, var(--kz-color-paper, #ffffff) 10%, transparent)` |  |
 | `--kz-header-dark-shadow` | `rgba(0, 0, 0, 0.32)` |  |
-| `--kz-header-dark-ink` | `#ffffff` |  |
-| `--kz-header-dark-on-ink` | `#0a0a0a` |  |
+| `--kz-header-dark-ink` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-header-dark-on-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
 | `--kz-header-top` | `12px` |  |
 | `--kz-header-height` | `60px` |  |
 | `--kz-header-overlap` | `0px` | how far the next section goes up under the pill (--overlay: its height) |

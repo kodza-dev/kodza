@@ -11,7 +11,7 @@ A hero beside a speaker drawn in sand: the frame and screws hold their lines whi
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-cymatics.html`](kodza-cymatics.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-cymatics.css`](kodza-cymatics.css) | 13.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-cymatics.css`](kodza-cymatics.css) | 13.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-cymatics.js`](kodza-cymatics.js) | 32.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -47,10 +47,10 @@ CSS variables, set on `[data-kodza-cymatics]` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-cymatics-bg` | `#ebebe8` | the plate |
-| `--kz-cymatics-sand` | `#0a0a0a` | the sand |
-| `--kz-cymatics-ink` | `#0a0a0a` | the text and the button |
-| `--kz-cymatics-muted` | `rgba(10, 10, 10, 0.7)` |  |
-| `--kz-cymatics-on-ink` | `#fff` | the button's label |
+| `--kz-cymatics-sand` | `var(--kz-cymatics-ink)` | the sand |
+| `--kz-cymatics-ink` | `var(--kz-color-ink, #0a0a0a)` | the text and the button |
+| `--kz-cymatics-muted` | `color-mix(in srgb, var(--kz-cymatics-ink) 70%, transparent)` |  |
+| `--kz-cymatics-on-ink` | `var(--kz-color-paper, #ffffff)` | the button's label |
 | `--kz-cymatics-gap` | `5px` | a grain for every 5 × 5 px (40,000 at most) |
 | `--kz-cymatics-size` | `1.2px` | a grain |
 | `--kz-cymatics-hold` | `3s` | how long the cone holds each tone |

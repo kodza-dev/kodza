@@ -11,7 +11,7 @@ Real checkboxes, redrawn: ink grows from the centre and the tick draws itself. A
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-checkbox-component.html`](kodza-checkbox-component.html) | 3.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-checkbox-component.css`](kodza-checkbox-component.css) | 15.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-checkbox-component.css`](kodza-checkbox-component.css) | 15.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-checkbox-component.js`](kodza-checkbox-component.js) | 6.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `.kodza-checkbox` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-check-bg` | `#ffffff` |  |
-| `--kz-check-fg` | `#0a0a0a` |  |
-| `--kz-check-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-check-line` | `rgba(10, 10, 10, 0.2)` |  |
-| `--kz-check-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-check-ink` | `#0a0a0a` |  |
-| `--kz-check-on-ink` | `#ffffff` |  |
+| `--kz-check-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-check-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-check-muted` | `color-mix(in srgb, var(--kz-check-fg) 60%, transparent)` |  |
+| `--kz-check-line` | `color-mix(in srgb, var(--kz-check-fg) 20%, transparent)` |  |
+| `--kz-check-soft` | `color-mix(in srgb, var(--kz-check-fg) 6%, transparent)` |  |
+| `--kz-check-ink` | `var(--kz-color-accent, var(--kz-check-fg))` |  |
+| `--kz-check-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-check-size` | `20px` |  |
 | `--kz-check-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-check-spring` | `cubic-bezier(0.34, 1.56, 0.64, 1)` |  |

@@ -11,7 +11,7 @@ A centred title in two big lines. On scroll the scene holds, the lines part, a p
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-exit.html`](kodza-hero-exit.html) | 1.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-exit.css`](kodza-hero-exit.css) | 20.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-exit.css`](kodza-hero-exit.css) | 20.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-exit.js`](kodza-hero-exit.js) | 16.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,11 +48,11 @@ CSS variables, set on `.kodza-hero-exit` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-exit-ink` | `#0a0a0a` |  |
-| `--kz-hero-exit-paper` | `#f2f2f0` |  |
-| `--kz-hero-exit-dim` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hero-exit-faint` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-hero-exit-soft` | `rgba(10, 10, 10, 0.07)` |  |
+| `--kz-hero-exit-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-exit-paper` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-exit-dim` | `color-mix(in srgb, var(--kz-hero-exit-ink) 62%, transparent)` |  |
+| `--kz-hero-exit-faint` | `color-mix(in srgb, var(--kz-hero-exit-ink) 60%, transparent)` |  |
+| `--kz-hero-exit-soft` | `color-mix(in srgb, var(--kz-hero-exit-ink) 7%, transparent)` |  |
 | `--kz-hero-exit-bg` | `transparent` |  |
 | `--kz-hero-exit-shade` | `#0a0a0a` | the card darkens toward it as the next section covers it |
 | `--kz-hero-exit-width` | `1240px` |  |

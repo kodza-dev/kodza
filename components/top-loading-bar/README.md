@@ -46,7 +46,7 @@ CSS variables, set on `.kodza-loading-bar` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-loadbar-color` | `#0a0a0a` |  |
+| `--kz-loadbar-color` | `var(--kz-color-ink, #0a0a0a)` |  |
 | `--kz-loadbar-height` | `3px` |  |
 | `--kz-loadbar-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 

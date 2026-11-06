@@ -43,7 +43,7 @@ CSS variables, set on `.kodza-highlight` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-highlight-text` | `currentColor` |  |
-| `--kz-highlight-mark` | `rgba(10, 10, 10, 0.12)` |  |
+| `--kz-highlight-mark` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 12%, transparent)` |  |
 | `--kz-highlight-height` | `100%` |  |
 | `--kz-highlight-duration` | `0.55s` |  |
 | `--kz-highlight-ease` | `cubic-bezier(0.76, 0, 0.24, 1)` |  |

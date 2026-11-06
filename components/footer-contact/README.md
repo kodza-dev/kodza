@@ -11,7 +11,7 @@ A freelance or studio footer: the email address across the whole width, copied o
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-footer-contact.html`](kodza-footer-contact.html) | 3.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-footer-contact.css`](kodza-footer-contact.css) | 33.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-footer-contact.css`](kodza-footer-contact.css) | 33.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-footer-contact.js`](kodza-footer-contact.js) | 14.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,10 +46,10 @@ CSS variables, set on `.kodza-footer-contact` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-footer-contact-bg` | `#ffffff` |  |
-| `--kz-footer-contact-fg` | `#0a0a0a` |  |
-| `--kz-footer-contact-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-footer-contact-line` | `rgba(10, 10, 10, 0.1)` |  |
+| `--kz-footer-contact-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-footer-contact-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-footer-contact-muted` | `color-mix(in srgb, var(--kz-footer-contact-fg) 62%, transparent)` |  |
+| `--kz-footer-contact-line` | `color-mix(in srgb, var(--kz-footer-contact-fg) 10%, transparent)` |  |
 | `--kz-footer-contact-width` | `1200px` | the content, centred |
 | `--kz-footer-contact-pad` | `24px` |  |
 | `--kz-footer-contact-weight` | `var(--kz-font-display-weight, 500)` | the address |

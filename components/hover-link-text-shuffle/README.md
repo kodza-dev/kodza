@@ -46,7 +46,7 @@ CSS variables, set on `.kodza-scramble` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-scramble-muted` | `rgba(10, 10, 10, 0.4)` |  |
+| `--kz-scramble-muted` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 40%, transparent)` |  |
 | `--kz-scramble-duration` | `0.6s` |  |
 
 - Attributes: `data-scramble` (e.g. `shuffle`, `flap`)

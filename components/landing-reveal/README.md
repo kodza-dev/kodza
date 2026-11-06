@@ -11,7 +11,7 @@ A preloader that counts the files your hero really needs while its images rise o
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-landing-reveal.html`](kodza-landing-reveal.html) | 3.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-landing-reveal.css`](kodza-landing-reveal.css) | 34.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-landing-reveal.css`](kodza-landing-reveal.css) | 34.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-landing-reveal.js`](kodza-landing-reveal.js) | 30.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,15 +48,15 @@ CSS variables, set on `.kodza-landing-reveal` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-landing-reveal-bg` | `#ffffff` | the loader's paper: your page colour, so the hand-over is seamless |
-| `--kz-landing-reveal-fg` | `#0a0a0a` | the loader's counter and labels |
-| `--kz-landing-reveal-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-landing-reveal-line` | `rgba(10, 10, 10, 0.1)` |  |
+| `--kz-landing-reveal-bg` | `var(--kz-color-paper, #ffffff)` | the loader's paper: your page colour, so the hand-over is seamless |
+| `--kz-landing-reveal-fg` | `var(--kz-color-ink, #0a0a0a)` | the loader's counter and labels |
+| `--kz-landing-reveal-muted` | `color-mix(in srgb, var(--kz-landing-reveal-fg) 62%, transparent)` |  |
+| `--kz-landing-reveal-line` | `color-mix(in srgb, var(--kz-landing-reveal-fg) 10%, transparent)` |  |
 | `--kz-landing-reveal-text` | `#f2f2f0` | the hero, over its image |
-| `--kz-landing-reveal-text-muted` | `rgba(242, 242, 240, 0.74)` |  |
+| `--kz-landing-reveal-text-muted` | `color-mix(in srgb, var(--kz-landing-reveal-text) 74%, transparent)` |  |
 | `--kz-landing-reveal-veil` | `rgba(10, 10, 10, 0.6)` | under the text, so it reads on any image |
 | `--kz-landing-reveal-button` | `#f2f2f0` |  |
-| `--kz-landing-reveal-on-button` | `#0a0a0a` |  |
+| `--kz-landing-reveal-on-button` | `var(--kz-color-ink, #0a0a0a)` |  |
 | `--kz-landing-reveal-brand` | `#ffffff` | the logo over the loader: white in difference reads dark on the paper |
 | `--kz-landing-reveal-brand-blend` | `difference` | normal: the logo keeps the colour above, over the paper and the images |
 | `--kz-landing-reveal-card` | `clamp(148px, 26vmin, 260px)` | width of the pile |

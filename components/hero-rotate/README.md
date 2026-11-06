@@ -11,7 +11,7 @@ A studio hero whose headline changes one word at a time: the next word rolls up 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-rotate.html`](kodza-hero-rotate.html) | 3.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-rotate.css`](kodza-hero-rotate.css) | 22.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-rotate.css`](kodza-hero-rotate.css) | 23.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-rotate.js`](kodza-hero-rotate.js) | 15.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,12 +46,12 @@ CSS variables, set on `.kodza-hero-rotate` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-hero-rotate-ink` | `#0a0a0a` |  |
-| `--kz-hero-rotate-paper` | `#f2f2f0` |  |
-| `--kz-hero-rotate-dim` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-hero-rotate-faint` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-hero-rotate-soft` | `rgba(10, 10, 10, 0.07)` |  |
-| `--kz-hero-rotate-track` | `rgba(10, 10, 10, 0.14)` |  |
+| `--kz-hero-rotate-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-hero-rotate-paper` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-hero-rotate-dim` | `color-mix(in srgb, var(--kz-hero-rotate-ink) 62%, transparent)` |  |
+| `--kz-hero-rotate-faint` | `color-mix(in srgb, var(--kz-hero-rotate-ink) 60%, transparent)` |  |
+| `--kz-hero-rotate-soft` | `color-mix(in srgb, var(--kz-hero-rotate-ink) 7%, transparent)` |  |
+| `--kz-hero-rotate-track` | `color-mix(in srgb, var(--kz-hero-rotate-ink) 14%, transparent)` |  |
 | `--kz-hero-rotate-bg` | `transparent` |  |
 | `--kz-hero-rotate-width` | `1240px` |  |
 | `--kz-hero-rotate-gap` | `clamp(32px, 5vw, 80px)` |  |

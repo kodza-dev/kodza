@@ -11,7 +11,7 @@ A site footer that waits under the page: its content rises slower than the scrol
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-footer-wordmark.html`](kodza-footer-wordmark.html) | 2.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-footer-wordmark.css`](kodza-footer-wordmark.css) | 19.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-footer-wordmark.css`](kodza-footer-wordmark.css) | 19.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-footer-wordmark.js`](kodza-footer-wordmark.js) | 16.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,10 +48,10 @@ CSS variables, set on `.kodza-footer-wordmark` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-footer-wordmark-bg` | `#0a0a0a` |  |
-| `--kz-footer-wordmark-fg` | `#f2f2f0` |  |
-| `--kz-footer-wordmark-muted` | `rgba(242, 242, 240, 0.62)` |  |
-| `--kz-footer-wordmark-line` | `rgba(242, 242, 240, 0.16)` |  |
+| `--kz-footer-wordmark-bg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-footer-wordmark-fg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-footer-wordmark-muted` | `color-mix(in srgb, var(--kz-footer-wordmark-fg) 62%, transparent)` |  |
+| `--kz-footer-wordmark-line` | `color-mix(in srgb, var(--kz-footer-wordmark-fg) 16%, transparent)` |  |
 | `--kz-footer-wordmark-veil` | `#0a0a0a` |  |
 | `--kz-footer-wordmark-shade` | `0.85` | the veil when the footer starts to show; 0 = none |
 | `--kz-footer-wordmark-depth` | `0.55` | how far behind the page it waits: 0 scrolls in as usual, 1 stays put |

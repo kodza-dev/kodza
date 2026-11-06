@@ -11,7 +11,7 @@ A pill that tightens into a circle on hover while its label gives way to an arro
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-button-svg-morph.html`](kodza-button-svg-morph.html) | 0.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-button-svg-morph.css`](kodza-button-svg-morph.css) | 9.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-button-svg-morph.css`](kodza-button-svg-morph.css) | 9.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -42,8 +42,8 @@ CSS variables, set on `.kodza-morph-button` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-morph-bg` | `#0a0a0a` |  |
-| `--kz-morph-fg` | `#ffffff` |  |
+| `--kz-morph-bg` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-morph-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-morph-height` | `52px` |  |
 | `--kz-morph-pad-x` | `34px` |  |
 | `--kz-morph-duration` | `0.6s` |  |

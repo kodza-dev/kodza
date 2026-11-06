@@ -11,7 +11,7 @@ A burger drawer for menus with levels: each sub-menu slides in over the last, th
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-multi-level-menu.html`](kodza-multi-level-menu.html) | 2.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-multi-level-menu.css`](kodza-multi-level-menu.css) | 26.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-multi-level-menu.css`](kodza-multi-level-menu.css) | 26.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-multi-level-menu.js`](kodza-multi-level-menu.js) | 40.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,12 +48,12 @@ CSS variables, set on `.kodza-multi-level` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-multi-level-bg` | `#0a0a0a` | the drawer |
-| `--kz-multi-level-fg` | `#f2f2f0` |  |
-| `--kz-multi-level-muted` | `rgba(242, 242, 240, 0.62)` |  |
-| `--kz-multi-level-rule` | `rgba(242, 242, 240, 0.14)` |  |
-| `--kz-multi-level-ink` | `#0a0a0a` | the Menu button, on the page |
-| `--kz-multi-level-on-ink` | `#ffffff` |  |
+| `--kz-multi-level-bg` | `var(--kz-color-ink, #0a0a0a)` | the drawer |
+| `--kz-multi-level-fg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-multi-level-muted` | `color-mix(in srgb, var(--kz-multi-level-fg) 62%, transparent)` |  |
+| `--kz-multi-level-rule` | `color-mix(in srgb, var(--kz-multi-level-fg) 14%, transparent)` |  |
+| `--kz-multi-level-ink` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` | the Menu button, on the page |
+| `--kz-multi-level-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-multi-level-gap` | `10px` | between the drawer and the edges of the screen |
 | `--kz-multi-level-radius` | `calc(20px * var(--kz-radius-scale, 1))` |  |
 | `--kz-multi-level-pad` | `clamp(20px, 6cqw, 28px)` |  |

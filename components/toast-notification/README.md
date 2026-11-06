@@ -11,7 +11,7 @@ Notifications that stack like a deck and spread out on hover. Time runs out on a
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-toast-notification.html`](kodza-toast-notification.html) | 0.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-toast-notification.css`](kodza-toast-notification.css) | 11.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-toast-notification.css`](kodza-toast-notification.css) | 11.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-toast-notification.js`](kodza-toast-notification.js) | 13.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,13 +46,13 @@ CSS variables, set on `.kodza-toast` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-toast-bg` | `#ffffff` |  |
-| `--kz-toast-fg` | `#0a0a0a` |  |
-| `--kz-toast-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-toast-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-toast-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-toast-ink` | `#0a0a0a` |  |
-| `--kz-toast-on-ink` | `#ffffff` |  |
+| `--kz-toast-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-toast-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-toast-muted` | `color-mix(in srgb, var(--kz-toast-fg) 60%, transparent)` |  |
+| `--kz-toast-line` | `color-mix(in srgb, var(--kz-toast-fg) 10%, transparent)` |  |
+| `--kz-toast-soft` | `color-mix(in srgb, var(--kz-toast-fg) 6%, transparent)` |  |
+| `--kz-toast-ink` | `var(--kz-color-accent, var(--kz-toast-fg))` |  |
+| `--kz-toast-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-toast-shadow` | `0 16px 40px -18px rgba(10, 10, 10, 0.35)` |  |
 | `--kz-toast-width` | `360px` |  |
 | `--kz-toast-gap` | `10px` |  |

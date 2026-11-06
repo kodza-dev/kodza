@@ -11,7 +11,7 @@ A hero over a world map in fine dots, framed on the places you list. Each one sh
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-dot-map.html`](kodza-dot-map.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-dot-map.css`](kodza-dot-map.css) | 19.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-dot-map.css`](kodza-dot-map.css) | 19.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-dot-map.js`](kodza-dot-map.js) | 37.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,9 +46,9 @@ CSS variables, set on `[data-kodza-dot-map]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-dot-map-bg` | `#f2f2f0` | the paper |
-| `--kz-dot-map-ink` | `#0a0a0a` | the dots, the text, the button |
-| `--kz-dot-map-muted` | `rgba(10, 10, 10, 0.62)` |  |
+| `--kz-dot-map-bg` | `var(--kz-color-page, #f2f2f0)` | the paper |
+| `--kz-dot-map-ink` | `var(--kz-color-ink, #0a0a0a)` | the dots, the text, the button |
+| `--kz-dot-map-muted` | `color-mix(in srgb, var(--kz-dot-map-ink) 62%, transparent)` |  |
 | `--kz-dot-map-gap` | `9px` | from one dot of land to the next |
 | `--kz-dot-map-size` | `1.5px` | dot radius |
 | `--kz-dot-map-rest` | `0.26` | land at rest, 0 to 1 |

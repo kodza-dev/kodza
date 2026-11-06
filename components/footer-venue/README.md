@@ -11,7 +11,7 @@ A footer for a place with opening hours: address and Directions, the week with t
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-footer-venue.html`](kodza-footer-venue.html) | 4.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-footer-venue.css`](kodza-footer-venue.css) | 36.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-footer-venue.css`](kodza-footer-venue.css) | 36.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-footer-venue.js`](kodza-footer-venue.js) | 17.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,10 +46,10 @@ CSS variables, set on `.kodza-footer-venue` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-footer-venue-bg` | `#ffffff` |  |
-| `--kz-footer-venue-fg` | `#0a0a0a` |  |
-| `--kz-footer-venue-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-footer-venue-line` | `rgba(10, 10, 10, 0.1)` |  |
+| `--kz-footer-venue-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-footer-venue-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-footer-venue-muted` | `color-mix(in srgb, var(--kz-footer-venue-fg) 62%, transparent)` |  |
+| `--kz-footer-venue-line` | `color-mix(in srgb, var(--kz-footer-venue-fg) 10%, transparent)` |  |
 | `--kz-footer-venue-width` | `1200px` | the content, centred |
 | `--kz-footer-venue-pad` | `24px` |  |
 | `--kz-footer-venue-mono` | `var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace))` | labels, the status and the © |

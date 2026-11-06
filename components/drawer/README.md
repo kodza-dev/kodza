@@ -11,7 +11,7 @@ A panel that slides in from the right, and on phones rises from the bottom as a 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-drawer.html`](kodza-drawer.html) | 1.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-drawer.css`](kodza-drawer.css) | 25.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-drawer.css`](kodza-drawer.css) | 25.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-drawer.js`](kodza-drawer.js) | 11.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,13 +48,13 @@ CSS variables, set on `.kodza-sheet` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-sheet-bg` | `#ffffff` |  |
-| `--kz-sheet-fg` | `#0a0a0a` |  |
-| `--kz-sheet-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-sheet-line` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-sheet-soft` | `rgba(10, 10, 10, 0.05)` |  |
-| `--kz-sheet-ink` | `#0a0a0a` |  |
-| `--kz-sheet-on-ink` | `#ffffff` |  |
+| `--kz-sheet-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-sheet-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-sheet-muted` | `color-mix(in srgb, var(--kz-sheet-fg) 60%, transparent)` |  |
+| `--kz-sheet-line` | `color-mix(in srgb, var(--kz-sheet-fg) 10%, transparent)` |  |
+| `--kz-sheet-soft` | `color-mix(in srgb, var(--kz-sheet-fg) 5%, transparent)` |  |
+| `--kz-sheet-ink` | `var(--kz-color-accent, var(--kz-sheet-fg))` |  |
+| `--kz-sheet-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-sheet-backdrop` | `rgba(10, 10, 10, 0.3)` |  |
 | `--kz-sheet-width` | `420px` |  |
 | `--kz-sheet-radius` | `calc(20px * var(--kz-radius-scale, 1))` |  |

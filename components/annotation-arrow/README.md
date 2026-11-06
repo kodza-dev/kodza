@@ -11,7 +11,7 @@ A note that draws a hand-drawn arrow to the element it points at, picked by a CS
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-annotation-arrow.html`](kodza-annotation-arrow.html) | 0.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-annotation-arrow.css`](kodza-annotation-arrow.css) | 5.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-annotation-arrow.css`](kodza-annotation-arrow.css) | 5.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-annotation-arrow.js`](kodza-annotation-arrow.js) | 22.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,7 +46,7 @@ CSS variables, set on `.kodza-annotation-arrow` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-annotation-arrow-ink` | `#0a0a0a` | the note and its line |
+| `--kz-annotation-arrow-ink` | `var(--kz-color-ink, #0a0a0a)` | the note and its line |
 | `--kz-annotation-arrow-stroke` | `1.75px` | the line's thickness |
 | `--kz-annotation-arrow-width` | `240px` | the note's widest, before it wraps |
 

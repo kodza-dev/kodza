@@ -11,7 +11,7 @@ Between two real pages, the one you leave recedes as the next rises over it on a
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-page-lift.html`](kodza-page-lift.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-page-lift.css`](kodza-page-lift.css) | 18.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-page-lift.css`](kodza-page-lift.css) | 18.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-page-lift.js`](kodza-page-lift.js) | 23.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -58,10 +58,10 @@ CSS variables, set on `[data-kodza-page-lift]` itself:
 | `--kz-page-lift-enter-delay` | `0.36s` | the arrival starts while the page is still rising |
 | `--kz-page-lift-enter-ease` | `cubic-bezier(0.2, 0.8, 0.1, 1)` |  |
 | `--kz-page-lift-reveal-ease` | `cubic-bezier(0.65, 0, 0.35, 1)` | the image uncovering: gentle start, no flash |
-| `--kz-page-lift-bg` | `#f2f2f0` |  |
-| `--kz-page-lift-fg` | `#0a0a0a` |  |
-| `--kz-page-lift-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-page-lift-line` | `rgba(10, 10, 10, 0.12)` |  |
+| `--kz-page-lift-bg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-page-lift-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-page-lift-muted` | `color-mix(in srgb, var(--kz-page-lift-fg) 62%, transparent)` |  |
+| `--kz-page-lift-line` | `color-mix(in srgb, var(--kz-page-lift-fg) 12%, transparent)` |  |
 | `--kz-page-lift-image-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-page-lift-side` | `24px` |  |
 

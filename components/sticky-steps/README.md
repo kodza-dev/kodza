@@ -11,7 +11,7 @@ A picture pinned on one side, steps scrolling on the other: each step draws its 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-sticky-steps.html`](kodza-sticky-steps.html) | 1.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-sticky-steps.css`](kodza-sticky-steps.css) | 15.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-sticky-steps.css`](kodza-sticky-steps.css) | 15.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-sticky-steps.js`](kodza-sticky-steps.js) | 8.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,10 +48,10 @@ CSS variables, set on `.kodza-steps` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-steps-fg` | `#0a0a0a` |  |
-| `--kz-steps-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-steps-glass` | `rgba(255, 255, 255, 0.78)` |  |
-| `--kz-steps-line` | `rgba(10, 10, 10, 0.12)` |  |
+| `--kz-steps-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-steps-muted` | `color-mix(in srgb, var(--kz-steps-fg) 62%, transparent)` |  |
+| `--kz-steps-glass` | `color-mix(in srgb, var(--kz-color-paper, #ffffff) 78%, transparent)` |  |
+| `--kz-steps-line` | `color-mix(in srgb, var(--kz-steps-fg) 12%, transparent)` |  |
 | `--kz-steps-dim` | `0.28` | opacity of the steps not being read: 1 keeps them whole |
 | `--kz-steps-dim-fg` | `var(--kz-steps-fg)` | their colour: with --kz-steps-dim: 1, a muted one sets them apart and keeps AA contrast |
 | `--kz-steps-columns` | `minmax(0, 1.15fr) minmax(0, 1fr)` | the picture, then the steps (wider than 860px) |

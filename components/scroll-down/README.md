@@ -48,9 +48,9 @@ CSS variables, set on `.kodza-scroll-down` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-scroll-down-ink` | `#0a0a0a` |  |
-| `--kz-scroll-down-paper` | `#ffffff` |  |
-| `--kz-scroll-down-line` | `rgba(10, 10, 10, 0.28)` |  |
+| `--kz-scroll-down-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-scroll-down-paper` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-scroll-down-line` | `color-mix(in srgb, var(--kz-scroll-down-ink) 28%, transparent)` |  |
 | `--kz-scroll-down-size` | `52px` |  |
 | `--kz-scroll-down-travel` | `36px` |  |
 | `--kz-scroll-down-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

@@ -11,7 +11,7 @@ Footnotes that stay on their line. Wide, the note sits in the margin level with 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-footnote-link.html`](kodza-footnote-link.html) | 1.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-footnote-link.css`](kodza-footnote-link.css) | 14.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-footnote-link.css`](kodza-footnote-link.css) | 14.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-footnote-link.js`](kodza-footnote-link.js) | 13.0 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,10 +46,10 @@ CSS variables, set on `[data-kodza-footnote-link]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-footnote-link-ink` | `#0a0a0a` |  |
-| `--kz-footnote-link-paper` | `#fff` |  |
-| `--kz-footnote-link-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-footnote-link-sheet` | `rgba(10, 10, 10, 0.05)` |  |
+| `--kz-footnote-link-ink` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-footnote-link-paper` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-footnote-link-muted` | `color-mix(in srgb, var(--kz-footnote-link-ink) 62%, transparent)` |  |
+| `--kz-footnote-link-sheet` | `color-mix(in srgb, var(--kz-footnote-link-ink) 5%, transparent)` |  |
 | `--kz-footnote-link-note-width` | `210px` |  |
 | `--kz-footnote-link-gap` | `48px` |  |
 | `--kz-footnote-link-note-size` | `0.82em` |  |

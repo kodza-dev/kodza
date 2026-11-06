@@ -11,7 +11,7 @@ A menu button: the lines meet, then cross, and Menu rolls to Close at a fixed wi
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-burger-button.html`](kodza-burger-button.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-burger-button.css`](kodza-burger-button.css) | 8.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-burger-button.css`](kodza-burger-button.css) | 8.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-burger-button.js`](kodza-burger-button.js) | 7.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,8 +46,8 @@ CSS variables, set on `.kodza-burger` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-burger-ink` | `#0a0a0a` |  |
-| `--kz-burger-on-ink` | `#ffffff` |  |
+| `--kz-burger-ink` | `var(--kz-color-accent, var(--kz-color-ink, #0a0a0a))` |  |
+| `--kz-burger-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-burger-height` | `40px` |  |
 | `--kz-burger-duration` | `0.5s` |  |
 | `--kz-burger-meet` | `cubic-bezier(0.65, 0, 0.35, 1)` |  |

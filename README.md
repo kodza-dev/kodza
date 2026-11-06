@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 200. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 208. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-200 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+208 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -124,11 +124,10 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Forms</b> · 31</summary>
+<summary><b>Forms</b> · 30</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
-| [Book a Visit](components/book-a-visit/) | A booking form: the coming days, the free times worked out from the opening hours, name and email. On send it rolls up into the answer, with Add to calendar as an .ics file. | [Demo](https://kodza.dev/components/book-a-visit/) |
 | [Checkbox](components/checkbox-component/) | Real checkboxes, redrawn: ink grows from the centre and the tick draws itself. A select-all box shows a dash when only some are checked. Cards too. | [Demo](https://kodza.dev/components/checkbox-component/) |
 | [Choice Cards](components/choice-cards/) | Cards to compare and pick, on real radio buttons or checkboxes, with a title, a line and an optional price. The picked card's ink border draws itself around it from the corner while a check draws in its mark. Pure CSS. | [Demo](https://kodza.dev/components/choice-cards/) |
 | [Color Picker](components/color-picker/) | A real colour input with a proper panel: saturation square, hue slider, hex field, presets, eyedropper and copy. Pick a preset and the handles glide to it. | [Demo](https://kodza.dev/components/color-picker/) |
@@ -322,15 +321,21 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Scroll</b> · 7</summary>
+<summary><b>Scroll</b> · 13</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
 | [Back to Top](components/back-to-top/) | A round button that shows up a screen down, its ring filling as you read. Its label unrolls on hover, the arrow takes off when you click. | [Demo](https://kodza.dev/components/back-to-top/) |
 | [Horizontal Scroll](components/horizontal-scroll/) | A section that pins itself while its cards slide sideways as you scroll down. Pictures drift in their frames, the counter rolls. A swipe on touch. | [Demo](https://kodza.dev/components/horizontal-scroll/) |
+| [Image Split Cards](components/image-split-cards/) | One image laid over a row of cards. Pinned while you scroll, it splits along the gaps, then each piece turns over to show its card, one after the other. Scroll back and the picture comes back together. | [Demo](https://kodza.dev/components/image-split-cards/) |
 | [Infinite Scroll](components/infinite-scroll/) | Placeholders the size of a post shimmer in, then turn into the posts without a jump. Two loads on their own, then a button, so the footer stays reachable. | [Demo](https://kodza.dev/components/infinite-scroll/) |
+| [Inner Parallax Image](components/inner-parallax-image/) | A picture that drifts slower than the page inside a frame that stays put. It wraps the image WordPress writes in its own frame, and the picture overhangs by its whole travel, so no gap ever shows. | [Demo](https://kodza.dev/components/inner-parallax-image/) |
+| [Media Expand](components/media-expand/) | An image or a video in a rounded frame, set in from the edges, takes the full width as the scroll brings it to the middle of the screen. The corners square off, the caption rises, and it all reverses on the way back up. | [Demo](https://kodza.dev/components/media-expand/) |
+| [Reading Progress](components/reading-progress/) | A thin line under the header that fills as you read the article, not the whole page. Cut at each section, it can show the minutes left, and runs on the scroll itself where the browser can. | [Demo](https://kodza.dev/components/reading-progress/) |
 | [Scroll Gauge](components/scroll-gauge/) | A figure pinned in a corner of a long page. Each section carries its value, and as you read, the figure rolls to it digit by digit, with its unit, a note and a scale of the whole story. | [Demo](https://kodza.dev/components/scroll-gauge/) |
 | [Scroll Reveal](components/fade-in-scroll/) | Blocks make their entrance as they scroll in: a fade, lines rising from a mask, or an image unveiled by clip-path. Blocks that arrive together take turns. | [Demo](https://kodza.dev/components/fade-in-scroll/) |
+| [Scroll Sequence](components/scroll-sequence/) | A numbered series of pictures drawn on one canvas as the scroll runs through a section that holds the screen. Captions come in on cue, and the frames load coarse to fine: a fast scroll never shows a blank. | [Demo](https://kodza.dev/components/scroll-sequence/) |
+| [Section Tone Shift](components/section-tone-shift/) | The page turns from paper to ink as a marked section takes the middle of the screen, the colour following the scroll. The text changes side halfway, and an event tells your header. | [Demo](https://kodza.dev/components/section-tone-shift/) |
 | [Sticky Scroll Reveal](components/sticky-scroll-reveal/) | A block that pins itself while big statements take turns as you scroll: each line leaves through its own mask while the next one rises. | [Demo](https://kodza.dev/components/sticky-scroll-reveal/) |
 | [Sticky Steps](components/sticky-steps/) | A picture pinned on one side, steps scrolling on the other: each step draws its picture over the last like a curtain, and the counter rolls along. | [Demo](https://kodza.dev/components/sticky-steps/) |
 
@@ -439,6 +444,17 @@ Written like it's going live tomorrow. Because it probably is.
 | [Result Quote](components/result-quote/) | A case study in one block: the result very large, its digits rolling up to the value, then the quote rising line by line, the person and a link to the full story. Played once, on scroll. | [Demo](https://kodza.dev/components/result-quote/) |
 | [Review Summary](components/review-summary/) | Reviews with their summary: the average rolls up, the stars fill to the decimal, five bars fill in turn. Click a bar to filter, the reviews glide into place. Read more, and a one-line variant. | [Demo](https://kodza.dev/components/review-summary/) |
 | [Testimonial Wall](components/testimonial-wall/) | A testimonials section: three columns of cards drift slowly in opposite directions, with no end and no jump, faded top and bottom. A column under the mouse slows to a stop; a pause button stops the wall. | [Demo](https://kodza.dev/components/testimonial-wall/) |
+
+</details>
+
+<details>
+<summary><b>Contact</b> · 3</summary>
+
+| Component | What it does | |
+| --- | --- | --- |
+| [Book a Visit](components/book-a-visit/) | A booking form: the coming days, the free times worked out from the opening hours, name and email. On send it rolls up into the answer, with Add to calendar as an .ics file. | [Demo](https://kodza.dev/components/book-a-visit/) |
+| [Contact Brief](components/contact-brief/) | A project request section: tags for what is needed, a budget and a time frame picked on a sliding pill, name and email. A summary of the brief writes itself as you pick; sent, the form rolls into a receipt. | [Demo](https://kodza.dev/components/contact-brief/) |
+| [Contact Split](components/contact-split/) | A contact section: the email to copy, phone, address and a status worked out from the opening hours; a short form that rolls into the thanks. A variant for a place shows the week of hours. | [Demo](https://kodza.dev/components/contact-split/) |
 
 </details>
 

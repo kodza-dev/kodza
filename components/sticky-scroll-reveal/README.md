@@ -11,7 +11,7 @@ A block that pins itself while big statements take turns as you scroll: each lin
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-sticky-scroll-reveal.html`](kodza-sticky-scroll-reveal.html) | 0.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-sticky-scroll-reveal.css`](kodza-sticky-scroll-reveal.css) | 8.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-sticky-scroll-reveal.css`](kodza-sticky-scroll-reveal.css) | 8.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-sticky-scroll-reveal.js`](kodza-sticky-scroll-reveal.js) | 13.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,9 +48,9 @@ CSS variables, set on `.kodza-sticky-reveal` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-sreveal-fg` | `#0a0a0a` |  |
-| `--kz-sreveal-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-sreveal-line` | `rgba(10, 10, 10, 0.12)` |  |
+| `--kz-sreveal-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-sreveal-muted` | `color-mix(in srgb, var(--kz-sreveal-fg) 62%, transparent)` |  |
+| `--kz-sreveal-line` | `color-mix(in srgb, var(--kz-sreveal-fg) 12%, transparent)` |  |
 | `--kz-sreveal-size` | `calc(clamp(44px, 7.4vw, 108px) * var(--kz-font-display-scale, 1))` |  |
 | `--kz-sreveal-segment` | `75vh` |  |
 | `--kz-sreveal-gutter` | `max(24px, calc((100vw - 1080px) / 2))` |  |

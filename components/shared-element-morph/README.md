@@ -11,7 +11,7 @@ Between two real pages, the picture you click grows into its place on the next p
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-shared-element-morph.html`](kodza-shared-element-morph.html) | 1.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-shared-element-morph.css`](kodza-shared-element-morph.css) | 24.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-shared-element-morph.css`](kodza-shared-element-morph.css) | 25.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-shared-element-morph.js`](kodza-shared-element-morph.js) | 30.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -54,10 +54,10 @@ CSS variables, set on `[data-kodza-shared-element-morph]` itself:
 | `--kz-shared-element-morph-backdrop` | `transparent` | between the two pages: your page colour shows through |
 | `--kz-shared-element-morph-enter-delay` | `0.24s` | the arrival starts while the image is on its way |
 | `--kz-shared-element-morph-enter-ease` | `cubic-bezier(0.2, 0.8, 0.1, 1)` |  |
-| `--kz-shared-element-morph-bg` | `#f2f2f0` |  |
-| `--kz-shared-element-morph-fg` | `#0a0a0a` |  |
-| `--kz-shared-element-morph-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-shared-element-morph-line` | `rgba(10, 10, 10, 0.12)` |  |
+| `--kz-shared-element-morph-bg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-shared-element-morph-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-shared-element-morph-muted` | `color-mix(in srgb, var(--kz-shared-element-morph-fg) 62%, transparent)` |  |
+| `--kz-shared-element-morph-line` | `color-mix(in srgb, var(--kz-shared-element-morph-fg) 12%, transparent)` |  |
 | `--kz-shared-element-morph-image-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-shared-element-morph-side` | `24px` |  |
 

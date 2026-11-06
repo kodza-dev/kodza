@@ -11,7 +11,7 @@ A transparent header over the hero photo: once the hero passes under it, a solid
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-overlay.html`](kodza-header-overlay.html) | 3.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-overlay.css`](kodza-header-overlay.css) | 41.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-overlay.css`](kodza-header-overlay.css) | 42.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-header-overlay.js`](kodza-header-overlay.js) | 39.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -52,24 +52,24 @@ CSS variables, set on `.kodza-header-overlay` itself:
 | `--kz-header-overlay-muted` | `rgba(255, 255, 255, 0.78)` |  |
 | `--kz-header-overlay-soft` | `rgba(255, 255, 255, 0.16)` | the Menu button |
 | `--kz-header-overlay-cta-bg` | `#ffffff` |  |
-| `--kz-header-overlay-cta-fg` | `#0a0a0a` |  |
+| `--kz-header-overlay-cta-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
 | `--kz-header-overlay-veil` | `rgba(0, 0, 0, 0.32)` | a shade at the top of the photo, so white reads |
-| `--kz-header-overlay-solid-bg` | `#f2f2f0` |  |
-| `--kz-header-overlay-solid-fg` | `#0a0a0a` |  |
-| `--kz-header-overlay-solid-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-header-overlay-solid-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-header-overlay-solid-rule` | `rgba(10, 10, 10, 0.1)` |  |
-| `--kz-header-overlay-solid-cta-bg` | `#0a0a0a` |  |
-| `--kz-header-overlay-solid-cta-fg` | `#ffffff` |  |
+| `--kz-header-overlay-solid-bg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-header-overlay-solid-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-header-overlay-solid-muted` | `color-mix(in srgb, var(--kz-header-overlay-solid-fg) 62%, transparent)` |  |
+| `--kz-header-overlay-solid-soft` | `color-mix(in srgb, var(--kz-header-overlay-solid-fg) 6%, transparent)` |  |
+| `--kz-header-overlay-solid-rule` | `color-mix(in srgb, var(--kz-header-overlay-solid-fg) 10%, transparent)` |  |
+| `--kz-header-overlay-solid-cta-bg` | `var(--kz-color-accent, var(--kz-header-overlay-solid-fg))` |  |
+| `--kz-header-overlay-solid-cta-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-header-overlay-top` | `var(--wp-admin--admin-bar--height, 0px)` | below the WordPress admin bar |
 | `--kz-header-overlay-height` | `76px` |  |
 | `--kz-header-overlay-width` | `1200px` | the row, centred |
 | `--kz-header-overlay-pad` | `24px` |  |
 | `--kz-header-overlay-duration` | `0.7s` | the blind |
 | `--kz-header-overlay-ease` | `cubic-bezier(0.33, 1, 0.68, 1)` | off at once: it answers the scroll |
-| `--kz-header-overlay-menu-bg` | `#0a0a0a` |  |
-| `--kz-header-overlay-menu-fg` | `#f2f2f0` |  |
-| `--kz-header-overlay-menu-muted` | `rgba(242, 242, 240, 0.62)` |  |
+| `--kz-header-overlay-menu-bg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-header-overlay-menu-fg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-header-overlay-menu-muted` | `color-mix(in srgb, var(--kz-header-overlay-menu-fg) 62%, transparent)` |  |
 | `--kz-header-overlay-menu-top` | `calc(var(--wp-admin--admin-bar--height, 0px) + 18px)` | Close lands on Menu on its own; this is where it goes if Menu is somewhere else |
 | `--kz-header-overlay-menu-side` | `24px` |  |
 | `--kz-header-overlay-menu-size` | `calc(clamp(40px, min(10cqw + 12px, calc((100cqh - 230px) / 5.3)), 132px) * var(--kz-font-display-scale, 1))` |  |

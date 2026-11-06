@@ -11,7 +11,7 @@ Dated steps along a rail that fills as you scroll: each dot fills when the ink r
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-timeline-component.html`](kodza-timeline-component.html) | 2.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-timeline-component.css`](kodza-timeline-component.css) | 13.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-timeline-component.css`](kodza-timeline-component.css) | 14.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-timeline-component.js`](kodza-timeline-component.js) | 7.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -48,13 +48,13 @@ CSS variables, set on `.kodza-timeline` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-timeline-fg` | `#0a0a0a` |  |
-| `--kz-timeline-muted` | `rgba(10, 10, 10, 0.62)` |  |
-| `--kz-timeline-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-timeline-soft` | `rgba(10, 10, 10, 0.06)` |  |
-| `--kz-timeline-bg` | `#f2f2f0` |  |
-| `--kz-timeline-ink` | `#0a0a0a` |  |
-| `--kz-timeline-on-ink` | `#ffffff` |  |
+| `--kz-timeline-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-timeline-muted` | `color-mix(in srgb, var(--kz-timeline-fg) 62%, transparent)` |  |
+| `--kz-timeline-line` | `color-mix(in srgb, var(--kz-timeline-fg) 14%, transparent)` |  |
+| `--kz-timeline-soft` | `color-mix(in srgb, var(--kz-timeline-fg) 6%, transparent)` |  |
+| `--kz-timeline-bg` | `var(--kz-color-page, #f2f2f0)` |  |
+| `--kz-timeline-ink` | `var(--kz-color-accent, var(--kz-timeline-fg))` |  |
+| `--kz-timeline-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-timeline-date` | `72px` |  |
 | `--kz-timeline-gap` | `56px` |  |
 | `--kz-timeline-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

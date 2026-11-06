@@ -11,7 +11,7 @@ Phrases typed with a human rhythm and an honest caret. Retypes only what changes
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-typewriter-effect.html`](kodza-typewriter-effect.html) | 0.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-typewriter-effect.css`](kodza-typewriter-effect.css) | 2.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-typewriter-effect.css`](kodza-typewriter-effect.css) | 2.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-typewriter-effect.js`](kodza-typewriter-effect.js) | 9.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -47,7 +47,7 @@ CSS variables, set on `.kodza-typewriter` itself:
 | Variable | Default | |
 | --- | --- | --- |
 | `--kz-type-caret` | `currentColor` |  |
-| `--kz-type-selection` | `rgba(10, 10, 10, 0.14)` |  |
+| `--kz-type-selection` | `color-mix(in srgb, var(--kz-color-ink, #0a0a0a) 14%, transparent)` |  |
 
 - Attributes: `data-hold`, `data-mode` (e.g. `retype`, `select`), `data-speed`, `data-words` (e.g. `["No framework needed.", "Just HTML, CSS and JS.", "Copy. Paste. Ship."]`, `["It works on my machine.", "It works on your machine.", "It works on every machine."]`, `["Ship it on Friday.", "Ship it on Monday.", "Ship it someday."]`)
 

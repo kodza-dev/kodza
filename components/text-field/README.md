@@ -11,7 +11,7 @@ A text field whose label folds up as you type. A button clears it, a check draws
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-text-field.html`](kodza-text-field.html) | 1.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-text-field.css`](kodza-text-field.css) | 17.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-text-field.css`](kodza-text-field.css) | 18.1 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-text-field.js`](kodza-text-field.js) | 5.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -46,14 +46,14 @@ CSS variables, set on `.kodza-field` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-field-bg` | `#ffffff` |  |
-| `--kz-field-fg` | `#0a0a0a` |  |
-| `--kz-field-muted` | `rgba(10, 10, 10, 0.6)` |  |
-| `--kz-field-line` | `rgba(10, 10, 10, 0.14)` |  |
-| `--kz-field-line-hover` | `rgba(10, 10, 10, 0.3)` |  |
-| `--kz-field-focus` | `#0a0a0a` |  |
-| `--kz-field-error` | `#0a0a0a` |  |
-| `--kz-field-disabled` | `rgba(10, 10, 10, 0.04)` |  |
+| `--kz-field-bg` | `var(--kz-color-paper, #ffffff)` |  |
+| `--kz-field-fg` | `var(--kz-color-ink, #0a0a0a)` |  |
+| `--kz-field-muted` | `color-mix(in srgb, var(--kz-field-fg) 60%, transparent)` |  |
+| `--kz-field-line` | `color-mix(in srgb, var(--kz-field-fg) 14%, transparent)` |  |
+| `--kz-field-line-hover` | `color-mix(in srgb, var(--kz-field-fg) 30%, transparent)` |  |
+| `--kz-field-focus` | `var(--kz-field-fg)` |  |
+| `--kz-field-error` | `var(--kz-color-error, var(--kz-field-fg))` |  |
+| `--kz-field-disabled` | `color-mix(in srgb, var(--kz-field-fg) 4%, transparent)` |  |
 | `--kz-field-height` | `56px` |  |
 | `--kz-field-radius` | `calc(12px * var(--kz-radius-scale, 1))` |  |
 | `--kz-field-clear-radius` | `50%` | the clear button: 0 squares it |
