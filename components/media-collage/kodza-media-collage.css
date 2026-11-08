@@ -1,0 +1,514 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Media Collage
+   A text beside two or three pictures of different shapes, set off from each other: a tall one, a
+   square one lower down, and a wide one under them that runs out to the edge of the screen. The
+   text stays in view while the pictures go by, and each picture is uncovered from its top edge,
+   one after the other. --reverse puts the text on the right. The __eyebrow, the __body and the
+   captions are optional. Everything is tuned with the --kz-media-collage-* variables, the timings
+   with the constants of the script. */
+.kodza-media-collage {
+  --kz-media-collage-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-media-collage-dim: color-mix(in srgb, var(--kz-media-collage-ink) 66%, transparent);
+  --kz-media-collage-faint: color-mix(in srgb, var(--kz-media-collage-ink) 60%, transparent);
+  --kz-media-collage-bg: transparent;
+  --kz-media-collage-width: 1240px; /* the content column, the same as the other sections */
+  --kz-media-collage-gutter: clamp(16px, 4vw, 40px); /* the space kept at the screen edges */
+  --kz-media-collage-pad-y: clamp(72px, 9vw, 140px); /* above and below */
+  --kz-media-collage-gap: clamp(16px, 2vw, 28px); /* between two pictures */
+  --kz-media-collage-offset: clamp(48px, 9cqi, 160px); /* how much lower the second picture sits */
+  --kz-media-collage-top: 96px; /* where the text holds while the pictures scroll past */
+  --kz-media-collage-ratio-1: 4 / 5;
+  --kz-media-collage-ratio-2: 1 / 1;
+  --kz-media-collage-ratio-3: 3 / 2;
+  --kz-media-collage-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-media-collage-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  /* How far the wide picture runs past the content column, to the edge of the screen */
+  --kz-media-collage-bleed: calc((100cqi - min(100cqi - 2 * var(--kz-media-collage-gutter), var(--kz-media-collage-width))) / 2);
+
+  container: kodza-media-collage / inline-size;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: var(--kz-media-collage-pad-y);
+  padding-bottom: var(--kz-media-collage-pad-y);
+  background: var(--kz-media-collage-bg);
+  color: var(--kz-media-collage-ink);
+}
+
+.kodza-media-collage__inner {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--kz-media-collage-gap);
+  align-items: start;
+  max-width: calc(var(--kz-media-collage-width) + 2 * var(--kz-media-collage-gutter));
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--kz-media-collage-gutter);
+  padding-right: var(--kz-media-collage-gutter);
+}
+
+/* The text: on the first four columns, held in view while the pictures go by */
+.kodza-media-collage__copy {
+  grid-column: 1 / span 4;
+  grid-row: 1;
+  position: sticky;
+  top: var(--kz-media-collage-top);
+}
+
+.kodza-media-collage__eyebrow {
+  margin: 0 0 20px;
+  font-family: var(--kz-font-label, var(--kz-media-collage-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  color: var(--kz-media-collage-dim);
+}
+
+.kodza-media-collage__title {
+  max-width: 14ch;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 3.6vw, 48px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+  color: var(--kz-media-collage-ink);
+}
+
+.kodza-media-collage__body {
+  max-width: 40ch;
+  margin-top: 28px;
+  font-size: clamp(16px, 1.25vw, 17px);
+  line-height: 1.6;
+  color: var(--kz-media-collage-dim);
+}
+
+.kodza-media-collage__body > * {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.kodza-media-collage__body > * + * {
+  margin-top: 1em;
+}
+
+/* The pictures: on the other side, set on six columns of their own */
+.kodza-media-collage__pictures {
+  grid-column: 6 / -1;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  column-gap: var(--kz-media-collage-gap);
+  row-gap: calc(var(--kz-media-collage-gap) * 2);
+  align-items: start;
+}
+
+.kodza-media-collage__picture {
+  margin: 0;
+}
+
+.kodza-media-collage__picture:nth-child(3n + 1) {
+  grid-column: 1 / span 3;
+}
+
+.kodza-media-collage__picture:nth-child(3n + 2) {
+  grid-column: 4 / span 3;
+  margin-top: var(--kz-media-collage-offset);
+}
+
+/* The wide one breaks out of the column, to the edge of the screen, and is square on that side */
+.kodza-media-collage__picture:nth-child(3n) {
+  grid-column: 2 / -1;
+  margin-right: calc(-1 * var(--kz-media-collage-bleed));
+}
+
+.kodza-media-collage__frame {
+  aspect-ratio: var(--kz-media-collage-ratio-1);
+  overflow: hidden;
+  border-radius: var(--kz-media-collage-radius);
+}
+
+.kodza-media-collage__picture:nth-child(3n + 2) .kodza-media-collage__frame {
+  aspect-ratio: var(--kz-media-collage-ratio-2);
+}
+
+.kodza-media-collage__picture:nth-child(3n) .kodza-media-collage__frame {
+  aspect-ratio: var(--kz-media-collage-ratio-3);
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+/* The curtain: the middle layer slides down from above while the inner one slides up into place,
+   so the picture is uncovered from the top edge down and never moves itself */
+.kodza-media-collage__curtain,
+.kodza-media-collage__hold {
+  height: 100%;
+}
+
+.kodza-media-collage__curtain {
+  overflow: hidden;
+}
+
+.kodza-media-collage__frame img {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kodza-media-collage__caption {
+  margin-top: 12px;
+  font-family: var(--kz-font-label, var(--kz-media-collage-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-media-collage-faint);
+}
+
+/* --reverse: the text on the right, the wide picture running out to the left edge */
+.kodza-media-collage--reverse .kodza-media-collage__copy {
+  grid-column: 9 / span 4;
+}
+
+.kodza-media-collage--reverse .kodza-media-collage__pictures {
+  grid-column: 1 / span 7;
+}
+
+.kodza-media-collage--reverse .kodza-media-collage__picture:nth-child(3n) {
+  grid-column: 1 / span 5;
+  margin-right: 0;
+  margin-left: calc(-1 * var(--kz-media-collage-bleed));
+}
+
+.kodza-media-collage--reverse .kodza-media-collage__picture:nth-child(3n) .kodza-media-collage__frame {
+  border-radius: 0 var(--kz-media-collage-radius) var(--kz-media-collage-radius) 0;
+}
+
+.kodza-media-collage--reverse .kodza-media-collage__picture:nth-child(3n) .kodza-media-collage__caption {
+  margin-left: var(--kz-media-collage-bleed);
+}
+
+/* Before it plays (only once the script has started, and only with motion): each picture behind
+   its curtain, the words waiting to come up */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-media-collage.is-ready .kodza-media-collage__picture:not(.is-shown) .kodza-media-collage__curtain {
+    transform: translateY(-100%);
+  }
+
+  .kodza-media-collage.is-ready .kodza-media-collage__picture:not(.is-shown) .kodza-media-collage__hold {
+    transform: translateY(100%);
+  }
+
+  .kodza-media-collage.is-ready .kodza-media-collage__copy:not(.is-shown) :is(.kodza-media-collage__eyebrow, .kodza-media-collage__title, .kodza-media-collage__body > *),
+  .kodza-media-collage.is-ready .kodza-media-collage__picture:not(.is-shown) .kodza-media-collage__caption {
+    opacity: 0;
+  }
+}
+
+/* Narrower: the text above, the pictures under it across the width */
+@container kodza-media-collage (max-width: 900px) {
+  .kodza-media-collage__copy,
+  .kodza-media-collage--reverse .kodza-media-collage__copy {
+    grid-column: 1 / -1;
+    position: static;
+    margin-bottom: clamp(40px, 8cqi, 64px);
+  }
+
+  .kodza-media-collage__pictures,
+  .kodza-media-collage--reverse .kodza-media-collage__pictures {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .kodza-media-collage__title {
+    max-width: 18ch;
+  }
+
+  .kodza-media-collage__body {
+    max-width: 60ch;
+  }
+
+  .kodza-media-collage__picture:nth-child(3n),
+  .kodza-media-collage--reverse .kodza-media-collage__picture:nth-child(3n) {
+    grid-column: 1 / -1;
+  }
+}
+
+/* A phone: the two first pictures side by side, the second one barely lower */
+@container kodza-media-collage (max-width: 600px) {
+  .kodza-media-collage {
+    --kz-media-collage-offset: 32px;
+  }
+
+  .kodza-media-collage__pictures {
+    row-gap: var(--kz-media-collage-gap);
+  }
+}
+
+/* kodza-guard a191408701e0 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-media-collage__caption):not(#_) {
+  margin-left: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-media-collage__copy:not(#_),
+.kodza-media-collage__body:not(#_),
+.kodza-media-collage__pictures:not(#_),
+.kodza-media-collage__frame:not(#_),
+.kodza-media-collage__curtain:not(#_),
+.kodza-media-collage__hold:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-media-collage__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-collage__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-collage__picture:not(#_),
+.kodza-media-collage__body p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-media-collage__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-collage__caption:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-collage__hold img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-collage__eyebrow:not(#_):where(:not([hidden])),
+.kodza-media-collage__title:not(#_):where(:not([hidden])),
+.kodza-media-collage__picture:not(#_):where(:not([hidden])),
+.kodza-media-collage__caption:not(#_):where(:not([hidden])),
+.kodza-media-collage__body p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-media-collage__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-media-collage__eyebrow:not(#_):where([hidden]),
+.kodza-media-collage__title:not(#_):where([hidden]),
+.kodza-media-collage__picture:not(#_):where([hidden]),
+.kodza-media-collage__caption:not(#_):where([hidden]),
+.kodza-media-collage__body p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-media-collage__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-media-collage__eyebrow:not(#_) {
+  margin: 0 0 20px;
+  font-family: var(--kz-font-label, var(--kz-media-collage-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  color: var(--kz-media-collage-dim);
+}
+
+.kodza-media-collage__title:not(#_) {
+  max-width: 14ch;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 3.6vw, 48px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  color: var(--kz-media-collage-ink);
+}
+
+.kodza-media-collage__body > *:not(#_) {
+  margin: 0;
+}
+
+.kodza-media-collage__body > * + *:not(#_) {
+  margin-top: 1em;
+}
+
+.kodza-media-collage__picture:not(#_) {
+  margin: 0;
+}
+
+.kodza-media-collage__picture:nth-child(3n + 2):not(#_) {
+  margin-top: var(--kz-media-collage-offset);
+}
+
+.kodza-media-collage__picture:nth-child(3n):not(#_) {
+  margin-right: calc(-1 * var(--kz-media-collage-bleed));
+}
+
+.kodza-media-collage__frame img:not(#_) {
+  display: block;
+  max-width: none;
+}
+
+.kodza-media-collage__caption:not(#_) {
+  margin-top: 12px;
+  font-family: var(--kz-font-label, var(--kz-media-collage-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-media-collage-faint);
+}
+
+.kodza-media-collage--reverse .kodza-media-collage__picture:nth-child(3n):not(#_) {
+  margin-right: 0;
+  margin-left: calc(-1 * var(--kz-media-collage-bleed));
+}
+
+.kodza-media-collage--reverse .kodza-media-collage__picture:nth-child(3n) .kodza-media-collage__caption:not(#_) {
+  margin-left: var(--kz-media-collage-bleed);
+}
+
+@container kodza-media-collage (max-width: 900px) {
+  .kodza-media-collage__title:not(#_) {
+    max-width: 18ch;
+  }
+}

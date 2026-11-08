@@ -1,0 +1,613 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Text Section
+   A section of running text: the title on the left stays in view while the text scrolls past
+   it, the text on the right keeps a line short enough to read (64 characters at most). The
+   __body takes the site's own content as it is (paragraphs, h3, lists, quotes, links); the
+   __lead above it and the __sign under it are optional. --columns sets a short text on two
+   columns. Everything is tuned with the --kz-text-section-* variables, the timings with the
+   constants of the script. */
+.kodza-text-section {
+  --kz-text-section-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-text-section-body: color-mix(in srgb, var(--kz-text-section-ink) 84%, transparent); /* running text */
+  --kz-text-section-dim: color-mix(in srgb, var(--kz-text-section-ink) 66%, transparent);
+  --kz-text-section-rule: color-mix(in srgb, var(--kz-text-section-ink) 16%, transparent);
+  --kz-text-section-bg: transparent;
+  --kz-text-section-width: 1240px; /* the content column, the same as the other sections */
+  --kz-text-section-gutter: clamp(16px, 4vw, 40px); /* the space kept at the screen edges */
+  --kz-text-section-pad: clamp(56px, 7vw, 112px); /* above and below */
+  --kz-text-section-gap: clamp(32px, 5vw, 80px); /* between the title and the text */
+  --kz-text-section-head-span: 5fr; /* the title's share of the width… */
+  --kz-text-section-body-span: 7fr; /* …and the text's */
+  --kz-text-section-measure: 64ch; /* the longest line of text */
+  --kz-text-section-offset: 96px; /* how far from the top the title stays (room for a fixed header) */
+  --kz-text-section-size: clamp(16px, 1.25vw, 18px); /* running text */
+  --kz-text-section-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+
+  container: kodza-text-section / inline-size;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: var(--kz-text-section-pad);
+  padding-bottom: var(--kz-text-section-pad);
+  background: var(--kz-text-section-bg);
+  color: var(--kz-text-section-ink);
+}
+
+.kodza-text-section__inner {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, var(--kz-text-section-head-span)) minmax(0, var(--kz-text-section-body-span));
+  column-gap: var(--kz-text-section-gap);
+  align-items: start;
+  max-width: calc(var(--kz-text-section-width) + 2 * var(--kz-text-section-gutter));
+  margin: 0 auto;
+  padding-left: max(var(--kz-text-section-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-text-section-gutter), env(safe-area-inset-right, 0px));
+}
+
+/* The title stays in view while its text goes by */
+.kodza-text-section__head {
+  position: sticky;
+  top: var(--kz-text-section-offset);
+}
+
+.kodza-text-section__eyebrow {
+  margin: 0 0 20px;
+  font-family: var(--kz-font-label, var(--kz-text-section-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-text-section-dim);
+}
+
+.kodza-text-section__title {
+  max-width: 14ch;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(30px, 3.6vw, 48px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+  color: var(--kz-text-section-ink);
+}
+
+/* The text: the site's own markup, set for reading */
+.kodza-text-section__body {
+  max-width: var(--kz-text-section-measure);
+  font-size: var(--kz-text-section-size);
+  line-height: 1.65;
+  color: var(--kz-text-section-body);
+}
+
+.kodza-text-section__body > * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.kodza-text-section__body > * + * {
+  margin-top: 1.1em;
+}
+
+.kodza-text-section__body p {
+  text-wrap: pretty;
+}
+
+.kodza-text-section__lead {
+  font-size: calc(var(--kz-text-section-size) * 1.32);
+  font-weight: 500;
+  line-height: 1.42;
+  letter-spacing: -0.015em;
+  color: var(--kz-text-section-ink);
+}
+
+.kodza-text-section__body > .kodza-text-section__lead + * {
+  margin-top: 1.6em;
+}
+
+.kodza-text-section__body h3 {
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(20px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.3;
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-text-section-ink);
+}
+
+.kodza-text-section__body > * + h3 {
+  margin-top: 2em;
+}
+
+.kodza-text-section__body > h3 + * {
+  margin-top: 0.6em;
+}
+
+.kodza-text-section__body ul,
+.kodza-text-section__body ol {
+  padding-left: 1.25em;
+}
+
+.kodza-text-section__body li + li {
+  margin-top: 0.4em;
+}
+
+.kodza-text-section__body li::marker {
+  color: var(--kz-text-section-dim);
+}
+
+.kodza-text-section__body blockquote {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 20px;
+  border-left: 1px solid var(--kz-text-section-rule);
+  color: var(--kz-text-section-ink);
+}
+
+.kodza-text-section__body a {
+  color: var(--kz-text-section-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.kodza-text-section__body strong {
+  font-weight: 600;
+  color: var(--kz-text-section-ink);
+}
+
+.kodza-text-section__body code {
+  padding: 0.1em 0.35em;
+  border-radius: calc(5px * var(--kz-radius-scale, 1));
+  background: color-mix(in srgb, var(--kz-text-section-ink) 6%, transparent);
+  font-family: var(--kz-text-section-mono);
+  font-size: 0.88em;
+}
+
+.kodza-text-section__sign {
+  font-family: var(--kz-font-label, var(--kz-text-section-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-text-section-dim);
+}
+
+.kodza-text-section__body > * + .kodza-text-section__sign {
+  margin-top: 2.4em;
+}
+
+/* --columns: a short text on two columns, beside its title */
+.kodza-text-section--columns .kodza-text-section__body {
+  max-width: none;
+  columns: 2;
+  column-gap: clamp(24px, 3vw, 48px);
+}
+
+.kodza-text-section--columns .kodza-text-section__body > * {
+  break-inside: avoid;
+}
+
+/* Waiting for its entrance: the script sets is-shown as it comes into view, and plays the motion
+   in the same frame */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-text-section.is-ready:not(.is-shown) :is(.kodza-text-section__head > *, .kodza-text-section__body > *) {
+    opacity: 0;
+  }
+}
+
+/* A tablet: the title above its text, which no longer needs to stay in view */
+@container kodza-text-section (max-width: 860px) {
+  .kodza-text-section__inner {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 28px;
+  }
+
+  .kodza-text-section__head {
+    position: static;
+  }
+
+  .kodza-text-section__title {
+    max-width: 18ch;
+  }
+}
+
+@container kodza-text-section (max-width: 600px) {
+  .kodza-text-section--columns .kodza-text-section__body {
+    columns: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-text-section *,
+  .kodza-text-section *::before,
+  .kodza-text-section *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard e92e6cb3552b — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-text-section__eyebrow):not(#_),
+:where(.kodza-text-section__title):not(#_),
+:where(.kodza-text-section__lead):not(#_),
+:where(.kodza-text-section__sign):not(#_),
+:where(.kodza-text-section__body p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-text-section__body h3:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-text-section__body ul:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-text-section__body li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  margin-top: revert;
+  transition-duration: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-text-section__head:not(#_),
+.kodza-text-section__body:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-text-section__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-text-section__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-text-section__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-text-section__sign:not(#_),
+.kodza-text-section__body h3:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-text-section__body p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-text-section__body ul:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-left: revert;
+  padding-top: revert;
+  padding-right: revert;
+  padding-bottom: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-text-section__body li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-text-section__eyebrow:not(#_):where(:not([hidden])),
+.kodza-text-section__title:not(#_):where(:not([hidden])),
+.kodza-text-section__lead:not(#_):where(:not([hidden])),
+.kodza-text-section__sign:not(#_):where(:not([hidden])),
+.kodza-text-section__body p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-text-section__body h3:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-text-section__body ul:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-text-section__body li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-text-section__eyebrow:not(#_):where([hidden]),
+.kodza-text-section__title:not(#_):where([hidden]),
+.kodza-text-section__lead:not(#_):where([hidden]),
+.kodza-text-section__sign:not(#_):where([hidden]),
+.kodza-text-section__body p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-text-section__body h3:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-text-section__body ul:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-text-section__body li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-text-section__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-text-section__eyebrow:not(#_) {
+  margin: 0 0 20px;
+  font-family: var(--kz-font-label, var(--kz-text-section-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-text-section-dim);
+}
+
+.kodza-text-section__title:not(#_) {
+  max-width: 14ch;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(30px, 3.6vw, 48px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-text-section-ink);
+}
+
+.kodza-text-section__body > *:not(#_) {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.kodza-text-section__body > * + *:not(#_) {
+  margin-top: 1.1em;
+}
+
+.kodza-text-section__lead:not(#_) {
+  font-size: calc(var(--kz-text-section-size) * 1.32);
+  font-weight: 500;
+  line-height: 1.42;
+  letter-spacing: -0.015em;
+  color: var(--kz-text-section-ink);
+}
+
+.kodza-text-section__body > .kodza-text-section__lead + *:not(#_) {
+  margin-top: 1.6em;
+}
+
+.kodza-text-section__body h3:not(#_) {
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(20px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.3;
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-text-section-ink);
+}
+
+.kodza-text-section__body > * + h3:not(#_) {
+  margin-top: 2em;
+}
+
+.kodza-text-section__body > h3 + *:not(#_) {
+  margin-top: 0.6em;
+}
+
+.kodza-text-section__body ul:not(#_) {
+  padding-left: 1.25em;
+}
+
+.kodza-text-section__body li + li:not(#_) {
+  margin-top: 0.4em;
+}
+
+.kodza-text-section__sign:not(#_) {
+  font-family: var(--kz-font-label, var(--kz-text-section-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-text-section-dim);
+}
+
+.kodza-text-section__body > * + .kodza-text-section__sign:not(#_) {
+  margin-top: 2.4em;
+}
+
+@container kodza-text-section (max-width: 860px) {
+  .kodza-text-section__title:not(#_) {
+    max-width: 18ch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-text-section *:where(p, h2, h3, ul, li):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,390 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Statement
+   One big sentence, two to four lines, with a small mono label sitting in the indent of its
+   first line. The lines rise out of their masks as it comes into view. --quote turns it into a
+   quotation: a blockquote, the opening mark hung in the margin, the name and role in mono.
+   Everything is tuned with the --kz-statement-* variables. */
+.kodza-statement {
+  --kz-statement-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-statement-dim: color-mix(in srgb, var(--kz-statement-ink) 66%, transparent);
+  --kz-statement-faint: color-mix(in srgb, var(--kz-statement-ink) 60%, transparent);
+  --kz-statement-bg: transparent;
+  --kz-statement-width: 1240px; /* the content column, the same as the other sections */
+  --kz-statement-gutter: clamp(16px, 4vw, 40px); /* the space kept at the screen edges */
+  --kz-statement-pad: clamp(72px, 9vw, 140px); /* above and below */
+  --kz-statement-size: clamp(28px, 4cqi, 52px); /* the sentence, from the width it is given */
+  --kz-statement-indent: clamp(110px, 16cqi, 220px); /* the first line's indent, where the label sits */
+  --kz-statement-hang: 0.33em; /* --quote: how far the opening mark hangs out (its width in Geist) */
+  --kz-statement-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+
+  container: kodza-statement / inline-size;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: var(--kz-statement-pad);
+  padding-bottom: var(--kz-statement-pad);
+  background: var(--kz-statement-bg);
+  color: var(--kz-statement-ink);
+}
+
+/* The label and the sentence share the first row, on the same baseline: the label in the first
+   column, the sentence across both, its first line pushed past the label by the indent */
+.kodza-statement__inner {
+  display: grid;
+  grid-template-columns: var(--kz-statement-indent) minmax(0, 1fr);
+  box-sizing: border-box;
+  max-width: calc(var(--kz-statement-width) + 2 * var(--kz-statement-gutter));
+  margin: 0 auto;
+  padding-left: max(var(--kz-statement-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-statement-gutter), env(safe-area-inset-right, 0px));
+}
+
+.kodza-statement__label {
+  grid-area: 1 / 1;
+  align-self: first baseline;
+  min-width: 0;
+  margin: 0;
+  padding-right: 24px;
+  overflow: hidden;
+  font-family: var(--kz-font-label, var(--kz-statement-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-statement-faint);
+}
+
+.kodza-statement__text {
+  grid-area: 1 / 1 / 2 / -1;
+  align-self: first baseline;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-statement-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-statement-ink);
+}
+
+/* Each line is its own mask: the words rise from behind its bottom edge */
+.kodza-statement__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.kodza-statement__rise {
+  display: block;
+  text-wrap: balance; /* a line too long for its column breaks into two even halves */
+}
+
+.kodza-statement__line:first-child > .kodza-statement__rise {
+  text-indent: var(--kz-statement-indent);
+}
+
+/* --quote: the opening mark hangs in the indent, so the words line up, not the mark */
+.kodza-statement__mark {
+  margin-left: calc(-1 * var(--kz-statement-hang));
+}
+
+/* --quote: the line hanging out needs room on its mask */
+.kodza-statement--quote .kodza-statement__line:first-child {
+  margin-left: calc(-1 * var(--kz-statement-hang));
+  padding-left: var(--kz-statement-hang);
+}
+
+.kodza-statement__cite {
+  grid-area: 2 / 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin: 36px 0 0;
+  font-size: 15.5px;
+  font-style: normal;
+  line-height: 1.4;
+}
+
+.kodza-statement__name {
+  font-weight: 500;
+  color: var(--kz-statement-ink);
+}
+
+.kodza-statement__role {
+  font-family: var(--kz-font-label, var(--kz-statement-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-statement-faint);
+}
+
+/* Waiting for its entrance: the script sets is-shown as it comes into view, and plays the motion
+   in the same frame */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-statement.is-ready:not(.is-shown) .kodza-statement__rise {
+    transform: translateY(105%);
+  }
+
+  .kodza-statement.is-ready:not(.is-shown) .kodza-statement__cite {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+/* Narrow: the label goes above, the indent goes away, the mark hangs in the gutter */
+@container kodza-statement (max-width: 640px) {
+  .kodza-statement .kodza-statement__inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-statement .kodza-statement__label {
+    grid-area: 1 / 1;
+    margin-bottom: 18px;
+  }
+
+  .kodza-statement .kodza-statement__text {
+    grid-area: 2 / 1;
+  }
+
+  .kodza-statement .kodza-statement__line:first-child > .kodza-statement__rise {
+    text-indent: 0;
+  }
+
+  .kodza-statement .kodza-statement__cite {
+    grid-area: 3 / 1;
+    margin-top: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-statement *,
+  .kodza-statement *::before,
+  .kodza-statement *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard efdcec074fb4 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-statement__label):not(#_),
+:where(.kodza-statement__text):not(#_),
+:where(.kodza-statement__cite):not(#_) {
+  transition-duration: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-statement__inner:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  padding-top: revert;
+  padding-bottom: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-statement__label:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  padding-top: revert;
+  padding-bottom: revert;
+  padding-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-statement__rise:not(#_),
+.kodza-statement__line:not(#_),
+.kodza-statement__mark:not(#_),
+.kodza-statement__name:not(#_),
+.kodza-statement__role:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-statement__text:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-statement__cite:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-statement__label:not(#_):where(:not([hidden])),
+.kodza-statement__text:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-statement__label:not(#_):where([hidden]),
+.kodza-statement__text:not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-statement__inner:where(figure):not(#_) {
+  display: grid;
+  box-sizing: border-box;
+  max-width: calc(var(--kz-statement-width) + 2 * var(--kz-statement-gutter));
+  margin: 0 auto;
+  padding-left: max(var(--kz-statement-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-statement-gutter), env(safe-area-inset-right, 0px));
+}
+
+.kodza-statement__label:not(#_) {
+  margin: 0;
+  padding-right: 24px;
+  font-family: var(--kz-font-label, var(--kz-statement-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-statement-faint);
+}
+
+.kodza-statement__text:not(#_) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-statement-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-statement-ink);
+}
+
+.kodza-statement__cite:not(#_) {
+  display: flex;
+  margin: 36px 0 0;
+  font-size: 15.5px;
+  font-style: normal;
+  line-height: 1.4;
+}
+
+@container kodza-statement (max-width: 640px) {
+  .kodza-statement .kodza-statement__label:not(#_) {
+    margin-bottom: 18px;
+  }
+}
+
+@container kodza-statement (max-width: 640px) {
+  .kodza-statement .kodza-statement__cite:not(#_) {
+    margin-top: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-statement *:where(p, figure, blockquote, figcaption):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 208. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 216. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-208 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+216 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -386,7 +386,7 @@ Written like it's going live tomorrow. Because it probably is.
 | --- | --- | --- |
 | [Hero Centered](components/hero-centered/) | A centred hero with an announcement pill, a headline whose lines rise out of their masks, one sentence and two pill buttons. CSS only, the entrance plays on load. | [Demo](https://kodza.dev/components/hero-centered/) |
 | [Hero Collage](components/hero-collage/) | A centred hero with pictures scattered around the title: they open one after the other, then follow the mouse a little, each at its own depth. | [Demo](https://kodza.dev/components/hero-collage/) |
-| [Hero Cover](components/hero-cover/) | A cover hero: a full-width picture under a monochrome veil with the title at the bottom left. The picture opens from the top edge and settles, the title lines rise. CSS only. | [Demo](https://kodza.dev/components/hero-cover/) |
+| [Hero Cover](components/hero-cover/) | A cover hero: a full-width picture under a monochrome veil, the title at the bottom left. The picture opens from the top edge, the title lines rise. A modifier sets it mid-page, played on scroll. | [Demo](https://kodza.dev/components/hero-cover/) |
 | [Hero Event](components/hero-event/) | An event hero that counts down to the start date in its markup, each digit dropping out of its window, then gives way to "Live now" at the start and to the replay link at the end. | [Demo](https://kodza.dev/components/hero-event/) |
 | [Hero Exit](components/hero-exit/) | A centred title in two big lines. On scroll the scene holds, the lines part, a picture opens between them and tightens into a card, then the next section slides over it. | [Demo](https://kodza.dev/components/hero-exit/) |
 | [Hero Expand](components/hero-expand/) | A big title with a small picture set between two words. On scroll the scene pins, the picture opens to full screen and pushes the words aside, then a caption and a button rise. Scroll back up: it rewinds. | [Demo](https://kodza.dev/components/hero-expand/) |
@@ -401,6 +401,21 @@ Written like it's going live tomorrow. Because it probably is.
 | [Hero Split](components/hero-split/) | A split hero, words on the left and a 4:5 picture on the right: the title lines rise out of their masks while the picture opens from the top edge down. | [Demo](https://kodza.dev/components/hero-split/) |
 | [Hero Statement](components/hero-statement/) | A studio statement set very large over a mono line with the city, a live local time and the booking window. The words rise out of their masks one after the other on load. | [Demo](https://kodza.dev/components/hero-statement/) |
 | [Hero Wordmark](components/hero-wordmark/) | A hero that sets the name across the whole width, ink edge to ink edge: its letters rise one by one and a wide picture opens right under them. | [Demo](https://kodza.dev/components/hero-wordmark/) |
+
+</details>
+
+<details>
+<summary><b>Content sections</b> · 7</summary>
+
+| Component | What it does | |
+| --- | --- | --- |
+| [Key Points](components/key-points/) | Three to six facts on 1 px hairlines that draw across as each row comes into view: a term and its sentence in rows, or columns. A big figure can lead each point, its digits rolling into place. | [Demo](https://kodza.dev/components/key-points/) |
+| [Media Collage](components/media-collage/) | A text beside three pictures of different shapes set off from each other, the wide one running out to the screen edge. The text stays in view, and each picture is uncovered from its top edge in turn. | [Demo](https://kodza.dev/components/media-collage/) |
+| [Media Text](components/media-text/) | A content section with a picture on one side and the words on the other. Rows alternate sides on their own, a picture beside a long text stays put as you scroll, and each row enters as it comes into view. | [Demo](https://kodza.dev/components/media-text/) |
+| [Media Wide](components/media-wide/) | One wide picture between a head and a few short notes: title and intro side by side, the picture across the column (or the whole screen) uncovered from its top edge, then a mono caption. | [Demo](https://kodza.dev/components/media-wide/) |
+| [Section Intro](components/section-intro/) | The head of a section on its own: a mono label, a tight title and a short intro, set beside the title on its first line, under it or centred. It plays its entrance once, as it comes into view. | [Demo](https://kodza.dev/components/section-intro/) |
+| [Statement](components/statement/) | One big sentence of two to four lines, with a mono label in the indent of its first line. Its lines rise from their masks as it comes into view. A modifier makes it a quote with the name and role. | [Demo](https://kodza.dev/components/statement/) |
+| [Text Section](components/text-section/) | A section of running text: the title stays in view on the left while the text, kept to 64 characters a line, scrolls past. It takes paragraphs, lists and quotes as they are. A modifier sets it on two columns. | [Demo](https://kodza.dev/components/text-section/) |
 
 </details>
 
@@ -448,12 +463,13 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Contact</b> · 3</summary>
+<summary><b>Contact</b> · 4</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
 | [Book a Visit](components/book-a-visit/) | A booking form: the coming days, the free times worked out from the opening hours, name and email. On send it rolls up into the answer, with Add to calendar as an .ics file. | [Demo](https://kodza.dev/components/book-a-visit/) |
 | [Contact Brief](components/contact-brief/) | A project request section: tags for what is needed, a budget and a time frame picked on a sliding pill, name and email. A summary of the brief writes itself as you pick; sent, the form rolls into a receipt. | [Demo](https://kodza.dev/components/contact-brief/) |
+| [Contact Router](components/contact-router/) | A contact section that asks what it is about first: Sales, Support, Press or Jobs. The fields become the ones that desk needs, the button names who reads it, Support links to help. Sent, it rolls into a receipt. | [Demo](https://kodza.dev/components/contact-router/) |
 | [Contact Split](components/contact-split/) | A contact section: the email to copy, phone, address and a status worked out from the opening hours; a short form that rolls into the thanks. A variant for a place shows the week of hours. | [Demo](https://kodza.dev/components/contact-split/) |
 
 </details>

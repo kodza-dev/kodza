@@ -1,0 +1,2383 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Contact Router
+   One form for every desk. "What's this about?" comes first, four cards; the fields below turn
+   into the ones that desk needs: what stays slides to its new place, what goes leaves while the
+   new ones come in, and the height follows. A reason can be a link instead (Support → the help
+   center). Hidden fields are disabled, so they are neither checked nor sent. Sent, the form rolls
+   into a receipt: which desk, when it answers, where.
+   The settings come first (the variables below); the script sets its words (WORDS) and its
+   timings (the constants under SELECTOR). */
+.kodza-contact-router {
+  --kz-contact-router-width: 1200px; /* widest the section gets */
+  --kz-contact-router-gap: 64px; /* between the two columns */
+  --kz-contact-router-field: var(--kz-color-paper, #ffffff); /* inside the fields, and the cards */
+  --kz-contact-router-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-contact-router-muted: color-mix(in srgb, var(--kz-contact-router-fg) 62%, transparent);
+  --kz-contact-router-line: color-mix(in srgb, var(--kz-contact-router-fg) 10%, transparent);
+  --kz-contact-router-soft: color-mix(in srgb, var(--kz-contact-router-fg) 5%, transparent); /* a card under the pointer */
+  --kz-contact-router-halo: color-mix(in srgb, var(--kz-contact-router-fg) 6%, transparent); /* around a focused field */
+  --kz-contact-router-ink: var(--kz-color-accent, var(--kz-contact-router-fg)); /* a picked card, the send button, focus rings */
+  --kz-contact-router-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--kz-contact-router-width);
+  margin: 0 auto;
+  color: var(--kz-contact-router-fg);
+  font-family: inherit;
+  text-align: left;
+  container-type: inline-size;
+}
+
+/* The small mono labels: the eyebrow, the status, a group's name */
+.kodza-contact-router__eyebrow,
+.kodza-contact-router__meta,
+.kodza-contact-router__key,
+.kodza-contact-router__row > dt {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--kz-contact-router-line);
+}
+
+.kodza-contact-router__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--kz-contact-router-fg);
+}
+
+.kodza-contact-router__dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kz-contact-router-fg);
+}
+
+/* A word that rolls: the old one goes up, the new one comes from below */
+.kodza-contact-router__roll {
+  display: inline-grid;
+  align-items: center;
+}
+
+.kodza-contact-router__roll > * {
+  grid-area: 1 / 1;
+  justify-self: start;
+  white-space: nowrap;
+}
+
+.kodza-contact-router .is-rolling {
+  overflow: clip;
+}
+
+/* The title on the left, the lead on the right, over the two columns below */
+.kodza-contact-router__head,
+.kodza-contact-router__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px var(--kz-contact-router-gap);
+}
+
+.kodza-contact-router__head {
+  align-items: end;
+  padding: 64px 0 56px;
+}
+
+.kodza-contact-router__title {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(40px, 6cqi, 72px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.98;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+  color: inherit;
+}
+
+.kodza-contact-router__lead {
+  max-width: 40ch;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  text-wrap: balance;
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__inner {
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  align-items: start;
+  padding-top: 40px;
+  border-top: 1px solid var(--kz-contact-router-line);
+}
+
+/* Who reads it: one line per desk, the picked one lit, then the address for those who'd rather write */
+.kodza-contact-router__aside .kodza-contact-router__key {
+  margin-bottom: 12px;
+}
+
+.kodza-contact-router__desks {
+  display: grid;
+  margin: 0 0 40px;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-contact-router__desk {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 4px 0;
+  margin: 0;
+  padding: 18px 0;
+  border-top: 1px solid var(--kz-contact-router-line);
+}
+
+.kodza-contact-router__desk:last-child {
+  border-bottom: 1px solid var(--kz-contact-router-line);
+}
+
+.kodza-contact-router__pip {
+  grid-row: 1 / span 2;
+  width: 8px;
+  height: 8px;
+  margin-top: 8px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-router-muted);
+  transition: background-color calc(0.3s * var(--kz-motion-scale, 1)) ease, box-shadow calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-contact-router__desk.is-current .kodza-contact-router__pip {
+  background-color: var(--kz-contact-router-fg);
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-router-fg);
+}
+
+.kodza-contact-router__what {
+  margin: 0;
+  transition: color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.kodza-contact-router.has-desk .kodza-contact-router__desk:not(.is-current) .kodza-contact-router__what {
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__how {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  text-wrap: pretty;
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__mail {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--kz-contact-router-line);
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-contact-router__mail:hover {
+    text-decoration-color: var(--kz-contact-router-fg);
+  }
+}
+
+/* The form, straight on the section */
+.kodza-contact-router__form {
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--kz-contact-router-fg);
+}
+
+.kodza-contact-router__stage .kodza-contact-router__key {
+  margin-bottom: 16px;
+}
+
+/* The form and the answer share one cell: the height goes from one to the other */
+.kodza-contact-router__stage {
+  display: grid;
+  align-items: start;
+}
+
+.kodza-contact-router__stage > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+/* A group of choices: its name above, then the tags or the track */
+.kodza-contact-router__group {
+  min-width: 0;
+  margin: 0 0 28px;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-contact-router__group > legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+}
+
+.kodza-contact-router__group > legend + * {
+  clear: both;
+}
+
+/* What's this about: four cards. The real radio covers its card, so a click anywhere picks it.
+   The sweep is a typed angle so it can transition. "\3c" is the less-than sign, escaped because
+   WordPress refuses one in Additional CSS */
+@property --kz-contact-router-sweep {
+  syntax: "\3c angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.kodza-contact-router__reasons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.kodza-contact-router__reason {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: 18px;
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-contact-router-field);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-router-line);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease, transform calc(0.2s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The ink border: drawn from the mark's corner, both ways, and it meets at the opposite one */
+.kodza-contact-router__reason::after {
+  --kz-contact-router-sweep: 0deg;
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border: 1.5px solid var(--kz-contact-router-ink);
+  border-radius: inherit;
+  -webkit-mask: conic-gradient(from calc(48deg - var(--kz-contact-router-sweep)), #000 calc(2 * var(--kz-contact-router-sweep)), transparent 0);
+  mask: conic-gradient(from calc(48deg - var(--kz-contact-router-sweep)), #000 calc(2 * var(--kz-contact-router-sweep)), transparent 0);
+  pointer-events: none;
+  transition: --kz-contact-router-sweep calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-contact-router__reason:has(.kodza-contact-router__radio:checked)::after {
+  --kz-contact-router-sweep: 180deg;
+  transition-duration: calc(0.6s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-router__radio {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+/* The mark: an empty ring at rest, ink grows from its centre and the check draws in */
+.kodza-contact-router__mark {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--kz-contact-router-fg) 24%, transparent);
+  pointer-events: none;
+}
+
+.kodza-contact-router__mark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--kz-contact-router-ink);
+  transform: scale(0);
+  transition: transform calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-contact-router__svg {
+  position: relative;
+  display: block;
+  overflow: visible;
+}
+
+.kodza-contact-router__check {
+  fill: none;
+  stroke: var(--kz-contact-router-on-ink);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset calc(0.2s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-contact-router__radio:checked ~ .kodza-contact-router__mark::before {
+  transform: scale(1);
+}
+
+.kodza-contact-router__radio:checked ~ .kodza-contact-router__mark .kodza-contact-router__check {
+  stroke-dashoffset: 0;
+  transition-duration: calc(0.32s * var(--kz-motion-scale, 1));
+  transition-delay: calc(0.12s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-router__name {
+  padding-right: 28px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.kodza-contact-router__text {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--kz-contact-router-muted);
+  text-wrap: pretty;
+}
+
+@media (hover: hover) {
+  .kodza-contact-router__reason:hover {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kz-contact-router-fg) 24%, transparent);
+  }
+}
+
+.kodza-contact-router__reason:active {
+  transform: scale(0.99);
+}
+
+/* A group left empty at sending: its frame turns to ink, the message says why */
+.kodza-contact-router__group.is-error .kodza-contact-router__reason:not(:has(.kodza-contact-router__radio:checked)) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-router-ink);
+}
+
+/* The receipt, after sending: what you asked for, each line rising from behind its mask */
+.kodza-contact-router__recap {
+  margin: 24px 0 0;
+}
+
+.kodza-contact-router__row {
+  display: grid;
+  grid-template-columns: minmax(0, 120px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: baseline;
+  padding: 14px 0;
+  border-top: 1px solid var(--kz-contact-router-line);
+}
+
+.kodza-contact-router__row:last-child {
+  border-bottom: 1px solid var(--kz-contact-router-line);
+}
+
+.kodza-contact-router__row > dd {
+  margin: 0;
+  overflow: clip;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.kodza-contact-router__row > dd > span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+/* The fields of the picked desk. While they change, the grid clips what leaves */
+.kodza-contact-router__flow {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 12px;
+}
+
+.kodza-contact-router__flow > [hidden] {
+  display: none;
+}
+
+.kodza-contact-router__flow.is-moving {
+  overflow: clip;
+}
+
+.kodza-contact-router__box--area,
+.kodza-contact-router__away,
+.kodza-contact-router__foot,
+.kodza-contact-router__privacy {
+  grid-column: 1 / -1;
+}
+
+.kodza-contact-router__box {
+  position: relative;
+  display: block;
+  height: 56px;
+  margin: 0;
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+  background: var(--kz-contact-router-field);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-router-line);
+  cursor: text;
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-router__box:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-router-ink), 0 0 0 4px var(--kz-contact-router-halo);
+}
+
+.kodza-contact-router__box:has([aria-invalid="true"]) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-router-ink);
+}
+
+.kodza-contact-router__box:has([aria-invalid="true"]):focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-router-ink), 0 0 0 4px var(--kz-contact-router-halo);
+}
+
+.kodza-contact-router__input {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 22px 16px 6px;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 16px;
+  line-height: 22px;
+  appearance: none;
+  outline: none;
+  box-shadow: none;
+}
+
+/* The message: its box grows with the text, then scrolls */
+.kodza-contact-router__box--area {
+  grid-column: 1 / -1;
+  height: auto;
+}
+
+.kodza-contact-router__area {
+  position: relative;
+  display: block;
+  min-height: 132px;
+  max-height: 320px;
+  padding: 26px 16px 30px;
+  overflow-y: hidden;
+  resize: none;
+}
+
+.kodza-contact-router__area.is-long {
+  overflow-y: auto;
+}
+
+.kodza-contact-router__label {
+  position: absolute;
+  top: 28px;
+  left: 16px;
+  max-width: calc(100% - 32px);
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--kz-contact-router-muted);
+  pointer-events: none;
+  transform: translateY(-50%);
+  transform-origin: left center;
+  transition: transform calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-contact-router__input:focus + .kodza-contact-router__label,
+.kodza-contact-router__input:not(:placeholder-shown) + .kodza-contact-router__label {
+  transform: translateY(calc(-50% - 14px)) scale(0.8);
+}
+
+.kodza-contact-router__box--area .kodza-contact-router__input:focus + .kodza-contact-router__label,
+.kodza-contact-router__box--area .kodza-contact-router__input:not(:placeholder-shown) + .kodza-contact-router__label {
+  transform: translateY(calc(-50% - 12px)) scale(0.8);
+}
+
+/* Team size: pills on real radios, one pick, the ink fills the one you pick */
+.kodza-contact-router__box--wide,
+.kodza-contact-router__sizes {
+  grid-column: 1 / -1;
+}
+
+.kodza-contact-router__sizes {
+  min-width: 0;
+  margin: 4px 0 4px;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-contact-router__stage .kodza-contact-router__sizes .kodza-contact-router__key {
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+.kodza-contact-router__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kodza-contact-router__size {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-contact-router-field);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-router-line);
+  color: var(--kz-contact-router-fg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color calc(0.25s * var(--kz-motion-scale, 1)), color calc(0.25s * var(--kz-motion-scale, 1)), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-router__size:has(.kodza-contact-router__pick:checked) {
+  background: var(--kz-contact-router-ink);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-router-ink);
+  color: var(--kz-contact-router-on-ink);
+}
+
+@media (hover: hover) {
+  .kodza-contact-router__size:not(:has(.kodza-contact-router__pick:checked)):hover {
+    background: var(--kz-contact-router-soft);
+    box-shadow: inset 0 0 0 1px var(--kz-contact-router-fg);
+  }
+}
+
+.kodza-contact-router__pick {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* A reason that is only a link: Support sends you where the answer already is */
+.kodza-contact-router__away {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  box-sizing: border-box;
+  padding: 20px;
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-contact-router-field);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-router-line);
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-contact-router__gist {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.kodza-contact-router__away-title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.kodza-contact-router__away-text {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--kz-contact-router-muted);
+  text-wrap: pretty;
+}
+
+.kodza-contact-router__arrow {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-contact-router-ink);
+  transition: transform calc(0.25s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-contact-router__arrow svg {
+  display: block;
+  fill: none;
+  stroke: var(--kz-contact-router-on-ink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (hover: hover) {
+  .kodza-contact-router__away:hover {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kz-contact-router-fg) 24%, transparent);
+  }
+
+  .kodza-contact-router__away:hover .kodza-contact-router__arrow {
+    transform: translateX(3px);
+  }
+}
+
+.kodza-contact-router__count {
+  position: absolute;
+  right: 14px;
+  bottom: 10px;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--kz-contact-router-muted);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity calc(0.25s * var(--kz-motion-scale, 1)), transform calc(0.25s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-contact-router__box.is-near .kodza-contact-router__count {
+  opacity: 1;
+  transform: none;
+}
+
+/* Robots fill it, people never see it */
+.kodza-contact-router__trap {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-contact-router__trap input {
+  box-sizing: border-box;
+}
+
+.kodza-contact-router__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+/* Help and error share one line, and swap */
+.kodza-contact-router__note {
+  display: grid;
+  flex: 1 1 200px;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__help,
+.kodza-contact-router__error {
+  grid-area: 1 / 1;
+  transition: opacity calc(0.25s * var(--kz-motion-scale, 1)), transform calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear calc(0.35s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-router__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--kz-contact-router-fg);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+}
+
+.kodza-contact-router__error::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 0.1em;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm0 3.25a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0V5A.75.75 0 0 1 8 4.25Zm0 7.75a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm0 3.25a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0V5A.75.75 0 0 1 8 4.25Zm0 7.75a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-contact-router__form.is-error .kodza-contact-router__help {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+}
+
+.kodza-contact-router__form.is-error .kodza-contact-router__error {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+/* The send button: the spinner takes the word's place, the width stays */
+.kodza-contact-router__send {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  height: 52px;
+  margin: 0;
+  padding: 0 24px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-contact-router-ink);
+  color: var(--kz-contact-router-on-ink);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), opacity calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-router__word,
+.kodza-contact-router__spinner {
+  grid-area: 1 / 1;
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)), transform calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-contact-router__spinner {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.6);
+  animation: kodza-contact-router-spin calc(0.8s * var(--kz-motion-scale, 1)) linear infinite;
+}
+
+.kodza-contact-router__send[aria-busy="true"] {
+  cursor: progress;
+}
+
+.kodza-contact-router__send[aria-busy="true"] .kodza-contact-router__word {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.kodza-contact-router__send[aria-busy="true"] .kodza-contact-router__spinner {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes kodza-contact-router-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.kodza-contact-router__send:active,
+.kodza-contact-router__again:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .kodza-contact-router__send:hover {
+    opacity: 0.86;
+  }
+}
+
+.kodza-contact-router__privacy {
+  margin: 6px 0 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__privacy a {
+  color: var(--kz-contact-router-fg);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* The answer */
+.kodza-contact-router__done {
+  padding: 4px 0;
+}
+
+.kodza-contact-router__thanks {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(30px, 3.6cqi, 44px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+  outline: none;
+}
+
+.kodza-contact-router__next {
+  max-width: 44ch;
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__next [data-value] {
+  color: var(--kz-contact-router-fg);
+  overflow-wrap: anywhere;
+}
+
+.kodza-contact-router__again {
+  height: 44px;
+  margin: 24px 0 0;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-contact-router-line);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-contact-router__again:hover {
+    box-shadow: inset 0 0 0 1px var(--kz-contact-router-fg);
+  }
+}
+
+.kodza-contact-router__mail:focus-visible,
+.kodza-contact-router__send:focus-visible,
+.kodza-contact-router__again:focus-visible,
+.kodza-contact-router__privacy a:focus-visible,
+.kodza-contact-router__away:focus-visible,
+.kodza-contact-router__size:has(.kodza-contact-router__pick:focus-visible) {
+  outline: 2px solid var(--kz-contact-router-ink);
+  outline-offset: 2px;
+}
+
+.kodza-contact-router__reason:has(.kodza-contact-router__radio:focus-visible) {
+  outline: 2px solid var(--kz-contact-router-ink);
+  outline-offset: 3px;
+}
+
+.kodza-contact-router__panel[hidden],
+.kodza-contact-router__done[hidden] {
+  display: none;
+}
+
+/* A narrow column (a sidebar, a theme's text column): one column */
+@container (max-width: 760px) {
+  .kodza-contact-router__head,
+  .kodza-contact-router__inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-contact-router__head {
+    gap: 20px;
+    padding: 40px 0 36px;
+  }
+
+  .kodza-contact-router__inner {
+    gap: 48px;
+    padding-top: 32px;
+  }
+
+  /* On a phone the form comes first, the desks after it */
+  .kodza-contact-router__aside {
+    order: 1;
+  }
+}
+
+/* Two columns, but the form's one is too narrow for four cards in a row: two by two */
+@container (min-width: 761px) and (max-width: 1000px) {
+  .kodza-contact-router__reasons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* A phone: one field per line, the four reasons two by two */
+@container (max-width: 480px) {
+  .kodza-contact-router__flow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-contact-router__reasons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kodza-contact-router__reason {
+    padding: 16px;
+  }
+
+  .kodza-contact-router__name {
+    font-size: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-contact-router,
+  .kodza-contact-router *,
+  .kodza-contact-router *::before,
+  .kodza-contact-router *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .kodza-contact-router__spinner {
+    animation: none;
+  }
+}
+
+/* Dark: set the variables on the section, or on a parent
+.kodza-contact-router {
+  --kz-contact-router-field: #161616;
+  --kz-contact-router-fg: #f2f2f0;
+  --kz-contact-router-muted: rgba(242, 242, 240, 0.62);
+  --kz-contact-router-line: rgba(255, 255, 255, 0.12);
+  --kz-contact-router-soft: rgba(255, 255, 255, 0.06);
+  --kz-contact-router-halo: rgba(255, 255, 255, 0.08);
+  --kz-contact-router-ink: #f2f2f0;
+  --kz-contact-router-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard fc9c14548b3e — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-contact-router__eyebrow):not(#_),
+:where(.kodza-contact-router__meta):not(#_),
+:where(.kodza-contact-router__title):not(#_),
+:where(.kodza-contact-router__lead):not(#_),
+:where(.kodza-contact-router__desks):not(#_),
+:where(.kodza-contact-router__how):not(#_),
+:where(.kodza-contact-router__form):not(#_),
+:where(.kodza-contact-router__group):not(#_),
+:where(.kodza-contact-router__radio):not(#_),
+:where(.kodza-contact-router__svg):not(#_),
+:where(.kodza-contact-router__sizes):not(#_),
+:where(.kodza-contact-router__pick):not(#_),
+:where(.kodza-contact-router__trap):not(#_),
+:where(.kodza-contact-router__note):not(#_),
+:where(.kodza-contact-router__privacy):not(#_),
+:where(.kodza-contact-router__thanks):not(#_),
+:where(.kodza-contact-router__recap):not(#_),
+:where(.kodza-contact-router__next):not(#_),
+:where(.kodza-contact-router__trap input:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-contact-router__arrow svg:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-contact-router__row dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-router__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-contact-router__row dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-router__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-contact-router__key):not(#_) {
+  padding: revert;
+  float: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-contact-router__desk):not(#_) {
+  border-bottom-width: revert;
+  border-bottom-style: revert;
+  border-bottom-color: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-contact-router__what):not(#_) {
+  color: revert;
+}
+
+:where(.kodza-contact-router__mail):not(#_),
+:where(.kodza-contact-router__reason):not(#_),
+:where(.kodza-contact-router__size):not(#_),
+:where(.kodza-contact-router__away):not(#_),
+:where(.kodza-contact-router__send):not(#_),
+:where(.kodza-contact-router__again):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-contact-router__input):not(#_) {
+  max-height: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+  min-height: revert;
+}
+
+:where(.kodza-contact-router__privacy a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-contact-router__input):not(#_):where(:not([hidden])),
+:where(.kodza-contact-router__sizes):not(#_):where(:not([hidden])),
+:where(.kodza-contact-router__trap):not(#_):where(:not([hidden])),
+:where(.kodza-contact-router__privacy):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-contact-router__input):not(#_):where([hidden]),
+:where(.kodza-contact-router__sizes):not(#_):where([hidden]),
+:where(.kodza-contact-router__trap):not(#_):where([hidden]),
+:where(.kodza-contact-router__privacy):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-contact-router__bar:not(#_),
+.kodza-contact-router__dot:not(#_),
+.kodza-contact-router__head:not(#_),
+.kodza-contact-router__inner:not(#_),
+.kodza-contact-router__aside:not(#_),
+.kodza-contact-router__pip:not(#_),
+.kodza-contact-router__stage:not(#_),
+.kodza-contact-router__panel:not(#_),
+.kodza-contact-router__reasons:not(#_),
+.kodza-contact-router__mark:not(#_),
+.kodza-contact-router__check:not(#_),
+.kodza-contact-router__name:not(#_),
+.kodza-contact-router__text:not(#_),
+.kodza-contact-router__flow:not(#_),
+.kodza-contact-router__label:not(#_),
+.kodza-contact-router__pills:not(#_),
+.kodza-contact-router__said:not(#_),
+.kodza-contact-router__roll:not(#_),
+.kodza-contact-router__count:not(#_),
+.kodza-contact-router__gist:not(#_),
+.kodza-contact-router__away-title:not(#_),
+.kodza-contact-router__away-text:not(#_),
+.kodza-contact-router__arrow:not(#_),
+.kodza-contact-router__foot:not(#_),
+.kodza-contact-router__help:not(#_),
+.kodza-contact-router__error:not(#_),
+.kodza-contact-router__word:not(#_),
+.kodza-contact-router__done:not(#_),
+.kodza-contact-router__row:not(#_),
+.kodza-contact-router__thanks span:where(:not([class*="kodza-"])):not(#_),
+.kodza-contact-router__row span:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-router__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-contact-router__eyebrow:not(#_),
+.kodza-contact-router__meta:not(#_),
+.kodza-contact-router__title:not(#_),
+.kodza-contact-router__note:not(#_),
+.kodza-contact-router__privacy:not(#_),
+.kodza-contact-router__row dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-router__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-router__lead:not(#_),
+.kodza-contact-router__next:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-router__key:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+}
+
+.kodza-contact-router__desks:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-router__desk:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-router__what:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-contact-router__how:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-router__mail:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-contact-router__form:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-router__group:not(#_),
+.kodza-contact-router__sizes:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-router__reason:not(#_) {
+  border: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-contact-router__radio:not(#_),
+.kodza-contact-router__pick:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-contact-router__svg:not(#_),
+.kodza-contact-router__trap:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-router__box:not(#_) {
+  border: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-contact-router__input:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  max-width: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+}
+
+.kodza-contact-router__size:not(#_) {
+  border: revert;
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-contact-router__away:not(#_) {
+  border: revert;
+  margin: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-contact-router__send:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-contact-router__thanks:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-router__recap:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-router__again:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-contact-router__trap input:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-contact-router__arrow svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-router__privacy a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-router__row dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-router__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-contact-router__eyebrow:not(#_):where(:not([hidden])),
+.kodza-contact-router__title:not(#_):where(:not([hidden])),
+.kodza-contact-router__lead:not(#_):where(:not([hidden])),
+.kodza-contact-router__key:not(#_):where(:not([hidden])),
+.kodza-contact-router__what:not(#_):where(:not([hidden])),
+.kodza-contact-router__how:not(#_):where(:not([hidden])),
+.kodza-contact-router__mail:not(#_):where(:not([hidden])),
+.kodza-contact-router__form:not(#_):where(:not([hidden])),
+.kodza-contact-router__group:not(#_):where(:not([hidden])),
+.kodza-contact-router__radio:not(#_):where(:not([hidden])),
+.kodza-contact-router__pick:not(#_):where(:not([hidden])),
+.kodza-contact-router__thanks:not(#_):where(:not([hidden])),
+.kodza-contact-router__recap:not(#_):where(:not([hidden])),
+.kodza-contact-router__next:not(#_):where(:not([hidden])),
+.kodza-contact-router__again:not(#_):where(:not([hidden])),
+.kodza-contact-router__trap input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-contact-router__privacy a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-contact-router__row dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-router__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-contact-router__row dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-router__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-contact-router__eyebrow:not(#_):where([hidden]),
+.kodza-contact-router__title:not(#_):where([hidden]),
+.kodza-contact-router__lead:not(#_):where([hidden]),
+.kodza-contact-router__key:not(#_):where([hidden]),
+.kodza-contact-router__what:not(#_):where([hidden]),
+.kodza-contact-router__how:not(#_):where([hidden]),
+.kodza-contact-router__mail:not(#_):where([hidden]),
+.kodza-contact-router__form:not(#_):where([hidden]),
+.kodza-contact-router__group:not(#_):where([hidden]),
+.kodza-contact-router__radio:not(#_):where([hidden]),
+.kodza-contact-router__pick:not(#_):where([hidden]),
+.kodza-contact-router__thanks:not(#_):where([hidden]),
+.kodza-contact-router__recap:not(#_):where([hidden]),
+.kodza-contact-router__next:not(#_):where([hidden]),
+.kodza-contact-router__again:not(#_):where([hidden]),
+.kodza-contact-router__trap input:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-contact-router__privacy a:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-contact-router__row dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-router__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-contact-router__row dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-contact-router__row :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-contact-router__radio:not(#_)::after,
+.kodza-contact-router__mark:not(#_)::before,
+.kodza-contact-router__error:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-contact-router:not(#_) {
+  width: min(100%, var(--kz-contact-router-width));
+}
+
+.kodza-contact-router__eyebrow:not(#_),
+.kodza-contact-router__meta:not(#_),
+.kodza-contact-router__key:not(#_),
+.kodza-contact-router__row > dt:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__meta:not(#_) {
+  display: inline-flex;
+  color: var(--kz-contact-router-fg);
+}
+
+.kodza-contact-router .is-rolling:not(#_) {
+  overflow: clip;
+}
+
+.kodza-contact-router__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(40px, 6cqi, 72px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.98;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, none);
+  color: inherit;
+}
+
+.kodza-contact-router__lead:not(#_) {
+  max-width: 40ch;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__aside .kodza-contact-router__key:not(#_) {
+  margin-bottom: 12px;
+}
+
+.kodza-contact-router__desks:not(#_) {
+  display: grid;
+  margin: 0 0 40px;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-contact-router__desk:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 18px 0;
+  border-top: 1px solid var(--kz-contact-router-line);
+}
+
+.kodza-contact-router__desk:last-child:not(#_) {
+  border-bottom: 1px solid var(--kz-contact-router-line);
+}
+
+.kodza-contact-router__what:not(#_) {
+  margin: 0;
+  transition: color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.kodza-contact-router.has-desk .kodza-contact-router__desk:not(.is-current) .kodza-contact-router__what:not(#_) {
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__how:not(#_) {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__mail:not(#_) {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--kz-contact-router-line);
+  text-underline-offset: 4px;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-contact-router__mail:hover:not(#_) {
+    text-decoration-color: var(--kz-contact-router-fg);
+  }
+}
+
+.kodza-contact-router__form:not(#_) {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--kz-contact-router-fg);
+}
+
+.kodza-contact-router__stage .kodza-contact-router__key:not(#_) {
+  margin-bottom: 16px;
+}
+
+.kodza-contact-router__group:not(#_) {
+  margin: 0 0 28px;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-contact-router__group > legend:not(#_) {
+  float: left;
+  padding: 0;
+}
+
+.kodza-contact-router__reason:not(#_) {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 18px;
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-contact-router-field);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-router-line);
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease, transform calc(0.2s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-contact-router__radio:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.kodza-contact-router__svg:not(#_) {
+  position: relative;
+  display: block;
+}
+
+.kodza-contact-router__radio:checked ~ .kodza-contact-router__mark .kodza-contact-router__check:not(#_) {
+  transition-duration: calc(0.32s * var(--kz-motion-scale, 1));
+  transition-delay: calc(0.12s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-contact-router__reason:hover:not(#_) {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kz-contact-router-fg) 24%, transparent);
+  }
+}
+
+.kodza-contact-router__group.is-error .kodza-contact-router__reason:not(:has(.kodza-contact-router__radio:checked)):not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-router-ink);
+}
+
+.kodza-contact-router__recap:not(#_) {
+  margin: 24px 0 0;
+}
+
+.kodza-contact-router__row > dd:not(#_) {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.kodza-contact-router__flow > [hidden]:where(label, fieldset, a, p):not(#_) {
+  display: none;
+}
+
+.kodza-contact-router__flow.is-moving:not(#_) {
+  overflow: clip;
+}
+
+.kodza-contact-router__box:not(#_) {
+  position: relative;
+  display: block;
+  margin: 0;
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+  background: var(--kz-contact-router-field);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-router-line);
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-router__box:focus-within:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-router-ink), 0 0 0 4px var(--kz-contact-router-halo);
+}
+
+.kodza-contact-router__box:has([aria-invalid="true"]):not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-router-ink);
+}
+
+.kodza-contact-router__box:has([aria-invalid="true"]):focus-within:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-contact-router-ink), 0 0 0 4px var(--kz-contact-router-halo);
+}
+
+.kodza-contact-router__input:not(#_) {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 22px 16px 6px;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 16px;
+  line-height: 22px;
+  appearance: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.kodza-contact-router__area:not(#_) {
+  position: relative;
+  display: block;
+  min-height: 132px;
+  max-height: 320px;
+  padding: 26px 16px 30px;
+  overflow-y: hidden;
+  resize: none;
+}
+
+.kodza-contact-router__area.is-long:not(#_) {
+  overflow-y: auto;
+}
+
+.kodza-contact-router__sizes:not(#_) {
+  margin: 4px 0 4px;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-contact-router__stage .kodza-contact-router__sizes .kodza-contact-router__key:not(#_) {
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+.kodza-contact-router__size:not(#_) {
+  position: relative;
+  display: inline-flex;
+  padding: 0 16px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-contact-router-field);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-router-line);
+  color: var(--kz-contact-router-fg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  transition: background-color calc(0.25s * var(--kz-motion-scale, 1)), color calc(0.25s * var(--kz-motion-scale, 1)), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-router__size:has(.kodza-contact-router__pick:checked):not(#_) {
+  background: var(--kz-contact-router-ink);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-router-ink);
+  color: var(--kz-contact-router-on-ink);
+}
+
+@media (hover: hover) {
+  .kodza-contact-router__size:not(:has(.kodza-contact-router__pick:checked)):hover:not(#_) {
+    background: var(--kz-contact-router-soft);
+    box-shadow: inset 0 0 0 1px var(--kz-contact-router-fg);
+  }
+}
+
+.kodza-contact-router__pick:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kodza-contact-router__away:not(#_) {
+  display: grid;
+  box-sizing: border-box;
+  padding: 20px;
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-contact-router-field);
+  box-shadow: inset 0 0 0 1px var(--kz-contact-router-line);
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-contact-router__arrow svg:not(#_) {
+  display: block;
+}
+
+@media (hover: hover) {
+  .kodza-contact-router__away:hover:not(#_) {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kz-contact-router-fg) 24%, transparent);
+  }
+}
+
+.kodza-contact-router__trap:not(#_) {
+  position: absolute;
+}
+
+.kodza-contact-router__trap input:not(#_) {
+  box-sizing: border-box;
+}
+
+.kodza-contact-router__note:not(#_) {
+  display: grid;
+  margin: 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__form.is-error .kodza-contact-router__error:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-contact-router__send:not(#_) {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  height: 52px;
+  margin: 0;
+  padding: 0 24px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-contact-router-ink);
+  color: var(--kz-contact-router-on-ink);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), opacity calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-contact-router__send[aria-busy="true"]:not(#_) {
+  cursor: progress;
+}
+
+.kodza-contact-router__send:active:not(#_),
+.kodza-contact-router__again:active:not(#_) {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .kodza-contact-router__send:hover:not(#_) {
+    opacity: 0.86;
+  }
+}
+
+.kodza-contact-router__privacy:not(#_) {
+  margin: 6px 0 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__privacy a:not(#_) {
+  color: var(--kz-contact-router-fg);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-contact-router__thanks:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(30px, 3.6cqi, 44px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, none);
+  outline: none;
+}
+
+.kodza-contact-router__next:not(#_) {
+  max-width: 44ch;
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-contact-router-muted);
+}
+
+.kodza-contact-router__again:not(#_) {
+  height: 44px;
+  margin: 24px 0 0;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-contact-router-line);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-contact-router__again:hover:not(#_) {
+    box-shadow: inset 0 0 0 1px var(--kz-contact-router-fg);
+  }
+}
+
+.kodza-contact-router__mail:focus-visible:not(#_),
+.kodza-contact-router__privacy a:focus-visible:not(#_),
+.kodza-contact-router__away:focus-visible:not(#_),
+.kodza-contact-router__size:has(.kodza-contact-router__pick:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-contact-router-ink);
+  outline-offset: 2px;
+}
+
+.kodza-contact-router__send:focus-visible:not(#_),
+.kodza-contact-router__again:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-contact-router-ink);
+  outline-offset: 2px;
+}
+
+.kodza-contact-router__reason:has(.kodza-contact-router__radio:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-contact-router-ink);
+  outline-offset: 3px;
+}
+
+@container (max-width: 480px) {
+  .kodza-contact-router__reason:not(#_) {
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-contact-router *:not(#_),
+  .kodza-contact-router *:not(#_)::before,
+  .kodza-contact-router *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

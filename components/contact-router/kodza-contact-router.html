@@ -1,0 +1,147 @@
+<section class="kodza-contact-router">
+  <div class="kodza-contact-router__bar">
+    <p class="kodza-contact-router__eyebrow">Contact</p>
+    <p class="kodza-contact-router__meta"><span class="kodza-contact-router__dot" aria-hidden="true"></span>Mon–Fri, 9–18 CET</p>
+  </div>
+  <div class="kodza-contact-router__head">
+    <h2 class="kodza-contact-router__title">One form. The right desk.</h2>
+    <p class="kodza-contact-router__lead">Say what it’s about. The form asks what that desk needs, nothing more, and it lands with the person who answers.</p>
+  </div>
+  <div class="kodza-contact-router__inner">
+    <div class="kodza-contact-router__aside">
+      <p class="kodza-contact-router__key">Who reads it</p>
+      <ul class="kodza-contact-router__desks">
+        <li class="kodza-contact-router__desk" data-desk="sales">
+          <span class="kodza-contact-router__pip" aria-hidden="true"></span>
+          <p class="kodza-contact-router__what">Sales</p>
+          <p class="kodza-contact-router__how">Two people. A reply within four hours, weekdays.</p>
+        </li>
+        <li class="kodza-contact-router__desk" data-desk="support">
+          <span class="kodza-contact-router__pip" aria-hidden="true"></span>
+          <p class="kodza-contact-router__what">Support</p>
+          <p class="kodza-contact-router__how">The help center first. Most answers take two minutes.</p>
+        </li>
+        <li class="kodza-contact-router__desk" data-desk="press">
+          <span class="kodza-contact-router__pip" aria-hidden="true"></span>
+          <p class="kodza-contact-router__what">Press</p>
+          <p class="kodza-contact-router__how">Logos, screenshots, a founder on the phone.</p>
+        </li>
+        <li class="kodza-contact-router__desk" data-desk="jobs">
+          <span class="kodza-contact-router__pip" aria-hidden="true"></span>
+          <p class="kodza-contact-router__what">Jobs</p>
+          <p class="kodza-contact-router__how">The team you’d join reads it. Not a filter.</p>
+        </li>
+      </ul>
+      <p class="kodza-contact-router__key">Rather write?</p>
+      <a class="kodza-contact-router__mail" href="mailto:hello@halyard.app">hello@halyard.app</a>
+    </div>
+
+    <form class="kodza-contact-router__form" action="#" method="post">
+      <div class="kodza-contact-router__stage">
+        <div class="kodza-contact-router__panel">
+          <fieldset class="kodza-contact-router__group" data-required data-error="Pick one, so it lands on the right desk.">
+            <legend class="kodza-contact-router__key">What’s this about?</legend>
+            <div class="kodza-contact-router__reasons">
+              <label class="kodza-contact-router__reason">
+                <input class="kodza-contact-router__radio" type="radio" name="topic" value="sales" checked data-word="Send to sales" data-message="What are you trying to fix?" data-reply="Within four hours">
+                <span class="kodza-contact-router__mark" aria-hidden="true"><svg class="kodza-contact-router__svg" viewBox="0 0 20 20" width="20" height="20"><path class="kodza-contact-router__check" d="M6 10.4l2.6 2.6L14 7.4" pathLength="1" /></svg></span>
+                <span class="kodza-contact-router__name">Sales</span>
+                <span class="kodza-contact-router__text">Pricing, a demo, a plan for a team.</span>
+              </label>
+              <label class="kodza-contact-router__reason">
+                <input class="kodza-contact-router__radio" type="radio" name="topic" value="support" data-only>
+                <span class="kodza-contact-router__mark" aria-hidden="true"><svg class="kodza-contact-router__svg" viewBox="0 0 20 20" width="20" height="20"><path class="kodza-contact-router__check" d="M6 10.4l2.6 2.6L14 7.4" pathLength="1" /></svg></span>
+                <span class="kodza-contact-router__name">Support</span>
+                <span class="kodza-contact-router__text">An order, a bug, a refund.</span>
+              </label>
+              <label class="kodza-contact-router__reason">
+                <input class="kodza-contact-router__radio" type="radio" name="topic" value="press" data-word="Send to press" data-message="What’s the story?" data-reply="The same day">
+                <span class="kodza-contact-router__mark" aria-hidden="true"><svg class="kodza-contact-router__svg" viewBox="0 0 20 20" width="20" height="20"><path class="kodza-contact-router__check" d="M6 10.4l2.6 2.6L14 7.4" pathLength="1" /></svg></span>
+                <span class="kodza-contact-router__name">Press</span>
+                <span class="kodza-contact-router__text">An interview, a story, a quote.</span>
+              </label>
+              <label class="kodza-contact-router__reason">
+                <input class="kodza-contact-router__radio" type="radio" name="topic" value="jobs" data-word="Send to hiring" data-message="Why us, in three lines?" data-reply="Within a week">
+                <span class="kodza-contact-router__mark" aria-hidden="true"><svg class="kodza-contact-router__svg" viewBox="0 0 20 20" width="20" height="20"><path class="kodza-contact-router__check" d="M6 10.4l2.6 2.6L14 7.4" pathLength="1" /></svg></span>
+                <span class="kodza-contact-router__name">Jobs</span>
+                <span class="kodza-contact-router__text">No open role fits? Write anyway.</span>
+              </label>
+            </div>
+          </fieldset>
+          <div class="kodza-contact-router__flow">
+            <label class="kodza-contact-router__box">
+              <input class="kodza-contact-router__input" type="text" name="name" autocomplete="name" placeholder=" " required>
+              <span class="kodza-contact-router__label">Your name</span>
+            </label>
+            <label class="kodza-contact-router__box">
+              <input class="kodza-contact-router__input" type="email" name="email" autocomplete="email" placeholder=" " required>
+              <span class="kodza-contact-router__label">Email</span>
+            </label>
+            <label class="kodza-contact-router__box kodza-contact-router__box--wide" data-for="sales">
+              <input class="kodza-contact-router__input" type="text" name="company" autocomplete="organization" placeholder=" ">
+              <span class="kodza-contact-router__label">Company</span>
+            </label>
+            <fieldset class="kodza-contact-router__sizes" data-for="sales">
+              <legend class="kodza-contact-router__key">Team size</legend>
+              <div class="kodza-contact-router__pills">
+                <label class="kodza-contact-router__size"><input class="kodza-contact-router__pick" type="radio" name="team" value="Just me"><span class="kodza-contact-router__said">Just me</span></label>
+                <label class="kodza-contact-router__size"><input class="kodza-contact-router__pick" type="radio" name="team" value="2–10"><span class="kodza-contact-router__said">2–10</span></label>
+                <label class="kodza-contact-router__size"><input class="kodza-contact-router__pick" type="radio" name="team" value="11–50"><span class="kodza-contact-router__said">11–50</span></label>
+                <label class="kodza-contact-router__size"><input class="kodza-contact-router__pick" type="radio" name="team" value="51–200"><span class="kodza-contact-router__said">51–200</span></label>
+                <label class="kodza-contact-router__size"><input class="kodza-contact-router__pick" type="radio" name="team" value="200+"><span class="kodza-contact-router__said">200+</span></label>
+              </div>
+            </fieldset>
+            <label class="kodza-contact-router__box" data-for="press" hidden>
+              <input class="kodza-contact-router__input" type="text" name="publication" placeholder=" " required data-error="Which publication? It tells us who to put on the phone.">
+              <span class="kodza-contact-router__label">Publication</span>
+            </label>
+            <label class="kodza-contact-router__box" data-for="press" hidden>
+              <input class="kodza-contact-router__input" type="text" name="deadline" placeholder=" ">
+              <span class="kodza-contact-router__label">Deadline, if any</span>
+            </label>
+            <label class="kodza-contact-router__box" data-for="jobs" hidden>
+              <input class="kodza-contact-router__input" type="url" name="portfolio" inputmode="url" placeholder=" " required>
+              <span class="kodza-contact-router__label">Portfolio or GitHub</span>
+            </label>
+            <label class="kodza-contact-router__box" data-for="jobs" hidden>
+              <input class="kodza-contact-router__input" type="text" name="role" placeholder=" ">
+              <span class="kodza-contact-router__label">Role you’d like</span>
+            </label>
+            <label class="kodza-contact-router__box kodza-contact-router__box--area">
+              <textarea class="kodza-contact-router__input kodza-contact-router__area" name="message" rows="2" maxlength="1000" placeholder=" "></textarea>
+              <span class="kodza-contact-router__label"><span class="kodza-contact-router__roll"><span class="kodza-contact-router__said">What are you trying to fix?</span></span></span>
+              <span class="kodza-contact-router__count" aria-hidden="true"></span>
+            </label>
+            <label class="kodza-contact-router__trap" aria-hidden="true">Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+            <a class="kodza-contact-router__away" href="/help" data-for="support" hidden>
+              <span class="kodza-contact-router__gist">
+                <span class="kodza-contact-router__away-title">The help center has it.</span>
+                <span class="kodza-contact-router__away-text">Orders, bugs, refunds: most answers take two minutes. Still stuck, the chat inside the app reaches a person.</span>
+              </span>
+              <span class="kodza-contact-router__arrow" aria-hidden="true"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" /></svg></span>
+            </a>
+            <div class="kodza-contact-router__foot">
+              <p class="kodza-contact-router__note" aria-live="polite">
+                <span class="kodza-contact-router__help">One desk, one person. Not a shared inbox.</span>
+                <span class="kodza-contact-router__error"></span>
+              </p>
+              <button class="kodza-contact-router__send" type="submit"><span class="kodza-contact-router__word"><span class="kodza-contact-router__roll"><span class="kodza-contact-router__said">Send to sales</span></span></span><span class="kodza-contact-router__spinner" aria-hidden="true"></span></button>
+            </div>
+            <p class="kodza-contact-router__privacy">Your details are used to answer you. Nothing else. <a href="/privacy">Privacy</a></p>
+          </div>
+        </div>
+        <div class="kodza-contact-router__done" hidden>
+          <p class="kodza-contact-router__key">Message sent</p>
+          <p class="kodza-contact-router__thanks" tabindex="-1">Thanks, <span data-value="name">you</span>.</p>
+          <dl class="kodza-contact-router__recap">
+            <div class="kodza-contact-router__row"><dt>Desk</dt><dd><span data-value="desk">The team</span></dd></div>
+            <div class="kodza-contact-router__row"><dt>Reply</dt><dd><span data-value="reply">Soon</span></dd></div>
+            <div class="kodza-contact-router__row"><dt>To</dt><dd><span data-value="email">your address</span></dd></div>
+          </dl>
+          <p class="kodza-contact-router__next">Forgot something? Answer our email. It reaches the same person.</p>
+          <button class="kodza-contact-router__again" type="reset">Send another</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>

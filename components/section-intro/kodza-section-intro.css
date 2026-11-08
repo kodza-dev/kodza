@@ -1,0 +1,513 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Section Intro
+   The head of a section, on its own: a mono label (numbered or not), a tight title, a short intro
+   and an optional link. Put it above a grid, a pricing table, an FAQ or any block of the site.
+   data-layout picks the arrangement: "split" (the default: the title on the left, the intro on
+   the right, set on the title's first line), "stack" (one under the other) or "center". It plays
+   its entrance once, as it comes into view. Everything is tuned with the --kz-section-intro-*
+   variables. */
+.kodza-section-intro {
+  --kz-section-intro-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-section-intro-dim: color-mix(in srgb, var(--kz-section-intro-ink) 66%, transparent);
+  --kz-section-intro-faint: color-mix(in srgb, var(--kz-section-intro-ink) 60%, transparent);
+  --kz-section-intro-bg: transparent;
+  --kz-section-intro-width: 1240px; /* the content column, the same as the other sections */
+  --kz-section-intro-gutter: clamp(16px, 4vw, 40px); /* the space kept at the screen edges */
+  --kz-section-intro-pad-top: clamp(72px, 9vw, 140px); /* above, like the top of a section… */
+  --kz-section-intro-pad-bottom: clamp(40px, 5vw, 72px); /* …and the space left to what it heads */
+  --kz-section-intro-gap: clamp(32px, 6vw, 96px); /* split: between the title and the intro */
+  --kz-section-intro-title-span: 7fr; /* split: the title's share of the width… */
+  --kz-section-intro-aside-span: 5fr; /* …and the intro's */
+  --kz-section-intro-size: clamp(36px, 5vw, 68px); /* the title */
+  --kz-section-intro-measure: 480px; /* the measure of the intro */
+  --kz-section-intro-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-section-intro-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-section-intro / inline-size;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: var(--kz-section-intro-pad-top);
+  padding-bottom: var(--kz-section-intro-pad-bottom);
+  background: var(--kz-section-intro-bg);
+  color: var(--kz-section-intro-ink);
+}
+
+.kodza-section-intro__inner {
+  box-sizing: border-box;
+  max-width: calc(var(--kz-section-intro-width) + 2 * var(--kz-section-intro-gutter));
+  margin: 0 auto;
+  padding-left: max(var(--kz-section-intro-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-section-intro-gutter), env(safe-area-inset-right, 0px));
+}
+
+.kodza-section-intro__eyebrow {
+  margin: 0 0 20px;
+  overflow: hidden;
+  font-family: var(--kz-font-label, var(--kz-section-intro-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-section-intro-faint);
+}
+
+.kodza-section-intro__title {
+  max-width: 15ch;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-section-intro-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.98;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-section-intro-ink);
+}
+
+/* Each line is its own mask: the words rise from behind its bottom edge */
+.kodza-section-intro__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.kodza-section-intro__rise {
+  display: block;
+  text-wrap: balance; /* a line too long for its column breaks into two even halves */
+}
+
+.kodza-section-intro__aside {
+  min-width: 0;
+  max-width: var(--kz-section-intro-measure);
+}
+
+/* The intro takes the site's content as it comes: a paragraph or two, a link, some bold */
+.kodza-section-intro__text {
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.55;
+  color: var(--kz-section-intro-dim);
+  text-wrap: pretty;
+}
+
+.kodza-section-intro__text > * {
+  margin: 0;
+}
+
+.kodza-section-intro__text > * + * {
+  margin-top: 1em;
+}
+
+.kodza-section-intro__text a {
+  color: var(--kz-section-intro-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.kodza-section-intro__text strong {
+  font-weight: 600;
+  color: var(--kz-section-intro-ink);
+}
+
+/* The link: a hairline under the words, the arrow steps forward on hover */
+.kodza-section-intro__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding: 6px 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  color: var(--kz-section-intro-ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--kz-section-intro-ink) 28%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  transition: text-decoration-color calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-section-intro-ease);
+}
+
+.kodza-section-intro__link:focus-visible {
+  outline: 2px solid var(--kz-section-intro-ink);
+  outline-offset: 3px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-section-intro__arrow {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-section-intro-ease);
+}
+
+@media (hover: hover) {
+  .kodza-section-intro__link:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .kodza-section-intro__link:hover .kodza-section-intro__arrow {
+    transform: translateX(4px);
+  }
+}
+
+/* split (the default): the label and the title on the left, the intro on the right, its first
+   line on the baseline of the title's first line */
+.kodza-section-intro:not([data-layout="stack"], [data-layout="center"]) .kodza-section-intro__inner {
+  display: grid;
+  grid-template-columns: minmax(0, var(--kz-section-intro-title-span)) minmax(0, var(--kz-section-intro-aside-span));
+  grid-template-areas: "eyebrow ." "title aside";
+  column-gap: var(--kz-section-intro-gap);
+}
+
+.kodza-section-intro:not([data-layout="stack"], [data-layout="center"]) .kodza-section-intro__eyebrow {
+  grid-area: eyebrow;
+}
+
+.kodza-section-intro:not([data-layout="stack"], [data-layout="center"]) .kodza-section-intro__title {
+  grid-area: title;
+  align-self: first baseline;
+}
+
+.kodza-section-intro:not([data-layout="stack"], [data-layout="center"]) .kodza-section-intro__aside {
+  grid-area: aside;
+  align-self: first baseline;
+}
+
+/* stack: the intro under the title */
+.kodza-section-intro[data-layout="stack"] .kodza-section-intro__aside {
+  margin-top: 28px;
+}
+
+/* center: everything on the middle line, for a pricing table or an FAQ */
+.kodza-section-intro[data-layout="center"] .kodza-section-intro__inner {
+  text-align: center;
+}
+
+.kodza-section-intro[data-layout="center"] :is(.kodza-section-intro__title, .kodza-section-intro__aside) {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.kodza-section-intro[data-layout="center"] .kodza-section-intro__title {
+  max-width: 18ch;
+}
+
+.kodza-section-intro[data-layout="center"] .kodza-section-intro__aside {
+  margin-top: 28px;
+}
+
+/* Waiting for its entrance: the script sets is-shown as it comes into view, and plays the motion
+   in the same frame */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-section-intro.is-ready:not(.is-shown) .kodza-section-intro__rise {
+    transform: translateY(105%);
+  }
+
+  .kodza-section-intro.is-ready:not(.is-shown) :is(.kodza-section-intro__text, .kodza-section-intro__link) {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* One column: split stacks up, the intro under the title */
+@container kodza-section-intro (max-width: 760px) {
+  .kodza-section-intro:not([data-layout="stack"], [data-layout="center"]) .kodza-section-intro__inner {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "eyebrow" "title" "aside";
+  }
+
+  .kodza-section-intro .kodza-section-intro__aside {
+    margin-top: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-section-intro *,
+  .kodza-section-intro *::before,
+  .kodza-section-intro *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard f01fe411bf2a — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-section-intro__eyebrow):not(#_),
+:where(.kodza-section-intro__title):not(#_),
+:where(.kodza-section-intro__text p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-section-intro__text :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-section-intro__link):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  margin-right: revert;
+  margin-left: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-section-intro__arrow):not(#_) {
+  margin-right: revert;
+  margin-left: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-section-intro__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-section-intro__rise:not(#_),
+.kodza-section-intro__line:not(#_),
+.kodza-section-intro__aside:not(#_),
+.kodza-section-intro__text:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-section-intro__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-section-intro__link:not(#_) {
+  border: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-bottom: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-section-intro__arrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-bottom: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-section-intro__text p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-section-intro__text :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-section-intro__eyebrow:not(#_):where(:not([hidden])),
+.kodza-section-intro__title:not(#_):where(:not([hidden])),
+.kodza-section-intro__arrow:not(#_):where(:not([hidden])),
+.kodza-section-intro__text p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-section-intro__text :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-section-intro__eyebrow:not(#_):where([hidden]),
+.kodza-section-intro__title:not(#_):where([hidden]),
+.kodza-section-intro__arrow:not(#_):where([hidden]),
+.kodza-section-intro__text p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-section-intro__text :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-section-intro__eyebrow:not(#_) {
+  margin: 0 0 20px;
+  font-family: var(--kz-font-label, var(--kz-section-intro-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-section-intro-faint);
+}
+
+.kodza-section-intro__title:not(#_) {
+  max-width: 15ch;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-section-intro-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.98;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-section-intro-ink);
+}
+
+.kodza-section-intro__text > *:not(#_) {
+  margin: 0;
+}
+
+.kodza-section-intro__link:not(#_) {
+  display: inline-flex;
+  margin-top: 24px;
+  padding: 6px 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-section-intro-ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--kz-section-intro-ink) 28%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  transition: text-decoration-color calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-section-intro-ease);
+}
+
+.kodza-section-intro__link:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-section-intro-ink);
+  outline-offset: 3px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-section-intro__arrow:not(#_) {
+  transition: transform calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-section-intro-ease);
+}
+
+@media (hover: hover) {
+  .kodza-section-intro__link:hover:not(#_) {
+    text-decoration-color: currentColor;
+  }
+}
+
+.kodza-section-intro[data-layout="center"] :is(.kodza-section-intro__title, .kodza-section-intro__aside):where(p, h2, a, svg):not(#_) {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.kodza-section-intro[data-layout="center"] .kodza-section-intro__title:not(#_) {
+  max-width: 18ch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-section-intro *:where(p, h2, a, svg):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

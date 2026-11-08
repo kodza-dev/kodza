@@ -1,0 +1,598 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Media Wide
+   One wide picture between a head and a few short notes: the title on the left and its intro on
+   the right, the picture across the content column (the whole screen with --full) with a mono
+   caption, then up to two short notes under the intro. The picture is uncovered from its top
+   edge as it comes into view. The __eyebrow, the __intro, the caption and the __notes are
+   optional. Everything is tuned with the --kz-media-wide-* variables, the timings with the
+   constants of the script. */
+.kodza-media-wide {
+  --kz-media-wide-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-media-wide-dim: color-mix(in srgb, var(--kz-media-wide-ink) 66%, transparent);
+  --kz-media-wide-faint: color-mix(in srgb, var(--kz-media-wide-ink) 60%, transparent);
+  --kz-media-wide-rule: color-mix(in srgb, var(--kz-media-wide-ink) 14%, transparent);
+  --kz-media-wide-bg: transparent;
+  --kz-media-wide-width: 1240px; /* the content column, the same as the other sections */
+  --kz-media-wide-gutter: clamp(16px, 4vw, 40px); /* the space kept at the screen edges */
+  --kz-media-wide-pad-y: clamp(72px, 9vw, 140px); /* above and below */
+  --kz-media-wide-gap: clamp(32px, 5vw, 80px); /* between the title and the intro */
+  --kz-media-wide-space: clamp(40px, 5vw, 72px); /* between the head and the picture */
+  --kz-media-wide-ratio: 12 / 5;
+  --kz-media-wide-ratio-narrow: 3 / 2; /* on a phone */
+  --kz-media-wide-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-media-wide-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  /* With --full: how far the picture runs past the content column on each side */
+  --kz-media-wide-bleed: calc((100cqi - min(100cqi - 2 * var(--kz-media-wide-gutter), var(--kz-media-wide-width))) / 2);
+
+  container: kodza-media-wide / inline-size;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: var(--kz-media-wide-pad-y);
+  padding-bottom: var(--kz-media-wide-pad-y);
+  background: var(--kz-media-wide-bg);
+  color: var(--kz-media-wide-ink);
+}
+
+.kodza-media-wide__inner {
+  box-sizing: border-box;
+  max-width: calc(var(--kz-media-wide-width) + 2 * var(--kz-media-wide-gutter));
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--kz-media-wide-gutter);
+  padding-right: var(--kz-media-wide-gutter);
+}
+
+/* The head: the title on the left, the intro on the right, both resting on the same line */
+.kodza-media-wide__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: var(--kz-media-wide-gap);
+  align-items: end;
+  margin: 0 0 var(--kz-media-wide-space);
+}
+
+.kodza-media-wide__eyebrow {
+  grid-column: 1;
+  margin: 0 0 20px;
+  font-family: var(--kz-font-label, var(--kz-media-wide-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  color: var(--kz-media-wide-dim);
+}
+
+.kodza-media-wide__title {
+  grid-column: 1;
+  max-width: 13ch;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4.2vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+  color: var(--kz-media-wide-ink);
+}
+
+.kodza-media-wide__intro {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: end;
+  max-width: 46ch;
+  margin: 0;
+  font-size: clamp(16px, 1.3vw, 18px);
+  line-height: 1.55;
+  text-wrap: pretty;
+  color: var(--kz-media-wide-dim);
+}
+
+/* The picture. The curtain: the middle layer slides down from above while the inner one slides up
+   into place, so the picture is uncovered from the top edge down and never moves itself */
+.kodza-media-wide__media {
+  margin: 0;
+}
+
+.kodza-media-wide__frame {
+  aspect-ratio: var(--kz-media-wide-ratio);
+  overflow: hidden;
+  border-radius: var(--kz-media-wide-radius);
+}
+
+.kodza-media-wide__curtain,
+.kodza-media-wide__hold {
+  height: 100%;
+}
+
+.kodza-media-wide__curtain {
+  overflow: hidden;
+}
+
+.kodza-media-wide__frame img {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kodza-media-wide__caption {
+  margin-top: 12px;
+  font-family: var(--kz-font-label, var(--kz-media-wide-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-media-wide-faint);
+}
+
+/* --full: the picture runs to both edges of the screen, square there; the caption stays on the
+   column */
+.kodza-media-wide--full .kodza-media-wide__media {
+  margin-left: calc(-1 * var(--kz-media-wide-bleed));
+  margin-right: calc(-1 * var(--kz-media-wide-bleed));
+}
+
+.kodza-media-wide--full .kodza-media-wide__frame {
+  border-radius: 0;
+}
+
+.kodza-media-wide--full .kodza-media-wide__caption {
+  margin-left: var(--kz-media-wide-bleed);
+  margin-right: var(--kz-media-wide-bleed);
+}
+
+/* The notes: two short texts side by side, under the intro, each on a 1 px rule */
+.kodza-media-wide__notes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(24px, 3vw, 40px);
+  row-gap: 24px;
+  width: calc(50% - var(--kz-media-wide-gap) / 2);
+  margin: clamp(32px, 4vw, 56px) 0 0 auto;
+}
+
+.kodza-media-wide__notes > * {
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--kz-media-wide-rule);
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+  color: var(--kz-media-wide-dim);
+}
+
+.kodza-media-wide__notes strong {
+  font-weight: 600;
+  color: var(--kz-media-wide-ink);
+}
+
+/* Before it plays (only once the script has started, and only with motion): the picture behind
+   its curtain, the words waiting to come up */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-media-wide.is-ready .kodza-media-wide__media:not(.is-shown) .kodza-media-wide__curtain {
+    transform: translateY(-100%);
+  }
+
+  .kodza-media-wide.is-ready .kodza-media-wide__media:not(.is-shown) .kodza-media-wide__hold {
+    transform: translateY(100%);
+  }
+
+  .kodza-media-wide.is-ready :is(.kodza-media-wide__head, .kodza-media-wide__notes):not(.is-shown) > *,
+  .kodza-media-wide.is-ready .kodza-media-wide__media:not(.is-shown) .kodza-media-wide__caption {
+    opacity: 0;
+  }
+}
+
+/* Narrower: the intro under the title, the notes across the width */
+@container kodza-media-wide (max-width: 760px) {
+  .kodza-media-wide__head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-media-wide__title {
+    max-width: 18ch;
+  }
+
+  .kodza-media-wide__intro {
+    grid-column: 1;
+    grid-row: auto;
+    margin-top: 20px;
+  }
+
+  .kodza-media-wide__notes {
+    width: auto;
+    margin-left: 0;
+  }
+}
+
+/* A phone: a taller picture, one note under the other */
+@container kodza-media-wide (max-width: 600px) {
+  .kodza-media-wide__frame {
+    aspect-ratio: var(--kz-media-wide-ratio-narrow);
+  }
+
+  .kodza-media-wide__notes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* kodza-guard 48ab5514a319 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-media-wide__caption):not(#_) {
+  margin-right: revert;
+  margin-left: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-media-wide__head:not(#_),
+.kodza-media-wide__frame:not(#_),
+.kodza-media-wide__curtain:not(#_),
+.kodza-media-wide__hold:not(#_),
+.kodza-media-wide__notes:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-media-wide__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-wide__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-wide__intro:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-wide__media:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-wide__caption:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-bottom: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-wide__hold img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-wide__notes p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-media-wide__notes :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  padding-right: revert;
+  padding-bottom: revert;
+  padding-left: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-wide__notes strong:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-media-wide__notes :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-media-wide__eyebrow:not(#_):where(:not([hidden])),
+.kodza-media-wide__title:not(#_):where(:not([hidden])),
+.kodza-media-wide__intro:not(#_):where(:not([hidden])),
+.kodza-media-wide__media:not(#_):where(:not([hidden])),
+.kodza-media-wide__caption:not(#_):where(:not([hidden])),
+.kodza-media-wide__notes p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-media-wide__notes :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-media-wide__notes strong:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-media-wide__notes :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-media-wide__eyebrow:not(#_):where([hidden]),
+.kodza-media-wide__title:not(#_):where([hidden]),
+.kodza-media-wide__intro:not(#_):where([hidden]),
+.kodza-media-wide__media:not(#_):where([hidden]),
+.kodza-media-wide__caption:not(#_):where([hidden]),
+.kodza-media-wide__notes p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-media-wide__notes :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-media-wide__notes strong:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-media-wide__notes :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-media-wide__eyebrow:not(#_) {
+  margin: 0 0 20px;
+  font-family: var(--kz-font-label, var(--kz-media-wide-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  color: var(--kz-media-wide-dim);
+}
+
+.kodza-media-wide__title:not(#_) {
+  max-width: 13ch;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4.2vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  color: var(--kz-media-wide-ink);
+}
+
+.kodza-media-wide__intro:not(#_) {
+  max-width: 46ch;
+  margin: 0;
+  font-size: clamp(16px, 1.3vw, 18px);
+  line-height: 1.55;
+  color: var(--kz-media-wide-dim);
+}
+
+.kodza-media-wide__media:not(#_) {
+  margin: 0;
+}
+
+.kodza-media-wide__frame img:not(#_) {
+  display: block;
+  max-width: none;
+}
+
+.kodza-media-wide__caption:not(#_) {
+  margin-top: 12px;
+  font-family: var(--kz-font-label, var(--kz-media-wide-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-media-wide-faint);
+}
+
+.kodza-media-wide--full .kodza-media-wide__media:not(#_) {
+  margin-left: calc(-1 * var(--kz-media-wide-bleed));
+  margin-right: calc(-1 * var(--kz-media-wide-bleed));
+}
+
+.kodza-media-wide--full .kodza-media-wide__caption:not(#_) {
+  margin-left: var(--kz-media-wide-bleed);
+  margin-right: var(--kz-media-wide-bleed);
+}
+
+.kodza-media-wide__notes > *:not(#_) {
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--kz-media-wide-rule);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-media-wide-dim);
+}
+
+.kodza-media-wide__notes strong:not(#_) {
+  font-weight: 600;
+  color: var(--kz-media-wide-ink);
+}
+
+@container kodza-media-wide (max-width: 760px) {
+  .kodza-media-wide__title:not(#_) {
+    max-width: 18ch;
+  }
+}
+
+@container kodza-media-wide (max-width: 760px) {
+  .kodza-media-wide__intro:not(#_) {
+    margin-top: 20px;
+  }
+}
