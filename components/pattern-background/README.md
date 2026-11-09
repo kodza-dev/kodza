@@ -59,8 +59,8 @@ CSS variables, set on `[data-kodza-pattern-background]` itself:
 | `--kz-pattern-background-draw` | `1.6s` | --draw: how long the whole trace takes |
 | `--kz-pattern-background-ease` | `cubic-bezier(0.33, 1, 0.68, 1)` |  |
 | `--kz-pattern-background-height` | `600px` |  |
-| `--kz-pattern-background-width` | `1152px` | the text column |
-| `--kz-pattern-background-side` | `clamp(20px, 5vw, 64px)` |  |
+| `--kz-pattern-background-width` | `var(--kz-page-width, 1440px)` | the text column |
+| `--kz-pattern-background-side` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 
 - Modifiers: `.kodza-pattern-background--cross`, `.kodza-pattern-background--diagonal`, `.kodza-pattern-background--dots`, `.kodza-pattern-background--draw`
 - Attributes: `data-kodza-pattern-background`

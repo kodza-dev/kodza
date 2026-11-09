@@ -59,8 +59,8 @@ CSS variables, set on `.kodza-hero-screen` itself:
 | `--kz-hero-screen-shadow-far` | `0 60px 110px -34px rgba(10, 10, 10, 0.34), 0 24px 48px -24px rgba(10, 10, 10, 0.16)` | leaning back |
 | `--kz-hero-screen-shadow-near` | `0 1px 2px rgba(10, 10, 10, 0.06), 0 22px 48px -22px rgba(10, 10, 10, 0.24)` | upright |
 | `--kz-hero-screen-veil` | `linear-gradient(rgba(10, 10, 10, 0.14), rgba(10, 10, 10, 0.03) 70%)` | the shade on the screen while it leans |
-| `--kz-hero-screen-width` | `1240px` |  |
-| `--kz-hero-screen-gutter` | `clamp(16px, 4vw, 40px)` |  |
+| `--kz-hero-screen-width` | `var(--kz-page-width, 1440px)` |  |
+| `--kz-hero-screen-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-hero-screen-pad-y` | `clamp(20px, 3svh, 40px)` |  |
 | `--kz-hero-screen-size` | `calc(clamp(36px, min(6.4cqi, 9.4svh), 96px) * var(--kz-font-display-scale, 1))` | the title lines |
 | `--kz-hero-screen-ratio` | `1.6` | the screenshot's width / height |

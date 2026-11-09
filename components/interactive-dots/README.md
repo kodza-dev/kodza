@@ -57,8 +57,8 @@ CSS variables, set on `[data-kodza-interactive-dots]` itself:
 | `--kz-interactive-dots-reach` | `104px` | radius of the hand |
 | `--kz-interactive-dots-calm` | `0.3` | how much a pushed dot lights up under the text, 0 to 1 |
 | `--kz-interactive-dots-height` | `600px` |  |
-| `--kz-interactive-dots-width` | `1152px` | the text column |
-| `--kz-interactive-dots-side` | `clamp(20px, 5vw, 64px)` |  |
+| `--kz-interactive-dots-width` | `var(--kz-page-width, 1440px)` | the text column |
+| `--kz-interactive-dots-side` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 
 - Attributes: `data-kodza-interactive-dots`
 

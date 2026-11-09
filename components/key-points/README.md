@@ -11,7 +11,7 @@ Three to six facts on 1 px hairlines that draw across as each row comes into vie
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-key-points.html`](kodza-key-points.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-key-points.css`](kodza-key-points.css) | 17.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-key-points.css`](kodza-key-points.css) | 17.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-key-points.js`](kodza-key-points.js) | 11.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -51,8 +51,8 @@ CSS variables, set on `.kodza-key-points` itself:
 | `--kz-key-points-faint` | `color-mix(in srgb, var(--kz-key-points-ink) 60%, transparent)` |  |
 | `--kz-key-points-rule` | `color-mix(in srgb, var(--kz-key-points-ink) 16%, transparent)` | the hairlines |
 | `--kz-key-points-bg` | `transparent` |  |
-| `--kz-key-points-width` | `1240px` | the content column, the same as the other sections |
-| `--kz-key-points-gutter` | `clamp(16px, 4vw, 40px)` | the space kept at the screen edges |
+| `--kz-key-points-width` | `var(--kz-page-width, 1440px)` | the content column, the same as the other sections |
+| `--kz-key-points-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` | the space kept at the screen edges |
 | `--kz-key-points-pad` | `clamp(56px, 7vw, 112px)` | above and below |
 | `--kz-key-points-gap` | `clamp(32px, 5vw, 80px)` | rows: between the title and the points |
 | `--kz-key-points-head-span` | `4fr` | rows: the title's share of the width… |

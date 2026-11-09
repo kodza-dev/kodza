@@ -55,8 +55,8 @@ CSS variables, set on `.kodza-header-classic` itself:
 | `--kz-header-classic-ink` | `var(--kz-color-accent, var(--kz-header-classic-fg))` | the call to action |
 | `--kz-header-classic-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-header-classic-height` | `72px` |  |
-| `--kz-header-classic-width` | `1200px` | the row, centred |
-| `--kz-header-classic-pad` | `24px` |  |
+| `--kz-header-classic-width` | `calc(var(--kz-page-width, 1440px) + 2 * var(--kz-header-classic-pad))` | the row, centred |
+| `--kz-header-classic-pad` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-header-classic-duration` | `0.42s` | the line gliding |
 | `--kz-header-classic-lag` | `0.08s` | how long its back edge waits |
 | `--kz-header-classic-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

@@ -11,7 +11,7 @@ One big sentence of two to four lines, with a mono label in the indent of its fi
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-statement.html`](kodza-statement.html) | 0.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-statement.css`](kodza-statement.css) | 11.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-statement.css`](kodza-statement.css) | 11.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-statement.js`](kodza-statement.js) | 8.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -50,8 +50,8 @@ CSS variables, set on `.kodza-statement` itself:
 | `--kz-statement-dim` | `color-mix(in srgb, var(--kz-statement-ink) 66%, transparent)` |  |
 | `--kz-statement-faint` | `color-mix(in srgb, var(--kz-statement-ink) 60%, transparent)` |  |
 | `--kz-statement-bg` | `transparent` |  |
-| `--kz-statement-width` | `1240px` | the content column, the same as the other sections |
-| `--kz-statement-gutter` | `clamp(16px, 4vw, 40px)` | the space kept at the screen edges |
+| `--kz-statement-width` | `var(--kz-page-width, 1440px)` | the content column, the same as the other sections |
+| `--kz-statement-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` | the space kept at the screen edges |
 | `--kz-statement-pad` | `clamp(72px, 9vw, 140px)` | above and below |
 | `--kz-statement-size` | `clamp(28px, 4cqi, 52px)` | the sentence, from the width it is given |
 | `--kz-statement-indent` | `clamp(110px, 16cqi, 220px)` | the first line's indent, where the label sits |

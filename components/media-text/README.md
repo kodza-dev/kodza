@@ -55,8 +55,8 @@ CSS variables, set on `.kodza-media-text` itself:
 | `--kz-media-text-cta` | `var(--kz-color-accent, var(--kz-media-text-ink))` |  |
 | `--kz-media-text-cta-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-media-text-bg` | `transparent` |  |
-| `--kz-media-text-width` | `1240px` | the content column |
-| `--kz-media-text-gutter` | `clamp(16px, 4vw, 40px)` | the space kept at the screen edges |
+| `--kz-media-text-width` | `var(--kz-page-width, 1440px)` | the content column |
+| `--kz-media-text-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` | the space kept at the screen edges |
 | `--kz-media-text-pad-y` | `clamp(72px, 9vw, 140px)` |  |
 | `--kz-media-text-gap` | `clamp(32px, 6vw, 96px)` | between the picture and the words |
 | `--kz-media-text-row-gap` | `clamp(72px, 10vw, 152px)` | between two rows |

@@ -11,7 +11,7 @@ A site header placed on your grid: brand, links and actions each take the column
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-grid.html`](kodza-header-grid.html) | 1.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-grid.css`](kodza-header-grid.css) | 51.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-grid.css`](kodza-header-grid.css) | 51.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-header-grid.js`](kodza-header-grid.js) | 22.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -62,8 +62,8 @@ CSS variables, set on `.kodza-header-grid` itself:
 | `--kz-header-grid-nav-column` | `2` |  |
 | `--kz-header-grid-actions-column` | `3` |  |
 | `--kz-header-grid-align` | `center` | end sets every zone on the bottom edge |
-| `--kz-header-grid-width` | `1200px` | the row, centred; none = the full width |
-| `--kz-header-grid-pad` | `clamp(16px, 4cqw, 24px)` | on both sides |
+| `--kz-header-grid-width` | `calc(var(--kz-page-width, 1440px) + 2 * var(--kz-header-grid-pad))` | the row, centred; none = the full width |
+| `--kz-header-grid-pad` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` | on both sides |
 | `--kz-header-grid-pad-block` | `0px` | above and below (two values: above, then below) |
 | `--kz-header-grid-height` | `72px` | at least |
 | `--kz-header-grid-brand-size` | `18px` |  |

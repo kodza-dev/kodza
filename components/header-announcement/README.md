@@ -11,7 +11,7 @@ A site header with a strip of news on top: messages roll and pause on hover or f
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-header-announcement.html`](kodza-header-announcement.html) | 2.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-header-announcement.css`](kodza-header-announcement.css) | 49.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-header-announcement.css`](kodza-header-announcement.css) | 49.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-header-announcement.js`](kodza-header-announcement.js) | 18.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -55,8 +55,8 @@ CSS variables, set on `.kodza-header-announcement` itself:
 | `--kz-header-announcement-ink` | `var(--kz-color-accent, var(--kz-header-announcement-fg))` | the call to action |
 | `--kz-header-announcement-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-header-announcement-height` | `72px` |  |
-| `--kz-header-announcement-width` | `1200px` | the row, centred |
-| `--kz-header-announcement-pad` | `24px` |  |
+| `--kz-header-announcement-width` | `calc(var(--kz-page-width, 1440px) + 2 * var(--kz-header-announcement-pad))` | the row, centred |
+| `--kz-header-announcement-pad` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-header-announcement-strip-bg` | `var(--kz-color-ink, #0a0a0a)` | the strip of news |
 | `--kz-header-announcement-strip-fg` | `var(--kz-color-page, #f2f2f0)` |  |
 | `--kz-header-announcement-strip-muted` | `color-mix(in srgb, var(--kz-header-announcement-strip-fg) 62%, transparent)` |  |

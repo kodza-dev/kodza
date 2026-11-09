@@ -65,8 +65,8 @@ CSS variables, set on `.kodza-header-centered` itself:
 | `--kz-header-centered-phone-compact` | `56px` |  |
 | `--kz-header-centered-phone-shrink` | `0.84` |  |
 | `--kz-header-centered-after` | `40px` | how far you scroll before it tightens |
-| `--kz-header-centered-width` | `1200px` | the row, centred |
-| `--kz-header-centered-pad` | `24px` |  |
+| `--kz-header-centered-width` | `calc(var(--kz-page-width, 1440px) + 2 * var(--kz-header-centered-pad))` | the row, centred |
+| `--kz-header-centered-pad` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-header-centered-duration` | `0.6s` |  |
 | `--kz-header-centered-ease` | `cubic-bezier(0.33, 1, 0.68, 1)` |  |
 | `--kz-header-centered-menu-bg` | `var(--kz-header-centered-fg)` |  |

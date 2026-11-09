@@ -11,7 +11,7 @@ A section of running text: the title stays in view on the left while the text, k
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-text-section.html`](kodza-text-section.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-text-section.css`](kodza-text-section.css) | 21.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-text-section.css`](kodza-text-section.css) | 21.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-text-section.js`](kodza-text-section.js) | 8.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -51,8 +51,8 @@ CSS variables, set on `.kodza-text-section` itself:
 | `--kz-text-section-dim` | `color-mix(in srgb, var(--kz-text-section-ink) 66%, transparent)` |  |
 | `--kz-text-section-rule` | `color-mix(in srgb, var(--kz-text-section-ink) 16%, transparent)` |  |
 | `--kz-text-section-bg` | `transparent` |  |
-| `--kz-text-section-width` | `1240px` | the content column, the same as the other sections |
-| `--kz-text-section-gutter` | `clamp(16px, 4vw, 40px)` | the space kept at the screen edges |
+| `--kz-text-section-width` | `var(--kz-page-width, 1440px)` | the content column, the same as the other sections |
+| `--kz-text-section-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` | the space kept at the screen edges |
 | `--kz-text-section-pad` | `clamp(56px, 7vw, 112px)` | above and below |
 | `--kz-text-section-gap` | `clamp(32px, 5vw, 80px)` | between the title and the text |
 | `--kz-text-section-head-span` | `5fr` | the title's share of the width… |

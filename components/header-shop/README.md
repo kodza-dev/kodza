@@ -56,8 +56,8 @@ CSS variables, set on `.kodza-header-shop` itself:
 | `--kz-header-shop-field` | `color-mix(in srgb, var(--kz-header-shop-fg) 6%, var(--kz-header-shop-bg))` | the search field |
 | `--kz-header-shop-top` | `var(--wp-admin--admin-bar--height, 0px)` | below the WordPress admin bar |
 | `--kz-header-shop-height` | `72px` |  |
-| `--kz-header-shop-width` | `1200px` | the row, centred |
-| `--kz-header-shop-pad` | `24px` |  |
+| `--kz-header-shop-width` | `calc(var(--kz-page-width, 1440px) + 2 * var(--kz-header-shop-pad))` | the row, centred |
+| `--kz-header-shop-pad` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-header-shop-search-duration` | `0.6s` |  |
 | `--kz-header-shop-search-ease` | `cubic-bezier(0.76, 0, 0.24, 1)` |  |
 | `--kz-header-shop-menu-bg` | `var(--kz-color-ink, #0a0a0a)` |  |

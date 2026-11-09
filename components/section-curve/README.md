@@ -11,7 +11,7 @@ A section whose top edge comes up curved and pulls flat as it lands, tied to the
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-section-curve.html`](kodza-section-curve.html) | 0.5 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-section-curve.css`](kodza-section-curve.css) | 6.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-section-curve.css`](kodza-section-curve.css) | 6.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-section-curve.js`](kodza-section-curve.js) | 7.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -53,7 +53,8 @@ CSS variables, set on `.kodza-section-curve` itself:
 | `--kz-section-curve-muted` | `color-mix(in srgb, var(--kz-section-curve-ink) 70%, transparent)` | its text |
 | `--kz-section-curve-depth` | `clamp(48px, 10vw, 160px)` | how high the middle of the curve stands |
 | `--kz-section-curve-pad` | `clamp(72px, 9vw, 136px)` | the room above and below the content |
-| `--kz-section-curve-width` | `1080px` | the content's widest |
+| `--kz-section-curve-width` | `var(--kz-page-width, 1440px)` | the content's widest |
+| `--kz-section-curve-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` | the space kept at the screen edges |
 
 ## Dark mode
 

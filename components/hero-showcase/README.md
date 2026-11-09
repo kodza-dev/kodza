@@ -56,8 +56,8 @@ CSS variables, set on `.kodza-hero-showcase` itself:
 | `--kz-hero-showcase-well` | `color-mix(in srgb, var(--kz-hero-showcase-ink) 6%, transparent)` | behind a thumbnail while it loads |
 | `--kz-hero-showcase-edge` | `color-mix(in srgb, var(--kz-hero-showcase-ink) 8%, transparent)` | hairline round a thumbnail, so a dark picture keeps its edge |
 | `--kz-hero-showcase-bg` | `transparent` |  |
-| `--kz-hero-showcase-width` | `1240px` |  |
-| `--kz-hero-showcase-gutter` | `clamp(16px, 4vw, 40px)` |  |
+| `--kz-hero-showcase-width` | `var(--kz-page-width, 1440px)` |  |
+| `--kz-hero-showcase-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-hero-showcase-size` | `calc(clamp(38px, min(7cqi, 10svh), 104px) * var(--kz-font-display-scale, 1))` | the title lines |
 | `--kz-hero-showcase-card` | `clamp(150px, min(21cqi, 32svh), 320px)` | a thumbnail's width on the wall |
 | `--kz-hero-showcase-gap` | `clamp(10px, 1.2cqi, 18px)` |  |

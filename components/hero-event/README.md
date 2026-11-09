@@ -11,7 +11,7 @@ An event hero that counts down to the start date in its markup, each digit dropp
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-event.html`](kodza-hero-event.html) | 2.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-event.css`](kodza-hero-event.css) | 25.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-event.css`](kodza-hero-event.css) | 25.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-event.js`](kodza-hero-event.js) | 16.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -53,10 +53,10 @@ CSS variables, set on `.kodza-hero-event` itself:
 | `--kz-hero-event-soft` | `color-mix(in srgb, var(--kz-hero-event-ink) 7%, transparent)` |  |
 | `--kz-hero-event-line` | `color-mix(in srgb, var(--kz-hero-event-ink) 16%, transparent)` |  |
 | `--kz-hero-event-bg` | `transparent` |  |
-| `--kz-hero-event-width` | `1240px` |  |
+| `--kz-hero-event-width` | `var(--kz-page-width, 1440px)` |  |
 | `--kz-hero-event-gap` | `clamp(32px, 5vw, 80px)` |  |
 | `--kz-hero-event-pad-y` | `clamp(72px, 9vw, 140px)` |  |
-| `--kz-hero-event-gutter` | `clamp(16px, 4vw, 40px)` |  |
+| `--kz-hero-event-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-hero-event-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-hero-event-ratio` | `4 / 5` |  |
 | `--kz-hero-event-size` | `calc(clamp(36px, 4.4vw, 60px) * var(--kz-font-display-scale, 1))` |  |

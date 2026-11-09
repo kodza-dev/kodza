@@ -11,7 +11,7 @@ A hero with a real search card: Buy and Rent swap the budget list under a slidin
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-search.html`](kodza-hero-search.html) | 4.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-search.css`](kodza-hero-search.css) | 49.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-search.css`](kodza-hero-search.css) | 49.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-search.js`](kodza-hero-search.js) | 27.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -58,10 +58,10 @@ CSS variables, set on `.kodza-hero-search` itself:
 | `--kz-hero-search-shadow` | `0 24px 48px -24px rgba(10, 10, 10, 0.24)` |  |
 | `--kz-hero-search-pop` | `0 18px 40px -16px rgba(10, 10, 10, 0.3)` |  |
 | `--kz-hero-search-bg` | `transparent` |  |
-| `--kz-hero-search-width` | `1240px` |  |
+| `--kz-hero-search-width` | `var(--kz-page-width, 1440px)` |  |
 | `--kz-hero-search-gap` | `clamp(32px, 5vw, 80px)` |  |
 | `--kz-hero-search-pad-y` | `clamp(72px, 9vw, 140px)` |  |
-| `--kz-hero-search-gutter` | `clamp(16px, 4vw, 40px)` |  |
+| `--kz-hero-search-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-hero-search-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-hero-search-ratio` | `4 / 5` |  |
 | `--kz-hero-search-height` | `56px` |  |

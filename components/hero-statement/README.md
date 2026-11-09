@@ -51,10 +51,10 @@ CSS variables, set on `.kodza-hero-statement` itself:
 | `--kz-hero-statement-dim` | `color-mix(in srgb, var(--kz-hero-statement-ink) 62%, transparent)` |  |
 | `--kz-hero-statement-rule` | `color-mix(in srgb, var(--kz-hero-statement-ink) 14%, transparent)` |  |
 | `--kz-hero-statement-bg` | `transparent` |  |
-| `--kz-hero-statement-width` | `1280px` |  |
+| `--kz-hero-statement-width` | `var(--kz-page-width, 1440px)` |  |
 | `--kz-hero-statement-top` | `clamp(96px, 13vw, 200px)` |  |
 | `--kz-hero-statement-bottom` | `clamp(28px, 3.5vw, 44px)` |  |
-| `--kz-hero-statement-gutter` | `clamp(16px, 4vw, 40px)` |  |
+| `--kz-hero-statement-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-hero-statement-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-hero-statement-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-hero-statement-glide` | `cubic-bezier(0.6, 0, 0.1, 1)` |  |

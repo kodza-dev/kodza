@@ -11,7 +11,7 @@ A section ruled like a notebook page, with an ink margin line. The rules follow 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-ruled-paper.html`](kodza-ruled-paper.html) | 1.0 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-ruled-paper.css`](kodza-ruled-paper.css) | 15.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-ruled-paper.css`](kodza-ruled-paper.css) | 15.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-ruled-paper.js`](kodza-ruled-paper.js) | 9.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -56,8 +56,8 @@ CSS variables, set on `[data-kodza-ruled-paper]` itself:
 | `--kz-ruled-paper-gap` | `clamp(14px, 2vw, 24px)` | from the margin line to the text |
 | `--kz-ruled-paper-title-rules` | `2` | rules per line of the title |
 | `--kz-ruled-paper-height` | `600px` |  |
-| `--kz-ruled-paper-width` | `1152px` | the text column, margin included |
-| `--kz-ruled-paper-side` | `clamp(20px, 5vw, 64px)` |  |
+| `--kz-ruled-paper-width` | `var(--kz-page-width, 1440px)` | the text column, margin included |
+| `--kz-ruled-paper-side` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 
 - Attributes: `data-kodza-ruled-paper`
 

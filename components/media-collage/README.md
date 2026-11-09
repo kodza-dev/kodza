@@ -11,7 +11,7 @@ A text beside three pictures of different shapes set off from each other, the wi
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-media-collage.html`](kodza-media-collage.html) | 2.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-media-collage.css`](kodza-media-collage.css) | 16.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-media-collage.css`](kodza-media-collage.css) | 16.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-media-collage.js`](kodza-media-collage.js) | 11.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -50,8 +50,8 @@ CSS variables, set on `.kodza-media-collage` itself:
 | `--kz-media-collage-dim` | `color-mix(in srgb, var(--kz-media-collage-ink) 66%, transparent)` |  |
 | `--kz-media-collage-faint` | `color-mix(in srgb, var(--kz-media-collage-ink) 60%, transparent)` |  |
 | `--kz-media-collage-bg` | `transparent` |  |
-| `--kz-media-collage-width` | `1240px` | the content column, the same as the other sections |
-| `--kz-media-collage-gutter` | `clamp(16px, 4vw, 40px)` | the space kept at the screen edges |
+| `--kz-media-collage-width` | `var(--kz-page-width, 1440px)` | the content column, the same as the other sections |
+| `--kz-media-collage-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` | the space kept at the screen edges |
 | `--kz-media-collage-pad-y` | `clamp(72px, 9vw, 140px)` | above and below |
 | `--kz-media-collage-gap` | `clamp(16px, 2vw, 28px)` | between two pictures |
 | `--kz-media-collage-offset` | `clamp(48px, 9cqi, 160px)` | how much lower the second picture sits |

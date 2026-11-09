@@ -61,8 +61,8 @@ CSS variables, set on `[data-kodza-cymatics]` itself:
 | `--kz-cymatics-speaker` | `760px` | the woofer's width, or the box's height (px) |
 | `--kz-cymatics-calm` | `0.25` | how much of the sand shows under the text, 0 to 1 |
 | `--kz-cymatics-height` | `600px` |  |
-| `--kz-cymatics-width` | `1152px` | the text column |
-| `--kz-cymatics-side` | `clamp(20px, 5vw, 64px)` |  |
+| `--kz-cymatics-width` | `var(--kz-page-width, 1440px)` | the text column |
+| `--kz-cymatics-side` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 
 - Modifiers: `.kodza-cymatics--cabinet`
 - Attributes: `data-kodza-cymatics`

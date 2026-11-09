@@ -61,9 +61,9 @@ CSS variables, set on `.kodza-review-summary` itself:
 | `--kz-review-summary-columns` | `minmax(280px, 340px) minmax(0, 1fr)` | summary, reviews |
 | `--kz-review-summary-card-min` | `280px` | the narrowest review card |
 | `--kz-review-summary-sticky` | `24px` | where the summary stays while the reviews scroll |
-| `--kz-review-summary-width` | `1200px` |  |
+| `--kz-review-summary-width` | `var(--kz-page-width, 1440px)` |  |
 | `--kz-review-summary-pad-y` | `clamp(64px, 8vw, 112px)` |  |
-| `--kz-review-summary-gutter` | `clamp(16px, 4vw, 40px)` |  |
+| `--kz-review-summary-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-review-summary-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-review-summary-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-review-summary-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

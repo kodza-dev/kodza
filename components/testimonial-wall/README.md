@@ -59,9 +59,9 @@ CSS variables, set on `[data-kodza-testimonial-wall]` itself:
 | `--kz-testimonial-wall-speed` | `24` | pixels per second |
 | `--kz-testimonial-wall-fade` | `112px` |  |
 | `--kz-testimonial-wall-gap` | `16px` |  |
-| `--kz-testimonial-wall-width` | `1200px` |  |
+| `--kz-testimonial-wall-width` | `var(--kz-page-width, 1440px)` |  |
 | `--kz-testimonial-wall-pad-y` | `clamp(64px, 8vw, 112px)` |  |
-| `--kz-testimonial-wall-gutter` | `clamp(16px, 4vw, 40px)` |  |
+| `--kz-testimonial-wall-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-testimonial-wall-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-testimonial-wall-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-testimonial-wall-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |

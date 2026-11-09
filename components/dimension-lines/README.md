@@ -53,8 +53,8 @@ CSS variables, set on `[data-kodza-dimension-lines]` itself:
 | `--kz-dimension-lines-guides` | `0.09` | opacity of the construction lines |
 | `--kz-dimension-lines-values` | `0.62` | opacity of the values |
 | `--kz-dimension-lines-height` | `600px` |  |
-| `--kz-dimension-lines-width` | `1152px` | the text column |
-| `--kz-dimension-lines-side` | `clamp(20px, 5vw, 64px)` |  |
+| `--kz-dimension-lines-width` | `var(--kz-page-width, 1440px)` | the text column |
+| `--kz-dimension-lines-side` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 
 - Attributes: `data-kodza-dimension-lines`
 

@@ -52,9 +52,9 @@ CSS variables, set on `.kodza-hero-paths` itself:
 | `--kz-hero-paths-on-image` | `#f2f2f0` |  |
 | `--kz-hero-paths-veil` | `rgba(10, 10, 10, 0.62)` |  |
 | `--kz-hero-paths-bg` | `transparent` |  |
-| `--kz-hero-paths-width` | `1440px` |  |
+| `--kz-hero-paths-width` | `var(--kz-page-width, 1440px)` |  |
 | `--kz-hero-paths-pad-y` | `clamp(56px, 7vw, 112px)` |  |
-| `--kz-hero-paths-gutter` | `clamp(16px, 4vw, 40px)` |  |
+| `--kz-hero-paths-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-hero-paths-height` | `clamp(380px, 32vw, 460px)` |  |
 | `--kz-hero-paths-gap` | `12px` |  |
 | `--kz-hero-paths-grow` | `1.8` |  |

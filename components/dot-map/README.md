@@ -55,8 +55,8 @@ CSS variables, set on `[data-kodza-dot-map]` itself:
 | `--kz-dot-map-calm` | `0.3` | how much the dots light up under the text, 0 to 1 (at rest they fade half as far) |
 | `--kz-dot-map-zone` | `260px` | the least height left to the map above the text |
 | `--kz-dot-map-height` | `720px` |  |
-| `--kz-dot-map-width` | `1152px` | the text column |
-| `--kz-dot-map-side` | `clamp(20px, 5vw, 64px)` |  |
+| `--kz-dot-map-width` | `var(--kz-page-width, 1440px)` | the text column |
+| `--kz-dot-map-side` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 
 - Attributes: `data-kodza-dot-map`, `data-lat` (e.g. `34.69`, `49.49`, `45.50`), `data-lon` (e.g. `135.50`, `0.11`, `-73.57`), `data-tz` (e.g. `Asia/Tokyo`, `Europe/Paris`, `America/Toronto`)
 

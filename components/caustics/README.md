@@ -56,8 +56,8 @@ CSS variables, set on `[data-kodza-caustics]` itself:
 | `--kz-caustics-speed` | `1` | how fast the water moves (0: still water) |
 | `--kz-caustics-calm` | `0.3` | how much the water moves under the text, 0 to 1 |
 | `--kz-caustics-height` | `600px` |  |
-| `--kz-caustics-width` | `1152px` | the text column |
-| `--kz-caustics-side` | `clamp(20px, 5vw, 64px)` |  |
+| `--kz-caustics-width` | `var(--kz-page-width, 1440px)` | the text column |
+| `--kz-caustics-side` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 
 - Attributes: `data-kodza-caustics`
 

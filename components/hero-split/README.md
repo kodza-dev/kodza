@@ -11,7 +11,7 @@ A split hero, words on the left and a 4:5 picture on the right: the title lines 
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-split.html`](kodza-hero-split.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-split.css`](kodza-hero-split.css) | 17.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-split.css`](kodza-hero-split.css) | 17.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-split.js`](kodza-hero-split.js) | 7.6 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -52,10 +52,10 @@ CSS variables, set on `.kodza-hero-split` itself:
 | `--kz-hero-split-faint` | `color-mix(in srgb, var(--kz-hero-split-ink) 60%, transparent)` |  |
 | `--kz-hero-split-soft` | `color-mix(in srgb, var(--kz-hero-split-ink) 7%, transparent)` |  |
 | `--kz-hero-split-bg` | `transparent` |  |
-| `--kz-hero-split-width` | `1240px` |  |
+| `--kz-hero-split-width` | `var(--kz-page-width, 1440px)` |  |
 | `--kz-hero-split-gap` | `clamp(32px, 5vw, 80px)` |  |
 | `--kz-hero-split-pad-y` | `clamp(72px, 9vw, 140px)` |  |
-| `--kz-hero-split-gutter` | `clamp(16px, 4vw, 40px)` |  |
+| `--kz-hero-split-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-hero-split-radius` | `calc(16px * var(--kz-radius-scale, 1))` |  |
 | `--kz-hero-split-ratio` | `4 / 5` |  |
 | `--kz-hero-split-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |

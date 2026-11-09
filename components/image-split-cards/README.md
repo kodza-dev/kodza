@@ -48,8 +48,8 @@ CSS variables, set on `[data-kodza-image-split-cards]` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-image-split-cards-width` | `1080px` |  |
-| `--kz-image-split-cards-gutter` | `24px` |  |
+| `--kz-image-split-cards-width` | `var(--kz-page-width, 1440px)` |  |
+| `--kz-image-split-cards-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-image-split-cards-gap` | `16px` |  |
 | `--kz-image-split-cards-height` | `clamp(300px, 52svh, 440px)` |  |
 | `--kz-image-split-cards-height-stacked` | `clamp(150px, 21svh, 200px)` |  |

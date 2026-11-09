@@ -46,7 +46,7 @@ CSS variables, set on `.kodza-contact-router` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-contact-router-width` | `1200px` | widest the section gets |
+| `--kz-contact-router-width` | `var(--kz-page-width, 1440px)` | widest the section gets |
 | `--kz-contact-router-gap` | `64px` | between the two columns |
 | `--kz-contact-router-field` | `var(--kz-color-paper, #ffffff)` | inside the fields, and the cards |
 | `--kz-contact-router-fg` | `var(--kz-color-ink, #0a0a0a)` |  |

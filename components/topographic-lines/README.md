@@ -11,7 +11,7 @@ A hero over a contour map drawn by a native WebGL shader: the lines drift very s
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-topographic-lines.html`](kodza-topographic-lines.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-topographic-lines.css`](kodza-topographic-lines.css) | 14.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-topographic-lines.css`](kodza-topographic-lines.css) | 14.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-topographic-lines.js`](kodza-topographic-lines.js) | 23.4 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -58,8 +58,8 @@ CSS variables, set on `[data-kodza-topographic-lines]` itself:
 | `--kz-topographic-lines-reach` | `140px` | the radius of that hill |
 | `--kz-topographic-lines-calm` | `0.2` | how much of a line shows under the text, 0 to 1 |
 | `--kz-topographic-lines-height` | `600px` |  |
-| `--kz-topographic-lines-width` | `1152px` | the text column |
-| `--kz-topographic-lines-side` | `clamp(20px, 5vw, 64px)` |  |
+| `--kz-topographic-lines-width` | `var(--kz-page-width, 1440px)` | the text column |
+| `--kz-topographic-lines-side` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 
 - Attributes: `data-kodza-topographic-lines`
 

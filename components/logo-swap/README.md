@@ -11,7 +11,7 @@ More customer logos than cells: every few seconds one cell swaps its logo, the o
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-logo-swap.html`](kodza-logo-swap.html) | 28.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-logo-swap.css`](kodza-logo-swap.css) | 18.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-logo-swap.css`](kodza-logo-swap.css) | 18.7 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-logo-swap.js`](kodza-logo-swap.js) | 13.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -60,9 +60,9 @@ CSS variables, set on `[data-kodza-logo-swap]` itself:
 | `--kz-logo-swap-cell` | `88px` | the height of a cell |
 | `--kz-logo-swap-area` | `2300` | square pixels per logo: a wide one sits lower, a square one taller, all weigh the same |
 | `--kz-logo-swap-max` | `40px` | the tallest a logo gets |
-| `--kz-logo-swap-width` | `1120px` |  |
+| `--kz-logo-swap-width` | `var(--kz-page-width, 1440px)` |  |
 | `--kz-logo-swap-pad-y` | `clamp(56px, 7vw, 96px)` |  |
-| `--kz-logo-swap-gutter` | `clamp(16px, 4vw, 40px)` |  |
+| `--kz-logo-swap-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-logo-swap-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-logo-swap-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 

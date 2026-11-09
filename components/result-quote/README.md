@@ -51,13 +51,13 @@ CSS variables, set on `.kodza-result-quote` itself:
 | `--kz-result-quote-rule` | `color-mix(in srgb, var(--kz-result-quote-ink) 22%, transparent)` | the line under the result |
 | `--kz-result-quote-face` | `#e6e6e3` |  |
 | `--kz-result-quote-bg` | `transparent` |  |
-| `--kz-result-quote-width` | `1200px` |  |
+| `--kz-result-quote-width` | `var(--kz-page-width, 1440px)` |  |
 | `--kz-result-quote-measure` | `680px` | the longest line of the quote |
 | `--kz-result-quote-result-col` | `5fr` | the two columns, from 860px of room |
 | `--kz-result-quote-story-col` | `7fr` |  |
 | `--kz-result-quote-hang` | `0.4em` | the opening quote mark hangs in the margin by its width |
 | `--kz-result-quote-pad-y` | `clamp(64px, 8vw, 112px)` |  |
-| `--kz-result-quote-gutter` | `clamp(16px, 4vw, 40px)` |  |
+| `--kz-result-quote-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-result-quote-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-result-quote-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 

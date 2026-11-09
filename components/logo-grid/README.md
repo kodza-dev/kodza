@@ -11,7 +11,7 @@ Client logos in a hairline grid, grey and all the same weight. A cell can link t
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-logo-grid.html`](kodza-logo-grid.html) | 29.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-logo-grid.css`](kodza-logo-grid.css) | 21.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-logo-grid.css`](kodza-logo-grid.css) | 21.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-logo-grid.js`](kodza-logo-grid.js) | 5.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -62,9 +62,9 @@ CSS variables, set on `[data-kodza-logo-grid]` itself:
 | `--kz-logo-grid-area-narrow` | `1600` |  |
 | `--kz-logo-grid-max` | `44px` | the tallest a logo gets |
 | `--kz-logo-grid-tier-label` | `200px` | the column of the tier names |
-| `--kz-logo-grid-width` | `1120px` |  |
+| `--kz-logo-grid-width` | `var(--kz-page-width, 1440px)` |  |
 | `--kz-logo-grid-pad-y` | `clamp(56px, 7vw, 96px)` |  |
-| `--kz-logo-grid-gutter` | `clamp(16px, 4vw, 40px)` |  |
+| `--kz-logo-grid-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-logo-grid-mono` | `var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace)` |  |
 | `--kz-logo-grid-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 

@@ -58,8 +58,8 @@ CSS variables, set on `.kodza-header-mega` itself:
 | `--kz-header-mega-ink` | `var(--kz-color-accent, var(--kz-header-mega-fg))` | the call to action |
 | `--kz-header-mega-on-ink` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-header-mega-height` | `72px` |  |
-| `--kz-header-mega-width` | `1200px` | the row, centred |
-| `--kz-header-mega-pad` | `24px` |  |
+| `--kz-header-mega-width` | `calc(var(--kz-page-width, 1440px) + 2 * var(--kz-header-mega-pad))` | the row, centred |
+| `--kz-header-mega-pad` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-header-mega-gap` | `8px` | between the bar and the panel |
 | `--kz-header-mega-radius` | `calc(14px * var(--kz-radius-scale, 1))` |  |
 | `--kz-header-mega-duration` | `0.45s` | the panel changing shape, the pill gliding |

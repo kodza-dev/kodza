@@ -11,7 +11,7 @@ The head of a section on its own: a mono label, a tight title and a short intro,
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-section-intro.html`](kodza-section-intro.html) | 0.9 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-section-intro.css`](kodza-section-intro.css) | 16.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-section-intro.css`](kodza-section-intro.css) | 16.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-section-intro.js`](kodza-section-intro.js) | 8.5 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -50,8 +50,8 @@ CSS variables, set on `.kodza-section-intro` itself:
 | `--kz-section-intro-dim` | `color-mix(in srgb, var(--kz-section-intro-ink) 66%, transparent)` |  |
 | `--kz-section-intro-faint` | `color-mix(in srgb, var(--kz-section-intro-ink) 60%, transparent)` |  |
 | `--kz-section-intro-bg` | `transparent` |  |
-| `--kz-section-intro-width` | `1240px` | the content column, the same as the other sections |
-| `--kz-section-intro-gutter` | `clamp(16px, 4vw, 40px)` | the space kept at the screen edges |
+| `--kz-section-intro-width` | `var(--kz-page-width, 1440px)` | the content column, the same as the other sections |
+| `--kz-section-intro-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` | the space kept at the screen edges |
 | `--kz-section-intro-pad-top` | `clamp(72px, 9vw, 140px)` | above, like the top of a section… |
 | `--kz-section-intro-pad-bottom` | `clamp(40px, 5vw, 72px)` | …and the space left to what it heads |
 | `--kz-section-intro-gap` | `clamp(32px, 6vw, 96px)` | split: between the title and the intro |

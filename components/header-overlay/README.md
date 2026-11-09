@@ -63,8 +63,8 @@ CSS variables, set on `.kodza-header-overlay` itself:
 | `--kz-header-overlay-solid-cta-fg` | `var(--kz-color-on-accent, var(--kz-color-paper, #ffffff))` |  |
 | `--kz-header-overlay-top` | `var(--wp-admin--admin-bar--height, 0px)` | below the WordPress admin bar |
 | `--kz-header-overlay-height` | `76px` |  |
-| `--kz-header-overlay-width` | `1200px` | the row, centred |
-| `--kz-header-overlay-pad` | `24px` |  |
+| `--kz-header-overlay-width` | `calc(var(--kz-page-width, 1440px) + 2 * var(--kz-header-overlay-pad))` | the row, centred |
+| `--kz-header-overlay-pad` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-header-overlay-duration` | `0.7s` | the blind |
 | `--kz-header-overlay-ease` | `cubic-bezier(0.33, 1, 0.68, 1)` | off at once: it answers the scroll |
 | `--kz-header-overlay-menu-bg` | `var(--kz-color-ink, #0a0a0a)` |  |

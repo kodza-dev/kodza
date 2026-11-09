@@ -11,7 +11,7 @@ One wide picture between a head and a few short notes: title and intro side by s
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-media-wide.html`](kodza-media-wide.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-media-wide.css`](kodza-media-wide.css) | 18.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-media-wide.css`](kodza-media-wide.css) | 18.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-media-wide.js`](kodza-media-wide.js) | 10.1 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -51,8 +51,8 @@ CSS variables, set on `.kodza-media-wide` itself:
 | `--kz-media-wide-faint` | `color-mix(in srgb, var(--kz-media-wide-ink) 60%, transparent)` |  |
 | `--kz-media-wide-rule` | `color-mix(in srgb, var(--kz-media-wide-ink) 14%, transparent)` |  |
 | `--kz-media-wide-bg` | `transparent` |  |
-| `--kz-media-wide-width` | `1240px` | the content column, the same as the other sections |
-| `--kz-media-wide-gutter` | `clamp(16px, 4vw, 40px)` | the space kept at the screen edges |
+| `--kz-media-wide-width` | `var(--kz-page-width, 1440px)` | the content column, the same as the other sections |
+| `--kz-media-wide-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` | the space kept at the screen edges |
 | `--kz-media-wide-pad-y` | `clamp(72px, 9vw, 140px)` | above and below |
 | `--kz-media-wide-gap` | `clamp(32px, 5vw, 80px)` | between the title and the intro |
 | `--kz-media-wide-space` | `clamp(40px, 5vw, 72px)` | between the head and the picture |

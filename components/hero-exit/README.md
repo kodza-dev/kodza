@@ -11,7 +11,7 @@ A centred title in two big lines. On scroll the scene holds, the lines part, a p
 | File | Size | What it is |
 | --- | ---: | --- |
 | [`kodza-hero-exit.html`](kodza-hero-exit.html) | 1.7 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-hero-exit.css`](kodza-hero-exit.css) | 20.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-hero-exit.css`](kodza-hero-exit.css) | 20.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-hero-exit.js`](kodza-hero-exit.js) | 16.9 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
@@ -55,8 +55,8 @@ CSS variables, set on `.kodza-hero-exit` itself:
 | `--kz-hero-exit-soft` | `color-mix(in srgb, var(--kz-hero-exit-ink) 7%, transparent)` |  |
 | `--kz-hero-exit-bg` | `transparent` |  |
 | `--kz-hero-exit-shade` | `#0a0a0a` | the card darkens toward it as the next section covers it |
-| `--kz-hero-exit-width` | `1240px` |  |
-| `--kz-hero-exit-gutter` | `clamp(16px, 4vw, 40px)` |  |
+| `--kz-hero-exit-width` | `var(--kz-page-width, 1440px)` |  |
+| `--kz-hero-exit-gutter` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 | `--kz-hero-exit-pad-y` | `clamp(20px, 2.6vw, 36px)` |  |
 | `--kz-hero-exit-size` | `calc(clamp(44px, min(14cqi, 17svh), 168px) * var(--kz-font-display-scale, 1))` | the title lines |
 | `--kz-hero-exit-focus` | `50% 42%` | the part of the picture the card shows |

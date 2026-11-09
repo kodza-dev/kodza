@@ -46,7 +46,7 @@ CSS variables, set on `.kodza-contact-brief` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-contact-brief-width` | `1200px` | widest the section gets |
+| `--kz-contact-brief-width` | `var(--kz-page-width, 1440px)` | widest the section gets |
 | `--kz-contact-brief-gap` | `64px` | between the two columns |
 | `--kz-contact-brief-field` | `var(--kz-color-paper, #ffffff)` | inside the fields, the tags and the tracks |
 | `--kz-contact-brief-fg` | `var(--kz-color-ink, #0a0a0a)` |  |

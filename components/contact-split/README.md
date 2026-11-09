@@ -46,7 +46,7 @@ CSS variables, set on `.kodza-contact-split` itself:
 
 | Variable | Default | |
 | --- | --- | --- |
-| `--kz-contact-split-width` | `1200px` | widest the section gets |
+| `--kz-contact-split-width` | `var(--kz-page-width, 1440px)` | widest the section gets |
 | `--kz-contact-split-gap` | `64px` | between the two columns |
 | `--kz-contact-split-field` | `var(--kz-color-paper, #ffffff)` | inside the fields |
 | `--kz-contact-split-fg` | `var(--kz-color-ink, #0a0a0a)` |  |

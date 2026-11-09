@@ -54,8 +54,8 @@ CSS variables, set on `[data-kodza-grain]` itself:
 | `--kz-grain-scale` | `1` | 1.5 or 2 for a coarser grain |
 | `--kz-grain-speed` | `1s` | one cycle of ten frames |
 | `--kz-grain-height` | `600px` |  |
-| `--kz-grain-width` | `1152px` | the content column |
-| `--kz-grain-side` | `clamp(20px, 5vw, 64px)` |  |
+| `--kz-grain-width` | `var(--kz-page-width, 1440px)` | the content column |
+| `--kz-grain-side` | `var(--kz-page-gutter, clamp(16px, 4vw, 40px))` |  |
 
 - Modifiers: `.kodza-grain--still`
 - Attributes: `data-kodza-grain`
