@@ -1,9 +1,10 @@
 // Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license
 // Kodza — Media Wide
 // Each part of the section (the head, the picture, the notes) plays its entrance once, as it comes
-// into view: the label and the title rise out of their own box and the intro follows, the picture
-// is uncovered from its top edge down and settles from a slight zoom, the caption and the notes
-// come up after it. "kodza:replay" plays again the parts on screen and sets the others waiting.
+// into view: the label rises out of its box, the title line after line, and the intro follows;
+// the picture is uncovered from its top edge down and settles from a slight zoom, the caption and
+// the notes come up after it. "kodza:replay" plays again the parts on screen and sets the others
+// waiting.
 // The timings are the constants under SELECTOR.
 (() => {
   const SELECTOR = '.kodza-media-wide';
@@ -11,6 +12,7 @@
   const EYEBROW = 1000; // the label rising out of its box…
   const TITLE = 1170; // …the title after it…
   const TITLE_AT = 110; // …this much later
+  const TITLE_STEP = 125; // between two lines of the title
   const INTRO_AT = 420; // the intro coming up beside it
   const CURTAIN = 1350; // the picture uncovered from the top edge down
   const CURTAIN_AT = 120;
@@ -67,8 +69,14 @@
       const q = (s) => unit.querySelector(s);
       unit.classList.add('is-shown');
       animate(q('.kodza-media-wide__eyebrow'), RISE, { duration: EYEBROW });
-      animate(q('.kodza-media-wide__title'), RISE, { duration: TITLE, delay: TITLE_AT });
-      fade(q('.kodza-media-wide__intro'), INTRO_AT);
+      const title = q('.kodza-media-wide__title');
+      // The title, line after line, each out of its own mask (written as lines); a title written in
+      // one piece rises in one piece
+      const lines = [...(title?.querySelectorAll(':scope > .kodza-media-wide__line > .kodza-media-wide__rise') || [])];
+      if (lines.length) lines.forEach((line, i) => animate(line, [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration: TITLE, delay: TITLE_AT + i * TITLE_STEP }));
+      else animate(title, RISE, { duration: TITLE, delay: TITLE_AT });
+      // The intro waits for the last line to be on its way
+      fade(q('.kodza-media-wide__intro'), INTRO_AT + Math.max(0, lines.length - 2) * TITLE_STEP);
       // The curtain: both layers on transforms, the picture settles from a slight zoom
       animate(q('.kodza-media-wide__curtain'), [{ transform: 'translateY(-100%)' }, { transform: 'none' }], { duration: CURTAIN, delay: CURTAIN_AT });
       animate(q('.kodza-media-wide__hold'), [{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: CURTAIN, delay: CURTAIN_AT });

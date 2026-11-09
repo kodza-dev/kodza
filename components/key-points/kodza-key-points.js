@@ -2,9 +2,10 @@
 // Kodza — Key Points
 // Each row plays its entrance once, as it comes into view: its hairline draws across from the
 // left, the term (and the name, in columns) rises out of its own box, the sentence comes up
-// after it. Rows that arrive together follow one another. A __figure rolls into place, the
-// digits on the right spinning longer. "kodza:replay" plays the rows on screen again,
-// and sets the others waiting to be scrolled to. The timings are the constants under SELECTOR.
+// after it; the title of the head rises line after line. Rows that arrive together follow one
+// another. A __figure rolls into place, the digits on the right spinning longer. "kodza:replay"
+// plays the rows on screen again, and sets the others waiting to be scrolled to. The timings are
+// the constants under SELECTOR.
 (() => {
   const SELECTOR = '.kodza-key-points';
   // The entrance, in ms (each one times the site's pace)
@@ -13,6 +14,7 @@
   const TERM_AT = 160; // …once the hairline is on its way
   const TITLE = 1000; // the title, and the name of a point in columns…
   const TITLE_AT = 220; // …a beat after the term
+  const TITLE_STEP = 125; // between two lines of the head's title
   const TEXT = 900; // the sentence coming up…
   const TEXT_AT = 320; // …after the name
   const FIGURE_AT = 120; // a __figure starts to roll…
@@ -95,7 +97,12 @@
         animate(row, [{ transform: 'scaleX(0)' }, { transform: 'none' }], { duration: RULE, pseudoElement: '::before' });
         if (getComputedStyle(row, '::after').content !== 'none') animate(row, [{ transform: 'scaleX(0)' }, { transform: 'none' }], { duration: RULE, delay: STEP, pseudoElement: '::after' });
       }
-      animate(q('.kodza-key-points__title'), RISE, { duration: TITLE });
+      const title = q('.kodza-key-points__title');
+      // The title, line after line, each out of its own mask (written as lines); a title written in
+      // one piece rises in one piece
+      const lines = [...(title?.querySelectorAll(':scope > .kodza-key-points__line > .kodza-key-points__rise') || [])];
+      if (lines.length) lines.forEach((line, i) => animate(line, [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration: TITLE, delay: i * TITLE_STEP }));
+      else animate(title, RISE, { duration: TITLE });
       animate(q('.kodza-key-points__term'), RISE, { duration: TERM, delay: TERM_AT });
       animate(q('.kodza-key-points__heading'), RISE, { duration: TITLE, delay: TITLE_AT });
       animate(q('.kodza-key-points__text'), [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: TEXT, delay: TEXT_AT, easing: SOFT });

@@ -10,9 +10,9 @@ A text beside three pictures of different shapes set off from each other, the wi
 
 | File | Size | What it is |
 | --- | ---: | --- |
-| [`kodza-media-collage.html`](kodza-media-collage.html) | 2.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-media-collage.css`](kodza-media-collage.css) | 16.5 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-media-collage.js`](kodza-media-collage.js) | 11.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-media-collage.html`](kodza-media-collage.html) | 2.8 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
+| [`kodza-media-collage.css`](kodza-media-collage.css) | 16.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-media-collage.js`](kodza-media-collage.js) | 11.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

@@ -1,8 +1,9 @@
 // Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license
 // Kodza — Text Section
-// It plays its entrance once, as it comes into view: the label and the title rise out of their own
-// box, then the blocks of the text come up one after the other (the first six; the rest come
-// with the sixth). The title stays in view as the text goes by (position: sticky, in the CSS).
+// It plays its entrance once, as it comes into view: the label rises out of its box and the title
+// line after line out of its own masks, then the blocks of the text come up one after the other
+// (the first six; the rest come with the sixth). The title stays in view as the text goes by
+// (position: sticky, in the CSS).
 // "kodza:replay" plays it again when it is on screen, or sets it waiting to be scrolled to.
 // The timings are the constants under SELECTOR.
 (() => {
@@ -11,6 +12,7 @@
   const EYEBROW = 900; // the label rising out of its box…
   const TITLE = 1100; // …the title after it…
   const TITLE_AT = 90; // …this much later
+  const TITLE_STEP = 125; // between two lines of the title
   const BLOCK = 900; // each block of the text coming up…
   const BLOCK_AT = 260; // …the first one once the title is on its way…
   const BLOCK_STEP = 80; // …the next ones this much apart…
@@ -51,10 +53,16 @@
       };
       root.classList.add('is-shown');
       animate(root.querySelector('.kodza-text-section__eyebrow'), RISE, { duration: EYEBROW });
-      animate(root.querySelector('.kodza-text-section__title'), RISE, { duration: TITLE, delay: TITLE_AT });
+      const title = root.querySelector('.kodza-text-section__title');
+      // The title, line after line, each out of its own mask (written as lines); a title written in
+      // one piece rises in one piece
+      const lines = [...(title?.querySelectorAll(':scope > .kodza-text-section__line > .kodza-text-section__rise') || [])];
+      if (lines.length) lines.forEach((line, i) => animate(line, [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration: TITLE, delay: TITLE_AT + i * TITLE_STEP }));
+      else animate(title, RISE, { duration: TITLE, delay: TITLE_AT });
+      const after = Math.max(0, lines.length - 2) * TITLE_STEP; // the text waits for the last line to be on its way
       const body = root.querySelector('.kodza-text-section__body');
       [...(body?.children || [])].forEach((block, i) => {
-        const delay = BLOCK_AT + Math.min(i, BLOCK_MAX - 1) * BLOCK_STEP;
+        const delay = after + BLOCK_AT + Math.min(i, BLOCK_MAX - 1) * BLOCK_STEP;
         animate(block, [{ opacity: 0, transform: `translateY(${LIFT}px)` }, { opacity: 1, transform: 'none' }], { duration: BLOCK, delay, easing: SOFT });
       });
     };

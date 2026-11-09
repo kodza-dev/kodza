@@ -10,9 +10,9 @@ Three to six facts on 1 px hairlines that draw across as each row comes into vie
 
 | File | Size | What it is |
 | --- | ---: | --- |
-| [`kodza-key-points.html`](kodza-key-points.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-key-points.css`](kodza-key-points.css) | 17.9 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-key-points.js`](kodza-key-points.js) | 11.8 KB | The script. One copy per page runs every instance. |
+| [`kodza-key-points.html`](kodza-key-points.html) | 1.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
+| [`kodza-key-points.css`](kodza-key-points.css) | 18.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-key-points.js`](kodza-key-points.js) | 12.3 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

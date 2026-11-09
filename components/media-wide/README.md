@@ -10,9 +10,9 @@ One wide picture between a head and a few short notes: title and intro side by s
 
 | File | Size | What it is |
 | --- | ---: | --- |
-| [`kodza-media-wide.html`](kodza-media-wide.html) | 1.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-media-wide.css`](kodza-media-wide.css) | 18.4 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-media-wide.js`](kodza-media-wide.js) | 10.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-media-wide.html`](kodza-media-wide.html) | 1.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
+| [`kodza-media-wide.css`](kodza-media-wide.css) | 18.8 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-media-wide.js`](kodza-media-wide.js) | 10.7 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 

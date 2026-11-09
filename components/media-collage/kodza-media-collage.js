@@ -1,8 +1,9 @@
 // Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license
 // Kodza — Media Collage
 // Each part of the section (the text, then each picture) plays its entrance once, as it comes into
-// view: the label and the title rise out of their own box and the text follows; each picture is
-// uncovered from its top edge down and settles from a slight zoom, then its caption rises.
+// view: the label rises out of its box, the title line after line, and the text follows; each
+// picture is uncovered from its top edge down and settles from a slight zoom, then its caption
+// rises.
 // Pictures that come into view together enter one after the other, never all at once. The text
 // stays in view while the pictures go by (position: sticky, in the CSS). "kodza:replay" plays again
 // the parts on screen and sets the others waiting. The timings are the constants under SELECTOR.
@@ -12,6 +13,7 @@
   const EYEBROW = 1000; // the label rising out of its box…
   const TITLE = 1170; // …the title after it…
   const TITLE_AT = 110; // …this much later
+  const TITLE_STEP = 125; // between two lines of the title
   const BODY_AT = 380; // the paragraphs coming up under it…
   const BODY_STEP = 90; // …one after the other
   const CURTAIN = 1350; // each picture uncovered from the top edge down
@@ -80,8 +82,15 @@
       unit.classList.add('is-shown');
       if (unit.matches('.kodza-media-collage__copy')) {
         animate(q('.kodza-media-collage__eyebrow'), RISE, { duration: EYEBROW });
-        animate(q('.kodza-media-collage__title'), RISE, { duration: TITLE, delay: TITLE_AT });
-        [...(q('.kodza-media-collage__body')?.children || [])].forEach((block, i) => fade(block, BODY_AT + i * BODY_STEP));
+        const title = q('.kodza-media-collage__title');
+        // The title, line after line, each out of its own mask (written as lines); a title written in
+        // one piece rises in one piece
+        const lines = [...(title?.querySelectorAll(':scope > .kodza-media-collage__line > .kodza-media-collage__rise') || [])];
+        if (lines.length) lines.forEach((line, i) => animate(line, [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration: TITLE, delay: TITLE_AT + i * TITLE_STEP }));
+        else animate(title, RISE, { duration: TITLE, delay: TITLE_AT });
+        // The paragraphs wait for the last line to be on its way
+        const after = Math.max(0, lines.length - 2) * TITLE_STEP;
+        [...(q('.kodza-media-collage__body')?.children || [])].forEach((block, i) => fade(block, after + BODY_AT + i * BODY_STEP));
         return;
       }
       // The curtain: both layers on transforms, the picture settles from a slight zoom

@@ -10,9 +10,9 @@ A section of running text: the title stays in view on the left while the text, k
 
 | File | Size | What it is |
 | --- | ---: | --- |
-| [`kodza-text-section.html`](kodza-text-section.html) | 1.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-text-section.css`](kodza-text-section.css) | 21.6 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-text-section.js`](kodza-text-section.js) | 8.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-text-section.html`](kodza-text-section.html) | 1.3 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
+| [`kodza-text-section.css`](kodza-text-section.css) | 22.0 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-text-section.js`](kodza-text-section.js) | 8.8 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
