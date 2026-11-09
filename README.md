@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 224. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 226. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-224 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+226 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -487,6 +487,24 @@ Written like it's going live tomorrow. Because it probably is.
 | [Contact Brief](components/contact-brief/) | A project request section: tags for what is needed, a budget and a time frame picked on a sliding pill, name and email. A summary of the brief writes itself as you pick; sent, the form rolls into a receipt. | [Demo](https://kodza.dev/components/contact-brief/) |
 | [Contact Router](components/contact-router/) | A contact section that asks what it is about first: Sales, Support, Press or Jobs. The fields become the ones that desk needs, the button names who reads it, Support links to help. Sent, it rolls into a receipt. | [Demo](https://kodza.dev/components/contact-router/) |
 | [Contact Split](components/contact-split/) | A contact section: the email to copy, phone, address and a status worked out from the opening hours; a short form that rolls into the thanks. A variant for a place shows the week of hours. | [Demo](https://kodza.dev/components/contact-split/) |
+
+</details>
+
+<details>
+<summary><b>CTA & Newsletter</b> · 1</summary>
+
+| Component | What it does | |
+| --- | --- | --- |
+| [CTA Wordmark](components/cta-wordmark/) | The call at the end of a page, set across the whole width: two or three words sized to fill the line, rising one by one, a picture laid over the foot of the letters, and a button or an email field below. | [Demo](https://kodza.dev/components/cta-wordmark/) |
+
+</details>
+
+<details>
+<summary><b>FAQ</b> · 1</summary>
+
+| Component | What it does | |
+| --- | --- | --- |
+| [FAQ Split](components/faq-split/) | A two-column FAQ section: title, topics and a way out pinned on the left, questions by topic on the right, and FAQPage structured data from the page. | [Demo](https://kodza.dev/components/faq-split/) |
 
 </details>
 
