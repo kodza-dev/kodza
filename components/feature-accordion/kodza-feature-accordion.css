@@ -1,0 +1,1604 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Feature Accordion
+   A product tour: the features on the left, one open at a time, a hairline filling under it before
+   the next one opens; on the right its visual (a picture, a screen, a block of code), which opens from
+   the top over the previous one, with a small card that rolls its figures. --tabs sets the features
+   as ink-pill tabs above one wide visual, the chosen tab's text rolling in underneath. On a phone the
+   visual goes inside the open feature. Everything is tuned with the --kz-feature-accordion-*
+   variables. */
+.kodza-feature-accordion {
+  --kz-feature-accordion-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-feature-accordion-paper: var(--kz-color-paper, #ffffff); /* the card, the tabs' track */
+  --kz-feature-accordion-text: color-mix(in srgb, var(--kz-feature-accordion-ink) 84%, transparent);
+  --kz-feature-accordion-dim: color-mix(in srgb, var(--kz-feature-accordion-ink) 66%, transparent);
+  --kz-feature-accordion-faint: color-mix(in srgb, var(--kz-feature-accordion-ink) 60%, transparent);
+  --kz-feature-accordion-line: color-mix(in srgb, var(--kz-feature-accordion-ink) 12%, transparent); /* the hairlines */
+  --kz-feature-accordion-soft: color-mix(in srgb, var(--kz-feature-accordion-ink) 6%, transparent); /* behind a picture still loading */
+  --kz-feature-accordion-bg: transparent;
+  --kz-feature-accordion-width: var(--kz-page-width, 1440px); /* the content column: the page's, set by the site */
+  --kz-feature-accordion-gutter: var(--kz-page-gutter, clamp(16px, 4vw, 40px)); /* the space kept at the screen edges */
+  --kz-feature-accordion-pad-top: clamp(56px, 7vw, 112px);
+  --kz-feature-accordion-pad-bottom: clamp(56px, 7vw, 112px);
+  --kz-feature-accordion-size: clamp(28px, 3.4vw, 44px); /* the title */
+  --kz-feature-accordion-gap: clamp(32px, 5cqi, 80px); /* between the list and the visual */
+  --kz-feature-accordion-ratio: 4 / 3; /* the visual, beside the list */
+  --kz-feature-accordion-wide: 2 / 1; /* the visual, under the tabs */
+  --kz-feature-accordion-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-feature-accordion-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-feature-accordion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-feature-accordion / inline-size;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: var(--kz-feature-accordion-pad-top);
+  padding-bottom: var(--kz-feature-accordion-pad-bottom);
+  background: var(--kz-feature-accordion-bg);
+  color: var(--kz-feature-accordion-ink);
+}
+
+.kodza-feature-accordion__inner {
+  box-sizing: border-box;
+  max-width: calc(var(--kz-feature-accordion-width) + 2 * var(--kz-feature-accordion-gutter));
+  margin: 0 auto;
+  padding-left: max(var(--kz-feature-accordion-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-feature-accordion-gutter), env(safe-area-inset-right, 0px));
+}
+
+/* The head: a label, the title on the left, the intro on the right on the title's first line.
+   Each part can go */
+.kodza-feature-accordion__head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  grid-template-areas: "eyebrow ." "title intro";
+  column-gap: clamp(32px, 6vw, 96px);
+  margin-bottom: clamp(48px, 6vw, 88px);
+}
+
+.kodza-feature-accordion__eyebrow {
+  grid-area: eyebrow;
+  margin: 0 0 20px;
+  font-family: var(--kz-font-label, var(--kz-feature-accordion-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-feature-accordion-faint);
+}
+
+.kodza-feature-accordion__title {
+  grid-area: title;
+  align-self: first baseline;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-feature-accordion-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+  color: var(--kz-feature-accordion-ink);
+}
+
+/* Each line of the title is its own mask: its words rise from behind its bottom edge */
+.kodza-feature-accordion__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.kodza-feature-accordion__rise {
+  display: block;
+  text-wrap: balance; /* a line too long for its column breaks into two even halves */
+}
+
+.kodza-feature-accordion__intro {
+  grid-area: intro;
+  align-self: first baseline;
+  max-width: 440px;
+  margin: 0;
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.55;
+  color: var(--kz-feature-accordion-dim);
+  text-wrap: pretty;
+}
+
+/* ---- The list ---- */
+.kodza-feature-accordion__list {
+  min-width: 0;
+}
+
+/* Without the script every feature is open, one under the other, each under its hairline. The
+   script draws its own (__track, which fills while the tour waits on it) */
+.kodza-feature-accordion__item {
+  border-bottom: 1px solid var(--kz-feature-accordion-line);
+}
+
+.kodza-feature-accordion.is-ready .kodza-feature-accordion__item {
+  border-bottom: 0;
+}
+
+.kodza-feature-accordion__heading {
+  margin: 0;
+  font: inherit;
+}
+
+.kodza-feature-accordion:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__trigger {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 22px 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--kz-feature-accordion-dim);
+  font: inherit;
+  font-size: clamp(18px, 1.6vw, 22px);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  text-align: left;
+  cursor: pointer;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-feature-accordion:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__trigger:hover {
+    color: var(--kz-feature-accordion-ink);
+  }
+}
+
+.kodza-feature-accordion__item.is-open .kodza-feature-accordion__trigger,
+.kodza-feature-accordion:not(.is-ready) .kodza-feature-accordion__trigger {
+  color: var(--kz-feature-accordion-ink);
+}
+
+.kodza-feature-accordion__item.is-open .kodza-feature-accordion__trigger {
+  cursor: default;
+}
+
+.kodza-feature-accordion__trigger:focus-visible {
+  outline: 2px solid var(--kz-feature-accordion-ink);
+  outline-offset: 4px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-feature-accordion__number {
+  flex: none;
+  min-width: 2.4em;
+  font-family: var(--kz-font-label, var(--kz-feature-accordion-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  font-variant-numeric: tabular-nums;
+  color: var(--kz-feature-accordion-faint);
+  transform: translateY(-0.1em);
+}
+
+.kodza-feature-accordion__name {
+  min-width: 0;
+}
+
+/* The open feature's text, then (on a phone, or without the script) its visual */
+.kodza-feature-accordion__panel {
+  overflow: hidden;
+}
+
+.kodza-feature-accordion.is-ready .kodza-feature-accordion__item:not(.is-open):not(.is-closing) > .kodza-feature-accordion__panel {
+  height: 0;
+  visibility: hidden;
+}
+
+.kodza-feature-accordion__text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--kz-feature-accordion-dim);
+  text-wrap: pretty;
+}
+
+.kodza-feature-accordion:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__text {
+  max-width: 440px;
+  padding: 0 0 24px calc(2.4em + 16px);
+}
+
+/* The hairline under each feature, and its fill: the tour's clock */
+.kodza-feature-accordion__track {
+  position: relative;
+  display: block;
+  height: 1px;
+  overflow: hidden;
+  background: var(--kz-feature-accordion-line);
+  transform-origin: left center;
+}
+
+.kodza-feature-accordion__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--kz-feature-accordion-ink);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+/* ---- The visual ---- */
+.kodza-feature-accordion__media {
+  position: relative;
+  margin: 0 0 28px;
+  aspect-ratio: var(--kz-feature-accordion-ratio);
+}
+
+.kodza-feature-accordion__frame {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--kz-feature-accordion-radius);
+}
+
+/* It opens from the top: the curtain slides down while what it holds stays put */
+.kodza-feature-accordion__curtain,
+.kodza-feature-accordion__hold {
+  height: 100%;
+  overflow: hidden;
+}
+
+.kodza-feature-accordion__hold {
+  background: var(--kz-feature-accordion-soft);
+}
+
+.kodza-feature-accordion__hold > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  object-fit: cover;
+}
+
+/* A screen of code: the only ink block of the section */
+.kodza-feature-accordion__code {
+  box-sizing: border-box;
+  height: 100%;
+  margin: 0;
+  padding: clamp(20px, 3cqi, 40px);
+  overflow: hidden;
+  background: var(--kz-feature-accordion-ink);
+  color: var(--kz-feature-accordion-paper);
+  font-family: var(--kz-feature-accordion-mono);
+  font-size: clamp(13px, 1.2cqi, 15px);
+  line-height: 1.75;
+  white-space: pre;
+}
+
+.kodza-feature-accordion__code > code {
+  font: inherit;
+  color: inherit;
+  background: none;
+  padding: 0;
+}
+
+/* The card on the visual: its figure and what it counts. The script draws one card per section,
+   in __screen (__tally), whose figures roll from one feature to the next */
+.kodza-feature-accordion__card,
+.kodza-feature-accordion__tally {
+  position: absolute;
+  left: clamp(12px, 2cqi, 24px);
+  bottom: clamp(12px, 2cqi, 24px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 12px 16px 13px;
+  border: 1px solid var(--kz-feature-accordion-line);
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+  background: var(--kz-feature-accordion-paper);
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.28);
+  white-space: nowrap;
+  color: var(--kz-feature-accordion-ink);
+}
+
+.kodza-feature-accordion__tally {
+  overflow: hidden;
+}
+
+.kodza-feature-accordion__value {
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(26px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.1;
+  letter-spacing: var(--kz-font-display-tracking, -0.03em);
+  text-transform: var(--kz-font-display-case, inherit);
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-feature-accordion__label {
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.3);
+  letter-spacing: var(--kz-font-label-tracking, 0.01em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-feature-accordion-dim);
+}
+
+/* What rolls: a word in its box, or one character per cell */
+.kodza-feature-accordion__roll {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.kodza-feature-accordion__in,
+.kodza-feature-accordion__out {
+  display: inline-flex;
+  white-space: pre;
+}
+
+.kodza-feature-accordion__out {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.kodza-feature-accordion__cell {
+  display: inline-grid;
+  overflow: hidden;
+}
+
+.kodza-feature-accordion__cell > span {
+  grid-area: 1 / 1;
+}
+
+/* The stage the script uses beside the list: the screen the visuals open in, the card, the bar */
+.kodza-feature-accordion__stage {
+  display: none;
+}
+
+.kodza-feature-accordion__screen {
+  position: relative;
+  aspect-ratio: var(--kz-feature-accordion-ratio);
+}
+
+/* The bar: the counter and the pause button */
+.kodza-feature-accordion__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.kodza-feature-accordion__counter {
+  font-family: var(--kz-font-label, var(--kz-feature-accordion-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  font-variant-numeric: tabular-nums;
+  white-space: pre;
+  color: var(--kz-feature-accordion-faint);
+}
+
+/* The pause button: a ring, two bars that turn into a play arrow once pressed */
+.kodza-feature-accordion__pause {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--kz-feature-accordion-ink);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Nothing to pause when the tour does not move on by itself */
+.kodza-feature-accordion:not(.is-live) .kodza-feature-accordion__pause {
+  visibility: hidden;
+}
+
+.kodza-feature-accordion__pause:focus-visible {
+  outline: 2px solid var(--kz-feature-accordion-ink);
+  outline-offset: 3px;
+}
+
+.kodza-feature-accordion__ring,
+.kodza-feature-accordion__icon {
+  grid-area: 1 / 1;
+}
+
+.kodza-feature-accordion__ring {
+  width: 40px;
+  height: 40px;
+  fill: none;
+  stroke: var(--kz-feature-accordion-line);
+  stroke-width: 1.5;
+  transition: stroke calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-feature-accordion__pause:hover .kodza-feature-accordion__ring {
+    stroke: var(--kz-feature-accordion-ink);
+  }
+}
+
+.kodza-feature-accordion__icon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-feature-accordion__play {
+  fill: currentColor;
+  stroke-width: 1.2;
+  opacity: 0;
+  transform: scale(0.6);
+  transform-origin: 50% 50%;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-feature-accordion-ease);
+}
+
+.kodza-feature-accordion__bars {
+  transform-origin: 50% 50%;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-feature-accordion-ease);
+}
+
+.kodza-feature-accordion__pause[aria-pressed="true"] .kodza-feature-accordion__bars {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.kodza-feature-accordion__pause[aria-pressed="true"] .kodza-feature-accordion__play {
+  opacity: 1;
+  transform: none;
+}
+
+/* A word kept for screen readers only */
+.kodza-feature-accordion__hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- Beside the list, on a wide screen ---- */
+@container kodza-feature-accordion (width > 760px) {
+  .kodza-feature-accordion.is-ready:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__body {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+    column-gap: var(--kz-feature-accordion-gap);
+  }
+
+  .kodza-feature-accordion.is-ready:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__list {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* Every visual sits on the screen, in the second column: the open one on top, the one it covers
+     under it until the curtain is down. Nothing between them and __body is positioned or
+     transformed, so that __body stays the box they are set in */
+  .kodza-feature-accordion.is-ready:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__media {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: calc((100% - var(--kz-feature-accordion-gap)) * 7 / 12);
+    margin: 0;
+    visibility: hidden;
+  }
+
+  .kodza-feature-accordion.is-ready:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__item.is-open .kodza-feature-accordion__media {
+    z-index: 2;
+    visibility: visible;
+  }
+
+  .kodza-feature-accordion.is-ready:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__item.is-behind .kodza-feature-accordion__media {
+    z-index: 1;
+    visibility: visible;
+  }
+
+  .kodza-feature-accordion.is-ready:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__card {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    border: 0;
+  }
+
+  .kodza-feature-accordion.is-ready:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__stage {
+    position: relative;
+    z-index: 3;
+    display: block;
+    grid-column: 2;
+    grid-row: 1;
+    pointer-events: none;
+  }
+
+  .kodza-feature-accordion.is-ready:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__stage > .kodza-feature-accordion__bar {
+    margin-top: 16px;
+  }
+}
+
+/* ---- --tabs: the tabs above one wide visual ---- */
+.kodza-feature-accordion--tabs .kodza-feature-accordion__bar {
+  margin-bottom: 24px;
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__bar > .kodza-feature-accordion__counter {
+  margin-left: auto;
+}
+
+/* Without the script the tabs are names over their panels: they stay out of the way */
+.kodza-feature-accordion--tabs:not(.is-ready) .kodza-feature-accordion__bar {
+  display: none;
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__list {
+  position: relative;
+  display: inline-flex;
+  flex: 0 1 auto;
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 4px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-feature-accordion-paper);
+  box-shadow: inset 0 0 0 1px var(--kz-feature-accordion-line);
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__list.is-scroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__list.is-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* The ink pill, cut out of a full-width layer by clip-path; the mirror over it, cut the same way,
+   draws the chosen tab's word in paper */
+.kodza-feature-accordion__pill,
+.kodza-feature-accordion__mirror {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--kz-feature-accordion-track, 100%);
+  clip-path: inset(4px var(--kz-feature-accordion-pill-r, 100%) 4px var(--kz-feature-accordion-pill-l, 0) round var(--kz-radius-pill, 999px));
+  pointer-events: none;
+}
+
+.kodza-feature-accordion__pill {
+  background: var(--kz-feature-accordion-ink);
+}
+
+.kodza-feature-accordion__mirror {
+  z-index: 1;
+  display: flex;
+  box-sizing: border-box;
+  padding: 4px;
+  color: var(--kz-feature-accordion-paper);
+}
+
+.kodza-feature-accordion--tabs.is-live-pill .kodza-feature-accordion__pill,
+.kodza-feature-accordion--tabs.is-live-pill .kodza-feature-accordion__mirror {
+  transition: clip-path calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-feature-accordion-ease);
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__trigger,
+.kodza-feature-accordion__ghost {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 18px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__trigger {
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-feature-accordion-dim);
+  cursor: pointer;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-feature-accordion--tabs .kodza-feature-accordion__trigger:hover {
+    color: var(--kz-feature-accordion-ink);
+  }
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__trigger[aria-selected="true"] {
+  color: var(--kz-feature-accordion-ink);
+  cursor: default;
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__trigger:focus-visible {
+  outline-offset: 2px;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+/* The panels, stacked in one cell: the tallest one sets the height */
+.kodza-feature-accordion__view {
+  position: relative;
+}
+
+.kodza-feature-accordion__panels {
+  display: grid;
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__panel {
+  min-width: 0;
+}
+
+.kodza-feature-accordion--tabs.is-ready .kodza-feature-accordion__panel {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+.kodza-feature-accordion--tabs.is-ready .kodza-feature-accordion__panel.is-open {
+  z-index: 2;
+  visibility: visible;
+}
+
+.kodza-feature-accordion--tabs.is-ready .kodza-feature-accordion__panel.is-leaving {
+  z-index: 1;
+  visibility: visible;
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__panel:focus-visible {
+  outline: 2px solid var(--kz-feature-accordion-ink);
+  outline-offset: 4px;
+  border-radius: var(--kz-feature-accordion-radius);
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__media {
+  margin: 0;
+  aspect-ratio: var(--kz-feature-accordion-wide);
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__text {
+  max-width: 620px;
+  padding: 36px 0 0;
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.5;
+  color: var(--kz-feature-accordion-text);
+}
+
+.kodza-feature-accordion--tabs:not(.is-ready) .kodza-feature-accordion__panel + .kodza-feature-accordion__panel {
+  margin-top: 48px;
+}
+
+.kodza-feature-accordion--tabs.is-ready .kodza-feature-accordion__card {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+}
+
+.kodza-feature-accordion--tabs.is-ready .kodza-feature-accordion__stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: block;
+  pointer-events: none;
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__screen {
+  aspect-ratio: var(--kz-feature-accordion-wide);
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__stage > .kodza-feature-accordion__track {
+  margin-top: 16px;
+}
+
+/* Waiting for its entrance: the script sets is-shown on the head and on the body as they come
+   into view, and plays the motion in the same frame */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-feature-accordion.is-ready .kodza-feature-accordion__head:not(.is-shown) > *,
+  .kodza-feature-accordion.is-ready .kodza-feature-accordion__body:not(.is-shown) {
+    opacity: 0;
+  }
+}
+
+/* The head stacks; the visual goes inside the open feature */
+@container kodza-feature-accordion (max-width: 760px) {
+  .kodza-feature-accordion__head {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "eyebrow" "title" "intro";
+  }
+
+  .kodza-feature-accordion__intro {
+    margin-top: 20px;
+  }
+
+  .kodza-feature-accordion:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__text {
+    padding-left: 0;
+  }
+
+  .kodza-feature-accordion--tabs {
+    --kz-feature-accordion-wide: 4 / 3;
+  }
+
+  .kodza-feature-accordion--tabs .kodza-feature-accordion__text {
+    padding-top: 32px;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+}
+
+/* A narrow column: the tabs take the whole first line, shared out, so none hides past the edge;
+   the pause and the counter go under them */
+@container kodza-feature-accordion (max-width: 520px) {
+  .kodza-feature-accordion--tabs .kodza-feature-accordion__bar {
+    flex-wrap: wrap;
+    row-gap: 14px;
+  }
+
+  .kodza-feature-accordion--tabs .kodza-feature-accordion__list {
+    display: flex;
+    flex: 1 1 100%;
+  }
+
+  .kodza-feature-accordion--tabs .kodza-feature-accordion__trigger,
+  .kodza-feature-accordion__ghost {
+    flex: 1 0 auto;
+    justify-content: center;
+    padding: 0 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-feature-accordion *,
+  .kodza-feature-accordion *::before,
+  .kodza-feature-accordion *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard c99612a0915a — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-feature-accordion__eyebrow):not(#_),
+:where(.kodza-feature-accordion__title):not(#_),
+:where(.kodza-feature-accordion__intro):not(#_),
+:where(.kodza-feature-accordion__heading):not(#_),
+:where(.kodza-feature-accordion__media):not(#_),
+:where(.kodza-feature-accordion__card):not(#_),
+:where(.kodza-feature-accordion__code):not(#_),
+:where(.kodza-feature-accordion__tally):not(#_),
+:where(.kodza-feature-accordion__icon):not(#_),
+:where(.kodza-feature-accordion__hold img:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-feature-accordion__code code:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-feature-accordion__trigger):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  transition: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  outline-offset: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  white-space: revert;
+}
+
+:where(.kodza-feature-accordion__panel):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-feature-accordion__text):not(#_) {
+  padding: revert;
+  max-width: revert;
+  transition-duration: revert;
+}
+
+:where(.kodza-feature-accordion__pause):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+}
+
+:where(.kodza-feature-accordion__trigger):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-feature-accordion__trigger):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-feature-accordion__head:not(#_),
+.kodza-feature-accordion__line:not(#_),
+.kodza-feature-accordion__rise:not(#_),
+.kodza-feature-accordion__body:not(#_),
+.kodza-feature-accordion__item:not(#_),
+.kodza-feature-accordion__number:not(#_),
+.kodza-feature-accordion__name:not(#_),
+.kodza-feature-accordion__frame:not(#_),
+.kodza-feature-accordion__curtain:not(#_),
+.kodza-feature-accordion__hold:not(#_),
+.kodza-feature-accordion__value:not(#_),
+.kodza-feature-accordion__label:not(#_),
+.kodza-feature-accordion__track:not(#_),
+.kodza-feature-accordion__fill:not(#_),
+.kodza-feature-accordion__stage:not(#_),
+.kodza-feature-accordion__screen:not(#_),
+.kodza-feature-accordion__in:not(#_),
+.kodza-feature-accordion__cell:not(#_),
+.kodza-feature-accordion__bar:not(#_),
+.kodza-feature-accordion__counter:not(#_),
+.kodza-feature-accordion__roll:not(#_),
+.kodza-feature-accordion__bars:not(#_),
+.kodza-feature-accordion__play:not(#_),
+.kodza-feature-accordion__pill:not(#_),
+.kodza-feature-accordion__view:not(#_),
+.kodza-feature-accordion__panels:not(#_),
+.kodza-feature-accordion__cell span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-feature-accordion__eyebrow:not(#_),
+.kodza-feature-accordion__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-accordion__intro:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-accordion__heading:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-accordion__trigger:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-feature-accordion__panel:not(#_) {
+  box-sizing: revert;
+  box-shadow: revert;
+}
+
+.kodza-feature-accordion__text:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-accordion__media:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-accordion__card:not(#_),
+.kodza-feature-accordion__tally:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-accordion__code:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-accordion__pause:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-feature-accordion__ring:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-feature-accordion__icon:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-accordion__hold img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-accordion__code code:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-accordion__eyebrow:not(#_):where(:not([hidden])),
+.kodza-feature-accordion__title:not(#_):where(:not([hidden])),
+.kodza-feature-accordion__intro:not(#_):where(:not([hidden])),
+.kodza-feature-accordion__heading:not(#_):where(:not([hidden])),
+.kodza-feature-accordion__text:not(#_):where(:not([hidden])),
+.kodza-feature-accordion__media:not(#_):where(:not([hidden])),
+.kodza-feature-accordion__code:not(#_):where(:not([hidden])),
+.kodza-feature-accordion__ring:not(#_):where(:not([hidden])),
+.kodza-feature-accordion__icon:not(#_):where(:not([hidden])),
+.kodza-feature-accordion__code code:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-feature-accordion__eyebrow:not(#_):where([hidden]),
+.kodza-feature-accordion__title:not(#_):where([hidden]),
+.kodza-feature-accordion__intro:not(#_):where([hidden]),
+.kodza-feature-accordion__heading:not(#_):where([hidden]),
+.kodza-feature-accordion__text:not(#_):where([hidden]),
+.kodza-feature-accordion__media:not(#_):where([hidden]),
+.kodza-feature-accordion__code:not(#_):where([hidden]),
+.kodza-feature-accordion__ring:not(#_):where([hidden]),
+.kodza-feature-accordion__icon:not(#_):where([hidden]),
+.kodza-feature-accordion__code code:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-feature-accordion__eyebrow:not(#_) {
+  margin: 0 0 20px;
+  font-family: var(--kz-font-label, var(--kz-feature-accordion-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-feature-accordion-faint);
+}
+
+.kodza-feature-accordion__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-feature-accordion-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-feature-accordion-ink);
+}
+
+.kodza-feature-accordion__intro:not(#_) {
+  max-width: 440px;
+  margin: 0;
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.55;
+  color: var(--kz-feature-accordion-dim);
+}
+
+.kodza-feature-accordion__heading:not(#_) {
+  margin: 0;
+  font: inherit;
+}
+
+.kodza-feature-accordion:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__trigger:not(#_) {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 22px 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--kz-feature-accordion-dim);
+  font: inherit;
+  font-size: clamp(18px, 1.6vw, 22px);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  text-align: left;
+  cursor: pointer;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-feature-accordion:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__trigger:hover:not(#_) {
+    color: var(--kz-feature-accordion-ink);
+  }
+}
+
+.kodza-feature-accordion__item.is-open .kodza-feature-accordion__trigger:not(#_),
+.kodza-feature-accordion:not(.is-ready) .kodza-feature-accordion__trigger:not(#_) {
+  color: var(--kz-feature-accordion-ink);
+}
+
+.kodza-feature-accordion__item.is-open .kodza-feature-accordion__trigger:not(#_) {
+  cursor: default;
+}
+
+.kodza-feature-accordion__trigger:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-feature-accordion-ink);
+  outline-offset: 4px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-feature-accordion__text:not(#_) {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--kz-feature-accordion-dim);
+}
+
+.kodza-feature-accordion:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__text:not(#_) {
+  max-width: 440px;
+  padding: 0 0 24px calc(2.4em + 16px);
+}
+
+.kodza-feature-accordion__media:not(#_) {
+  position: relative;
+  margin: 0 0 28px;
+}
+
+.kodza-feature-accordion__hold > img:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-feature-accordion__code:not(#_) {
+  box-sizing: border-box;
+  margin: 0;
+  padding: clamp(20px, 3cqi, 40px);
+  background: var(--kz-feature-accordion-ink);
+  color: var(--kz-feature-accordion-paper);
+  font-family: var(--kz-feature-accordion-mono);
+  font-size: clamp(13px, 1.2cqi, 15px);
+  line-height: 1.75;
+  white-space: pre;
+}
+
+.kodza-feature-accordion__code > code:not(#_) {
+  font: inherit;
+  color: inherit;
+  background: none;
+  padding: 0;
+}
+
+.kodza-feature-accordion__card:not(#_),
+.kodza-feature-accordion__tally:not(#_) {
+  position: absolute;
+  display: flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 12px 16px 13px;
+  border: 1px solid var(--kz-feature-accordion-line);
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+  background: var(--kz-feature-accordion-paper);
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.28);
+  color: var(--kz-feature-accordion-ink);
+}
+
+.kodza-feature-accordion__pause:not(#_) {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--kz-feature-accordion-ink);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.kodza-feature-accordion:not(.is-live) .kodza-feature-accordion__pause:not(#_) {
+  visibility: hidden;
+}
+
+.kodza-feature-accordion__pause:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-feature-accordion-ink);
+  outline-offset: 3px;
+}
+
+.kodza-feature-accordion__ring:not(#_) {
+  transition: stroke calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@container kodza-feature-accordion (width > 760px) {
+  .kodza-feature-accordion.is-ready:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__media:not(#_) {
+    position: absolute;
+    margin: 0;
+  }
+}
+
+@container kodza-feature-accordion (width > 760px) {
+  .kodza-feature-accordion.is-ready:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__card:not(#_) {
+    position: absolute;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+  }
+}
+
+.kodza-feature-accordion--tabs.is-live-pill .kodza-feature-accordion__pill:not(#_),
+.kodza-feature-accordion--tabs.is-live-pill .kodza-feature-accordion__mirror:not(#_) {
+  transition: clip-path calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-feature-accordion-ease);
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__trigger:not(#_) {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 18px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__trigger:not(#_) {
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-feature-accordion-dim);
+  cursor: pointer;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-feature-accordion--tabs .kodza-feature-accordion__trigger:hover:not(#_) {
+    color: var(--kz-feature-accordion-ink);
+  }
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__trigger[aria-selected="true"]:not(#_) {
+  color: var(--kz-feature-accordion-ink);
+  cursor: default;
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__trigger:focus-visible:not(#_) {
+  outline-offset: 2px;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__panel:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-feature-accordion-ink);
+  outline-offset: 4px;
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__media:not(#_) {
+  margin: 0;
+}
+
+.kodza-feature-accordion--tabs .kodza-feature-accordion__text:not(#_) {
+  max-width: 620px;
+  padding: 36px 0 0;
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.5;
+  color: var(--kz-feature-accordion-text);
+}
+
+.kodza-feature-accordion--tabs.is-ready .kodza-feature-accordion__card:not(#_) {
+  position: absolute;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+}
+
+@container kodza-feature-accordion (max-width: 760px) {
+  .kodza-feature-accordion__intro:not(#_) {
+    margin-top: 20px;
+  }
+}
+
+@container kodza-feature-accordion (max-width: 760px) {
+  .kodza-feature-accordion:not(.kodza-feature-accordion--tabs) .kodza-feature-accordion__text:not(#_) {
+    padding-left: 0;
+  }
+}
+
+@container kodza-feature-accordion (max-width: 760px) {
+  .kodza-feature-accordion--tabs .kodza-feature-accordion__text:not(#_) {
+    padding-top: 32px;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+}
+
+@container kodza-feature-accordion (max-width: 520px) {
+  .kodza-feature-accordion--tabs .kodza-feature-accordion__trigger:not(#_) {
+    flex: 1 0 auto;
+    justify-content: center;
+    padding: 0 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-feature-accordion *:not(#_),
+  .kodza-feature-accordion *:not(#_)::before,
+  .kodza-feature-accordion *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

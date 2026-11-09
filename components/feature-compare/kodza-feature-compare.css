@@ -1,0 +1,1616 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Feature Compare
+   "Without" and "with" face to face, on one grid: each line on one side has its answer on the
+   other at the same height, the "with" side on a card of ink. Hovering or focusing a line lights
+   its twin on the other card. On a phone a Without / With switch rolls the lines over one by one
+   as the ink curtain reaches them, and the height never jumps. --table makes it a table of 3 or
+   4 columns, yours (the first) in a pill of ink, each mark drawn and said in text.
+   Everything is tuned with the --kz-feature-compare-* variables. */
+.kodza-feature-compare {
+  --kz-feature-compare-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-feature-compare-dim: color-mix(in srgb, var(--kz-feature-compare-ink) 66%, transparent);
+  --kz-feature-compare-faint: color-mix(in srgb, var(--kz-feature-compare-ink) 60%, transparent);
+  --kz-feature-compare-line: color-mix(in srgb, var(--kz-feature-compare-ink) 12%, transparent); /* the hairlines */
+  --kz-feature-compare-card: var(--kz-color-paper, #fff); /* the "without" card, the switch */
+  --kz-feature-compare-card-line: color-mix(in srgb, var(--kz-feature-compare-ink) 10%, transparent); /* its outline */
+  --kz-feature-compare-accent: var(--kz-color-accent, var(--kz-feature-compare-ink)); /* the "with" card, your column */
+  --kz-feature-compare-on-accent: var(--kz-color-on-accent, var(--kz-feature-compare-card)); /* the text on it */
+  --kz-feature-compare-bg: transparent;
+  --kz-feature-compare-width: var(--kz-page-width, 1440px); /* the content column: the page's, set by the site */
+  --kz-feature-compare-gutter: var(--kz-page-gutter, clamp(16px, 4vw, 40px)); /* the space kept at the screen edges */
+  --kz-feature-compare-pad-top: clamp(56px, 7vw, 112px);
+  --kz-feature-compare-pad-bottom: clamp(56px, 7vw, 112px);
+  --kz-feature-compare-size: clamp(28px, 3.4vw, 44px); /* the title */
+  --kz-feature-compare-topic: 20%; /* the column of the topics, left of the cards */
+  --kz-feature-compare-gap: 16px; /* between the two cards */
+  --kz-feature-compare-pad-x: 28px; /* inside a card */
+  --kz-feature-compare-pad-y: 20px;
+  --kz-feature-compare-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-feature-compare-label: 34%; /* --table: the column of the row names */
+  --kz-feature-compare-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-feature-compare-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-feature-compare / inline-size;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: var(--kz-feature-compare-pad-top);
+  padding-bottom: var(--kz-feature-compare-pad-bottom);
+  background: var(--kz-feature-compare-bg);
+  color: var(--kz-feature-compare-ink);
+}
+
+.kodza-feature-compare__inner {
+  box-sizing: border-box;
+  max-width: calc(var(--kz-feature-compare-width) + 2 * var(--kz-feature-compare-gutter));
+  margin: 0 auto;
+  padding-left: max(var(--kz-feature-compare-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-feature-compare-gutter), env(safe-area-inset-right, 0px));
+}
+
+/* The head: a label, the title on the left, the intro on the right on the title's first line.
+   Each part can go */
+.kodza-feature-compare__head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  grid-template-areas: "eyebrow ." "title intro";
+  column-gap: clamp(32px, 6vw, 96px);
+  margin-bottom: clamp(48px, 6vw, 88px);
+}
+
+.kodza-feature-compare__eyebrow {
+  grid-area: eyebrow;
+  margin: 0 0 20px;
+  font-family: var(--kz-font-label, var(--kz-feature-compare-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-feature-compare-faint);
+}
+
+.kodza-feature-compare__title {
+  grid-area: title;
+  align-self: first baseline;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-feature-compare-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+  color: var(--kz-feature-compare-ink);
+}
+
+/* Each line of the title is its own mask: its words rise from behind its bottom edge */
+.kodza-feature-compare__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.kodza-feature-compare__rise {
+  display: block;
+  text-wrap: balance; /* a line too long for its column breaks into two even halves */
+}
+
+.kodza-feature-compare__intro {
+  grid-area: intro;
+  align-self: first baseline;
+  max-width: 440px;
+  margin: 0;
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.55;
+  color: var(--kz-feature-compare-dim);
+  text-wrap: pretty;
+}
+
+/* The board: one grid, the topics on the left, then the two cards. The cards are drawn behind
+   the rows, so a line and its answer always share one row */
+.kodza-feature-compare__board {
+  --kz-feature-compare-card-width: calc((100% - var(--kz-feature-compare-topic) - 2 * var(--kz-feature-compare-gap)) / 2);
+  position: relative;
+  isolation: isolate;
+}
+
+.kodza-feature-compare__board::before,
+.kodza-feature-compare__board::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--kz-feature-compare-card-width);
+  border-radius: var(--kz-feature-compare-radius);
+  pointer-events: none;
+}
+
+.kodza-feature-compare__board::before {
+  right: calc(var(--kz-feature-compare-card-width) + var(--kz-feature-compare-gap));
+  background: var(--kz-feature-compare-card);
+  box-shadow: inset 0 0 0 1px var(--kz-feature-compare-card-line);
+}
+
+.kodza-feature-compare__board::after {
+  right: 0;
+  background: var(--kz-feature-compare-accent);
+}
+
+/* The twin lights, one per card, set on the line under the pointer or the focus */
+.kodza-feature-compare__band {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  height: 0;
+  width: calc(var(--kz-feature-compare-card-width) - 16px);
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-feature-compare__band.is-on {
+  opacity: 1;
+}
+
+.kodza-feature-compare__band--without {
+  right: calc(var(--kz-feature-compare-card-width) + var(--kz-feature-compare-gap) + 8px);
+  background: color-mix(in srgb, var(--kz-feature-compare-ink) 6%, transparent);
+}
+
+.kodza-feature-compare__band--with {
+  right: 8px;
+  background: color-mix(in srgb, var(--kz-feature-compare-on-accent) 12%, transparent);
+}
+
+.kodza-feature-compare__sides,
+.kodza-feature-compare__row {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: var(--kz-feature-compare-topic) minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: var(--kz-feature-compare-gap);
+}
+
+.kodza-feature-compare__side {
+  box-sizing: border-box;
+  padding: 28px var(--kz-feature-compare-pad-x) 22px;
+}
+
+.kodza-feature-compare__side--without {
+  grid-column: 2;
+}
+
+.kodza-feature-compare__side--with {
+  grid-column: 3;
+  color: var(--kz-feature-compare-on-accent);
+}
+
+.kodza-feature-compare__name {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: inherit;
+  text-wrap: balance;
+}
+
+.kodza-feature-compare__note {
+  margin: 6px 0 0;
+  font-family: var(--kz-font-label, var(--kz-feature-compare-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.01em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-feature-compare-faint);
+}
+
+.kodza-feature-compare__side--with .kodza-feature-compare__note {
+  color: color-mix(in srgb, var(--kz-feature-compare-on-accent) 62%, transparent);
+}
+
+/* The lines: a hairline above each one, on the page under the topic and inside each card */
+.kodza-feature-compare__rows {
+  margin: 0;
+  padding: 0 0 8px;
+  list-style: none;
+}
+
+.kodza-feature-compare__row {
+  align-items: first baseline;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(var(--kz-feature-compare-line), var(--kz-feature-compare-line)) 0 0 / var(--kz-feature-compare-topic) 1px no-repeat;
+}
+
+.kodza-feature-compare__row::before,
+.kodza-feature-compare__row::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  height: 1px;
+  width: calc(var(--kz-feature-compare-card-width) - 2 * var(--kz-feature-compare-pad-x));
+  pointer-events: none;
+}
+
+.kodza-feature-compare__row::before {
+  right: calc(var(--kz-feature-compare-card-width) + var(--kz-feature-compare-gap) + var(--kz-feature-compare-pad-x));
+  background: var(--kz-feature-compare-line);
+}
+
+.kodza-feature-compare__row::after {
+  right: var(--kz-feature-compare-pad-x);
+  background: color-mix(in srgb, var(--kz-feature-compare-on-accent) 14%, transparent);
+}
+
+.kodza-feature-compare__topic {
+  margin: 0;
+  padding: var(--kz-feature-compare-pad-y) 16px 0 0;
+  font-family: var(--kz-font-label, var(--kz-feature-compare-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-feature-compare-dim);
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-feature-compare__cell {
+  position: relative;
+  box-sizing: border-box;
+  margin: 0;
+  padding: var(--kz-feature-compare-pad-y) var(--kz-feature-compare-pad-x) var(--kz-feature-compare-pad-y) calc(var(--kz-feature-compare-pad-x) + 30px);
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+/* The mark before each answer: a dash on the usual side, a tick on yours */
+.kodza-feature-compare__cell::before {
+  content: "";
+  position: absolute;
+  left: var(--kz-feature-compare-pad-x);
+  top: calc(var(--kz-feature-compare-pad-y) + (1.55em - 18px) / 2);
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  -webkit-mask: var(--kz-feature-compare-mark) center / contain no-repeat;
+  mask: var(--kz-feature-compare-mark) center / contain no-repeat;
+}
+
+.kodza-feature-compare__cell--without {
+  --kz-feature-compare-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M5 9h8'/%3E%3C/svg%3E");
+  color: var(--kz-feature-compare-dim);
+}
+
+.kodza-feature-compare__cell--with {
+  --kz-feature-compare-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.2 9.6l3.1 3L13.8 5.6'/%3E%3C/svg%3E");
+  color: color-mix(in srgb, var(--kz-feature-compare-on-accent) 78%, transparent);
+}
+
+/* A lit line: its topic and both answers come up to full ink */
+.kodza-feature-compare__row.is-lit .kodza-feature-compare__topic,
+.kodza-feature-compare__row:focus-within .kodza-feature-compare__topic,
+.kodza-feature-compare__row.is-lit .kodza-feature-compare__cell--without,
+.kodza-feature-compare__row:focus-within .kodza-feature-compare__cell--without {
+  color: var(--kz-feature-compare-ink);
+}
+
+.kodza-feature-compare__row.is-lit .kodza-feature-compare__cell--with,
+.kodza-feature-compare__row:focus-within .kodza-feature-compare__cell--with {
+  color: var(--kz-feature-compare-on-accent);
+}
+
+.kodza-feature-compare__cell a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.kodza-feature-compare__cell a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+/* The phone switch, written by the script: hidden until the board is too narrow for two cards */
+.kodza-feature-compare__switch {
+  position: relative;
+  display: none;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  box-sizing: border-box;
+  height: 44px;
+  margin: 0 0 12px;
+  padding: 4px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-feature-compare-card);
+  box-shadow: inset 0 0 0 1px var(--kz-feature-compare-card-line);
+}
+
+.kodza-feature-compare__option,
+.kodza-feature-compare__thumb > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 12px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+}
+
+.kodza-feature-compare__option {
+  position: relative;
+  color: var(--kz-feature-compare-dim);
+  cursor: pointer;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-feature-compare__option > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kodza-feature-compare__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* The pill of ink, and on it the same two names in paper: the names change colour exactly at its
+   edges as it slides */
+.kodza-feature-compare__thumb {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  padding: 4px;
+  border-radius: inherit;
+  background: var(--kz-feature-compare-accent);
+  color: var(--kz-feature-compare-on-accent);
+  clip-path: inset(4px 50% 4px 4px round var(--kz-radius-pill, 999px));
+  pointer-events: none;
+  transition: clip-path calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-feature-compare__thumb > span {
+  overflow: hidden;
+}
+
+.kodza-feature-compare.is-with .kodza-feature-compare__thumb {
+  clip-path: inset(4px 4px 4px 50% round var(--kz-radius-pill, 999px));
+}
+
+.kodza-feature-compare__switch:has(.kodza-feature-compare__input:focus-visible) {
+  outline: 2px solid var(--kz-feature-compare-ink);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .kodza-feature-compare__option:hover {
+    color: var(--kz-feature-compare-ink);
+  }
+}
+
+/* --table: a table of 3 or 4 columns, the first one yours, in a pill of ink */
+.kodza-feature-compare__table-wrap {
+  --kz-feature-compare-count: 3;
+  position: relative;
+  isolation: isolate;
+}
+
+.kodza-feature-compare__table-wrap:has(thead th:nth-child(5)) {
+  --kz-feature-compare-count: 4;
+}
+
+.kodza-feature-compare__table-wrap:has(thead th:nth-child(3)):not(:has(thead th:nth-child(4))) {
+  --kz-feature-compare-count: 2;
+}
+
+.kodza-feature-compare__table-wrap::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: var(--kz-feature-compare-label);
+  width: calc((100% - var(--kz-feature-compare-label)) / var(--kz-feature-compare-count));
+  border-radius: calc(20px * var(--kz-radius-scale, 1));
+  background: var(--kz-feature-compare-accent);
+  pointer-events: none;
+}
+
+.kodza-feature-compare__table {
+  width: 100%;
+  margin: 0;
+  table-layout: fixed;
+  border: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+  background: none;
+  color: inherit;
+}
+
+.kodza-feature-compare__caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-feature-compare__table th,
+.kodza-feature-compare__table td {
+  box-sizing: border-box;
+  padding: 18px 12px;
+  border: 0;
+  background: none;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: center;
+  vertical-align: middle;
+  color: var(--kz-feature-compare-ink);
+}
+
+.kodza-feature-compare__corner {
+  width: var(--kz-feature-compare-label);
+}
+
+.kodza-feature-compare__table thead th {
+  padding-top: 28px;
+  padding-bottom: 20px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.kodza-feature-compare__table tbody > tr > * {
+  background: linear-gradient(var(--kz-feature-compare-line), var(--kz-feature-compare-line)) 50% 0 / calc(100% - 24px) 1px no-repeat;
+}
+
+.kodza-feature-compare__table tbody > tr > th {
+  background-size: 100% 1px;
+}
+
+.kodza-feature-compare__table tbody > tr:last-child > * {
+  padding-bottom: 26px;
+}
+
+.kodza-feature-compare__label {
+  padding-left: 0;
+  font-weight: 500;
+  text-align: left;
+  text-wrap: pretty;
+}
+
+/* The light on a row, across the table and a little past its edges; over the pill, a lighter one
+   inside it */
+.kodza-feature-compare__band--row {
+  z-index: -1;
+  left: -12px;
+  width: calc(100% + 24px);
+  background: color-mix(in srgb, var(--kz-feature-compare-ink) 5%, transparent);
+}
+
+.kodza-feature-compare__band--pill {
+  z-index: -1;
+  left: calc(var(--kz-feature-compare-label) + 6px);
+  width: calc((100% - var(--kz-feature-compare-label)) / var(--kz-feature-compare-count) - 12px);
+  background: color-mix(in srgb, var(--kz-feature-compare-on-accent) 13%, transparent);
+}
+
+/* A lit row: its details come up to full ink, as a lit line on the cards */
+.kodza-feature-compare__detail {
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-feature-compare__table tr.is-lit .kodza-feature-compare__detail {
+  color: var(--kz-feature-compare-ink);
+}
+
+.kodza-feature-compare__table tr.is-lit > :nth-child(2) .kodza-feature-compare__detail {
+  color: var(--kz-feature-compare-on-accent);
+}
+
+/* The marks: drawn, and said in text for screen readers */
+.kodza-feature-compare__table td[data-mark]::before {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 20px;
+  margin: 0 auto;
+  background: currentColor;
+  -webkit-mask: var(--kz-feature-compare-mark) center / contain no-repeat;
+  mask: var(--kz-feature-compare-mark) center / contain no-repeat;
+}
+
+.kodza-feature-compare__table td[data-mark="yes"] {
+  --kz-feature-compare-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.6 10.6l3.5 3.4 7.3-8'/%3E%3C/svg%3E");
+}
+
+.kodza-feature-compare__table td[data-mark="no"] {
+  --kz-feature-compare-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M6.2 6.2l7.6 7.6M13.8 6.2l-7.6 7.6'/%3E%3C/svg%3E");
+  color: var(--kz-feature-compare-faint);
+}
+
+.kodza-feature-compare__table td[data-mark="partly"] {
+  --kz-feature-compare-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='5.6' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M10 4.4a5.6 5.6 0 0 0 0 11.2z'/%3E%3C/svg%3E");
+  color: var(--kz-feature-compare-dim);
+}
+
+.kodza-feature-compare__said {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-feature-compare__detail {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--kz-font-label, var(--kz-feature-compare-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.01em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-feature-compare-faint);
+}
+
+.kodza-feature-compare__value {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Your column, on the pill: everything in the text colour of the ink */
+.kodza-feature-compare__table tr > :nth-child(2) {
+  color: var(--kz-feature-compare-on-accent);
+}
+
+.kodza-feature-compare__table tbody > tr > :nth-child(2) {
+  background-image: linear-gradient(color-mix(in srgb, var(--kz-feature-compare-on-accent) 16%, transparent), color-mix(in srgb, var(--kz-feature-compare-on-accent) 16%, transparent));
+}
+
+.kodza-feature-compare__table tr > :nth-child(2) .kodza-feature-compare__detail {
+  color: color-mix(in srgb, var(--kz-feature-compare-on-accent) 62%, transparent);
+}
+
+/* Waiting to come into view: the parts the script draws in hold still, hidden */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-feature-compare.is-ready .kodza-feature-compare__head:not(.is-shown) > *,
+  .kodza-feature-compare.is-ready .kodza-feature-compare__board:not(.is-shown) .kodza-feature-compare__side,
+  .kodza-feature-compare.is-ready .kodza-feature-compare__board:not(.is-shown) .kodza-feature-compare__row,
+  .kodza-feature-compare.is-ready .kodza-feature-compare__inner:has(.kodza-feature-compare__board:not(.is-shown)) > .kodza-feature-compare__switch,
+  .kodza-feature-compare.is-ready .kodza-feature-compare__table-wrap:not(.is-shown) tr {
+    opacity: 0;
+  }
+
+  .kodza-feature-compare.is-ready .kodza-feature-compare__board:not(.is-shown)::before,
+  .kodza-feature-compare.is-ready .kodza-feature-compare__board:not(.is-shown)::after,
+  .kodza-feature-compare.is-ready .kodza-feature-compare__table-wrap:not(.is-shown)::before {
+    opacity: 0;
+  }
+}
+
+@container kodza-feature-compare (max-width: 760px) {
+  .kodza-feature-compare__head {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "eyebrow" "title" "intro";
+  }
+
+  .kodza-feature-compare__intro {
+    margin-top: 20px;
+  }
+}
+
+/* Too narrow for two cards side by side with their topics */
+@container kodza-feature-compare (max-width: 640px) {
+  .kodza-feature-compare__board {
+    --kz-feature-compare-topic: 0px;
+    --kz-feature-compare-gap: 10px;
+    --kz-feature-compare-pad-x: 18px;
+    --kz-feature-compare-pad-y: 16px;
+    --kz-feature-compare-card-width: calc((100% - var(--kz-feature-compare-gap)) / 2);
+  }
+
+  .kodza-feature-compare__band {
+    display: none;
+  }
+
+  .kodza-feature-compare__sides,
+  .kodza-feature-compare__row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .kodza-feature-compare__side {
+    padding: 22px var(--kz-feature-compare-pad-x) 16px;
+  }
+
+  .kodza-feature-compare__side--without {
+    grid-column: 1;
+  }
+
+  .kodza-feature-compare__side--with {
+    grid-column: 2;
+  }
+
+  .kodza-feature-compare__name {
+    font-size: 19px;
+  }
+
+  .kodza-feature-compare__row {
+    grid-template-areas: "topic topic" "without with";
+    background: none;
+  }
+
+  .kodza-feature-compare__topic {
+    grid-area: topic;
+    padding: var(--kz-feature-compare-pad-y) var(--kz-feature-compare-pad-x) 0;
+  }
+
+  .kodza-feature-compare__cell {
+    padding-top: 8px;
+    padding-bottom: 18px;
+  }
+
+  .kodza-feature-compare__cell--without {
+    grid-area: without;
+  }
+
+  .kodza-feature-compare__cell--with {
+    grid-area: with;
+  }
+
+  .kodza-feature-compare__cell::before {
+    top: calc(8px + (1.55em - 18px) / 2);
+  }
+
+  /* With the script: one card, a switch above it, and the ink rising over it like a curtain */
+  .kodza-feature-compare.is-ready .kodza-feature-compare__switch {
+    display: grid;
+  }
+
+  .kodza-feature-compare.is-ready .kodza-feature-compare__sides {
+    display: none;
+  }
+
+  .kodza-feature-compare.is-ready .kodza-feature-compare__board::before,
+  .kodza-feature-compare.is-ready .kodza-feature-compare__board::after {
+    right: 0;
+    width: 100%;
+  }
+
+  .kodza-feature-compare.is-ready .kodza-feature-compare__board::after {
+    clip-path: inset(0 0 100% 0 round var(--kz-feature-compare-radius));
+  }
+
+  .kodza-feature-compare.is-ready.is-with .kodza-feature-compare__board::after {
+    clip-path: inset(0 round var(--kz-feature-compare-radius));
+  }
+
+  .kodza-feature-compare.is-ready .kodza-feature-compare__rows {
+    padding: 4px 0;
+  }
+
+  .kodza-feature-compare.is-ready .kodza-feature-compare__row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "topic" "cell";
+  }
+
+  .kodza-feature-compare.is-ready .kodza-feature-compare__row:first-child::before {
+    display: none;
+  }
+
+  .kodza-feature-compare.is-ready .kodza-feature-compare__cell {
+    grid-area: cell;
+  }
+
+  /* Both answers share one cell: the line is as tall as the longer one, so nothing jumps */
+  .kodza-feature-compare.is-ready .kodza-feature-compare__row:not(.is-with) .kodza-feature-compare__cell--with,
+  .kodza-feature-compare.is-ready .kodza-feature-compare__row.is-with .kodza-feature-compare__cell--without {
+    visibility: hidden;
+  }
+
+  .kodza-feature-compare.is-ready .kodza-feature-compare__row::before {
+    right: var(--kz-feature-compare-pad-x);
+    width: calc(100% - 2 * var(--kz-feature-compare-pad-x));
+    transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+  }
+
+  .kodza-feature-compare.is-ready .kodza-feature-compare__row::after {
+    display: none;
+  }
+
+  .kodza-feature-compare.is-ready .kodza-feature-compare__row.is-with::before {
+    background: color-mix(in srgb, var(--kz-feature-compare-on-accent) 14%, transparent);
+  }
+
+  .kodza-feature-compare.is-ready .kodza-feature-compare__row.is-with .kodza-feature-compare__topic {
+    color: color-mix(in srgb, var(--kz-feature-compare-on-accent) 62%, transparent);
+  }
+
+  .kodza-feature-compare__table-wrap {
+    --kz-feature-compare-label: 36%;
+  }
+
+  .kodza-feature-compare__table-wrap::before {
+    border-radius: calc(16px * var(--kz-radius-scale, 1));
+  }
+
+  .kodza-feature-compare__table th,
+  .kodza-feature-compare__table td {
+    padding: 14px 6px;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .kodza-feature-compare__table thead th {
+    padding-top: 20px;
+    padding-bottom: 14px;
+    font-size: 14px;
+  }
+
+  .kodza-feature-compare__label {
+    padding-right: 10px;
+    overflow-wrap: normal;
+  }
+
+  .kodza-feature-compare__detail {
+    font-size: var(--kz-font-label-size, 11px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-feature-compare *,
+  .kodza-feature-compare *::before,
+  .kodza-feature-compare *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 55d0e079dffc — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-feature-compare__eyebrow):not(#_),
+:where(.kodza-feature-compare__title):not(#_),
+:where(.kodza-feature-compare__intro):not(#_),
+:where(.kodza-feature-compare__input):not(#_),
+:where(.kodza-feature-compare__name):not(#_),
+:where(.kodza-feature-compare__note):not(#_),
+:where(.kodza-feature-compare__rows):not(#_),
+:where(.kodza-feature-compare__row):not(#_),
+:where(.kodza-feature-compare__table):not(#_),
+:where(.kodza-feature-compare__caption):not(#_),
+:where(.kodza-feature-compare__corner):not(#_),
+:where(.kodza-feature-compare__col):not(#_),
+:where(.kodza-feature-compare__label):not(#_),
+:where(.kodza-feature-compare__table thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-feature-compare__table tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-feature-compare__table tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-feature-compare__table td:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition-duration: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-feature-compare__head:not(#_),
+.kodza-feature-compare__line:not(#_),
+.kodza-feature-compare__rise:not(#_),
+.kodza-feature-compare__thumb:not(#_),
+.kodza-feature-compare__board:not(#_),
+.kodza-feature-compare__sides:not(#_),
+.kodza-feature-compare__band:not(#_),
+.kodza-feature-compare__table-wrap:not(#_),
+.kodza-feature-compare__said:not(#_),
+.kodza-feature-compare__detail:not(#_),
+.kodza-feature-compare__value:not(#_),
+.kodza-feature-compare__option span:where(:not([class*="kodza-"])):not(#_),
+.kodza-feature-compare__thumb span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-feature-compare__eyebrow:not(#_),
+.kodza-feature-compare__title:not(#_),
+.kodza-feature-compare__note:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-compare__intro:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-compare__option:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-feature-compare__input:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-feature-compare__name:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-compare__rows:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-compare__row:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-compare__topic:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-feature-compare__cell:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-feature-compare__table:not(#_) {
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-compare__caption:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-compare__corner:not(#_),
+.kodza-feature-compare__table td:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-compare__col:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-compare__label:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-compare__table thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-feature-compare__table tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-feature-compare__table tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-compare__eyebrow:not(#_):where(:not([hidden])),
+.kodza-feature-compare__title:not(#_):where(:not([hidden])),
+.kodza-feature-compare__intro:not(#_):where(:not([hidden])),
+.kodza-feature-compare__input:not(#_):where(:not([hidden])),
+.kodza-feature-compare__name:not(#_):where(:not([hidden])),
+.kodza-feature-compare__note:not(#_):where(:not([hidden])),
+.kodza-feature-compare__rows:not(#_):where(:not([hidden])),
+.kodza-feature-compare__topic:not(#_):where(:not([hidden])),
+.kodza-feature-compare__cell:not(#_):where(:not([hidden])),
+.kodza-feature-compare__table:not(#_):where(:not([hidden])),
+.kodza-feature-compare__caption:not(#_):where(:not([hidden])),
+.kodza-feature-compare__corner:not(#_):where(:not([hidden])),
+.kodza-feature-compare__col:not(#_):where(:not([hidden])),
+.kodza-feature-compare__label:not(#_):where(:not([hidden])),
+.kodza-feature-compare__table thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-feature-compare__table tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-feature-compare__table tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-feature-compare__table td:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-feature-compare__eyebrow:not(#_):where([hidden]),
+.kodza-feature-compare__title:not(#_):where([hidden]),
+.kodza-feature-compare__intro:not(#_):where([hidden]),
+.kodza-feature-compare__input:not(#_):where([hidden]),
+.kodza-feature-compare__name:not(#_):where([hidden]),
+.kodza-feature-compare__note:not(#_):where([hidden]),
+.kodza-feature-compare__rows:not(#_):where([hidden]),
+.kodza-feature-compare__topic:not(#_):where([hidden]),
+.kodza-feature-compare__cell:not(#_):where([hidden]),
+.kodza-feature-compare__table:not(#_):where([hidden]),
+.kodza-feature-compare__caption:not(#_):where([hidden]),
+.kodza-feature-compare__corner:not(#_):where([hidden]),
+.kodza-feature-compare__col:not(#_):where([hidden]),
+.kodza-feature-compare__label:not(#_):where([hidden]),
+.kodza-feature-compare__table thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-feature-compare__table tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-feature-compare__table tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-feature-compare__table td:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-feature-compare__table :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-feature-compare__board:not(#_)::before,
+.kodza-feature-compare__board:not(#_)::after,
+.kodza-feature-compare__row:not(#_)::before,
+.kodza-feature-compare__row:not(#_)::after,
+.kodza-feature-compare__cell:not(#_)::before,
+.kodza-feature-compare__table-wrap:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-feature-compare__eyebrow:not(#_) {
+  margin: 0 0 20px;
+  font-family: var(--kz-font-label, var(--kz-feature-compare-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-feature-compare-faint);
+}
+
+.kodza-feature-compare__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-feature-compare-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-feature-compare-ink);
+}
+
+.kodza-feature-compare__intro:not(#_) {
+  max-width: 440px;
+  margin: 0;
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.55;
+  color: var(--kz-feature-compare-dim);
+}
+
+.kodza-feature-compare__row:not(#_) {
+  position: relative;
+  display: grid;
+}
+
+.kodza-feature-compare__name:not(#_) {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: inherit;
+}
+
+.kodza-feature-compare__note:not(#_) {
+  margin: 6px 0 0;
+  font-family: var(--kz-font-label, var(--kz-feature-compare-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.01em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-feature-compare-faint);
+}
+
+.kodza-feature-compare__side--with .kodza-feature-compare__note:not(#_) {
+  color: color-mix(in srgb, var(--kz-feature-compare-on-accent) 62%, transparent);
+}
+
+.kodza-feature-compare__rows:not(#_) {
+  margin: 0;
+  padding: 0 0 8px;
+  list-style: none;
+}
+
+.kodza-feature-compare__row:not(#_) {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(var(--kz-feature-compare-line), var(--kz-feature-compare-line)) 0 0 / var(--kz-feature-compare-topic) 1px no-repeat;
+}
+
+.kodza-feature-compare__topic:not(#_) {
+  margin: 0;
+  padding: var(--kz-feature-compare-pad-y) 16px 0 0;
+  font-family: var(--kz-font-label, var(--kz-feature-compare-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-feature-compare-dim);
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-feature-compare__cell:not(#_) {
+  position: relative;
+  box-sizing: border-box;
+  margin: 0;
+  padding: var(--kz-feature-compare-pad-y) var(--kz-feature-compare-pad-x) var(--kz-feature-compare-pad-y) calc(var(--kz-feature-compare-pad-x) + 30px);
+  font-size: 15px;
+  line-height: 1.55;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-feature-compare__cell--without:not(#_) {
+  color: var(--kz-feature-compare-dim);
+}
+
+.kodza-feature-compare__cell--with:not(#_) {
+  color: color-mix(in srgb, var(--kz-feature-compare-on-accent) 78%, transparent);
+}
+
+.kodza-feature-compare__row.is-lit .kodza-feature-compare__topic:not(#_),
+.kodza-feature-compare__row:focus-within .kodza-feature-compare__topic:not(#_),
+.kodza-feature-compare__row.is-lit .kodza-feature-compare__cell--without:not(#_),
+.kodza-feature-compare__row:focus-within .kodza-feature-compare__cell--without:not(#_) {
+  color: var(--kz-feature-compare-ink);
+}
+
+.kodza-feature-compare__row.is-lit .kodza-feature-compare__cell--with:not(#_),
+.kodza-feature-compare__row:focus-within .kodza-feature-compare__cell--with:not(#_) {
+  color: var(--kz-feature-compare-on-accent);
+}
+
+.kodza-feature-compare__option:not(#_) {
+  display: flex;
+  padding: 0 12px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-feature-compare__option:not(#_) {
+  position: relative;
+  color: var(--kz-feature-compare-dim);
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-feature-compare__input:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .kodza-feature-compare__option:hover:not(#_) {
+    color: var(--kz-feature-compare-ink);
+  }
+}
+
+.kodza-feature-compare__table:not(#_) {
+  margin: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+}
+
+.kodza-feature-compare__caption:not(#_) {
+  position: absolute;
+}
+
+.kodza-feature-compare__table th:not(#_),
+.kodza-feature-compare__table td:not(#_) {
+  box-sizing: border-box;
+  padding: 18px 12px;
+  border: 0;
+  background: none;
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: center;
+  vertical-align: middle;
+  color: var(--kz-feature-compare-ink);
+}
+
+.kodza-feature-compare__table thead th:not(#_) {
+  padding-top: 28px;
+  padding-bottom: 20px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.kodza-feature-compare__table tbody > tr > *:not(#_) {
+  background: linear-gradient(var(--kz-feature-compare-line), var(--kz-feature-compare-line)) 50% 0 / calc(100% - 24px) 1px no-repeat;
+}
+
+.kodza-feature-compare__table tbody > tr:last-child > *:not(#_) {
+  padding-bottom: 26px;
+}
+
+.kodza-feature-compare__label:not(#_) {
+  padding-left: 0;
+  font-weight: 500;
+  text-align: left;
+}
+
+.kodza-feature-compare__table td[data-mark="no"]:not(#_) {
+  color: var(--kz-feature-compare-faint);
+}
+
+.kodza-feature-compare__table td[data-mark="partly"]:not(#_) {
+  color: var(--kz-feature-compare-dim);
+}
+
+.kodza-feature-compare__table tr > :nth-child(2):not(#_) {
+  color: var(--kz-feature-compare-on-accent);
+}
+
+.kodza-feature-compare__table tbody > tr > :nth-child(2):not(#_) {
+  background-image: linear-gradient(color-mix(in srgb, var(--kz-feature-compare-on-accent) 16%, transparent), color-mix(in srgb, var(--kz-feature-compare-on-accent) 16%, transparent));
+}
+
+@container kodza-feature-compare (max-width: 760px) {
+  .kodza-feature-compare__intro:not(#_) {
+    margin-top: 20px;
+  }
+}
+
+@container kodza-feature-compare (max-width: 640px) {
+  .kodza-feature-compare__name:not(#_) {
+    font-size: 19px;
+  }
+}
+
+@container kodza-feature-compare (max-width: 640px) {
+  .kodza-feature-compare__row:not(#_) {
+    background: none;
+  }
+}
+
+@container kodza-feature-compare (max-width: 640px) {
+  .kodza-feature-compare__topic:not(#_) {
+    padding: var(--kz-feature-compare-pad-y) var(--kz-feature-compare-pad-x) 0;
+  }
+}
+
+@container kodza-feature-compare (max-width: 640px) {
+  .kodza-feature-compare__cell:not(#_) {
+    padding-top: 8px;
+    padding-bottom: 18px;
+  }
+}
+
+@container kodza-feature-compare (max-width: 640px) {
+  .kodza-feature-compare.is-ready .kodza-feature-compare__rows:not(#_) {
+    padding: 4px 0;
+  }
+}
+
+@container kodza-feature-compare (max-width: 640px) {
+  .kodza-feature-compare.is-ready .kodza-feature-compare__row.is-with .kodza-feature-compare__topic:not(#_) {
+    color: color-mix(in srgb, var(--kz-feature-compare-on-accent) 62%, transparent);
+  }
+}
+
+@container kodza-feature-compare (max-width: 640px) {
+  .kodza-feature-compare__table th:not(#_),
+  .kodza-feature-compare__table td:not(#_) {
+    padding: 14px 6px;
+    font-size: 14px;
+  }
+}
+
+@container kodza-feature-compare (max-width: 640px) {
+  .kodza-feature-compare__table thead th:not(#_) {
+    padding-top: 20px;
+    padding-bottom: 14px;
+    font-size: 14px;
+  }
+}
+
+@container kodza-feature-compare (max-width: 640px) {
+  .kodza-feature-compare__label:not(#_) {
+    padding-right: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-feature-compare *:not(#_),
+  .kodza-feature-compare *:not(#_)::before,
+  .kodza-feature-compare *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

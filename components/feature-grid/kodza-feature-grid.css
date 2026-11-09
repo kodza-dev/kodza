@@ -1,0 +1,896 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Feature Grid
+   A section of features in 3 or 4 columns (data-columns): an icon or a mono number, a name, two
+   lines, and a link when there is a page to go to. Hairlines run between the cells only: they
+   never double up and never hang in the void, at 4, 3, 2 or 1 columns and with an odd number of
+   cells. A cell with a link is a link as a whole: a faint veil, and the arrow passes through.
+   --cards sets the cells as separate cards instead of hairlines. The cells rise row by row as
+   they come into view. Everything is tuned with the --kz-feature-grid-* variables. */
+.kodza-feature-grid {
+  --kz-feature-grid-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-feature-grid-dim: color-mix(in srgb, var(--kz-feature-grid-ink) 66%, transparent);
+  --kz-feature-grid-faint: color-mix(in srgb, var(--kz-feature-grid-ink) 60%, transparent);
+  --kz-feature-grid-line: color-mix(in srgb, var(--kz-feature-grid-ink) 12%, transparent); /* the hairlines */
+  --kz-feature-grid-veil: color-mix(in srgb, var(--kz-feature-grid-ink) 4%, transparent); /* a linked cell, hovered */
+  --kz-feature-grid-bg: transparent;
+  --kz-feature-grid-card: var(--kz-color-paper, #fff); /* --cards: the card… */
+  --kz-feature-grid-card-line: color-mix(in srgb, var(--kz-feature-grid-ink) 10%, transparent); /* …and its border */
+  --kz-feature-grid-width: var(--kz-page-width, 1440px); /* the content column: the page's, set by the site */
+  --kz-feature-grid-gutter: var(--kz-page-gutter, clamp(16px, 4vw, 40px)); /* the space kept at the screen edges */
+  --kz-feature-grid-pad-top: clamp(56px, 7vw, 112px);
+  --kz-feature-grid-pad-bottom: clamp(56px, 7vw, 112px);
+  --kz-feature-grid-space: clamp(16px, 2.6vw, 36px); /* on each side of a hairline */
+  --kz-feature-grid-card-gap: 16px; /* --cards: between the cards */
+  --kz-feature-grid-size: clamp(28px, 3.4vw, 44px); /* the title */
+  --kz-feature-grid-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-feature-grid-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-feature-grid / inline-size;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: var(--kz-feature-grid-pad-top);
+  padding-bottom: var(--kz-feature-grid-pad-bottom);
+  background: var(--kz-feature-grid-bg);
+  color: var(--kz-feature-grid-ink);
+}
+
+.kodza-feature-grid__inner {
+  box-sizing: border-box;
+  max-width: calc(var(--kz-feature-grid-width) + 2 * var(--kz-feature-grid-gutter));
+  margin: 0 auto;
+  padding-left: max(var(--kz-feature-grid-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-feature-grid-gutter), env(safe-area-inset-right, 0px));
+}
+
+/* The head: a label, the title on the left, the intro on the right on the title's first line.
+   Each part can go */
+.kodza-feature-grid__head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  grid-template-areas: "eyebrow ." "title intro";
+  column-gap: clamp(32px, 6vw, 96px);
+  margin-bottom: clamp(48px, 6vw, 88px);
+}
+
+.kodza-feature-grid__eyebrow {
+  grid-area: eyebrow;
+  margin: 0 0 20px;
+  font-family: var(--kz-font-label, var(--kz-feature-grid-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-feature-grid-faint);
+}
+
+.kodza-feature-grid__title {
+  grid-area: title;
+  align-self: first baseline;
+  max-width: 16ch;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-feature-grid-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: balance;
+  color: var(--kz-feature-grid-ink);
+}
+
+/* Each line of the title is its own mask: its words rise from behind its bottom edge */
+.kodza-feature-grid__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.kodza-feature-grid__rise {
+  display: block;
+  text-wrap: balance; /* a line too long for its column breaks into two even halves */
+}
+
+.kodza-feature-grid__intro {
+  grid-area: intro;
+  align-self: first baseline;
+  max-width: 440px;
+  margin: 0;
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.55;
+  color: var(--kz-feature-grid-dim);
+  text-wrap: pretty;
+}
+
+/* The cells. The hairlines sit in the middle of the gaps, so every column of text is as wide as
+   the others and the first one lines up with the title */
+.kodza-feature-grid__list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: calc(2 * var(--kz-feature-grid-space));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-feature-grid[data-columns="4"] .kodza-feature-grid__list {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.kodza-feature-grid__item {
+  /* Where the cell stands, for its hairlines (1 = on that edge of the grid), set below for each
+     number of columns */
+  --kz-feature-grid-at-start: 0;
+  --kz-feature-grid-at-end: 0;
+  --kz-feature-grid-at-top: 0;
+  --kz-feature-grid-at-bottom: 0; /* nothing under it for its side hairline to reach */
+  --kz-feature-grid-tail: 0px;
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* The hairline above the cell, out to the middle of the gaps on its sides… */
+.kodza-feature-grid__item::before,
+.kodza-feature-grid__item::after {
+  content: "";
+  position: absolute;
+  background: var(--kz-feature-grid-line);
+  pointer-events: none;
+}
+
+.kodza-feature-grid__item::before {
+  top: calc(-1 * var(--kz-feature-grid-space));
+  left: calc(-1 * var(--kz-feature-grid-space) * (1 - var(--kz-feature-grid-at-start)));
+  right: calc(-1 * (var(--kz-feature-grid-space) + var(--kz-feature-grid-tail)) * (1 - var(--kz-feature-grid-at-end)));
+  height: 1px;
+  transform-origin: left center;
+  opacity: calc(1 - var(--kz-feature-grid-at-top));
+}
+
+/* …and the one on its left, down to the hairline under it (the crossing belongs to the hairline
+   across, so it is drawn once) */
+.kodza-feature-grid__item::after {
+  left: calc(-1 * var(--kz-feature-grid-space));
+  top: calc(-1 * (var(--kz-feature-grid-space) - 1px) * (1 - var(--kz-feature-grid-at-top)));
+  bottom: calc(-1 * var(--kz-feature-grid-space) * (1 - var(--kz-feature-grid-at-bottom)));
+  width: 1px;
+  transform-origin: center top;
+  opacity: calc(1 - var(--kz-feature-grid-at-start));
+}
+
+/* The last cell of a short row reaches the hairline coming down from above, corner included */
+.kodza-feature-grid__item:last-child {
+  --kz-feature-grid-tail: 1px;
+}
+
+/* 3 columns */
+.kodza-feature-grid:not([data-columns="4"]) .kodza-feature-grid__item:nth-child(3n + 1) { --kz-feature-grid-at-start: 1; }
+.kodza-feature-grid:not([data-columns="4"]) .kodza-feature-grid__item:nth-child(3n) { --kz-feature-grid-at-end: 1; }
+.kodza-feature-grid:not([data-columns="4"]) .kodza-feature-grid__item:nth-child(-n + 3) { --kz-feature-grid-at-top: 1; }
+.kodza-feature-grid:not([data-columns="4"]) .kodza-feature-grid__item:nth-last-child(-n + 2) { --kz-feature-grid-at-bottom: 1; }
+
+/* 4 columns */
+.kodza-feature-grid[data-columns="4"] .kodza-feature-grid__item:nth-child(4n + 1) { --kz-feature-grid-at-start: 1; }
+.kodza-feature-grid[data-columns="4"] .kodza-feature-grid__item:nth-child(4n) { --kz-feature-grid-at-end: 1; }
+.kodza-feature-grid[data-columns="4"] .kodza-feature-grid__item:nth-child(-n + 4) { --kz-feature-grid-at-top: 1; }
+.kodza-feature-grid[data-columns="4"] .kodza-feature-grid__item:nth-last-child(-n + 3) { --kz-feature-grid-at-bottom: 1; }
+
+.kodza-feature-grid__icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+  margin-bottom: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: var(--kz-feature-grid-ink);
+}
+
+/* A number instead of the icon, for steps or a list that reads in order */
+.kodza-feature-grid__number {
+  display: block;
+  margin-bottom: 18px;
+  font-family: var(--kz-font-label, var(--kz-feature-grid-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-feature-grid-faint);
+}
+
+.kodza-feature-grid__name {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--kz-feature-grid-ink);
+}
+
+.kodza-feature-grid__text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-feature-grid-dim);
+  text-wrap: pretty;
+}
+
+/* A cell with a link is a link as a whole: the name's link stretches over the cell, out to the
+   hairlines around it */
+.kodza-feature-grid__link {
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.kodza-feature-grid__link::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--kz-feature-grid-space));
+  background: transparent;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-feature-grid-ease);
+}
+
+.kodza-feature-grid__link:focus-visible::after {
+  background: var(--kz-feature-grid-veil);
+  outline: 2px solid var(--kz-feature-grid-ink);
+  outline-offset: -2px;
+}
+
+/* The arrow, in the corner: it says the cell goes somewhere, and passes through on hover */
+.kodza-feature-grid__arrow {
+  position: absolute;
+  top: calc(var(--kz-feature-grid-cell-pad, 0px) + 4px);
+  right: var(--kz-feature-grid-cell-pad, 0px);
+  width: 16px;
+  height: 16px;
+  overflow: hidden;
+  color: var(--kz-feature-grid-faint);
+  pointer-events: none;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-feature-grid-ease);
+}
+
+.kodza-feature-grid__arrow svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-feature-grid__item:has(.kodza-feature-grid__link:focus-visible) .kodza-feature-grid__arrow {
+  color: var(--kz-feature-grid-ink);
+}
+
+.kodza-feature-grid__item:has(.kodza-feature-grid__link:focus-visible) .kodza-feature-grid__arrow svg {
+  animation: kodza-feature-grid-pass calc(0.44s * var(--kz-motion-scale, 1)) both;
+}
+
+@media (hover: hover) {
+  .kodza-feature-grid__link:hover::after {
+    background: var(--kz-feature-grid-veil);
+  }
+
+  .kodza-feature-grid__item:has(.kodza-feature-grid__link:hover) .kodza-feature-grid__arrow {
+    color: var(--kz-feature-grid-ink);
+  }
+
+  .kodza-feature-grid__item:has(.kodza-feature-grid__link:hover) .kodza-feature-grid__arrow svg {
+    animation: kodza-feature-grid-pass calc(0.44s * var(--kz-motion-scale, 1)) both;
+  }
+}
+
+/* Out on the right, back in from the left */
+@keyframes kodza-feature-grid-pass {
+  0% { transform: none; animation-timing-function: cubic-bezier(0.55, 0, 0.75, 0.2); }
+  42% { transform: translateX(110%); }
+  42.01% { transform: translateX(-110%); animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1); }
+  100% { transform: none; }
+}
+
+/* --cards: separate cards instead of hairlines */
+.kodza-feature-grid--cards .kodza-feature-grid__list {
+  gap: var(--kz-feature-grid-card-gap);
+}
+
+.kodza-feature-grid--cards .kodza-feature-grid__item {
+  --kz-feature-grid-cell-pad: 28px;
+  padding: var(--kz-feature-grid-cell-pad);
+  border: 1px solid var(--kz-feature-grid-card-line);
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-feature-grid-card);
+}
+
+.kodza-feature-grid--cards .kodza-feature-grid__item::before,
+.kodza-feature-grid--cards .kodza-feature-grid__item::after {
+  display: none;
+}
+
+.kodza-feature-grid--cards .kodza-feature-grid__link::after {
+  inset: -1px;
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+}
+
+/* Waiting for its entrance: the script sets is-shown on each row as it comes into view, and plays
+   the motion in the same frame */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-feature-grid.is-ready :is(.kodza-feature-grid__head, .kodza-feature-grid__item):not(.is-shown) > * {
+    opacity: 0;
+  }
+
+  .kodza-feature-grid.is-ready .kodza-feature-grid__item:not(.is-shown)::before {
+    transform: scaleX(0);
+  }
+
+  .kodza-feature-grid.is-ready .kodza-feature-grid__item:not(.is-shown)::after {
+    transform: scaleY(0);
+  }
+
+  .kodza-feature-grid--cards.is-ready .kodza-feature-grid__item:not(.is-shown) {
+    opacity: 0;
+  }
+}
+
+/* 4 columns go to 2 */
+@container kodza-feature-grid (max-width: 1040px) {
+  .kodza-feature-grid[data-columns="4"] .kodza-feature-grid__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kodza-feature-grid[data-columns="4"] .kodza-feature-grid__item:nth-child(n) {
+    --kz-feature-grid-at-start: 0;
+    --kz-feature-grid-at-end: 0;
+    --kz-feature-grid-at-top: 0;
+    --kz-feature-grid-at-bottom: 0;
+  }
+
+  .kodza-feature-grid[data-columns="4"] .kodza-feature-grid__item:nth-child(2n + 1) { --kz-feature-grid-at-start: 1; }
+  .kodza-feature-grid[data-columns="4"] .kodza-feature-grid__item:nth-child(2n) { --kz-feature-grid-at-end: 1; }
+  .kodza-feature-grid[data-columns="4"] .kodza-feature-grid__item:nth-child(-n + 2) { --kz-feature-grid-at-top: 1; }
+  .kodza-feature-grid[data-columns="4"] .kodza-feature-grid__item:nth-last-child(1) { --kz-feature-grid-at-bottom: 1; }
+}
+
+/* 3 columns go to 2 */
+@container kodza-feature-grid (max-width: 820px) {
+  .kodza-feature-grid:not([data-columns="4"]) .kodza-feature-grid__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kodza-feature-grid:not([data-columns="4"]) .kodza-feature-grid__item:nth-child(n) {
+    --kz-feature-grid-at-start: 0;
+    --kz-feature-grid-at-end: 0;
+    --kz-feature-grid-at-top: 0;
+    --kz-feature-grid-at-bottom: 0;
+  }
+
+  .kodza-feature-grid:not([data-columns="4"]) .kodza-feature-grid__item:nth-child(2n + 1) { --kz-feature-grid-at-start: 1; }
+  .kodza-feature-grid:not([data-columns="4"]) .kodza-feature-grid__item:nth-child(2n) { --kz-feature-grid-at-end: 1; }
+  .kodza-feature-grid:not([data-columns="4"]) .kodza-feature-grid__item:nth-child(-n + 2) { --kz-feature-grid-at-top: 1; }
+  .kodza-feature-grid:not([data-columns="4"]) .kodza-feature-grid__item:nth-last-child(1) { --kz-feature-grid-at-bottom: 1; }
+}
+
+/* The head stacks up, the intro under the title */
+@container kodza-feature-grid (max-width: 760px) {
+  .kodza-feature-grid__head {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "eyebrow" "title" "intro";
+  }
+
+  .kodza-feature-grid__intro {
+    margin-top: 20px;
+  }
+}
+
+/* One column: hairlines across only */
+@container kodza-feature-grid (max-width: 540px) {
+  .kodza-feature-grid .kodza-feature-grid__list:nth-child(n) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-feature-grid .kodza-feature-grid__item:nth-child(n):nth-child(n) {
+    --kz-feature-grid-at-start: 1;
+    --kz-feature-grid-at-end: 1;
+    --kz-feature-grid-at-top: 0;
+    --kz-feature-grid-at-bottom: 1;
+  }
+
+  .kodza-feature-grid .kodza-feature-grid__item:first-child:nth-child(n) {
+    --kz-feature-grid-at-top: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-feature-grid *,
+  .kodza-feature-grid *::before,
+  .kodza-feature-grid *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 27fd5f50ff75 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-feature-grid__eyebrow):not(#_),
+:where(.kodza-feature-grid__title):not(#_),
+:where(.kodza-feature-grid__intro):not(#_),
+:where(.kodza-feature-grid__list):not(#_),
+:where(.kodza-feature-grid__icon):not(#_),
+:where(.kodza-feature-grid__name):not(#_),
+:where(.kodza-feature-grid__link):not(#_),
+:where(.kodza-feature-grid__text):not(#_),
+:where(.kodza-feature-grid__arrow svg:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-feature-grid__item):not(#_) {
+  border: revert;
+  border-radius: revert;
+  background-color: revert;
+  background-image: revert;
+  transition-duration: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-feature-grid__head:not(#_),
+.kodza-feature-grid__line:not(#_),
+.kodza-feature-grid__rise:not(#_),
+.kodza-feature-grid__arrow:not(#_),
+.kodza-feature-grid__number:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-feature-grid__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-grid__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-grid__intro:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-grid__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-grid__item:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-grid__icon:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-grid__name:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-grid__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-grid__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-grid__arrow svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-feature-grid__eyebrow:not(#_):where(:not([hidden])),
+.kodza-feature-grid__title:not(#_):where(:not([hidden])),
+.kodza-feature-grid__intro:not(#_):where(:not([hidden])),
+.kodza-feature-grid__item:not(#_):where(:not([hidden])),
+.kodza-feature-grid__name:not(#_):where(:not([hidden])),
+.kodza-feature-grid__link:not(#_):where(:not([hidden])),
+.kodza-feature-grid__text:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-feature-grid__eyebrow:not(#_):where([hidden]),
+.kodza-feature-grid__title:not(#_):where([hidden]),
+.kodza-feature-grid__intro:not(#_):where([hidden]),
+.kodza-feature-grid__item:not(#_):where([hidden]),
+.kodza-feature-grid__name:not(#_):where([hidden]),
+.kodza-feature-grid__link:not(#_):where([hidden]),
+.kodza-feature-grid__text:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-feature-grid__item:not(#_)::before,
+.kodza-feature-grid__item:not(#_)::after,
+.kodza-feature-grid__link:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-feature-grid__eyebrow:not(#_) {
+  margin: 0 0 20px;
+  font-family: var(--kz-font-label, var(--kz-feature-grid-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-feature-grid-faint);
+}
+
+.kodza-feature-grid__title:not(#_) {
+  max-width: 16ch;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-feature-grid-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-feature-grid-ink);
+}
+
+.kodza-feature-grid__intro:not(#_) {
+  max-width: 440px;
+  margin: 0;
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.55;
+  color: var(--kz-feature-grid-dim);
+}
+
+.kodza-feature-grid__list:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-feature-grid__item:not(#_) {
+  position: relative;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-feature-grid__icon:not(#_) {
+  display: block;
+  margin-bottom: 22px;
+  color: var(--kz-feature-grid-ink);
+}
+
+.kodza-feature-grid__name:not(#_) {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--kz-feature-grid-ink);
+}
+
+.kodza-feature-grid__text:not(#_) {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-feature-grid-dim);
+}
+
+.kodza-feature-grid__link:not(#_) {
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.kodza-feature-grid__arrow svg:not(#_) {
+  display: block;
+}
+
+.kodza-feature-grid--cards .kodza-feature-grid__item:not(#_) {
+  padding: var(--kz-feature-grid-cell-pad);
+  border: 1px solid var(--kz-feature-grid-card-line);
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-feature-grid-card);
+}
+
+@container kodza-feature-grid (max-width: 760px) {
+  .kodza-feature-grid__intro:not(#_) {
+    margin-top: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-feature-grid *:where(p, h2, ul, li, svg, h3, a, ol):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

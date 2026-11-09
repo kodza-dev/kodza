@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 216. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 224. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-216 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+224 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -416,6 +416,22 @@ Written like it's going live tomorrow. Because it probably is.
 | [Section Intro](components/section-intro/) | The head of a section on its own: a mono label, a tight title and a short intro, set beside the title on its first line, under it or centred. It plays its entrance once, as it comes into view. | [Demo](https://kodza.dev/components/section-intro/) |
 | [Statement](components/statement/) | One big sentence of two to four lines, with a mono label in the indent of its first line. Its lines rise from their masks as it comes into view. A modifier makes it a quote with the name and role. | [Demo](https://kodza.dev/components/statement/) |
 | [Text Section](components/text-section/) | A section of running text: the title stays in view on the left while the text, kept to 64 characters a line, scrolls past. It takes paragraphs, lists and quotes as they are. A modifier sets it on two columns. | [Demo](https://kodza.dev/components/text-section/) |
+
+</details>
+
+<details>
+<summary><b>Feature sections</b> · 8</summary>
+
+| Component | What it does | |
+| --- | --- | --- |
+| [Bento Grid](components/bento-grid/) | A bento section in boxes of 1, 2 or 4 cells that pack without holes: pictures, figures that roll in, small screens that play once, one ink box at most. Boxes open in reading order; --ruled turns them into a board. | [Demo](https://kodza.dev/components/bento-grid/) |
+| [Bento Scroll](components/bento-scroll/) | A bento section that opens on its main picture, full screen, title on it. On scroll the picture goes back into its box and the others rise around it. It rewinds. | [Demo](https://kodza.dev/components/bento-scroll/) |
+| [Feature Accordion](components/feature-accordion/) | A product tour: the features in a list beside one screen, each visual opening from the top over the last. It moves on by itself and holds on hover or a pick; --tabs puts the features above one wide visual. | [Demo](https://kodza.dev/components/feature-accordion/) |
+| [Feature Compare](components/feature-compare/) | Without and with on one grid, each line level with its answer, yours on a card of ink. A phone switch rolls the lines over. --table: columns, yours in an ink pill. | [Demo](https://kodza.dev/components/feature-compare/) |
+| [Feature Grid](components/feature-grid/) | Features in 3 or 4 columns on hairlines that never double up or hang loose, at any width. A linked cell is a link as a whole, its arrow passing through. Cells rise row by row; --cards sets them apart. | [Demo](https://kodza.dev/components/feature-grid/) |
+| [Feature List](components/feature-list/) | Everything a product includes, in groups set out in columns: a tick, a label and a Pro or Soon tag. Each group shows its first lines, one button unfolds them all at their real height. | [Demo](https://kodza.dev/components/feature-list/) |
+| [Screen Callouts](components/screen-callouts/) | A picture and its numbered features, each with its zone in %. Picking one veils the rest, the cut-out glides from zone to zone and the picture leans in. | [Demo](https://kodza.dev/components/screen-callouts/) |
+| [Service List](components/service-list/) | An agency's services as large numbered rows on hairlines. A row opens to two lines, its deliverables, a starting price and a lead time, and a link. Native details underneath, one row open at a time. | [Demo](https://kodza.dev/components/service-list/) |
 
 </details>
 
