@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 226. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 227. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-226 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+227 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -505,6 +505,15 @@ Written like it's going live tomorrow. Because it probably is.
 | Component | What it does | |
 | --- | --- | --- |
 | [FAQ Split](components/faq-split/) | A two-column FAQ section: title, topics and a way out pinned on the left, questions by topic on the right, and FAQPage structured data from the page. | [Demo](https://kodza.dev/components/faq-split/) |
+
+</details>
+
+<details>
+<summary><b>Blog & news</b> · 1</summary>
+
+| Component | What it does | |
+| --- | --- | --- |
+| [Journal List](components/journal-list/) | A blog or news section: the latest post in large, the others in rows with date, category and reading time, a picture that follows the pointer over a row, and categories in a sliding pill that filter the rows. | [Demo](https://kodza.dev/components/journal-list/) |
 
 </details>
 

@@ -1,0 +1,91 @@
+<section class="kodza-journal-list" data-kodza-journal-list>
+  <div class="kodza-journal-list__inner">
+    <header class="kodza-journal-list__head">
+      <p class="kodza-journal-list__eyebrow">Journal</p>
+      <h2 class="kodza-journal-list__title">Notes from the studio. Shipped, mostly.</h2>
+      <p class="kodza-journal-list__intro">Release notes, press, and the odd opinion. Written when something actually changed, not on a content calendar.</p>
+    </header>
+
+    <!-- The latest post, in large -->
+    <article class="kodza-journal-list__lead">
+      <figure class="kodza-journal-list__lead-media">
+        <img src="https://kodza.dev/media/kz-steps-1400.webp" srcset="https://kodza.dev/media/kz-steps-1400.webp 1400w, https://kodza.dev/media/kz-steps-2400.webp 2400w" sizes="(max-width: 800px) 100vw, 58vw" width="1400" height="933" alt="Concrete steps climbing between two pale walls" loading="lazy" decoding="async">
+      </figure>
+      <div class="kodza-journal-list__lead-body">
+        <p class="kodza-journal-list__lead-meta"><time datetime="2026-11-04">2026.11.04</time><span class="kodza-journal-list__lead-category">Studio</span></p>
+        <h3 class="kodza-journal-list__lead-title"><a class="kodza-journal-list__lead-link" href="#">We deleted 40,000 lines and nobody noticed</a></h3>
+        <p class="kodza-journal-list__excerpt">The site got faster, the bundle got smaller, and the only complaint was about a font. A long read on what we took out, and why nothing broke.</p>
+        <p class="kodza-journal-list__lead-read">7 min read</p>
+      </div>
+    </article>
+
+    <!-- The categories: data-filter matches the slugs in each post's data-category -->
+    <div class="kodza-journal-list__bar">
+      <div class="kodza-journal-list__filters" role="group" aria-label="Show posts from">
+        <button class="kodza-journal-list__filter" type="button" data-filter="all" aria-pressed="true">All</button>
+        <button class="kodza-journal-list__filter" type="button" data-filter="releases" aria-pressed="false">Releases</button>
+        <button class="kodza-journal-list__filter" type="button" data-filter="studio" aria-pressed="false">Studio</button>
+        <button class="kodza-journal-list__filter" type="button" data-filter="press" aria-pressed="false">Press</button>
+        <button class="kodza-journal-list__filter" type="button" data-filter="talks" aria-pressed="false">Talks</button>
+      </div>
+    </div>
+
+    <!-- The other posts, one row each: data-image is the picture that opens beside the row -->
+    <div class="kodza-journal-list__list">
+      <ul class="kodza-journal-list__items">
+        <li class="kodza-journal-list__item" data-category="releases">
+          <article class="kodza-journal-list__row" data-image="https://kodza.dev/media/kz-block-1400.webp">
+            <time class="kodza-journal-list__date" datetime="2026-10-28">2026.10.28</time>
+            <span class="kodza-journal-list__category">Releases</span>
+            <h3 class="kodza-journal-list__name"><a class="kodza-journal-list__link" href="#">v4.2: forms that keep what you typed</a></h3>
+            <span class="kodza-journal-list__read">3 min read</span>
+          </article>
+        </li>
+        <li class="kodza-journal-list__item" data-category="press">
+          <article class="kodza-journal-list__row" data-image="https://kodza.dev/media/kz-center-1400.webp">
+            <time class="kodza-journal-list__date" datetime="2026-10-21">2026.10.21</time>
+            <span class="kodza-journal-list__category">Press</span>
+            <h3 class="kodza-journal-list__name"><a class="kodza-journal-list__link" href="#">The local paper called us “quietly stubborn”. We’ll take it</a></h3>
+            <span class="kodza-journal-list__read">2 min read</span>
+          </article>
+        </li>
+        <li class="kodza-journal-list__item" data-category="studio">
+          <article class="kodza-journal-list__row" data-image="https://kodza.dev/media/kz-clamp-1400.webp">
+            <time class="kodza-journal-list__date" datetime="2026-10-09">2026.10.09</time>
+            <span class="kodza-journal-list__category">Studio</span>
+            <h3 class="kodza-journal-list__name"><a class="kodza-journal-list__link" href="#">Why our estimates now come with a range</a></h3>
+            <span class="kodza-journal-list__read">6 min read</span>
+          </article>
+        </li>
+        <li class="kodza-journal-list__item" data-category="talks">
+          <article class="kodza-journal-list__row" data-image="https://kodza.dev/media/kz-columns-1400.webp">
+            <time class="kodza-journal-list__date" datetime="2026-09-30">2026.09.30</time>
+            <span class="kodza-journal-list__category">Talks</span>
+            <h3 class="kodza-journal-list__name"><a class="kodza-journal-list__link" href="#">Notes from a talk on boring CSS, given in Le Havre</a></h3>
+            <span class="kodza-journal-list__read">9 min read</span>
+          </article>
+        </li>
+        <li class="kodza-journal-list__item" data-category="releases">
+          <article class="kodza-journal-list__row" data-image="https://kodza.dev/media/kz-radius-1400.webp">
+            <time class="kodza-journal-list__date" datetime="2026-09-16">2026.09.16</time>
+            <span class="kodza-journal-list__category">Releases</span>
+            <h3 class="kodza-journal-list__name"><a class="kodza-journal-list__link" href="#">v4.1: the dark mode we said we’d never do</a></h3>
+            <span class="kodza-journal-list__read">4 min read</span>
+          </article>
+        </li>
+        <li class="kodza-journal-list__item" data-category="studio">
+          <article class="kodza-journal-list__row" data-image="https://kodza.dev/media/kz-float-1400.webp">
+            <time class="kodza-journal-list__date" datetime="2026-09-02">2026.09.02</time>
+            <span class="kodza-journal-list__category">Studio</span>
+            <h3 class="kodza-journal-list__name"><a class="kodza-journal-list__link" href="#">Six weeks without a single standup</a></h3>
+            <span class="kodza-journal-list__read">5 min read</span>
+          </article>
+        </li>
+      </ul>
+    </div>
+
+    <div class="kodza-journal-list__foot">
+      <a class="kodza-journal-list__more" href="#">Read the archive<svg class="kodza-journal-list__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h10.5M9 3.5 13.5 8 9 12.5" /></svg></a>
+    </div>
+  </div>
+</section>
