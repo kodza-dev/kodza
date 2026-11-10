@@ -1,0 +1,1017 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Spec Sheet
+   A product or a project you judge on the evidence. Its name, very big; its spec sheet pinned on
+   the left (the term in mono, the value in tabular figures, on 1px hairlines) while its pictures
+   scroll past on the right. With several models, an ink pill picks one: the name and every value
+   roll to the next one character by character (a number counts its digits round, like a
+   counter), the text slides across and each picture wipes in from the side you go to. Under 860px
+   of width the sheet goes under the first picture. Without the script, the models stand one
+   under the other, each with its own pinned sheet.
+   Everything is tuned with the --kz-spec-sheet-* variables; the script's settings are at its top. */
+.kodza-spec-sheet {
+  --kz-spec-sheet-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-spec-sheet-muted: color-mix(in srgb, var(--kz-spec-sheet-ink) 62%, transparent); /* terms, captions, the text */
+  --kz-spec-sheet-line: color-mix(in srgb, var(--kz-spec-sheet-ink) 12%, transparent); /* hairlines */
+  --kz-spec-sheet-soft: color-mix(in srgb, var(--kz-spec-sheet-ink) 6%, transparent); /* behind a picture while it loads */
+  --kz-spec-sheet-track: var(--kz-color-paper, #ffffff); /* the row of model tabs */
+  --kz-spec-sheet-pill: var(--kz-color-accent, var(--kz-spec-sheet-ink)); /* the pill of the model shown */
+  --kz-spec-sheet-on-pill: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff)); /* its text */
+  --kz-spec-sheet-width: var(--kz-page-width, 1440px); /* the content column: the page's, set by the site */
+  --kz-spec-sheet-gutter: var(--kz-page-gutter, clamp(16px, 4vw, 40px)); /* the space kept at the screen edges */
+  --kz-spec-sheet-space: clamp(56px, 7vw, 112px); /* above and below the section */
+  --kz-spec-sheet-gap: clamp(32px, 5vw, 96px); /* between the sheet and the pictures */
+  --kz-spec-sheet-top: 0px; /* height of a fixed header: the sheet pins under it */
+  --kz-spec-sheet-ratio: 4 / 3; /* every picture's frame */
+  --kz-spec-sheet-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-spec-sheet-duration: 0.5s; /* the pill gliding from tab to tab */
+  --kz-spec-sheet-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-spec-sheet / inline-size;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: var(--kz-spec-sheet-space);
+  padding-bottom: var(--kz-spec-sheet-space);
+  color: var(--kz-spec-sheet-ink);
+}
+
+.kodza-spec-sheet__inner {
+  box-sizing: border-box;
+  max-width: calc(var(--kz-spec-sheet-width) + 2 * var(--kz-spec-sheet-gutter));
+  margin: 0 auto;
+  padding-left: max(var(--kz-spec-sheet-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-spec-sheet-gutter), env(safe-area-inset-right, 0px));
+}
+
+/* The line on top: who it is on the left, which model of how many on the right */
+.kodza-spec-sheet__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: clamp(28px, 3vw, 44px);
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--kz-spec-sheet-line);
+}
+
+.kodza-spec-sheet__eyebrow,
+.kodza-spec-sheet__count {
+  margin: 0;
+  color: var(--kz-spec-sheet-muted);
+  font-family: var(--kz-font-label, var(--kz-spec-sheet-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-spec-sheet__eyebrow {
+  margin-bottom: clamp(28px, 3vw, 44px);
+}
+
+.kodza-spec-sheet__head .kodza-spec-sheet__eyebrow {
+  margin-bottom: 0;
+}
+
+.kodza-spec-sheet__count {
+  flex: none;
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* One model: the name across, then the sheet and the pictures side by side */
+.kodza-spec-sheet__model {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  grid-template-areas:
+    "name name"
+    "sheet media";
+  column-gap: var(--kz-spec-sheet-gap);
+}
+
+.kodza-spec-sheet__model + .kodza-spec-sheet__model {
+  margin-top: clamp(80px, 10vw, 160px);
+}
+
+.kodza-spec-sheet__name {
+  grid-area: name;
+  margin: 0 0 clamp(32px, 4vw, 64px);
+  color: var(--kz-spec-sheet-ink);
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(48px, 11cqi, 176px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.92;
+  letter-spacing: var(--kz-font-display-tracking, -0.055em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+}
+
+/* The sheet stays in view while the pictures scroll past (the script lets it go when it is taller
+   than the screen: is-loose) */
+.kodza-spec-sheet__sheet {
+  grid-area: sheet;
+  position: sticky;
+  top: calc(var(--kz-spec-sheet-top) + 40px);
+  align-self: start;
+  min-width: 0;
+}
+
+.kodza-spec-sheet.is-loose .kodza-spec-sheet__sheet {
+  position: static;
+}
+
+.kodza-spec-sheet__about p {
+  max-width: 440px;
+  margin: 0 0 16px;
+  color: var(--kz-spec-sheet-muted);
+  font-size: clamp(16px, 1.15vw, 17px);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.kodza-spec-sheet__link {
+  color: var(--kz-spec-sheet-ink);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--kz-spec-sheet-ink) 30%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-spec-sheet__link:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+.kodza-spec-sheet__link:focus-visible {
+  outline: 2px solid var(--kz-spec-sheet-ink);
+  outline-offset: 3px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+/* The spec sheet: term on the left, value on the right, a hairline between each */
+.kodza-spec-sheet__specs {
+  margin: 32px 0 0;
+  padding: 0;
+}
+
+.kodza-spec-sheet__spec {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  box-sizing: border-box;
+  padding: 14px 0;
+  border-top: 1px solid var(--kz-spec-sheet-line);
+}
+
+.kodza-spec-sheet__spec:last-child {
+  border-bottom: 1px solid var(--kz-spec-sheet-line);
+}
+
+.kodza-spec-sheet__term {
+  flex: none;
+  color: var(--kz-spec-sheet-muted);
+  font-family: var(--kz-font-label, var(--kz-spec-sheet-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-spec-sheet__value {
+  min-width: 0;
+  margin: 0;
+  color: var(--kz-spec-sheet-ink);
+  font-size: clamp(15px, 1.1vw, 17px);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* The pictures, one under the other */
+.kodza-spec-sheet__media {
+  grid-area: media;
+  display: grid;
+  gap: clamp(24px, 3vw, 48px);
+  min-width: 0;
+}
+
+.kodza-spec-sheet__figure {
+  min-width: 0;
+  margin: 0;
+}
+
+.kodza-spec-sheet__frame {
+  overflow: hidden;
+  aspect-ratio: var(--kz-spec-sheet-ratio);
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-spec-sheet-soft);
+}
+
+.kodza-spec-sheet__frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.kodza-spec-sheet__caption {
+  margin-top: 12px;
+  color: var(--kz-spec-sheet-muted);
+  font-family: var(--kz-font-label, var(--kz-spec-sheet-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.01em);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+/* —— With the script and two models or more: one sheet, a tab per model —— */
+
+/* The model tabs: the pill of Tabs */
+.kodza-spec-sheet__tabs {
+  position: relative;
+  display: inline-flex;
+  box-sizing: border-box;
+  max-width: 100%;
+  margin-bottom: 32px;
+  padding: 4px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-spec-sheet-track);
+  box-shadow: inset 0 0 0 1px var(--kz-spec-sheet-line);
+}
+
+.kodza-spec-sheet__tabs.is-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.kodza-spec-sheet__tabs.is-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.kodza-spec-sheet__indicator {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--kz-spec-sheet-tabs-track, 100%);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-spec-sheet-pill);
+  clip-path: inset(4px var(--kz-spec-sheet-ind-r, 100%) 4px var(--kz-spec-sheet-ind-l, 0) round var(--kz-radius-pill, 999px));
+}
+
+.kodza-spec-sheet__tab {
+  position: relative;
+  height: 36px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-spec-sheet-muted);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-spec-sheet__tab:hover,
+.kodza-spec-sheet__tab[aria-selected="true"] {
+  color: var(--kz-spec-sheet-ink);
+}
+
+.kodza-spec-sheet__tab:focus-visible {
+  outline: 2px solid var(--kz-spec-sheet-ink);
+  outline-offset: 2px;
+}
+
+/* A double of the labels in the pill's colour, cut to the pill's shape: the text turns white
+   exactly at its edges */
+.kodza-spec-sheet__mirror {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: flex;
+  box-sizing: border-box;
+  width: var(--kz-spec-sheet-tabs-track, 100%);
+  padding: 4px;
+  border-radius: var(--kz-radius-pill, 999px);
+  color: var(--kz-spec-sheet-on-pill);
+  clip-path: inset(4px var(--kz-spec-sheet-ind-r, 100%) 4px var(--kz-spec-sheet-ind-l, 0) round var(--kz-radius-pill, 999px));
+  pointer-events: none;
+}
+
+.kodza-spec-sheet__ghost {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 18px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+}
+
+.kodza-spec-sheet.is-live .kodza-spec-sheet__indicator,
+.kodza-spec-sheet.is-live .kodza-spec-sheet__mirror {
+  transition: clip-path calc(var(--kz-spec-sheet-duration) * var(--kz-motion-scale, 1)) var(--kz-spec-sheet-ease);
+}
+
+/* The texts of every model in one cell: the tallest sets the height, nothing jumps */
+.kodza-spec-sheet__abouts {
+  display: grid;
+}
+
+.kodza-spec-sheet__abouts > .kodza-spec-sheet__about,
+.kodza-spec-sheet__shot > .kodza-spec-sheet__figure {
+  grid-area: 1 / 1;
+}
+
+.kodza-spec-sheet__shot {
+  display: grid;
+  min-width: 0;
+}
+
+.kodza-spec-sheet.has-models .kodza-spec-sheet__about:not(.is-active, .is-leaving),
+.kodza-spec-sheet.has-models .kodza-spec-sheet__figure:not(.is-active, .is-leaving) {
+  visibility: hidden;
+}
+
+.kodza-spec-sheet.has-models .kodza-spec-sheet__figure.is-active {
+  z-index: 1;
+}
+
+.kodza-spec-sheet.has-models .kodza-spec-sheet__caption {
+  overflow: clip;
+}
+
+.kodza-spec-sheet__line {
+  display: block;
+}
+
+/* A slot: every text it can show sits in one cell (the widest sets its size), one is shown; a
+   change shows two, the leaving one and the coming one, and moves them */
+.kodza-spec-sheet__slot {
+  position: relative;
+  display: inline-grid;
+  justify-items: end;
+}
+
+.kodza-spec-sheet__name .kodza-spec-sheet__slot {
+  display: grid;
+  justify-items: start;
+}
+
+.kodza-spec-sheet__sizer {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+.kodza-spec-sheet__sizer.is-shown {
+  visibility: visible;
+}
+
+.kodza-spec-sheet__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* One column: the name, the tabs, the first picture, the sheet, then the other pictures */
+@container kodza-spec-sheet (max-width: 859px) {
+  .kodza-spec-sheet__model {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "name"
+      "lead";
+  }
+
+  .kodza-spec-sheet.has-models .kodza-spec-sheet__model {
+    grid-template-areas:
+      "name"
+      "tabs"
+      "lead"
+      "panel";
+  }
+
+  .kodza-spec-sheet__sheet,
+  .kodza-spec-sheet__media {
+    display: contents;
+  }
+
+  .kodza-spec-sheet__media > :first-child {
+    grid-area: lead;
+  }
+
+  .kodza-spec-sheet__media > :not(:first-child) {
+    margin-top: clamp(24px, 6cqi, 40px);
+  }
+
+  .kodza-spec-sheet__tabs {
+    grid-area: tabs;
+    justify-self: start;
+    margin-bottom: 24px;
+  }
+
+  .kodza-spec-sheet__panel {
+    grid-area: panel;
+  }
+
+  .kodza-spec-sheet__about,
+  .kodza-spec-sheet__abouts {
+    margin-top: 28px;
+  }
+
+  .kodza-spec-sheet__abouts > .kodza-spec-sheet__about {
+    margin-top: 0;
+  }
+
+  .kodza-spec-sheet__specs {
+    margin-top: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-spec-sheet__link,
+  .kodza-spec-sheet__tab,
+  .kodza-spec-sheet.is-live .kodza-spec-sheet__indicator,
+  .kodza-spec-sheet.is-live .kodza-spec-sheet__mirror {
+    transition: none;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-spec-sheet {
+  --kz-spec-sheet-ink: #f2f2f0;
+  --kz-spec-sheet-muted: rgba(242, 242, 240, 0.62);
+  --kz-spec-sheet-line: rgba(255, 255, 255, 0.14);
+  --kz-spec-sheet-soft: rgba(255, 255, 255, 0.08);
+  --kz-spec-sheet-track: rgba(255, 255, 255, 0.06);
+  --kz-spec-sheet-on-pill: #0a0a0a;
+}
+*/
+
+/* kodza-guard ba3d16111b76 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-spec-sheet__tab):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-spec-sheet__link):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-spec-sheet__head:not(#_),
+.kodza-spec-sheet__slot:not(#_),
+.kodza-spec-sheet__sizer:not(#_),
+.kodza-spec-sheet__sr:not(#_),
+.kodza-spec-sheet__sheet:not(#_),
+.kodza-spec-sheet__indicator:not(#_),
+.kodza-spec-sheet__ghost:not(#_),
+.kodza-spec-sheet__panel:not(#_),
+.kodza-spec-sheet__abouts:not(#_),
+.kodza-spec-sheet__about:not(#_),
+.kodza-spec-sheet__media:not(#_),
+.kodza-spec-sheet__shot:not(#_),
+.kodza-spec-sheet__frame:not(#_),
+.kodza-spec-sheet__line:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-spec-sheet__eyebrow:not(#_),
+.kodza-spec-sheet__count:not(#_),
+.kodza-spec-sheet__name:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-spec-sheet__model:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-spec-sheet__tab:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-spec-sheet__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-spec-sheet__specs:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-spec-sheet__term:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-spec-sheet__value:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-spec-sheet__figure:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-spec-sheet__caption:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-spec-sheet__about p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-spec-sheet__about :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-spec-sheet__frame img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-spec-sheet__eyebrow:not(#_):where(:not([hidden])),
+.kodza-spec-sheet__count:not(#_):where(:not([hidden])),
+.kodza-spec-sheet__name:not(#_):where(:not([hidden])),
+.kodza-spec-sheet__tab:not(#_):where(:not([hidden])),
+.kodza-spec-sheet__link:not(#_):where(:not([hidden])),
+.kodza-spec-sheet__specs:not(#_):where(:not([hidden])),
+.kodza-spec-sheet__term:not(#_):where(:not([hidden])),
+.kodza-spec-sheet__value:not(#_):where(:not([hidden])),
+.kodza-spec-sheet__figure:not(#_):where(:not([hidden])),
+.kodza-spec-sheet__caption:not(#_):where(:not([hidden])),
+.kodza-spec-sheet__about p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-spec-sheet__about :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-spec-sheet__eyebrow:not(#_):where([hidden]),
+.kodza-spec-sheet__count:not(#_):where([hidden]),
+.kodza-spec-sheet__name:not(#_):where([hidden]),
+.kodza-spec-sheet__tab:not(#_):where([hidden]),
+.kodza-spec-sheet__link:not(#_):where([hidden]),
+.kodza-spec-sheet__specs:not(#_):where([hidden]),
+.kodza-spec-sheet__term:not(#_):where([hidden]),
+.kodza-spec-sheet__value:not(#_):where([hidden]),
+.kodza-spec-sheet__figure:not(#_):where([hidden]),
+.kodza-spec-sheet__caption:not(#_):where([hidden]),
+.kodza-spec-sheet__about p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-spec-sheet__about :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-spec-sheet__eyebrow:not(#_),
+.kodza-spec-sheet__count:not(#_) {
+  margin: 0;
+  color: var(--kz-spec-sheet-muted);
+  font-family: var(--kz-font-label, var(--kz-spec-sheet-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-spec-sheet__eyebrow:not(#_) {
+  margin-bottom: clamp(28px, 3vw, 44px);
+}
+
+.kodza-spec-sheet__head .kodza-spec-sheet__eyebrow:not(#_) {
+  margin-bottom: 0;
+}
+
+.kodza-spec-sheet__count:not(#_) {
+  margin-left: auto;
+}
+
+.kodza-spec-sheet__model:not(#_) {
+  display: grid;
+}
+
+.kodza-spec-sheet__name:not(#_) {
+  margin: 0 0 clamp(32px, 4vw, 64px);
+  color: var(--kz-spec-sheet-ink);
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(48px, 11cqi, 176px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 0.92;
+  letter-spacing: var(--kz-font-display-tracking, -0.055em);
+  text-transform: var(--kz-font-display-case, none);
+}
+
+.kodza-spec-sheet__about p:not(#_) {
+  max-width: 440px;
+  margin: 0 0 16px;
+  color: var(--kz-spec-sheet-muted);
+  font-size: clamp(16px, 1.15vw, 17px);
+  line-height: 1.55;
+}
+
+.kodza-spec-sheet__link:not(#_) {
+  color: var(--kz-spec-sheet-ink);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--kz-spec-sheet-ink) 30%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-spec-sheet__link:hover:not(#_) {
+    text-decoration-color: currentColor;
+  }
+}
+
+.kodza-spec-sheet__link:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-spec-sheet-ink);
+  outline-offset: 3px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-spec-sheet__specs:not(#_) {
+  margin: 32px 0 0;
+  padding: 0;
+}
+
+.kodza-spec-sheet__term:not(#_) {
+  color: var(--kz-spec-sheet-muted);
+  font-family: var(--kz-font-label, var(--kz-spec-sheet-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-spec-sheet__value:not(#_) {
+  margin: 0;
+  color: var(--kz-spec-sheet-ink);
+  font-size: clamp(15px, 1.1vw, 17px);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  text-align: right;
+}
+
+.kodza-spec-sheet__figure:not(#_) {
+  margin: 0;
+}
+
+.kodza-spec-sheet__frame img:not(#_) {
+  display: block;
+  max-width: none;
+}
+
+.kodza-spec-sheet__caption:not(#_) {
+  margin-top: 12px;
+  color: var(--kz-spec-sheet-muted);
+  font-family: var(--kz-font-label, var(--kz-spec-sheet-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.01em);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-spec-sheet__tab:not(#_) {
+  position: relative;
+  height: 36px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-spec-sheet-muted);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-spec-sheet__tab:hover:not(#_),
+.kodza-spec-sheet__tab[aria-selected="true"]:not(#_) {
+  color: var(--kz-spec-sheet-ink);
+}
+
+.kodza-spec-sheet__tab:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-spec-sheet-ink);
+  outline-offset: 2px;
+}
+
+@container kodza-spec-sheet (max-width: 859px) {
+  .kodza-spec-sheet__specs:not(#_) {
+    margin-top: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-spec-sheet__link:not(#_) {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-spec-sheet__tab:not(#_) {
+    transition: none;
+  }
+}

@@ -1,0 +1,861 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Team Grid
+   The people of a team, grouped (Partners, Studio, Kitchen…), every portrait in the same 4:5
+   frame, the name and the role in mono underneath. Pointing at someone, or tabbing to their name,
+   opens a second picture from the top, over the portrait (them at work), and the role rolls to
+   that picture's caption; a person with a bio instead raises it from the bottom of the frame.
+   With no portrait, the initials of the name. A WordPress loop fills it, one person per list
+   item; the script counts the people and writes the initials.
+   Everything is tuned with the --kz-team-grid-* variables. */
+.kodza-team-grid {
+  --kz-team-grid-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-team-grid-muted: color-mix(in srgb, var(--kz-team-grid-ink) 62%, transparent);
+  --kz-team-grid-line: color-mix(in srgb, var(--kz-team-grid-ink) 12%, transparent);
+  --kz-team-grid-paper: var(--kz-color-paper, #ffffff); /* the bio panel */
+  --kz-team-grid-blank: color-mix(in srgb, var(--kz-team-grid-ink) 6%, transparent); /* the frame of a person with no portrait */
+  --kz-team-grid-width: var(--kz-page-width, 1440px);
+  --kz-team-grid-gutter: var(--kz-page-gutter, clamp(16px, 4vw, 40px));
+  --kz-team-grid-space: clamp(56px, 7vw, 112px); /* above and below the section */
+  --kz-team-grid-gap: clamp(32px, 6vw, 96px); /* between the group and its people */
+  --kz-team-grid-split: minmax(0, 4fr) minmax(0, 8fr); /* the group, then its people */
+  --kz-team-grid-columns: 3; /* people per row (2 in a narrow column) */
+  --kz-team-grid-spacing: clamp(16px, 2vw, 28px) clamp(12px, 1.6vw, 24px); /* between people: rows, columns */
+  --kz-team-grid-ratio: 4 / 5; /* every frame, whatever the picture */
+  --kz-team-grid-radius: calc(12px * var(--kz-radius-scale, 1));
+  --kz-team-grid-bio-radius: calc(8px * var(--kz-radius-scale, 1)); /* the bio panel, inside the frame */
+  --kz-team-grid-ring-radius: calc(16px * var(--kz-radius-scale, 1)); /* the focus ring, around the person */
+  --kz-team-grid-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-team-grid-curtain: cubic-bezier(0.76, 0, 0.24, 1); /* the second picture coming down */
+  --kz-team-grid-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+
+  container: kodza-team-grid / inline-size;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: var(--kz-team-grid-space);
+  padding-bottom: var(--kz-team-grid-space);
+  color: var(--kz-team-grid-ink);
+}
+
+.kodza-team-grid__inner {
+  box-sizing: border-box;
+  max-width: calc(var(--kz-team-grid-width) + 2 * var(--kz-team-grid-gutter));
+  margin: 0 auto;
+  padding-left: max(var(--kz-team-grid-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-team-grid-gutter), env(safe-area-inset-right, 0px));
+}
+
+/* The head: the title on the left, the intro on the right, on the same baseline */
+.kodza-team-grid__head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  align-items: end;
+  column-gap: var(--kz-team-grid-gap);
+  margin-bottom: clamp(40px, 5vw, 72px);
+}
+
+.kodza-team-grid__eyebrow,
+.kodza-team-grid__count,
+.kodza-team-grid__name,
+.kodza-team-grid__role {
+  font-family: var(--kz-font-label, var(--kz-team-grid-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, none);
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-team-grid__eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 0.7em;
+  grid-column: 1 / -1;
+  margin: 0 0 20px;
+  color: var(--kz-team-grid-muted);
+}
+
+/* The total, after a round dot */
+.kodza-team-grid__total {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+}
+
+.kodza-team-grid__total::before {
+  content: "";
+  flex: none;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.kodza-team-grid__title {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+}
+
+.kodza-team-grid__intro {
+  max-width: 400px;
+  margin: 0;
+  color: var(--kz-team-grid-muted);
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+/* The groups, each on a hairline across the page */
+.kodza-team-grid__group {
+  display: grid;
+  grid-template-columns: var(--kz-team-grid-split);
+  align-items: start;
+  column-gap: var(--kz-team-grid-gap);
+  padding: 22px 0 clamp(40px, 5vw, 64px);
+  border-top: 1px solid var(--kz-team-grid-line);
+}
+
+/* A group the loop left without anyone */
+.kodza-team-grid__group:not(:has(.kodza-team-grid__person)) {
+  display: none;
+}
+
+.kodza-team-grid__label {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.kodza-team-grid__group-name {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(17px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1.3;
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  text-transform: var(--kz-font-display-case, none);
+}
+
+.kodza-team-grid__count {
+  color: var(--kz-team-grid-muted);
+}
+
+.kodza-team-grid__people {
+  display: grid;
+  grid-template-columns: repeat(var(--kz-team-grid-columns), minmax(0, 1fr));
+  gap: var(--kz-team-grid-spacing);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A person: the frame, then the name, the role, and the bio when it does not cover the frame */
+.kodza-team-grid__person {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "media"
+    "name"
+    "role"
+    "bio";
+  align-content: start;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-team-grid__media {
+  grid-area: media;
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: var(--kz-team-grid-ratio);
+  max-width: 100%;
+  overflow: hidden;
+  margin-bottom: 14px;
+  border-radius: var(--kz-team-grid-radius);
+  background: var(--kz-team-grid-blank);
+  isolation: isolate;
+}
+
+.kodza-team-grid__photo,
+.kodza-team-grid__work {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  object-fit: cover;
+}
+
+.kodza-team-grid__photo {
+  transform-origin: 50% 0;
+  transition: transform calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-team-grid-ease);
+}
+
+/* The second picture: shut at the top of the frame until it comes down */
+.kodza-team-grid__work {
+  z-index: 1;
+  clip-path: inset(0 0 100% 0);
+  transform: scale(1.08);
+  transform-origin: 50% 0;
+  transition:
+    clip-path calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-team-grid-curtain),
+    transform calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-team-grid-curtain);
+}
+
+/* No portrait (or one that did not load): the initials of the name, written by the script */
+.kodza-team-grid__initials {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--kz-font-display, inherit);
+  font-size: 26cqi;
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--kz-team-grid-muted);
+  user-select: none;
+}
+
+.kodza-team-grid__photo.is-broken,
+.kodza-team-grid__work.is-broken {
+  display: none;
+}
+
+.kodza-team-grid__name {
+  grid-area: name;
+  margin: 0;
+  color: var(--kz-team-grid-ink);
+}
+
+.kodza-team-grid__name a {
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The name's link covers the whole person, so the frame is clickable too */
+.kodza-team-grid__name a::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  z-index: 3;
+  border-radius: var(--kz-team-grid-ring-radius);
+}
+
+.kodza-team-grid__name a:focus-visible::after {
+  box-shadow: 0 0 0 2px var(--kz-team-grid-ink);
+}
+
+/* The role, and the caption of the second picture rolled in under it, in the same cell */
+.kodza-team-grid__role {
+  grid-area: role;
+  display: grid;
+  overflow: hidden;
+  margin: 0;
+  color: var(--kz-team-grid-muted);
+}
+
+.kodza-team-grid__role > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+  transition: transform calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-team-grid-ease);
+}
+
+.kodza-team-grid__at {
+  transform: translateY(105%);
+}
+
+/* The bio: under the role where nothing can point (a phone), a panel in the frame elsewhere */
+.kodza-team-grid__bio {
+  grid-area: bio;
+  max-width: 34em;
+  margin: 8px 0 0;
+  color: var(--kz-team-grid-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+@media (hover: hover) {
+  /* A person who opens a bio and no second picture (or the section asks for the bio) */
+  .kodza-team-grid__person:not(:has(.kodza-team-grid__work)) .kodza-team-grid__bio,
+  .kodza-team-grid[data-reveal="bio"] .kodza-team-grid__bio {
+    grid-area: media;
+    align-self: end;
+    z-index: 2;
+    box-sizing: border-box;
+    max-width: none;
+    margin: 0 8px 22px;
+    padding: 12px 14px 13px;
+    border-radius: var(--kz-team-grid-bio-radius);
+    background: var(--kz-team-grid-paper);
+    color: var(--kz-team-grid-ink);
+    pointer-events: none;
+    clip-path: inset(100% 0 0 0 round var(--kz-team-grid-bio-radius));
+    transform: translateY(10px);
+    transition:
+      clip-path calc(0.55s * var(--kz-motion-scale, 1)) var(--kz-team-grid-ease),
+      transform calc(0.55s * var(--kz-motion-scale, 1)) var(--kz-team-grid-ease);
+  }
+
+  .kodza-team-grid[data-reveal="bio"] .kodza-team-grid__work {
+    display: none;
+  }
+
+  .kodza-team-grid__person:hover .kodza-team-grid__bio {
+    clip-path: inset(0 0 0 0 round var(--kz-team-grid-bio-radius));
+    transform: none;
+  }
+
+  .kodza-team-grid:not([data-reveal="bio"]) .kodza-team-grid__person:hover .kodza-team-grid__work {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+    transition-duration: calc(0.7s * var(--kz-motion-scale, 1));
+  }
+
+  .kodza-team-grid__person:hover .kodza-team-grid__photo {
+    transform: scale(1.04);
+  }
+
+  .kodza-team-grid:not([data-reveal="bio"]) .kodza-team-grid__person:hover .kodza-team-grid__role > :not(.kodza-team-grid__at):has(+ .kodza-team-grid__at) {
+    transform: translateY(-105%);
+  }
+
+  .kodza-team-grid:not([data-reveal="bio"]) .kodza-team-grid__person:hover .kodza-team-grid__at {
+    transform: none;
+  }
+}
+
+/* The same from the keyboard, on the name's link */
+.kodza-team-grid__person:has(:focus-visible) .kodza-team-grid__bio {
+  clip-path: inset(0 0 0 0 round var(--kz-team-grid-bio-radius));
+  transform: none;
+}
+
+.kodza-team-grid:not([data-reveal="bio"]) .kodza-team-grid__person:has(:focus-visible) .kodza-team-grid__work {
+  clip-path: inset(0 0 0 0);
+  transform: none;
+  transition-duration: calc(0.7s * var(--kz-motion-scale, 1));
+}
+
+.kodza-team-grid__person:has(:focus-visible) .kodza-team-grid__photo {
+  transform: scale(1.04);
+}
+
+.kodza-team-grid:not([data-reveal="bio"]) .kodza-team-grid__person:has(:focus-visible) .kodza-team-grid__role > :not(.kodza-team-grid__at):has(+ .kodza-team-grid__at) {
+  transform: translateY(-105%);
+}
+
+.kodza-team-grid:not([data-reveal="bio"]) .kodza-team-grid__person:has(:focus-visible) .kodza-team-grid__at {
+  transform: none;
+}
+
+/* A narrow column: the head on one column, each group above its people */
+@container kodza-team-grid (max-width: 800px) {
+  .kodza-team-grid__head,
+  .kodza-team-grid__group {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 20px;
+  }
+}
+
+/* A phone: two people a row */
+@container kodza-team-grid (max-width: 560px) {
+  .kodza-team-grid__people {
+    --kz-team-grid-columns: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-team-grid__photo,
+  .kodza-team-grid__work,
+  .kodza-team-grid__bio,
+  .kodza-team-grid__role > * {
+    transition: none !important;
+  }
+}
+
+/* kodza-guard cedb429b2975 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-team-grid__bio):not(#_) {
+  padding: revert;
+  border-radius: revert;
+  transition: revert;
+  box-sizing: revert;
+  background-color: revert;
+  background-image: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-team-grid__head:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-team-grid__eyebrow:not(#_),
+.kodza-team-grid__name:not(#_),
+.kodza-team-grid__role:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-team-grid__total:not(#_),
+.kodza-team-grid__groups:not(#_),
+.kodza-team-grid__group:not(#_),
+.kodza-team-grid__label:not(#_),
+.kodza-team-grid__count:not(#_),
+.kodza-team-grid__media:not(#_),
+.kodza-team-grid__at:not(#_),
+.kodza-team-grid__initials:not(#_),
+.kodza-team-grid__role span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-team-grid__title:not(#_),
+.kodza-team-grid__group-name:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-team-grid__intro:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-team-grid__people:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-team-grid__person:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-team-grid__photo:not(#_),
+.kodza-team-grid__work:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-team-grid__bio:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-team-grid__name a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-team-grid__title:not(#_):where(:not([hidden])),
+.kodza-team-grid__intro:not(#_):where(:not([hidden])),
+.kodza-team-grid__group-name:not(#_):where(:not([hidden])),
+.kodza-team-grid__name:not(#_):where(:not([hidden])),
+.kodza-team-grid__bio:not(#_):where(:not([hidden])),
+.kodza-team-grid__name a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-team-grid__title:not(#_):where([hidden]),
+.kodza-team-grid__intro:not(#_):where([hidden]),
+.kodza-team-grid__group-name:not(#_):where([hidden]),
+.kodza-team-grid__name:not(#_):where([hidden]),
+.kodza-team-grid__bio:not(#_):where([hidden]),
+.kodza-team-grid__name a:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-team-grid__total:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-team-grid__head:not(#_) {
+  display: grid;
+  margin-bottom: clamp(40px, 5vw, 72px);
+}
+
+.kodza-team-grid__eyebrow:not(#_),
+.kodza-team-grid__name:not(#_),
+.kodza-team-grid__role:not(#_) {
+  font-family: var(--kz-font-label, var(--kz-team-grid-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-team-grid__eyebrow:not(#_) {
+  display: flex;
+  margin: 0 0 20px;
+  color: var(--kz-team-grid-muted);
+}
+
+.kodza-team-grid__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+}
+
+.kodza-team-grid__intro:not(#_) {
+  max-width: 400px;
+  margin: 0;
+  color: var(--kz-team-grid-muted);
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.55;
+}
+
+.kodza-team-grid__group-name:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(17px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1.3;
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  text-transform: var(--kz-font-display-case, none);
+}
+
+.kodza-team-grid__people:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-team-grid__person:not(#_) {
+  position: relative;
+  display: grid;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-team-grid__photo:not(#_),
+.kodza-team-grid__work:not(#_) {
+  position: absolute;
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-team-grid__photo:not(#_) {
+  transition: transform calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-team-grid-ease);
+}
+
+.kodza-team-grid__work:not(#_) {
+  transition: clip-path calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-team-grid-curtain),
+    transform calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-team-grid-curtain);
+}
+
+.kodza-team-grid__photo.is-broken:not(#_),
+.kodza-team-grid__work.is-broken:not(#_) {
+  display: none;
+}
+
+.kodza-team-grid__name:not(#_) {
+  margin: 0;
+  color: var(--kz-team-grid-ink);
+}
+
+.kodza-team-grid__name a:not(#_) {
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.kodza-team-grid__role:not(#_) {
+  display: grid;
+  margin: 0;
+  color: var(--kz-team-grid-muted);
+}
+
+.kodza-team-grid__bio:not(#_) {
+  max-width: 34em;
+  margin: 8px 0 0;
+  color: var(--kz-team-grid-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (hover: hover) {
+  .kodza-team-grid__person:not(:has(.kodza-team-grid__work)) .kodza-team-grid__bio:not(#_),
+  .kodza-team-grid[data-reveal="bio"] .kodza-team-grid__bio:not(#_) {
+    box-sizing: border-box;
+    max-width: none;
+    margin: 0 8px 22px;
+    padding: 12px 14px 13px;
+    border-radius: var(--kz-team-grid-bio-radius);
+    background: var(--kz-team-grid-paper);
+    color: var(--kz-team-grid-ink);
+    transition: clip-path calc(0.55s * var(--kz-motion-scale, 1)) var(--kz-team-grid-ease),
+        transform calc(0.55s * var(--kz-motion-scale, 1)) var(--kz-team-grid-ease);
+  }
+}
+
+@media (hover: hover) {
+  .kodza-team-grid[data-reveal="bio"] .kodza-team-grid__work:not(#_) {
+    display: none;
+  }
+}
+
+@media (hover: hover) {
+  .kodza-team-grid:not([data-reveal="bio"]) .kodza-team-grid__person:hover .kodza-team-grid__work:not(#_) {
+    transition-duration: calc(0.7s * var(--kz-motion-scale, 1));
+  }
+}
+
+.kodza-team-grid:not([data-reveal="bio"]) .kodza-team-grid__person:has(:focus-visible) .kodza-team-grid__work:not(#_) {
+  transition-duration: calc(0.7s * var(--kz-motion-scale, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-team-grid__photo:not(#_),
+  .kodza-team-grid__work:not(#_),
+  .kodza-team-grid__bio:not(#_) {
+    transition: none !important;
+  }
+}

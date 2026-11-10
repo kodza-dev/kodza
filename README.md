@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 227. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 230. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-227 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+230 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -514,6 +514,25 @@ Written like it's going live tomorrow. Because it probably is.
 | Component | What it does | |
 | --- | --- | --- |
 | [Journal List](components/journal-list/) | A blog or news section: the latest post in large, the others in rows with date, category and reading time, a picture that follows the pointer over a row, and categories in a sliding pill that filter the rows. | [Demo](https://kodza.dev/components/journal-list/) |
+
+</details>
+
+<details>
+<summary><b>Team & about</b> · 2</summary>
+
+| Component | What it does | |
+| --- | --- | --- |
+| [Open Roles](components/open-roles/) | A careers section: open roles grouped by team with a count per team, each role a row link with its location and contract, an arrow that draws in on hover and focus, and an empty state with an email when nothing is open. | [Demo](https://kodza.dev/components/open-roles/) |
+| [Team Grid](components/team-grid/) | A team section: people grouped by team in 4:5 frames, name and role in mono, a second picture that opens from the top on hover and focus, or a bio that rises; initials with no portrait. | [Demo](https://kodza.dev/components/team-grid/) |
+
+</details>
+
+<details>
+<summary><b>Portfolio & projects</b> · 1</summary>
+
+| Component | What it does | |
+| --- | --- | --- |
+| [Spec Sheet](components/spec-sheet/) | A product or project section: its name very big, a pinned spec sheet beside its pictures, and tabs that wipe the name across with the pictures while every value rolls to the next model. | [Demo](https://kodza.dev/components/spec-sheet/) |
 
 </details>
 
