@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 230. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 234. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-230 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+234 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -479,14 +479,18 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Contact</b> · 4</summary>
+<summary><b>Contact</b> · 8</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
 | [Book a Visit](components/book-a-visit/) | A booking form: the coming days, the free times worked out from the opening hours, name and email. On send it rolls up into the answer, with Add to calendar as an .ics file. | [Demo](https://kodza.dev/components/book-a-visit/) |
+| [Callback Request](components/callback-request/) | A callback form: the next days drawn as lines of time from the opening hours, the past hatched, a window picked in ink, a phone number grouped as typed. Sent, the window flies into the reply. | [Demo](https://kodza.dev/components/callback-request/) |
 | [Contact Brief](components/contact-brief/) | A project request section: tags for what is needed, a budget and a time frame picked on a sliding pill, name and email. A summary of the brief writes itself as you pick; sent, the form rolls into a receipt. | [Demo](https://kodza.dev/components/contact-brief/) |
+| [Contact Panel](components/contact-panel/) | A Let's talk button that flows to the side like a drop of ink and spreads into a contact panel, a sheet from the bottom on phones. Closed halfway, what was typed stays and the button says Your draft. | [Demo](https://kodza.dev/components/contact-panel/) |
 | [Contact Router](components/contact-router/) | A contact section that asks what it is about first: Sales, Support, Press or Jobs. The fields become the ones that desk needs, the button names who reads it, Support links to help. Sent, it rolls into a receipt. | [Demo](https://kodza.dev/components/contact-router/) |
 | [Contact Split](components/contact-split/) | A contact section: the email to copy, phone, address and a status worked out from the opening hours; a short form that rolls into the thanks. A variant for a place shows the week of hours. | [Demo](https://kodza.dev/components/contact-split/) |
+| [Natural Language Form](components/natural-language-form/) | A contact form written as one sentence: blanks that grow with what is typed, words over real selects whose list opens in place. Sent, the sentence turns into the reply, the visitor's words travelling into it. | [Demo](https://kodza.dev/components/natural-language-form/) |
+| [Quote Request](components/quote-request/) | A quote request form for a trade: the job on cards, a postcode checked against the service area as you type, photos dropped as thumbnails, a timing, then contact details. Sent, it folds into the receipt. | [Demo](https://kodza.dev/components/quote-request/) |
 
 </details>
 

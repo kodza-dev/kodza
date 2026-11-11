@@ -1,0 +1,54 @@
+<section class="kodza-callback-request" data-hours="mon-fri 08:00-12:00, 14:00-18:00" data-length="120" data-notice="30" data-days="3" data-timezone="Europe/Paris" data-place="Le Havre">
+  <div class="kodza-callback-request__bar">
+    <p class="kodza-callback-request__eyebrow">Rather talk?</p>
+    <p class="kodza-callback-request__meta" hidden><span class="kodza-callback-request__dot" aria-hidden="true"></span><span class="kodza-callback-request__roll kodza-callback-request__state"></span><span class="kodza-callback-request__sep" aria-hidden="true">·</span><span class="kodza-callback-request__clock"></span></p>
+  </div>
+  <div class="kodza-callback-request__head">
+    <h2 class="kodza-callback-request__title">Leave your number. We call you back.</h2>
+    <p class="kodza-callback-request__lead">Pick a window. A person rings, not a robot. No hold music.</p>
+  </div>
+  <form class="kodza-callback-request__form" action="#" method="post">
+    <div class="kodza-callback-request__stage">
+      <div class="kodza-callback-request__panel">
+        <fieldset class="kodza-callback-request__slots" data-required data-error="Pick a window. We ring inside it.">
+          <legend class="kodza-callback-request__legend">When should we ring?</legend>
+          <div class="kodza-callback-request__grid">
+            <label class="kodza-callback-request__box kodza-callback-request__box--plain">
+              <input class="kodza-callback-request__input" type="text" name="slot" placeholder=" " required>
+              <span class="kodza-callback-request__label">When suits you?</span>
+            </label>
+          </div>
+        </fieldset>
+        <div class="kodza-callback-request__fields">
+          <label class="kodza-callback-request__box kodza-callback-request__box--phone">
+            <span class="kodza-callback-request__dial" aria-hidden="true">+33</span>
+            <input class="kodza-callback-request__input kodza-callback-request__phone" type="tel" name="phone" inputmode="tel" autocomplete="tel-national" placeholder=" " required data-dial="+33" data-trunk="0" data-format="## ## ## ## ##" data-error="A full number: 10 digits, like 06 12 34 56 78.">
+            <span class="kodza-callback-request__label">Your number</span>
+          </label>
+          <label class="kodza-callback-request__box">
+            <input class="kodza-callback-request__input" type="text" name="topic" placeholder=" " maxlength="140">
+            <span class="kodza-callback-request__label">What’s it about? (optional)</span>
+          </label>
+        </div>
+        <div class="kodza-callback-request__foot">
+          <p class="kodza-callback-request__note" aria-live="polite">
+            <span class="kodza-callback-request__help"><span class="kodza-callback-request__roll"><span class="kodza-callback-request__said">Pick a window, leave a number. Two minutes, tops.</span></span></span>
+            <span class="kodza-callback-request__error"></span>
+          </p>
+          <button class="kodza-callback-request__send" type="submit"><span class="kodza-callback-request__word">Call me back</span><span class="kodza-callback-request__spinner" aria-hidden="true"></span></button>
+        </div>
+        <p class="kodza-callback-request__privacy">Rather ring us now? <a class="kodza-callback-request__call" href="tel:+33235000000">02 35 00 00 00</a> · Your number is for this call, not a list. <a href="/privacy">Privacy</a></p>
+      </div>
+      <div class="kodza-callback-request__done" hidden>
+        <p class="kodza-callback-request__reply" tabindex="-1">We call you back <span data-value="day">today</span>, <span class="kodza-callback-request__mark" data-value="when">14:00–16:00</span>.</p>
+        <p class="kodza-callback-request__eta"><span data-value="eta"></span> · on <span data-value="phone"></span></p>
+        <div class="kodza-callback-request__end">
+          <p class="kodza-callback-request__next">Keep the phone close. Miss us, and we try once more, then leave a voicemail.</p>
+          <button class="kodza-callback-request__again" type="reset">Start over</button>
+        </div>
+      </div>
+    </div>
+    <input class="kodza-callback-request__e164" type="hidden" name="phone_e164">
+    <label class="kodza-callback-request__trap" aria-hidden="true">Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+  </form>
+</section>

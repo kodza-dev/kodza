@@ -1,0 +1,1601 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Natural Language Form
+   The form is a sentence: each blank is a real field, as wide as what is typed in it, and each
+   choice opens a list under its word. Sent, the sentence turns into the reply.
+   Settings: the variables below. Dark: see the end of the file. */
+.kodza-natural-language-form {
+  --kz-natural-language-form-width: var(--kz-page-width, 1440px); /* widest the section gets */
+  --kz-natural-language-form-measure: 21em; /* widest the sentence gets, in its own letters */
+  --kz-natural-language-form-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-natural-language-form-muted: color-mix(in srgb, var(--kz-natural-language-form-fg) 62%, transparent); /* the empty blanks, the notes */
+  --kz-natural-language-form-line: color-mix(in srgb, var(--kz-natural-language-form-fg) 16%, transparent); /* under a blank */
+  --kz-natural-language-form-rule: color-mix(in srgb, var(--kz-natural-language-form-fg) 10%, transparent); /* the rules of the section */
+  --kz-natural-language-form-soft: color-mix(in srgb, var(--kz-natural-language-form-fg) 6%, transparent); /* a blank you are in, the highlight of a list */
+  --kz-natural-language-form-ink: var(--kz-color-accent, var(--kz-natural-language-form-fg)); /* the send button */
+  --kz-natural-language-form-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-natural-language-form-list: var(--kz-color-paper, #ffffff); /* behind a list */
+  --kz-natural-language-form-shadow: 0 18px 40px -16px rgba(10, 10, 10, 0.3);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--kz-natural-language-form-width);
+  margin: 0 auto;
+  color: var(--kz-natural-language-form-fg);
+  font-family: inherit;
+  text-align: left;
+  container-type: inline-size;
+}
+
+/* The small mono labels on top */
+.kodza-natural-language-form__eyebrow,
+.kodza-natural-language-form__meta {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-natural-language-form-muted);
+}
+
+/* The small lines under the sentence: the note, privacy */
+.kodza-natural-language-form__note,
+.kodza-natural-language-form__privacy {
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-natural-language-form-muted);
+}
+
+.kodza-natural-language-form__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--kz-natural-language-form-rule);
+}
+
+.kodza-natural-language-form__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--kz-natural-language-form-fg);
+}
+
+.kodza-natural-language-form__dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kz-natural-language-form-fg);
+}
+
+.kodza-natural-language-form__form {
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--kz-natural-language-form-fg);
+}
+
+/* The question and the reply share one cell: the height goes from one to the other */
+.kodza-natural-language-form__stage {
+  display: grid;
+  align-items: start;
+}
+
+.kodza-natural-language-form__stage > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+/* The sentence: the question, then the reply in its place */
+.kodza-natural-language-form__sentence {
+  position: relative;
+  max-width: var(--kz-natural-language-form-measure);
+  margin: 0;
+  padding: 64px 0 56px;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(28px, 4.6cqi, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1.3;
+  letter-spacing: var(--kz-font-display-tracking, -0.035em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+  color: inherit;
+  outline: none;
+}
+
+/* A field and the stop after it stay on one line */
+.kodza-natural-language-form__tie {
+  white-space: nowrap;
+}
+
+/* A blank: a real field, its full name kept for screen readers */
+.kodza-natural-language-form__blank {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.kodza-natural-language-form__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The blanks and the picked words: the same underline */
+.kodza-natural-language-form__input,
+.kodza-natural-language-form__native,
+.kodza-natural-language-form__pick {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 0.12em;
+  border: 0;
+  border-radius: calc(6px * var(--kz-radius-scale, 1)) calc(6px * var(--kz-radius-scale, 1)) 0 0;
+  background: none;
+  box-shadow: inset 0 -1px 0 var(--kz-natural-language-form-line);
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  vertical-align: baseline;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__input {
+  max-width: 100cqi;
+  height: 1.3em;
+  text-overflow: ellipsis;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* With the script, a blank is as wide as what is typed in it */
+.kodza-natural-language-form.is-ready .kodza-natural-language-form__input {
+  transition: width calc(0.2s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), background-color calc(0.2s * var(--kz-motion-scale, 1)), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__input::placeholder {
+  color: var(--kz-natural-language-form-muted);
+  opacity: 1;
+}
+
+.kodza-natural-language-form__input:-webkit-autofill {
+  -webkit-text-fill-color: var(--kz-natural-language-form-fg);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.kodza-natural-language-form__input:focus,
+.kodza-natural-language-form__pick:focus-visible,
+.kodza-natural-language-form__pick[aria-expanded="true"],
+.kodza-natural-language-form__native:focus-visible {
+  outline: none;
+  background: var(--kz-natural-language-form-soft);
+  box-shadow: inset 0 -1.5px 0 var(--kz-natural-language-form-fg);
+}
+
+.kodza-natural-language-form__input[aria-invalid="true"] {
+  box-shadow: inset 0 -2px 0 var(--kz-natural-language-form-fg);
+}
+
+@media (hover: hover) {
+  .kodza-natural-language-form__input:hover:not(:focus),
+  .kodza-natural-language-form__pick:hover:not([aria-expanded="true"]),
+  .kodza-natural-language-form__native:hover {
+    box-shadow: inset 0 -1px 0 var(--kz-natural-language-form-muted);
+  }
+}
+
+/* A choice: the real select under its word */
+.kodza-natural-language-form__choice {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Without the script, the select itself sits in the sentence */
+.kodza-natural-language-form__native {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.kodza-natural-language-form.is-ready .kodza-natural-language-form__native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kodza-natural-language-form__pick {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.14em;
+  height: 1.3em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* The picked word rolls: the old one goes up, the new one comes from below */
+.kodza-natural-language-form__value,
+.kodza-natural-language-form__say {
+  display: inline-grid;
+}
+
+.kodza-natural-language-form__value > *,
+.kodza-natural-language-form__say > * {
+  grid-area: 1 / 1;
+  justify-self: start;
+}
+
+.kodza-natural-language-form__value.is-rolling,
+.kodza-natural-language-form__say.is-rolling {
+  clip-path: inset(0 -0.08em);
+}
+
+.kodza-natural-language-form__chevron {
+  flex: none;
+  align-self: center;
+  width: 0.42em;
+  height: 0.42em;
+  fill: none;
+  stroke: var(--kz-natural-language-form-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-natural-language-form__pick[aria-expanded="true"] .kodza-natural-language-form__chevron {
+  transform: rotate(180deg);
+}
+
+/* The list, under its word: the one of Dropdown Menu */
+.kodza-natural-language-form__list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 100%;
+  max-height: 280px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: calc(14px * var(--kz-radius-scale, 1));
+  background: var(--kz-natural-language-form-list);
+  box-shadow: 0 0 0 1px var(--kz-natural-language-form-rule), var(--kz-natural-language-form-shadow);
+  list-style: none;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--kz-natural-language-form-fg);
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(0 0 100% 0 round calc(14px * var(--kz-radius-scale, 1)));
+  transform: translate(var(--kz-nlf-shift, 0px), -4px);
+  transition: clip-path calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), transform calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), opacity calc(0.2s * var(--kz-motion-scale, 1)), visibility 0s linear calc(0.35s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__choice.is-open .kodza-natural-language-form__list {
+  visibility: visible;
+  opacity: 1;
+  clip-path: inset(-40px -40px -60px -40px round calc(14px * var(--kz-radius-scale, 1)));
+  transform: translate(var(--kz-nlf-shift, 0px), 0);
+  transition-delay: 0s;
+}
+
+/* No room below: it opens upwards */
+.kodza-natural-language-form__choice.is-above .kodza-natural-language-form__list {
+  top: auto;
+  bottom: calc(100% + 8px);
+  clip-path: inset(100% 0 0 0 round calc(14px * var(--kz-radius-scale, 1)));
+  transform: translate(var(--kz-nlf-shift, 0px), 4px);
+}
+
+.kodza-natural-language-form__choice.is-above.is-open .kodza-natural-language-form__list {
+  clip-path: inset(-60px -40px -40px -40px round calc(14px * var(--kz-radius-scale, 1)));
+  transform: translate(var(--kz-nlf-shift, 0px), 0);
+}
+
+/* One highlight slides from row to row */
+.kodza-natural-language-form__highlight {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  left: 6px;
+  height: var(--kz-hl-h, 36px);
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  background: var(--kz-natural-language-form-soft);
+  opacity: var(--kz-hl-on, 0);
+  transform: translateY(var(--kz-hl-y, 0));
+  pointer-events: none;
+}
+
+.kodza-natural-language-form__choice.is-open .kodza-natural-language-form__highlight {
+  transition: transform calc(0.22s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), opacity calc(0.15s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 14px 0 32px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  cursor: pointer;
+}
+
+.kodza-natural-language-form__option svg {
+  position: absolute;
+  left: 10px;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.55, 0, 1, 0.45);
+}
+
+.kodza-natural-language-form__option[aria-selected="true"] svg {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc(0.05s * var(--kz-motion-scale, 1));
+}
+
+/* The note and the send button, under the sentence */
+.kodza-natural-language-form__foot,
+.kodza-natural-language-form__end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--kz-natural-language-form-rule);
+}
+
+/* The help and the error share one line and trade places */
+.kodza-natural-language-form__note {
+  display: grid;
+  flex: 1 1 220px;
+  min-width: 0;
+  margin: 0;
+}
+
+.kodza-natural-language-form__help,
+.kodza-natural-language-form__error {
+  grid-area: 1 / 1;
+  transition: opacity calc(0.25s * var(--kz-motion-scale, 1)), transform calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear calc(0.35s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--kz-natural-language-form-fg);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+}
+
+.kodza-natural-language-form__error::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 0.1em;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm0 3.25a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0V5A.75.75 0 0 1 8 4.25Zm0 7.75a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm0 3.25a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0V5A.75.75 0 0 1 8 4.25Zm0 7.75a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-natural-language-form__form.is-error .kodza-natural-language-form__help {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+}
+
+.kodza-natural-language-form__form.is-error .kodza-natural-language-form__error {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.kodza-natural-language-form__send {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  height: 52px;
+  margin: 0;
+  padding: 0 24px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-natural-language-form-ink);
+  color: var(--kz-natural-language-form-on-ink);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), opacity calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__word,
+.kodza-natural-language-form__spinner {
+  grid-area: 1 / 1;
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)), transform calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-natural-language-form__spinner {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.6);
+  animation: kodza-natural-language-form-spin calc(0.8s * var(--kz-motion-scale, 1)) linear infinite;
+}
+
+.kodza-natural-language-form__send[aria-busy="true"] {
+  cursor: progress;
+}
+
+.kodza-natural-language-form__send[aria-busy="true"] .kodza-natural-language-form__word {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.kodza-natural-language-form__send[aria-busy="true"] .kodza-natural-language-form__spinner {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes kodza-natural-language-form-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.kodza-natural-language-form__send:active,
+.kodza-natural-language-form__again:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .kodza-natural-language-form__send:hover {
+    opacity: 0.86;
+  }
+
+  .kodza-natural-language-form__again:hover {
+    box-shadow: inset 0 0 0 1px var(--kz-natural-language-form-fg);
+  }
+}
+
+.kodza-natural-language-form__privacy {
+  margin: 18px 0 0;
+}
+
+.kodza-natural-language-form__privacy a {
+  color: var(--kz-natural-language-form-fg);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* The reply: what was asked, said back */
+.kodza-natural-language-form__next {
+  flex: 1 1 280px;
+  max-width: 48ch;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+  color: var(--kz-natural-language-form-muted);
+}
+
+.kodza-natural-language-form__next [data-value] {
+  color: var(--kz-natural-language-form-fg);
+  overflow-wrap: anywhere;
+}
+
+.kodza-natural-language-form__again {
+  flex: none;
+  height: 44px;
+  margin: 0;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-natural-language-form-rule);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__send:focus-visible,
+.kodza-natural-language-form__again:focus-visible,
+.kodza-natural-language-form__privacy a:focus-visible {
+  outline: 2px solid var(--kz-natural-language-form-ink);
+  outline-offset: 2px;
+}
+
+/* The words, each behind its own mask while the sentence changes (set up by the script) */
+.kodza-natural-language-form__w,
+.kodza-natural-language-form__wi {
+  display: inline-block;
+}
+
+.kodza-natural-language-form.is-morphing .kodza-natural-language-form__w,
+.kodza-natural-language-form.is-morphing .kodza-natural-language-form__blank,
+.kodza-natural-language-form.is-morphing .kodza-natural-language-form__choice {
+  clip-path: inset(0 -0.1em);
+}
+
+/* On the way to the reply, the visitor's words travel out of their mask */
+.kodza-natural-language-form.is-sending .kodza-natural-language-form__carry {
+  clip-path: none;
+}
+
+.kodza-natural-language-form.is-morphing .kodza-natural-language-form__input {
+  transition: none;
+}
+
+/* A word on its way: the field it leaves is already empty */
+.kodza-natural-language-form__blank.is-gone .kodza-natural-language-form__input {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.kodza-natural-language-form__pick.is-gone .kodza-natural-language-form__value {
+  opacity: 0;
+}
+
+/* The script measures each blank's words here */
+.kodza-natural-language-form__measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  white-space: pre;
+  pointer-events: none;
+}
+
+.kodza-natural-language-form__panel[hidden],
+.kodza-natural-language-form__done[hidden],
+.kodza-natural-language-form [data-if][hidden] {
+  display: none;
+}
+
+/* The hidden field that catches robots */
+.kodza-natural-language-form__trap {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-natural-language-form__trap input {
+  box-sizing: border-box;
+}
+
+@container (max-width: 520px) {
+  .kodza-natural-language-form__sentence {
+    padding: 44px 0 40px;
+  }
+
+  .kodza-natural-language-form__send {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-natural-language-form,
+  .kodza-natural-language-form *,
+  .kodza-natural-language-form *::before,
+  .kodza-natural-language-form *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .kodza-natural-language-form__spinner {
+    animation: none;
+  }
+}
+
+/* Dark: set the variables on the section, or on a parent (they inherit)
+.kodza-natural-language-form {
+  --kz-natural-language-form-fg: #f2f2f0;
+  --kz-natural-language-form-muted: rgba(242, 242, 240, 0.62);
+  --kz-natural-language-form-line: rgba(255, 255, 255, 0.2);
+  --kz-natural-language-form-rule: rgba(255, 255, 255, 0.12);
+  --kz-natural-language-form-soft: rgba(255, 255, 255, 0.07);
+  --kz-natural-language-form-ink: #f2f2f0;
+  --kz-natural-language-form-on-ink: #0a0a0a;
+  --kz-natural-language-form-list: #161616;
+  --kz-natural-language-form-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.7);
+}
+*/
+
+/* kodza-guard d4a9cc4a7da2 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-natural-language-form__eyebrow):not(#_),
+:where(.kodza-natural-language-form__meta):not(#_),
+:where(.kodza-natural-language-form__form):not(#_),
+:where(.kodza-natural-language-form__sentence):not(#_),
+:where(.kodza-natural-language-form__blank):not(#_),
+:where(.kodza-natural-language-form__option):not(#_),
+:where(.kodza-natural-language-form__note):not(#_),
+:where(.kodza-natural-language-form__privacy):not(#_),
+:where(.kodza-natural-language-form__next):not(#_),
+:where(.kodza-natural-language-form__trap):not(#_),
+:where(.kodza-natural-language-form__trap input:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-natural-language-form__input):not(#_),
+:where(.kodza-natural-language-form__pick):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-natural-language-form__native):not(#_) {
+  outline: revert;
+  position: revert;
+}
+
+:where(.kodza-natural-language-form__highlight):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-natural-language-form__send):not(#_),
+:where(.kodza-natural-language-form__again):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-natural-language-form__privacy a:where(:not([class*="kodza-"]))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-natural-language-form__eyebrow):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__form):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__sentence):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__input):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__native):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__chevron):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__list):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__highlight):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__privacy):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__next):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__again):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__trap):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__option svg:where(:not([class*="kodza-"]))):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__privacy a:where(:not([class*="kodza-"]))):not(#_):where(:not([hidden])),
+:where(.kodza-natural-language-form__trap input:where(:not([class*="kodza-"]))):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-natural-language-form__eyebrow):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__form):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__sentence):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__input):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__native):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__chevron):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__list):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__highlight):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__privacy):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__next):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__again):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__trap):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__option svg:where(:not([class*="kodza-"]))):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__privacy a:where(:not([class*="kodza-"]))):not(#_):where([hidden]),
+:where(.kodza-natural-language-form__trap input:where(:not([class*="kodza-"]))):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-natural-language-form__bar:not(#_),
+.kodza-natural-language-form__dot:not(#_),
+.kodza-natural-language-form__stage:not(#_),
+.kodza-natural-language-form__panel:not(#_),
+.kodza-natural-language-form__w:not(#_),
+.kodza-natural-language-form__wi:not(#_),
+.kodza-natural-language-form__label:not(#_),
+.kodza-natural-language-form__tie:not(#_),
+.kodza-natural-language-form__choice:not(#_),
+.kodza-natural-language-form__value:not(#_),
+.kodza-natural-language-form__measure:not(#_),
+.kodza-natural-language-form__foot:not(#_),
+.kodza-natural-language-form__help:not(#_),
+.kodza-natural-language-form__error:not(#_),
+.kodza-natural-language-form__say:not(#_),
+.kodza-natural-language-form__word:not(#_),
+.kodza-natural-language-form__done:not(#_),
+.kodza-natural-language-form__end:not(#_),
+.kodza-natural-language-form__value span:where(:not([class*="kodza-"])):not(#_),
+.kodza-natural-language-form__sentence span:where(:not([class*="kodza-"])):not(#_),
+.kodza-natural-language-form__next span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-natural-language-form__eyebrow:not(#_),
+.kodza-natural-language-form__meta:not(#_),
+.kodza-natural-language-form__note:not(#_),
+.kodza-natural-language-form__privacy:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-natural-language-form__form:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-natural-language-form__sentence:not(#_) {
+  border: revert;
+  border-radius: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-natural-language-form__blank:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-natural-language-form__input:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-natural-language-form__native:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-natural-language-form__pick:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  min-height: revert;
+}
+
+.kodza-natural-language-form__chevron:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-natural-language-form__list:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-natural-language-form__highlight:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-natural-language-form__option:not(#_) {
+  border: revert;
+  margin: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-natural-language-form__send:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-natural-language-form__next:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-natural-language-form__again:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-natural-language-form__trap:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-natural-language-form__native option:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+  color: revert;
+}
+
+.kodza-natural-language-form__option svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-natural-language-form__privacy a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-natural-language-form__trap input:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-natural-language-form__error:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-natural-language-form:not(#_) {
+  width: min(100%, var(--kz-natural-language-form-width));
+}
+
+.kodza-natural-language-form__eyebrow:not(#_),
+.kodza-natural-language-form__meta:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-natural-language-form-muted);
+}
+
+.kodza-natural-language-form__note:not(#_),
+.kodza-natural-language-form__privacy:not(#_) {
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: var(--kz-font-label-leading, 1.4);
+  color: var(--kz-natural-language-form-muted);
+}
+
+.kodza-natural-language-form__meta:not(#_) {
+  display: inline-flex;
+  color: var(--kz-natural-language-form-fg);
+}
+
+.kodza-natural-language-form__form:not(#_) {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--kz-natural-language-form-fg);
+}
+
+.kodza-natural-language-form__sentence:where(p):not(#_) {
+  position: relative;
+  max-width: var(--kz-natural-language-form-measure);
+  margin: 0;
+  padding: 64px 0 56px;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(28px, 4.6cqi, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1.3;
+  letter-spacing: var(--kz-font-display-tracking, -0.035em);
+  text-transform: var(--kz-font-display-case, none);
+  color: inherit;
+  outline: none;
+}
+
+.kodza-natural-language-form__blank:not(#_) {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-natural-language-form__input:not(#_),
+.kodza-natural-language-form__native:not(#_),
+.kodza-natural-language-form__pick:not(#_) {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 0.12em;
+  border: 0;
+  border-radius: calc(6px * var(--kz-radius-scale, 1)) calc(6px * var(--kz-radius-scale, 1)) 0 0;
+  background: none;
+  box-shadow: inset 0 -1px 0 var(--kz-natural-language-form-line);
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  vertical-align: baseline;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__input:not(#_) {
+  max-width: 100cqi;
+  height: 1.3em;
+  text-overflow: ellipsis;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.kodza-natural-language-form.is-ready .kodza-natural-language-form__input:not(#_) {
+  transition: width calc(0.2s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), background-color calc(0.2s * var(--kz-motion-scale, 1)), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__input:not(#_)::placeholder {
+  color: var(--kz-natural-language-form-muted);
+  opacity: 1;
+}
+
+.kodza-natural-language-form__input:-webkit-autofill:not(#_) {
+  -webkit-text-fill-color: var(--kz-natural-language-form-fg);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.kodza-natural-language-form__input:focus:not(#_),
+.kodza-natural-language-form__pick:focus-visible:not(#_),
+.kodza-natural-language-form__pick[aria-expanded="true"]:not(#_),
+.kodza-natural-language-form__native:focus-visible:not(#_) {
+  outline: none;
+  background: var(--kz-natural-language-form-soft);
+  box-shadow: inset 0 -1.5px 0 var(--kz-natural-language-form-fg);
+}
+
+.kodza-natural-language-form__input[aria-invalid="true"]:not(#_) {
+  box-shadow: inset 0 -2px 0 var(--kz-natural-language-form-fg);
+}
+
+@media (hover: hover) {
+  .kodza-natural-language-form__input:hover:not(:focus):not(#_),
+  .kodza-natural-language-form__pick:hover:not([aria-expanded="true"]):not(#_),
+  .kodza-natural-language-form__native:hover:not(#_) {
+    box-shadow: inset 0 -1px 0 var(--kz-natural-language-form-muted);
+  }
+}
+
+.kodza-natural-language-form__native:not(#_) {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.kodza-natural-language-form.is-ready .kodza-natural-language-form__native:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kodza-natural-language-form__pick:not(#_) {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.14em;
+  height: 1.3em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kodza-natural-language-form__chevron:not(#_) {
+  transition: transform calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-natural-language-form__list:not(#_) {
+  position: absolute;
+  box-sizing: border-box;
+  max-height: 280px;
+  margin: 0;
+  padding: 6px;
+  border-radius: calc(14px * var(--kz-radius-scale, 1));
+  background: var(--kz-natural-language-form-list);
+  box-shadow: 0 0 0 1px var(--kz-natural-language-form-rule), var(--kz-natural-language-form-shadow);
+  list-style: none;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: left;
+  color: var(--kz-natural-language-form-fg);
+  transition: clip-path calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), transform calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), opacity calc(0.2s * var(--kz-motion-scale, 1)), visibility 0s linear calc(0.35s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__choice.is-open .kodza-natural-language-form__list:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-natural-language-form__highlight:not(#_) {
+  position: absolute;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  background: var(--kz-natural-language-form-soft);
+}
+
+.kodza-natural-language-form__choice.is-open .kodza-natural-language-form__highlight:not(#_) {
+  transition: transform calc(0.22s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), opacity calc(0.15s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__option:not(#_) {
+  position: relative;
+  display: flex;
+  padding: 0 14px 0 32px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+}
+
+.kodza-natural-language-form__option svg:not(#_) {
+  position: absolute;
+  transition: stroke-dashoffset calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.55, 0, 1, 0.45);
+}
+
+.kodza-natural-language-form__option[aria-selected="true"] svg:not(#_) {
+  transition: stroke-dashoffset calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) calc(0.05s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__note:not(#_) {
+  display: grid;
+  margin: 0;
+}
+
+.kodza-natural-language-form__form.is-error .kodza-natural-language-form__error:not(#_) {
+  transition-delay: 0s;
+}
+
+.kodza-natural-language-form__send:not(#_) {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  height: 52px;
+  margin: 0;
+  padding: 0 24px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-natural-language-form-ink);
+  color: var(--kz-natural-language-form-on-ink);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), opacity calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__send[aria-busy="true"]:not(#_) {
+  cursor: progress;
+}
+
+.kodza-natural-language-form__send:active:not(#_),
+.kodza-natural-language-form__again:active:not(#_) {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .kodza-natural-language-form__send:hover:not(#_) {
+    opacity: 0.86;
+  }
+}
+
+@media (hover: hover) {
+  .kodza-natural-language-form__again:hover:not(#_) {
+    box-shadow: inset 0 0 0 1px var(--kz-natural-language-form-fg);
+  }
+}
+
+.kodza-natural-language-form__privacy:not(#_) {
+  margin: 18px 0 0;
+}
+
+.kodza-natural-language-form__privacy a:not(#_) {
+  color: var(--kz-natural-language-form-fg);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kodza-natural-language-form__next:not(#_) {
+  max-width: 48ch;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-natural-language-form-muted);
+}
+
+.kodza-natural-language-form__again:not(#_) {
+  flex: none;
+  height: 44px;
+  margin: 0;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-natural-language-form-rule);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  text-transform: var(--kz-font-label-case, none);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform calc(0.15s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1), box-shadow calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-natural-language-form__send:focus-visible:not(#_),
+.kodza-natural-language-form__again:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-natural-language-form-ink);
+  outline-offset: 2px;
+}
+
+.kodza-natural-language-form__privacy a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-natural-language-form-ink);
+  outline-offset: 2px;
+}
+
+.kodza-natural-language-form.is-morphing .kodza-natural-language-form__input:not(#_) {
+  transition: none;
+}
+
+.kodza-natural-language-form__blank.is-gone .kodza-natural-language-form__input:not(#_) {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.kodza-natural-language-form__panel[hidden]:not(#_),
+.kodza-natural-language-form__done[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-natural-language-form [data-if][hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-natural-language-form__trap:not(#_) {
+  position: absolute;
+}
+
+.kodza-natural-language-form__trap input:not(#_) {
+  box-sizing: border-box;
+}
+
+@container (max-width: 520px) {
+  .kodza-natural-language-form__sentence:where(p):not(#_) {
+    padding: 44px 0 40px;
+  }
+}
+
+@container (max-width: 520px) {
+  .kodza-natural-language-form__send:not(#_) {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-natural-language-form *:not(#_),
+  .kodza-natural-language-form *:not(#_)::before,
+  .kodza-natural-language-form *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

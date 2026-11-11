@@ -1,0 +1,59 @@
+<section class="kodza-natural-language-form">
+  <div class="kodza-natural-language-form__bar">
+    <p class="kodza-natural-language-form__eyebrow">Start a project</p>
+    <p class="kodza-natural-language-form__meta"><span class="kodza-natural-language-form__dot" aria-hidden="true"></span>Taking two projects a month</p>
+  </div>
+  <form class="kodza-natural-language-form__form" action="#" method="post">
+    <div class="kodza-natural-language-form__stage">
+      <div class="kodza-natural-language-form__panel">
+        <div class="kodza-natural-language-form__sentence">
+          Hi, I’m
+          <label class="kodza-natural-language-form__blank"><span class="kodza-natural-language-form__label">Your first name</span><input class="kodza-natural-language-form__input" type="text" name="name" placeholder="your name" autocomplete="given-name" size="8" required data-error="Your name, so we know who to answer."></label>
+          from
+          <span class="kodza-natural-language-form__tie"><label class="kodza-natural-language-form__blank"><span class="kodza-natural-language-form__label">Your company (optional)</span><input class="kodza-natural-language-form__input" type="text" name="company" placeholder="your company" autocomplete="organization" size="11"></label>.</span>
+          We need
+          <span class="kodza-natural-language-form__choice"><select class="kodza-natural-language-form__native" name="need" aria-label="What you need">
+            <option selected>a website</option>
+            <option>a rebrand</option>
+            <option>an online shop</option>
+            <option>a landing page</option>
+            <option>a bit of everything</option>
+          </select></span>
+          by
+          <span class="kodza-natural-language-form__tie"><span class="kodza-natural-language-form__choice"><select class="kodza-natural-language-form__native" name="when" aria-label="By when">
+            <option>yesterday</option>
+            <option>next month</option>
+            <option selected>the summer</option>
+            <option>the end of the year</option>
+          </select></span>,</span>
+          with
+          <span class="kodza-natural-language-form__choice"><select class="kodza-natural-language-form__native" name="budget" aria-label="Your budget">
+            <option>under 5k €</option>
+            <option>5–10k €</option>
+            <option selected>10–20k €</option>
+            <option>20–50k €</option>
+            <option>more than 50k €</option>
+          </select></span>
+          to spend. Write to me at
+          <span class="kodza-natural-language-form__tie"><label class="kodza-natural-language-form__blank"><span class="kodza-natural-language-form__label">Your email</span><input class="kodza-natural-language-form__input" type="email" name="email" placeholder="your email" autocomplete="email" size="10" required data-error="An email we can answer to."></label>.</span>
+        </div>
+        <div class="kodza-natural-language-form__foot">
+          <p class="kodza-natural-language-form__note" aria-live="polite">
+            <span class="kodza-natural-language-form__help">No 14-field brief. Fill the blanks, the company is up to you.</span>
+            <span class="kodza-natural-language-form__error"></span>
+          </p>
+          <button class="kodza-natural-language-form__send" type="submit"><span class="kodza-natural-language-form__word">Send it</span><span class="kodza-natural-language-form__spinner" aria-hidden="true"></span></button>
+        </div>
+        <p class="kodza-natural-language-form__privacy">We use it to answer you, then that’s it. <a href="/privacy">Privacy</a></p>
+      </div>
+      <div class="kodza-natural-language-form__done" hidden>
+        <p class="kodza-natural-language-form__sentence kodza-natural-language-form__reply" tabindex="-1">Got it, <span data-value="name">you</span>: <span data-value="need"></span><span data-if="company"> for <span data-value="company"></span></span> by <span data-value="when"></span>. We answer within 48&nbsp;h.</p>
+        <div class="kodza-natural-language-form__end">
+          <p class="kodza-natural-language-form__next">The reply goes to <span data-value="email"></span>. From a person, not a sequence.</p>
+          <button class="kodza-natural-language-form__again" type="reset">Start over</button>
+        </div>
+      </div>
+    </div>
+    <label class="kodza-natural-language-form__trap" aria-hidden="true">Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+  </form>
+</section>

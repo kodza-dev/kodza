@@ -1,0 +1,57 @@
+<div class="kodza-contact-panel">
+  <button class="kodza-contact-panel__trigger" type="button"><span class="kodza-contact-panel__roll"><span class="kodza-contact-panel__said">Let’s talk</span></span></button>
+  <dialog class="kodza-contact-panel__panel">
+    <div class="kodza-contact-panel__sheet">
+      <div class="kodza-contact-panel__grip" aria-hidden="true"><span></span></div>
+      <header class="kodza-contact-panel__head">
+        <div class="kodza-contact-panel__heading">
+          <p class="kodza-contact-panel__key"><span class="kodza-contact-panel__dot" aria-hidden="true"></span>Fogline Studio, Le Havre</p>
+          <h2 class="kodza-contact-panel__title"><span class="kodza-contact-panel__line">Three fields.</span> <span class="kodza-contact-panel__line">Then we talk.</span></h2>
+        </div>
+        <button class="kodza-contact-panel__close" type="button" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      </header>
+      <form class="kodza-contact-panel__form" action="#" method="post">
+        <div class="kodza-contact-panel__stage">
+          <div class="kodza-contact-panel__fields">
+            <p class="kodza-contact-panel__lead">A person reads it, not a funnel. You hear back within a day.</p>
+            <label class="kodza-contact-panel__box">
+              <input class="kodza-contact-panel__input" type="text" name="name" autocomplete="name" placeholder=" " required>
+              <span class="kodza-contact-panel__label">Your name</span>
+            </label>
+            <label class="kodza-contact-panel__box">
+              <input class="kodza-contact-panel__input" type="email" name="email" autocomplete="email" placeholder=" " required>
+              <span class="kodza-contact-panel__label">Email</span>
+            </label>
+            <label class="kodza-contact-panel__box kodza-contact-panel__box--area">
+              <textarea class="kodza-contact-panel__input kodza-contact-panel__area" name="message" rows="3" maxlength="1000" placeholder=" " required data-error="Say a word about the project, even a short one."></textarea>
+              <span class="kodza-contact-panel__label">What are you building?</span>
+              <span class="kodza-contact-panel__count" aria-hidden="true"></span>
+            </label>
+            <label class="kodza-contact-panel__trap" aria-hidden="true">Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+            <div class="kodza-contact-panel__foot">
+              <p class="kodza-contact-panel__note" aria-live="polite">
+                <span class="kodza-contact-panel__help">Close it anytime. What you typed stays.</span>
+                <span class="kodza-contact-panel__error"></span>
+              </p>
+              <button class="kodza-contact-panel__send" type="submit"><span class="kodza-contact-panel__word">Send message</span><span class="kodza-contact-panel__spinner" aria-hidden="true"></span></button>
+            </div>
+            <p class="kodza-contact-panel__privacy">Used to answer you. Nothing else. <a href="/privacy">Privacy</a></p>
+          </div>
+          <div class="kodza-contact-panel__done" hidden>
+            <p class="kodza-contact-panel__key">Message sent</p>
+            <p class="kodza-contact-panel__thanks" tabindex="-1">Thanks, <span data-value="name">you</span>.</p>
+            <p class="kodza-contact-panel__next">We answer at <span data-value="email">your address</span>, within a day. Usually before lunch.</p>
+            <div class="kodza-contact-panel__actions">
+              <button class="kodza-contact-panel__shut" type="button">Close</button>
+              <button class="kodza-contact-panel__again" type="reset">Write another</button>
+            </div>
+          </div>
+        </div>
+      </form>
+      <footer class="kodza-contact-panel__foot-bar">
+        <p class="kodza-contact-panel__key">Rather email?</p>
+        <a class="kodza-contact-panel__mail" href="mailto:hello@fogline.studio">hello@fogline.studio</a>
+      </footer>
+    </div>
+  </dialog>
+</div>

@@ -1,0 +1,119 @@
+<section class="kodza-quote-request">
+  <div class="kodza-quote-request__bar">
+    <p class="kodza-quote-request__eyebrow">Free quote</p>
+    <p class="kodza-quote-request__meta"><span class="kodza-quote-request__dot" aria-hidden="true"></span>Answer within 2 working days</p>
+  </div>
+  <div class="kodza-quote-request__head">
+    <h2 class="kodza-quote-request__title">Send the photos. We send a price.</h2>
+    <p class="kodza-quote-request__lead">Five questions, two minutes. Enough to price the job, not just “call me back”.</p>
+  </div>
+  <form class="kodza-quote-request__form" action="#" method="post" enctype="multipart/form-data">
+    <div class="kodza-quote-request__stage">
+      <div class="kodza-quote-request__panel">
+        <fieldset class="kodza-quote-request__step kodza-quote-request__group" data-step="job" data-required data-error="Pick the closest one. We sort out the details on site.">
+          <legend class="kodza-quote-request__side"><span class="kodza-quote-request__num" aria-hidden="true"><span class="kodza-quote-request__digits">01</span><span class="kodza-quote-request__tick"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span></span><span class="kodza-quote-request__name">The job</span><span class="kodza-quote-request__hint">The closest one will do.</span></legend>
+          <div class="kodza-quote-request__cards">
+            <label class="kodza-quote-request__card"><input class="kodza-quote-request__radio" type="radio" name="job" value="Leak or repair"><span class="kodza-quote-request__mark" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span><span class="kodza-quote-request__job">Leak or repair</span><span class="kodza-quote-request__about">Something drips. We find where.</span></label>
+            <label class="kodza-quote-request__card"><input class="kodza-quote-request__radio" type="radio" name="job" value="Gutters"><span class="kodza-quote-request__mark" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span><span class="kodza-quote-request__job">Gutters</span><span class="kodza-quote-request__about">Cleared, fixed or replaced.</span></label>
+            <label class="kodza-quote-request__card"><input class="kodza-quote-request__radio" type="radio" name="job" value="Insulation"><span class="kodza-quote-request__mark" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span><span class="kodza-quote-request__job">Insulation</span><span class="kodza-quote-request__about">From the loft or under the tiles.</span></label>
+            <label class="kodza-quote-request__card"><input class="kodza-quote-request__radio" type="radio" name="job" value="New roof"><span class="kodza-quote-request__mark" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span><span class="kodza-quote-request__job">New roof</span><span class="kodza-quote-request__about">Tiles, slate or zinc. The lot.</span></label>
+          </div>
+        </fieldset>
+        <div class="kodza-quote-request__step" data-step="where">
+          <p class="kodza-quote-request__side"><span class="kodza-quote-request__num" aria-hidden="true"><span class="kodza-quote-request__digits">02</span><span class="kodza-quote-request__tick"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span></span><span class="kodza-quote-request__name">Where</span><span class="kodza-quote-request__hint">We check it as you type.</span></p>
+          <div class="kodza-quote-request__where">
+            <label class="kodza-quote-request__box kodza-quote-request__box--code">
+              <input class="kodza-quote-request__input kodza-quote-request__code" type="text" name="postcode" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern="[0-9]{5}" placeholder=" " required data-area="76000 76100 76130 76230 76240 76300 76380 76500 76520 76800" data-place="Rouen" data-error="A five-digit postcode, so we know if we come to you.">
+              <span class="kodza-quote-request__label">Postcode</span>
+            </label>
+            <p class="kodza-quote-request__zone" aria-live="polite"><span class="kodza-quote-request__roll"><span class="kodza-quote-request__said">We cover Rouen and 20 km around.</span></span></p>
+          </div>
+        </div>
+        <div class="kodza-quote-request__step" data-step="photos">
+          <p class="kodza-quote-request__side"><span class="kodza-quote-request__num" aria-hidden="true"><span class="kodza-quote-request__digits">03</span><span class="kodza-quote-request__tick"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span></span><span class="kodza-quote-request__name">Photos</span><span class="kodza-quote-request__hint">Optional. They often save a visit.</span></p>
+          <div class="kodza-quote-request__photos">
+            <label class="kodza-quote-request__drop">
+              <input class="kodza-quote-request__file" type="file" name="photos" multiple accept="image/*" data-max="6" data-max-mb="10">
+              <svg class="kodza-quote-request__border" aria-hidden="true"><rect rx="12" ry="12" /></svg>
+              <span class="kodza-quote-request__plus" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" /></svg></span>
+              <span class="kodza-quote-request__drop-text"><span class="kodza-quote-request__drop-title">Add photos, or drop them here</span><span class="kodza-quote-request__drop-hint"><span class="kodza-quote-request__roll"><span class="kodza-quote-request__said">Up to 6. The roof, the stain, the gutter.</span></span></span></span>
+            </label>
+            <ul class="kodza-quote-request__shots" aria-label="Photos added"></ul>
+          </div>
+        </div>
+        <fieldset class="kodza-quote-request__step kodza-quote-request__group" data-step="when">
+          <legend class="kodza-quote-request__side"><span class="kodza-quote-request__num" aria-hidden="true"><span class="kodza-quote-request__digits">04</span><span class="kodza-quote-request__tick"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span></span><span class="kodza-quote-request__name">When</span><span class="kodza-quote-request__hint">Roughly. Weather decides the rest.</span></legend>
+          <div class="kodza-quote-request__pills">
+            <label class="kodza-quote-request__pill"><input class="kodza-quote-request__radio" type="radio" name="when" value="It’s raining in"><span class="kodza-quote-request__said">It’s raining in</span></label>
+            <label class="kodza-quote-request__pill"><input class="kodza-quote-request__radio" type="radio" name="when" value="This month"><span class="kodza-quote-request__said">This month</span></label>
+            <label class="kodza-quote-request__pill"><input class="kodza-quote-request__radio" type="radio" name="when" value="Within 3 months"><span class="kodza-quote-request__said">Within 3 months</span></label>
+            <label class="kodza-quote-request__pill"><input class="kodza-quote-request__radio" type="radio" name="when" value="Just a price"><span class="kodza-quote-request__said">Just a price</span></label>
+          </div>
+        </fieldset>
+        <div class="kodza-quote-request__step" data-step="you">
+          <p class="kodza-quote-request__side"><span class="kodza-quote-request__num" aria-hidden="true"><span class="kodza-quote-request__digits">05</span><span class="kodza-quote-request__tick"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span></span><span class="kodza-quote-request__name">You</span><span class="kodza-quote-request__hint">The quote goes to your email.</span></p>
+          <div class="kodza-quote-request__fields">
+            <label class="kodza-quote-request__box kodza-quote-request__box--wide">
+              <input class="kodza-quote-request__input" type="text" name="name" autocomplete="name" placeholder=" " required data-error="Your name, so we know who to write to.">
+              <span class="kodza-quote-request__label">Your name</span>
+            </label>
+            <label class="kodza-quote-request__box">
+              <input class="kodza-quote-request__input" type="email" name="email" autocomplete="email" placeholder=" " required data-error="An email we can send the quote to.">
+              <span class="kodza-quote-request__label">Email</span>
+            </label>
+            <label class="kodza-quote-request__box">
+              <input class="kodza-quote-request__input" type="tel" name="phone" autocomplete="tel" placeholder=" ">
+              <span class="kodza-quote-request__label">Phone, if you’d rather talk</span>
+            </label>
+            <label class="kodza-quote-request__box kodza-quote-request__box--wide kodza-quote-request__box--area">
+              <textarea class="kodza-quote-request__input kodza-quote-request__area" name="message" rows="2" maxlength="1000" placeholder=" "></textarea>
+              <span class="kodza-quote-request__label">Anything else? Access, height, a deadline.</span>
+              <span class="kodza-quote-request__count" aria-hidden="true"></span>
+            </label>
+            <label class="kodza-quote-request__trap" aria-hidden="true">Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+          </div>
+        </div>
+        <div class="kodza-quote-request__foot">
+          <p class="kodza-quote-request__note" aria-live="polite">
+            <span class="kodza-quote-request__help">Rather call? <a class="kodza-quote-request__call" href="tel:+33235000000">02 35 00 00 00</a></span>
+            <span class="kodza-quote-request__error"></span>
+          </p>
+          <button class="kodza-quote-request__send" type="submit"><span class="kodza-quote-request__word">Send the request</span><span class="kodza-quote-request__spinner" aria-hidden="true"></span></button>
+        </div>
+        <p class="kodza-quote-request__privacy">Used to price your job. Nothing else. <a href="/privacy">Privacy</a></p>
+      </div>
+      <div class="kodza-quote-request__done" hidden>
+        <div class="kodza-quote-request__row kodza-quote-request__row--head">
+          <p class="kodza-quote-request__side"><span class="kodza-quote-request__eyebrow">Request sent</span></p>
+          <p class="kodza-quote-request__answer"><span class="kodza-quote-request__thanks" tabindex="-1">Thanks, <span data-value="name">you</span>.</span></p>
+        </div>
+        <dl class="kodza-quote-request__recap">
+          <div class="kodza-quote-request__row" data-row="job">
+            <dt class="kodza-quote-request__side"><span class="kodza-quote-request__num" aria-hidden="true"><span class="kodza-quote-request__digits">01</span><span class="kodza-quote-request__tick"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span></span><span class="kodza-quote-request__name">The job</span></dt>
+            <dd class="kodza-quote-request__answer"><span class="kodza-quote-request__value" data-value="job"></span></dd>
+          </div>
+          <div class="kodza-quote-request__row" data-row="where">
+            <dt class="kodza-quote-request__side"><span class="kodza-quote-request__num" aria-hidden="true"><span class="kodza-quote-request__digits">02</span><span class="kodza-quote-request__tick"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span></span><span class="kodza-quote-request__name">Where</span></dt>
+            <dd class="kodza-quote-request__answer"><span class="kodza-quote-request__value" data-value="where"></span></dd>
+          </div>
+          <div class="kodza-quote-request__row" data-row="photos">
+            <dt class="kodza-quote-request__side"><span class="kodza-quote-request__num" aria-hidden="true"><span class="kodza-quote-request__digits">03</span><span class="kodza-quote-request__tick"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span></span><span class="kodza-quote-request__name">Photos</span></dt>
+            <dd class="kodza-quote-request__answer"><span class="kodza-quote-request__value"><span class="kodza-quote-request__thumbs" aria-hidden="true"></span><span data-value="photos"></span></span></dd>
+          </div>
+          <div class="kodza-quote-request__row" data-row="when">
+            <dt class="kodza-quote-request__side"><span class="kodza-quote-request__num" aria-hidden="true"><span class="kodza-quote-request__digits">04</span><span class="kodza-quote-request__tick"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span></span><span class="kodza-quote-request__name">When</span></dt>
+            <dd class="kodza-quote-request__answer"><span class="kodza-quote-request__value" data-value="when"></span></dd>
+          </div>
+          <div class="kodza-quote-request__row" data-row="you">
+            <dt class="kodza-quote-request__side"><span class="kodza-quote-request__num" aria-hidden="true"><span class="kodza-quote-request__digits">05</span><span class="kodza-quote-request__tick"><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" pathLength="1" /></svg></span></span><span class="kodza-quote-request__name">You</span></dt>
+            <dd class="kodza-quote-request__answer"><span class="kodza-quote-request__value" data-value="you"></span></dd>
+          </div>
+        </dl>
+        <div class="kodza-quote-request__end">
+          <p class="kodza-quote-request__next">A written quote within 2 working days. If the photos are not enough, we come and look. For free.</p>
+          <button class="kodza-quote-request__again" type="reset">Start over</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</section>
