@@ -45,7 +45,7 @@ Rather keep it on your machine? `npx -y kodza-mcp` runs the same server locally 
 | Tool | What it does |
 | --- | --- |
 | `search_components` | Finds components by what they do or look like ("button fill hover", "sticky header", "date picker"), or lists a category, each with the link to its demo. |
-| `get_component` | One component: its exact HTML, CSS and JS (or the commands to download them), its settings (`--kz-…` variables, modifier classes, `data-` attributes), what each key does, its dark-mode values and how to wire it into a plain page, WordPress, Shopify, React or a Claude artifact. |
+| `get_component` | One component: its exact HTML, CSS and JS (or the commands to download them), its settings (`--kz-…` variables, modifier classes, `data-` attributes, the `data-text-*` texts its script writes), what each key does, its dark-mode values and how to wire it into a plain page, WordPress, Shopify, React or a Claude artifact. |
 
 Three slash commands too, for when you'd rather not write the request: `build_page`, `replace_element` and `find_component` (Claude Code: `/mcp__kodza__build_page`, VS Code: `/mcp.kodza.build_page`).
 
