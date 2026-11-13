@@ -1,6 +1,6 @@
 # Free Shipping Bar
 
-[![Free Shipping Bar, live on kodza.dev](undefined)](https://kodza.dev/components/free-shipping-bar/)
+[![Free Shipping Bar, live on kodza.dev](https://kodza.dev/anim/free-shipping-bar/og.jpg)](https://kodza.dev/components/free-shipping-bar/)
 
 A free shipping progress bar that listens to the cart: the amount left rolls digit by digit, a small van rides the line, and the sentence rolls into a thank-you once the threshold is met.
 

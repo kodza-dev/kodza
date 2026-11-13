@@ -1,6 +1,6 @@
 # Buy Box
 
-[![Buy Box, live on kodza.dev](undefined)](https://kodza.dev/components/buy-box/)
+[![Buy Box, live on kodza.dev](https://kodza.dev/anim/buy-box/og.jpg)](https://kodza.dev/components/buy-box/)
 
 The right-hand column of a product page as one cart form: colours and sizes in a sliding ink pill, a price that rolls with the size, quantity, Add to cart, a ships-today line and folding details.
 

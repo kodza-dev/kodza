@@ -1,6 +1,6 @@
 # Cart Drawer
 
-[![Cart Drawer, live on kodza.dev](undefined)](https://kodza.dev/components/cart-drawer/)
+[![Cart Drawer, live on kodza.dev](https://kodza.dev/anim/cart-drawer/og.jpg)](https://kodza.dev/components/cart-drawer/)
 
 Side cart for a shop: an added product flies into the bag, the drawer opens and the line slides in. Quantities change in place, Undo after a removal, prices roll, free shipping fills up.
 

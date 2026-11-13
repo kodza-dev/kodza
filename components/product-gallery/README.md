@@ -1,6 +1,6 @@
 # Product Gallery
 
-[![Product Gallery, live on kodza.dev](undefined)](https://kodza.dev/components/product-gallery/)
+[![Product Gallery, live on kodza.dev](https://kodza.dev/anim/product-gallery/og.jpg)](https://kodza.dev/components/product-gallery/)
 
 The photos of a product page: each slides in from the side you head to and zooms towards the mouse, a click opens it full screen, and a colour chosen on the page switches the photos.
 

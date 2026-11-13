@@ -1,6 +1,6 @@
 # Product Grid
 
-[![Product Grid, live on kodza.dev](undefined)](https://kodza.dev/components/product-grid/)
+[![Product Grid, live on kodza.dev](https://kodza.dev/anim/product-grid/og.jpg)](https://kodza.dev/components/product-grid/)
 
 A shop collection grid with category pills, colour dots and a sort: cards that go step back, the rest glide to their place, the count rolls and the address keeps the filters.
 

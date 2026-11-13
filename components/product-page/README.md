@@ -1,6 +1,6 @@
 # Product Page
 
-[![Product Page, live on kodza.dev](undefined)](https://kodza.dev/components/product-page/)
+[![Product Page, live on kodza.dev](https://kodza.dev/anim/product-page/og.jpg)](https://kodza.dev/components/product-page/)
 
 A whole product page in one block: photos held in view while the buy box scrolls past, colours that switch the photos, the reviews, You may also like, and on a phone a bar with Add to cart once the buy box has gone.
 

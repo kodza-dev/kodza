@@ -1,6 +1,6 @@
 # Product Card
 
-[![Product Card, live on kodza.dev](undefined)](https://kodza.dev/components/product-card/)
+[![Product Card, live on kodza.dev](https://kodza.dev/anim/product-card/og.jpg)](https://kodza.dev/components/product-card/)
 
 A shop grid card: the second photo rises on hover (a swipe on phones), colour swatches swap the photos in place, and Add rolls into the sizes and sends the form to the cart.
 

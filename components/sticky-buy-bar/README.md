@@ -1,6 +1,6 @@
 # Sticky Buy Bar
 
-[![Sticky Buy Bar, live on kodza.dev](undefined)](https://kodza.dev/components/sticky-buy-bar/)
+[![Sticky Buy Bar, live on kodza.dev](https://kodza.dev/anim/sticky-buy-bar/og.jpg)](https://kodza.dev/components/sticky-buy-bar/)
 
 A bar that comes up from the bottom once the page's Add to cart has scrolled away: picture, name, variant, price and the same button. Never over the footer or the open cart.
 

@@ -1,6 +1,6 @@
 # Size Guide
 
-[![Size Guide, live on kodza.dev](undefined)](https://kodza.dev/components/size-guide/)
+[![Size Guide, live on kodza.dev](https://kodza.dev/anim/size-guide/og.jpg)](https://kodza.dev/components/size-guide/)
 
 A size guide link that opens the size chart in a drawer, with cm and inches that roll from one to the other and the size picked in the product form underlined.
 

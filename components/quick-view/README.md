@@ -1,6 +1,6 @@
 # Quick View
 
-[![Quick View, live on kodza.dev](undefined)](https://kodza.dev/components/quick-view/)
+[![Quick View, live on kodza.dev](https://kodza.dev/anim/quick-view/og.jpg)](https://kodza.dev/components/quick-view/)
 
 Shop card whose photo grows into a window with a short buy form: colour, size, Add to cart. Escape or the veil send it back into its card, which keeps the chosen colour. A sheet on phones.
 
