@@ -1,0 +1,1853 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Quick View
+   A shop card whose photo grows into a window: the same photo, bigger, beside a short buy form
+   (colour, size, Add to cart). Escape, Close or a click on the veil sends the window back into
+   its card, which keeps the colour chosen in it. A sheet from the bottom on phones. Without the
+   script, the card is a link to the product page and the button stays hidden.
+   Everything is tuned with the --kz-quick-view-* variables. */
+.kodza-quick-view {
+  --kz-quick-view-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-quick-view-muted: color-mix(in srgb, var(--kz-quick-view-fg) 62%, transparent);
+  --kz-quick-view-line: color-mix(in srgb, var(--kz-quick-view-fg) 14%, transparent);
+  --kz-quick-view-soft: color-mix(in srgb, var(--kz-quick-view-fg) 5%, transparent);
+  --kz-quick-view-paper: var(--kz-color-paper, #ffffff);
+  --kz-quick-view-ink: var(--kz-color-accent, var(--kz-quick-view-fg));
+  --kz-quick-view-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-quick-view-backdrop: rgba(10, 10, 10, 0.32);
+  --kz-quick-view-width: 360px; /* the card; a grid column can make it narrower */
+  --kz-quick-view-window: 880px; /* the window, at most */
+  --kz-quick-view-radius: calc(14px * var(--kz-radius-scale, 1)); /* the card's photo */
+  --kz-quick-view-window-radius: calc(20px * var(--kz-radius-scale, 1));
+  --kz-quick-view-duration: 0.64s; /* the veil and the sheet; the window's grow is in the script */
+  --kz-quick-view-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-quick-view-sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  max-width: var(--kz-quick-view-width);
+  margin: 0;
+  color: var(--kz-quick-view-fg);
+}
+
+/* ---------- The card ---------- */
+.kodza-quick-view__media {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  border-radius: var(--kz-quick-view-radius);
+  background: var(--kz-quick-view-soft);
+}
+
+.kodza-quick-view__image {
+  display: block;
+  grid-area: 1 / 1;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  margin: 0;
+  object-fit: cover;
+  transition: transform calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease);
+}
+
+/* While the window is out, its photo has left the card */
+.kodza-quick-view.is-out .kodza-quick-view__image {
+  visibility: hidden;
+}
+
+/* Quick view: a pill at the foot of the photo, under the pointer (always there on touch screens) */
+.kodza-quick-view__open {
+  position: relative;
+  z-index: 2;
+  display: none;
+  grid-area: 1 / 1;
+  align-self: end;
+  justify-self: center;
+  height: 40px;
+  margin: 0 0 14px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-quick-view-paper);
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.08), 0 8px 24px -8px rgba(10, 10, 10, 0.25);
+  color: var(--kz-quick-view-fg);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-quick-view.is-ready .kodza-quick-view__open {
+  display: block;
+}
+
+@media (hover: hover) {
+  .kodza-quick-view.is-ready .kodza-quick-view__open {
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+      transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease);
+  }
+
+  .kodza-quick-view:hover .kodza-quick-view__open,
+  .kodza-quick-view.is-ready .kodza-quick-view__open:focus-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .kodza-quick-view:hover .kodza-quick-view__image {
+    transform: scale(1.03);
+  }
+}
+
+.kodza-quick-view__open:focus {
+  outline: none;
+}
+
+.kodza-quick-view__open:focus-visible {
+  outline: 2px solid var(--kz-quick-view-fg);
+  outline-offset: 3px;
+}
+
+.kodza-quick-view__info {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 4px 16px;
+  padding: 14px 2px 0;
+}
+
+.kodza-quick-view__name {
+  margin: 0;
+  color: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+/* The name links to the product page, and the link covers the card (the button sits above it) */
+.kodza-quick-view__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-quick-view__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--kz-quick-view-radius);
+}
+
+.kodza-quick-view__link:focus {
+  outline: none;
+}
+
+.kodza-quick-view__link:focus-visible::after {
+  outline: 2px solid var(--kz-quick-view-fg);
+  outline-offset: 4px;
+}
+
+.kodza-quick-view__from {
+  margin: 0;
+  color: var(--kz-quick-view-muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---------- The window ---------- */
+.kodza-quick-view__panel {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: var(--kz-quick-view-photo, min(400px, calc((100dvh - 32px) * 0.8), 46%)) minmax(0, 1fr);
+  width: min(var(--kz-quick-view-window), calc(100% - 32px));
+  max-width: none;
+  height: fit-content;
+  max-height: calc(100% - 32px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-quick-view-window-radius);
+  background: var(--kz-quick-view-paper);
+  box-shadow: 0 0 0 1px transparent, 0 30px 80px -24px rgba(10, 10, 10, 0);
+  color: var(--kz-quick-view-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  overflow: visible; /* the photo comes from its card, outside the window */
+}
+
+/* Its shadow comes once the window has grown (the grow clips it) */
+.kodza-quick-view__panel.is-whole {
+  box-shadow: 0 0 0 1px var(--kz-quick-view-line), 0 30px 80px -24px rgba(10, 10, 10, 0.35);
+  transition: box-shadow calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-quick-view__panel:not([open]) {
+  display: none;
+}
+
+.kodza-quick-view__panel:focus {
+  outline: none;
+}
+
+.kodza-quick-view__panel::backdrop {
+  background: transparent;
+  transition: background-color calc(var(--kz-quick-view-duration) * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-quick-view__panel.is-open::backdrop {
+  background: var(--kz-quick-view-backdrop);
+}
+
+.kodza-quick-view__grip {
+  display: none;
+}
+
+/* The photo sets the window's height; the form scrolls beside it when it is taller */
+.kodza-quick-view__photo {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--kz-quick-view-window-radius) 0 0 var(--kz-quick-view-window-radius);
+  background: var(--kz-quick-view-soft);
+  transform-origin: 0 0;
+}
+
+.kodza-quick-view__photo img {
+  display: block;
+  grid-area: 1 / 1;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+}
+
+.kodza-quick-view__buy {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  height: 0;
+  min-height: 100%;
+  margin: 0;
+  padding: 40px 36px 32px;
+  box-sizing: border-box;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.kodza-quick-view__head {
+  display: grid;
+  gap: 10px;
+  padding-right: 32px; /* clear of Close */
+}
+
+.kodza-quick-view__eyebrow {
+  margin: 0;
+  color: var(--kz-quick-view-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.3);
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+}
+
+.kodza-quick-view__title {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(32px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.05;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+}
+
+.kodza-quick-view__price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 2px 0 0;
+}
+
+/* The price and the colour's name roll when they change (the script) */
+.kodza-quick-view__amount,
+.kodza-quick-view__picked {
+  display: inline-grid;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.kodza-quick-view__amount > span,
+.kodza-quick-view__picked > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-quick-view__amount {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-quick-view__tax {
+  color: var(--kz-quick-view-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-quick-view__blurb {
+  margin: 4px 0 0;
+  color: var(--kz-quick-view-muted);
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+/* ---------- Colour and size ---------- */
+.kodza-quick-view__group {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-quick-view__legend {
+  display: block;
+  float: left;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 0;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-quick-view__picked {
+  margin-left: 4px;
+  color: var(--kz-quick-view-muted);
+  font-weight: 400;
+}
+
+.kodza-quick-view__swatches {
+  clear: both;
+  display: flex;
+  gap: 6px;
+  margin: 0 0 0 -6px;
+}
+
+.kodza-quick-view__swatch {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  cursor: pointer;
+}
+
+.kodza-quick-view__swatch::before {
+  content: "";
+  width: 24px;
+  height: 24px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-quick-view-swatch, var(--kz-quick-view-soft));
+  box-shadow:
+    inset 0 0 0 1px var(--kz-quick-view-line),
+    0 0 0 0 var(--kz-quick-view-fg);
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease);
+}
+
+/* The chosen colour: a ring of ink, a hair away from the dot */
+.kodza-quick-view__swatch:has(:checked)::before {
+  box-shadow:
+    inset 0 0 0 1px var(--kz-quick-view-line),
+    0 0 0 2.5px var(--kz-quick-view-paper),
+    0 0 0 4px var(--kz-quick-view-fg);
+}
+
+.kodza-quick-view__swatch:has(:focus-visible) {
+  outline: 2px solid var(--kz-quick-view-fg);
+  outline-offset: 0;
+}
+
+.kodza-quick-view__swatch input,
+.kodza-quick-view__size input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kodza-quick-view__sizes {
+  clear: both;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kodza-quick-view__size {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 72px;
+  height: 40px;
+  margin: 0;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border-radius: var(--kz-radius-pill, 999px);
+  box-shadow: inset 0 0 0 1px var(--kz-quick-view-line);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease),
+    color calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease),
+    box-shadow calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease);
+}
+
+@media (hover: hover) {
+  .kodza-quick-view__size:hover:not(:has(:disabled)):not(:has(:checked)) {
+    box-shadow: inset 0 0 0 1px var(--kz-quick-view-fg);
+  }
+}
+
+.kodza-quick-view__size:has(:checked) {
+  background: var(--kz-quick-view-ink);
+  box-shadow: inset 0 0 0 1px var(--kz-quick-view-ink);
+  color: var(--kz-quick-view-on-ink);
+}
+
+.kodza-quick-view__size:has(:focus-visible) {
+  outline: 2px solid var(--kz-quick-view-fg);
+  outline-offset: 2px;
+}
+
+/* Sold out: struck through and out of reach, and said in words */
+.kodza-quick-view__size:has(:disabled) {
+  color: var(--kz-quick-view-muted);
+  cursor: not-allowed;
+}
+
+.kodza-quick-view__size:has(:disabled) > span {
+  opacity: 0.6;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.kodza-quick-view__size input:disabled {
+  cursor: not-allowed;
+}
+
+/* ---------- Add to cart ---------- */
+.kodza-quick-view__actions {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  margin-top: auto;
+}
+
+.kodza-quick-view__add {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 52px;
+  margin: 0;
+  padding: 0 20px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-quick-view-ink);
+  box-shadow: none;
+  color: var(--kz-quick-view-on-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease, transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .kodza-quick-view__add:hover {
+    background: color-mix(in srgb, var(--kz-quick-view-ink) 86%, var(--kz-quick-view-paper));
+  }
+}
+
+.kodza-quick-view__add:active {
+  transform: scale(0.98);
+}
+
+.kodza-quick-view__add:focus {
+  outline: none;
+}
+
+.kodza-quick-view__add:focus-visible {
+  outline: 2px solid var(--kz-quick-view-fg);
+  outline-offset: 3px;
+}
+
+/* The words of the button in one cell: Add to cart, then Added with a tick (the script) */
+.kodza-quick-view__word {
+  display: inline-flex;
+  align-items: center;
+  grid-area: 1 / 1;
+  gap: 8px;
+}
+
+.kodza-quick-view__tick {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-quick-view__tick path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: kodza-quick-view-tick calc(0.38s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease) calc(0.16s * var(--kz-motion-scale, 1)) forwards;
+}
+
+@keyframes kodza-quick-view-tick {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.kodza-quick-view__more {
+  color: var(--kz-quick-view-fg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--kz-quick-view-line);
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-quick-view__more:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+.kodza-quick-view__more:focus {
+  outline: none;
+}
+
+.kodza-quick-view__more:focus-visible {
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+  outline: 2px solid var(--kz-quick-view-fg);
+  outline-offset: 3px;
+}
+
+/* ---------- Close ---------- */
+.kodza-quick-view__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-quick-view-soft);
+  color: var(--kz-quick-view-fg);
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-quick-view__close:hover {
+    background: var(--kz-quick-view-line);
+  }
+}
+
+.kodza-quick-view__close:focus {
+  outline: none;
+}
+
+.kodza-quick-view__close:focus-visible {
+  outline: 2px solid var(--kz-quick-view-fg);
+  outline-offset: 3px;
+}
+
+.kodza-quick-view__close svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.kodza-quick-view__hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Phones: a sheet from the bottom ---------- */
+@media (max-width: 640px) {
+  .kodza-quick-view__panel {
+    inset: auto 0 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: calc(100% - 40px);
+    margin: 0;
+    border-radius: var(--kz-quick-view-window-radius) var(--kz-quick-view-window-radius) 0 0;
+    overflow: hidden;
+    transform: translateY(100%);
+  }
+
+  .kodza-quick-view__panel.is-open {
+    box-shadow: 0 -20px 60px -20px rgba(10, 10, 10, 0.3);
+    transform: translateY(var(--kz-quick-view-y, 0px));
+  }
+
+  .kodza-quick-view__panel.is-moving {
+    transition: transform calc(var(--kz-quick-view-duration) * var(--kz-motion-scale, 1)) var(--kz-quick-view-sheet-ease);
+  }
+
+  .kodza-quick-view__grip {
+    display: grid;
+    flex: none;
+    place-items: center;
+    height: 22px;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .kodza-quick-view__grip::before {
+    content: "";
+    width: 40px;
+    height: 5px;
+    border-radius: var(--kz-radius-pill, 999px);
+    background: var(--kz-quick-view-line);
+  }
+
+  .kodza-quick-view__photo {
+    flex: none;
+    aspect-ratio: 16 / 10;
+    margin: 0 16px;
+    border-radius: var(--kz-quick-view-radius);
+    touch-action: none;
+  }
+
+  .kodza-quick-view__buy {
+    flex: 1 1 auto;
+    gap: 20px;
+    height: auto;
+    min-height: 0;
+    padding: 20px 20px 24px;
+  }
+
+  .kodza-quick-view__head {
+    padding-right: 0;
+  }
+
+  .kodza-quick-view__title {
+    font-size: calc(26px * var(--kz-font-display-scale, 1));
+  }
+
+  .kodza-quick-view__close {
+    top: 34px;
+    right: 28px;
+    background: var(--kz-quick-view-paper);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-quick-view__image,
+  .kodza-quick-view__open,
+  .kodza-quick-view__panel.is-moving,
+  .kodza-quick-view__panel::backdrop,
+  .kodza-quick-view__swatch::before,
+  .kodza-quick-view__size,
+  .kodza-quick-view__add {
+    transition-duration: 0.01ms !important;
+  }
+
+  .kodza-quick-view__tick path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-quick-view {
+  --kz-quick-view-fg: #f2f2f0;
+  --kz-quick-view-paper: #161616;
+  --kz-quick-view-muted: rgba(242, 242, 240, 0.62);
+  --kz-quick-view-line: rgba(255, 255, 255, 0.14);
+  --kz-quick-view-soft: rgba(255, 255, 255, 0.06);
+  --kz-quick-view-backdrop: rgba(0, 0, 0, 0.6);
+}
+*/
+
+/* kodza-guard 34100feb944e — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-quick-view__open):not(#_) {
+  outline: revert;
+  transition: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-quick-view__link):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-quick-view__panel):not(#_) {
+  outline: revert;
+  transition: revert;
+}
+
+:where(.kodza-quick-view__swatch):not(#_),
+:where(.kodza-quick-view__add):not(#_),
+:where(.kodza-quick-view__close):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-quick-view__size):not(#_) {
+  outline: revert;
+  background-color: revert;
+  background-image: revert;
+  outline-offset: revert;
+  color: revert;
+}
+
+:where(.kodza-quick-view__more):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-quick-view__buy input:where(:not([class*="kodza-"]))):not(#_) {
+  margin: revert;
+  position: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-quick-view:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__media:not(#_),
+.kodza-quick-view__info:not(#_),
+.kodza-quick-view__grip:not(#_),
+.kodza-quick-view__photo:not(#_),
+.kodza-quick-view__head:not(#_),
+.kodza-quick-view__amount:not(#_),
+.kodza-quick-view__tax:not(#_),
+.kodza-quick-view__picked:not(#_),
+.kodza-quick-view__swatches:not(#_),
+.kodza-quick-view__hidden:not(#_),
+.kodza-quick-view__sizes:not(#_),
+.kodza-quick-view__actions:not(#_),
+.kodza-quick-view__word:not(#_),
+.kodza-quick-view__amount span:where(:not([class*="kodza-"])):not(#_),
+.kodza-quick-view__picked span:where(:not([class*="kodza-"])):not(#_),
+.kodza-quick-view__size span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-quick-view__image:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__open:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-quick-view__name:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__from:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__panel:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__buy:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__eyebrow:not(#_),
+.kodza-quick-view__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__price:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__blurb:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__group:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__legend:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+}
+
+.kodza-quick-view__swatch:not(#_) {
+  border: revert;
+  padding: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__size:not(#_) {
+  border: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__add:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-quick-view__more:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__close:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-quick-view__photo img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__buy input:where(:not([class*="kodza-"])):not(#_),
+.kodza-quick-view__swatch input:where(:not([class*="kodza-"])):not(#_),
+.kodza-quick-view__size input:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-quick-view__close svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-quick-view__name:not(#_):where(:not([hidden])),
+.kodza-quick-view__link:not(#_):where(:not([hidden])),
+.kodza-quick-view__from:not(#_):where(:not([hidden])),
+.kodza-quick-view__eyebrow:not(#_):where(:not([hidden])),
+.kodza-quick-view__title:not(#_):where(:not([hidden])),
+.kodza-quick-view__blurb:not(#_):where(:not([hidden])),
+.kodza-quick-view__group:not(#_):where(:not([hidden])),
+.kodza-quick-view__more:not(#_):where(:not([hidden])),
+.kodza-quick-view__buy input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-quick-view__swatch input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-quick-view__size input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-quick-view__name:not(#_):where([hidden]),
+.kodza-quick-view__link:not(#_):where([hidden]),
+.kodza-quick-view__from:not(#_):where([hidden]),
+.kodza-quick-view__eyebrow:not(#_):where([hidden]),
+.kodza-quick-view__title:not(#_):where([hidden]),
+.kodza-quick-view__blurb:not(#_):where([hidden]),
+.kodza-quick-view__group:not(#_):where([hidden]),
+.kodza-quick-view__more:not(#_):where([hidden]),
+.kodza-quick-view__buy input:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-quick-view__swatch input:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-quick-view__size input:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-quick-view__link:not(#_)::after,
+.kodza-quick-view__swatch:not(#_)::before,
+.kodza-quick-view__grip:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-quick-view:not(#_) {
+  position: relative;
+  color: var(--kz-quick-view-fg);
+}
+
+.kodza-quick-view:not(#_) {
+  width: min(100%, var(--kz-quick-view-width));
+}
+
+.kodza-quick-view__image:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+  transition: transform calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease);
+}
+
+.kodza-quick-view__open:not(#_) {
+  position: relative;
+  z-index: 2;
+  display: none;
+  grid-area: 1 / 1;
+  align-self: end;
+  justify-self: center;
+  height: 40px;
+  margin: 0 0 14px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-quick-view-paper);
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.08), 0 8px 24px -8px rgba(10, 10, 10, 0.25);
+  color: var(--kz-quick-view-fg);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-quick-view.is-ready .kodza-quick-view__open:not(#_) {
+  display: block;
+}
+
+@media (hover: hover) {
+  .kodza-quick-view.is-ready .kodza-quick-view__open:not(#_) {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+        transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease);
+  }
+}
+
+@media (hover: hover) {
+  .kodza-quick-view:hover .kodza-quick-view__open:not(#_),
+  .kodza-quick-view.is-ready .kodza-quick-view__open:focus-visible:not(#_) {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.kodza-quick-view__open:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-quick-view__open:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-quick-view-fg);
+  outline-offset: 3px;
+}
+
+.kodza-quick-view__name:not(#_) {
+  margin: 0;
+  color: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.kodza-quick-view__link:not(#_) {
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-quick-view__link:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-quick-view__from:not(#_) {
+  margin: 0;
+  color: var(--kz-quick-view-muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.kodza-quick-view__panel:not(#_) {
+  position: fixed;
+  display: grid;
+  max-width: none;
+  max-height: calc(100% - 32px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-quick-view-window-radius);
+  background: var(--kz-quick-view-paper);
+  box-shadow: 0 0 0 1px transparent, 0 30px 80px -24px rgba(10, 10, 10, 0);
+  color: var(--kz-quick-view-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.kodza-quick-view__panel.is-whole:not(#_) {
+  box-shadow: 0 0 0 1px var(--kz-quick-view-line), 0 30px 80px -24px rgba(10, 10, 10, 0.35);
+  transition: box-shadow calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-quick-view__panel:not([open]):not(#_) {
+  display: none;
+}
+
+.kodza-quick-view__panel:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-quick-view__photo img:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-quick-view__buy:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 40px 36px 32px;
+  box-sizing: border-box;
+}
+
+.kodza-quick-view__eyebrow:not(#_) {
+  margin: 0;
+  color: var(--kz-quick-view-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.3);
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+}
+
+.kodza-quick-view__title:not(#_) {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(32px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.05;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, none);
+}
+
+.kodza-quick-view__price:not(#_) {
+  display: flex;
+  margin: 2px 0 0;
+}
+
+.kodza-quick-view__blurb:not(#_) {
+  margin: 4px 0 0;
+  color: var(--kz-quick-view-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.kodza-quick-view__group:not(#_) {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-quick-view__legend:not(#_) {
+  display: block;
+  float: left;
+  margin: 0 0 10px;
+  padding: 0;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-quick-view__swatch:not(#_) {
+  position: relative;
+  display: grid;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-quick-view__swatch:has(:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-quick-view-fg);
+  outline-offset: 0;
+}
+
+.kodza-quick-view__swatch input:not(#_),
+.kodza-quick-view__size input:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kodza-quick-view__size:not(#_) {
+  position: relative;
+  display: grid;
+  margin: 0;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border-radius: var(--kz-radius-pill, 999px);
+  box-shadow: inset 0 0 0 1px var(--kz-quick-view-line);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  transition: background-color calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease),
+    color calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease),
+    box-shadow calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease);
+}
+
+@media (hover: hover) {
+  .kodza-quick-view__size:hover:not(:has(:disabled)):not(:has(:checked)):not(#_) {
+    box-shadow: inset 0 0 0 1px var(--kz-quick-view-fg);
+  }
+}
+
+.kodza-quick-view__size:has(:checked):not(#_) {
+  background: var(--kz-quick-view-ink);
+  box-shadow: inset 0 0 0 1px var(--kz-quick-view-ink);
+  color: var(--kz-quick-view-on-ink);
+}
+
+.kodza-quick-view__size:has(:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-quick-view-fg);
+  outline-offset: 2px;
+}
+
+.kodza-quick-view__size:has(:disabled):not(#_) {
+  color: var(--kz-quick-view-muted);
+}
+
+.kodza-quick-view__size input:disabled:not(#_) {
+  cursor: not-allowed;
+}
+
+.kodza-quick-view__add:not(#_) {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 52px;
+  margin: 0;
+  padding: 0 20px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-quick-view-ink);
+  box-shadow: none;
+  color: var(--kz-quick-view-on-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease, transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-quick-view-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .kodza-quick-view__add:hover:not(#_) {
+    background: color-mix(in srgb, var(--kz-quick-view-ink) 86%, var(--kz-quick-view-paper));
+  }
+}
+
+.kodza-quick-view__add:active:not(#_) {
+  transform: scale(0.98);
+}
+
+.kodza-quick-view__add:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-quick-view__add:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-quick-view-fg);
+  outline-offset: 3px;
+}
+
+.kodza-quick-view__more:not(#_) {
+  color: var(--kz-quick-view-fg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--kz-quick-view-line);
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-quick-view__more:hover:not(#_) {
+    text-decoration-color: currentColor;
+  }
+}
+
+.kodza-quick-view__more:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-quick-view__more:focus-visible:not(#_) {
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+  outline: 2px solid var(--kz-quick-view-fg);
+  outline-offset: 3px;
+}
+
+.kodza-quick-view__close:not(#_) {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-quick-view-soft);
+  color: var(--kz-quick-view-fg);
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-quick-view__close:hover:not(#_) {
+    background: var(--kz-quick-view-line);
+  }
+}
+
+.kodza-quick-view__close:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-quick-view__close:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-quick-view-fg);
+  outline-offset: 3px;
+}
+
+.kodza-quick-view__close svg:not(#_) {
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .kodza-quick-view__panel:not(#_) {
+    display: flex;
+    max-height: calc(100% - 40px);
+    margin: 0;
+    border-radius: var(--kz-quick-view-window-radius) var(--kz-quick-view-window-radius) 0 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .kodza-quick-view__panel.is-open:not(#_) {
+    box-shadow: 0 -20px 60px -20px rgba(10, 10, 10, 0.3);
+  }
+}
+
+@media (max-width: 640px) {
+  .kodza-quick-view__panel.is-moving:not(#_) {
+    transition: transform calc(var(--kz-quick-view-duration) * var(--kz-motion-scale, 1)) var(--kz-quick-view-sheet-ease);
+  }
+}
+
+@media (max-width: 640px) {
+  .kodza-quick-view__buy:not(#_) {
+    padding: 20px 20px 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .kodza-quick-view__title:not(#_) {
+    font-size: calc(26px * var(--kz-font-display-scale, 1));
+  }
+}
+
+@media (max-width: 640px) {
+  .kodza-quick-view__close:not(#_) {
+    top: 34px;
+    right: 28px;
+    background: var(--kz-quick-view-paper);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-quick-view__image:not(#_),
+  .kodza-quick-view__panel.is-moving:not(#_),
+  .kodza-quick-view__size:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-quick-view__open:not(#_),
+  .kodza-quick-view__add:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

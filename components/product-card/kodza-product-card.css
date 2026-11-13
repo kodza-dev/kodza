@@ -1,0 +1,974 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Product Card
+   The card of a shop grid. Its second photo rises over the first under the pointer (a swipe on
+   phones), colour swatches swap the photos in place, and "Add" at the foot of the photo adds it
+   in one click, or rolls into the sizes when there are some. The whole card links to the product
+   page; the button is not part of the link.
+   Everything is tuned with the --kz-product-card-* variables. */
+.kodza-product-card {
+  --kz-product-card-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-product-card-muted: color-mix(in srgb, var(--kz-product-card-fg) 62%, transparent);
+  --kz-product-card-line: color-mix(in srgb, var(--kz-product-card-fg) 14%, transparent);
+  --kz-product-card-soft: color-mix(in srgb, var(--kz-product-card-fg) 5%, transparent);
+  --kz-product-card-paper: var(--kz-color-paper, #ffffff);
+  --kz-product-card-ink: var(--kz-color-accent, var(--kz-product-card-fg));
+  --kz-product-card-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-product-card-width: 360px; /* the most it takes; a grid column can make it narrower */
+  --kz-product-card-radius: calc(14px * var(--kz-radius-scale, 1));
+  --kz-product-card-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  max-width: var(--kz-product-card-width);
+  margin: 0;
+  color: var(--kz-product-card-fg);
+}
+
+/* ---------- The photos ---------- */
+.kodza-product-card__media {
+  position: relative;
+  grid-area: 1 / 1;
+  overflow: hidden;
+  border-radius: var(--kz-product-card-radius);
+  background: var(--kz-product-card-soft);
+}
+
+/* Both photos in one cell: the second one rises over the first */
+.kodza-product-card__track {
+  display: grid;
+}
+
+.kodza-product-card__image {
+  display: block;
+  grid-area: 1 / 1;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  margin: 0;
+  object-fit: cover;
+}
+
+.kodza-product-card__image--second {
+  clip-path: inset(100% 0 0 0);
+  transform: scale(1.08);
+  transition:
+    clip-path calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease),
+    transform calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease);
+}
+
+/* The pointer over the photo (the script), or over the card without the script */
+.kodza-product-card.is-peek .kodza-product-card__image--second,
+.kodza-product-card:not(.is-ready):hover .kodza-product-card__image--second {
+  clip-path: inset(0);
+  transform: none;
+}
+
+/* The old photo of a colour, on its way out (the script) */
+.kodza-product-card__leaving {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* "New", "Last 2" */
+.kodza-product-card__tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  padding: 6px 9px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-card-paper);
+  color: var(--kz-product-card-fg);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  pointer-events: none;
+}
+
+/* The dots of the swipe, on phones (the script) */
+.kodza-product-card__dots {
+  position: absolute;
+  top: 16px;
+  right: 14px;
+  z-index: 1;
+  display: flex;
+  gap: 10px; /* the long dot spreads 5px into each side and still leaves 5px */
+  padding: 0 5px;
+  pointer-events: none;
+}
+
+/* Each dot has the room of the long one; the short ones are clipped, so nothing reflows */
+.kodza-product-card__dot {
+  width: 16px;
+  height: 6px;
+  margin: 0 -5px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: color-mix(in srgb, var(--kz-product-card-fg) 22%, transparent);
+  clip-path: inset(0 5px round var(--kz-radius-pill, 999px));
+  transition:
+    clip-path calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease),
+    background-color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-card__dot.is-current {
+  background: var(--kz-product-card-fg);
+  clip-path: inset(0 0 round var(--kz-radius-pill, 999px));
+}
+
+/* ---------- Name, price, colours ---------- */
+.kodza-product-card__info {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 4px 16px;
+  padding: 14px 2px 0;
+}
+
+.kodza-product-card__title {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+
+.kodza-product-card__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The whole card is the link */
+.kodza-product-card__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--kz-product-card-radius);
+}
+
+.kodza-product-card__link:focus {
+  outline: none;
+}
+
+.kodza-product-card__link:focus-visible::after {
+  outline: 2px solid var(--kz-product-card-fg);
+  outline-offset: 4px;
+}
+
+.kodza-product-card__price {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.kodza-product-card__swatches {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 4px;
+  min-width: 0;
+  margin: 6px 0 0 -5px;
+  padding: 0;
+  border: 0;
+}
+
+/* Each colour: a 28 px target around an 16 px dot */
+.kodza-product-card__swatch {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  cursor: pointer;
+}
+
+.kodza-product-card__swatch::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-card-swatch, var(--kz-product-card-soft));
+  box-shadow:
+    inset 0 0 0 1px var(--kz-product-card-line),
+    0 0 0 0 var(--kz-product-card-fg);
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease);
+}
+
+/* The chosen colour: a ring of ink, a hair away from the dot */
+.kodza-product-card__swatch:has(:checked)::before {
+  box-shadow:
+    inset 0 0 0 1px var(--kz-product-card-line),
+    0 0 0 2px var(--kz-product-card-paper),
+    0 0 0 3.5px var(--kz-product-card-fg);
+}
+
+.kodza-product-card__swatch:has(:focus-visible) {
+  outline: 2px solid var(--kz-product-card-fg);
+  outline-offset: 0;
+}
+
+.kodza-product-card__swatch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kodza-product-card__hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Add, and the sizes ---------- */
+.kodza-product-card__add {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-area: 1 / 1;
+  align-self: end;
+  height: 44px;
+  margin: 12px;
+  overflow: hidden;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-card-ink);
+  color: var(--kz-product-card-on-ink);
+  transition:
+    opacity calc(0.3s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease);
+}
+
+.kodza-product-card__open,
+.kodza-product-card__size {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-product-card__open {
+  display: grid;
+  place-items: center;
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease);
+}
+
+/* The word in the button rolls: Add, then Added (the script) */
+.kodza-product-card__word {
+  display: block;
+  grid-area: 1 / 1;
+}
+
+.kodza-product-card__sizes {
+  display: flex;
+  grid-area: 1 / 1;
+  min-width: 0;
+  visibility: hidden;
+  transform: translateY(100%);
+  transition:
+    transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease),
+    visibility 0s linear calc(0.45s * var(--kz-motion-scale, 1));
+}
+
+.kodza-product-card__size {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  padding: 0 6px;
+  transform: translateY(70%);
+  opacity: 0;
+  transition:
+    transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease),
+    opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-card__size + .kodza-product-card__size {
+  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--kz-product-card-on-ink) 18%, transparent);
+}
+
+.kodza-product-card__size:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--kz-product-card-on-ink) 14%, transparent);
+}
+
+/* Sold out: struck through and out of reach, and said in words */
+.kodza-product-card__size:disabled {
+  color: color-mix(in srgb, var(--kz-product-card-on-ink) 50%, transparent);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  cursor: not-allowed;
+}
+
+.kodza-product-card__open:focus,
+.kodza-product-card__size:focus {
+  outline: none;
+}
+
+.kodza-product-card__open:focus-visible,
+.kodza-product-card__size:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--kz-product-card-on-ink);
+}
+
+/* Picking a size: Add goes up, the sizes come from below, one after the other */
+/* Add is hidden once it has gone up, and back at once when the sizes go: the focus can return to it */
+.kodza-product-card.is-picking .kodza-product-card__open {
+  visibility: hidden;
+  transform: translateY(-100%);
+  transition:
+    transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease),
+    visibility 0s linear calc(0.45s * var(--kz-motion-scale, 1));
+}
+
+.kodza-product-card.is-picking .kodza-product-card__sizes {
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.kodza-product-card.is-picking .kodza-product-card__size {
+  transform: none;
+  opacity: 1;
+  transition-delay:
+    calc(var(--kz-product-card-i, 0) * 0.035s * var(--kz-motion-scale, 1)),
+    calc(var(--kz-product-card-i, 0) * 0.035s * var(--kz-motion-scale, 1)),
+    0s;
+}
+
+/* With a pointer, Add waits for it (or for the keyboard) */
+@media (hover: hover) {
+  .kodza-product-card__add {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .kodza-product-card:hover .kodza-product-card__add,
+  .kodza-product-card:focus-within .kodza-product-card__add,
+  .kodza-product-card.is-picking .kodza-product-card__add,
+  .kodza-product-card.is-added .kodza-product-card__add {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* With a finger: the photos sit side by side and swipe, a tap on them opens the product */
+@media (hover: none) {
+  .kodza-product-card.is-ready .kodza-product-card__media {
+    z-index: 2;
+  }
+
+  .kodza-product-card.is-ready .kodza-product-card__track {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .kodza-product-card.is-ready .kodza-product-card__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .kodza-product-card.is-ready .kodza-product-card__image {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+  }
+
+  .kodza-product-card.is-ready .kodza-product-card__image--second {
+    clip-path: none;
+    transform: none;
+  }
+
+  .kodza-product-card__add {
+    z-index: 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-card__image--second,
+  .kodza-product-card__add,
+  .kodza-product-card__open,
+  .kodza-product-card__sizes,
+  .kodza-product-card__size,
+  .kodza-product-card__dot,
+  .kodza-product-card__swatch::before {
+    transition: none;
+  }
+
+  .kodza-product-card__image--second {
+    transform: none;
+  }
+}
+
+/* kodza-guard 5dc4148c9936 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-product-card__image):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-product-card__link):not(#_),
+:where(.kodza-product-card__open):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-product-card__swatch):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-product-card__size):not(#_) {
+  outline: revert;
+  text-decoration: revert;
+}
+
+:where(.kodza-product-card input:where(:not([class*="kodza-"]))):not(#_) {
+  margin: revert;
+  position: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-product-card:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-card__media:not(#_),
+.kodza-product-card__track:not(#_),
+.kodza-product-card__tag:not(#_),
+.kodza-product-card__info:not(#_),
+.kodza-product-card__add:not(#_),
+.kodza-product-card__word:not(#_),
+.kodza-product-card__sizes:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-product-card__image:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-card__title:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-card__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-card__price:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-card__swatches:not(#_),
+.kodza-product-card__hidden:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-card__swatch:not(#_) {
+  border: revert;
+  padding: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-card__open:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-product-card__size:not(#_) {
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-product-card input:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-card__swatch input:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-product-card__title:not(#_):where(:not([hidden])),
+.kodza-product-card__link:not(#_):where(:not([hidden])),
+.kodza-product-card__price:not(#_):where(:not([hidden])),
+.kodza-product-card__hidden:not(#_):where(:not([hidden])),
+.kodza-product-card input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-product-card__swatch input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-product-card__title:not(#_):where([hidden]),
+.kodza-product-card__link:not(#_):where([hidden]),
+.kodza-product-card__price:not(#_):where([hidden]),
+.kodza-product-card__hidden:not(#_):where([hidden]),
+.kodza-product-card input:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-product-card__swatch input:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-product-card__link:not(#_)::after,
+.kodza-product-card__swatch:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-product-card:not(#_) {
+  position: relative;
+  color: var(--kz-product-card-fg);
+}
+
+.kodza-product-card:not(#_) {
+  width: min(100%, var(--kz-product-card-width));
+}
+
+.kodza-product-card__image:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-product-card__image--second:not(#_) {
+  transition: clip-path calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease),
+    transform calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease);
+}
+
+.kodza-product-card__title:not(#_) {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.kodza-product-card__link:not(#_) {
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-product-card__link:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-product-card__price:not(#_) {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.kodza-product-card__swatches:not(#_) {
+  position: relative;
+  display: flex;
+  margin: 6px 0 0 -5px;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-product-card__swatch:not(#_) {
+  position: relative;
+  display: grid;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-product-card__swatch:has(:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-product-card-fg);
+  outline-offset: 0;
+}
+
+.kodza-product-card__swatch input:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kodza-product-card__hidden:where(legend):not(#_) {
+  position: absolute;
+  margin: -1px;
+  padding: 0;
+  white-space: nowrap;
+  border: 0;
+}
+
+.kodza-product-card__open:not(#_),
+.kodza-product-card__size:not(#_) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-product-card__open:not(#_) {
+  display: grid;
+  place-items: center;
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease);
+}
+
+.kodza-product-card__size:not(#_) {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  padding: 0 6px;
+  transform: translateY(70%);
+  opacity: 0;
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease),
+    opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-card__size + .kodza-product-card__size:not(#_) {
+  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--kz-product-card-on-ink) 18%, transparent);
+}
+
+.kodza-product-card__size:hover:not(:disabled):not(#_) {
+  background: color-mix(in srgb, var(--kz-product-card-on-ink) 14%, transparent);
+}
+
+.kodza-product-card__size:disabled:not(#_) {
+  color: color-mix(in srgb, var(--kz-product-card-on-ink) 50%, transparent);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  cursor: not-allowed;
+}
+
+.kodza-product-card__open:focus:not(#_),
+.kodza-product-card__size:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-product-card__open:focus-visible:not(#_),
+.kodza-product-card__size:focus-visible:not(#_) {
+  box-shadow: inset 0 0 0 2px var(--kz-product-card-on-ink);
+}
+
+.kodza-product-card.is-picking .kodza-product-card__open:not(#_) {
+  visibility: hidden;
+  transform: translateY(-100%);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-card-ease),
+    visibility 0s linear calc(0.45s * var(--kz-motion-scale, 1));
+}
+
+.kodza-product-card.is-picking .kodza-product-card__size:not(#_) {
+  transform: none;
+  opacity: 1;
+  transition-delay: calc(var(--kz-product-card-i, 0) * 0.035s * var(--kz-motion-scale, 1)),
+    calc(var(--kz-product-card-i, 0) * 0.035s * var(--kz-motion-scale, 1)),
+    0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-card__image--second:not(#_) {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-card__open:not(#_),
+  .kodza-product-card__size:not(#_) {
+    transition: none;
+  }
+}

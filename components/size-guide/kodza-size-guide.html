@@ -1,0 +1,42 @@
+<div class="kodza-size-guide" data-field="options[Size]">
+  <button class="kodza-size-guide__trigger" type="button">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 7.5h15v5h-15zM6 7.5v2.2M9.5 7.5v3M13 7.5v2.2" /></svg>
+    Size guide
+  </button>
+  <dialog class="kodza-size-guide__panel">
+    <div class="kodza-size-guide__grip" aria-hidden="true"><span></span></div>
+    <header class="kodza-size-guide__head">
+      <h2 class="kodza-size-guide__title">Size guide</h2>
+      <button class="kodza-size-guide__close" type="button" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg></button>
+    </header>
+    <div class="kodza-size-guide__body">
+      <div class="kodza-size-guide__bar">
+        <p class="kodza-size-guide__fit">Cut straight and roomy. Between two sizes, take the smaller one.</p>
+        <fieldset class="kodza-size-guide__units">
+          <legend class="kodza-size-guide__hidden">Units</legend>
+          <label class="kodza-size-guide__unit"><input type="radio" name="unit" value="cm" checked><span>cm</span></label>
+          <label class="kodza-size-guide__unit"><input type="radio" name="unit" value="in"><span>in</span></label>
+          <span class="kodza-size-guide__pill" aria-hidden="true"><span>cm</span><span>in</span></span>
+        </fieldset>
+      </div>
+      <table class="kodza-size-guide__table">
+        <thead>
+          <tr>
+            <th scope="col">Size</th>
+            <th scope="col">Chest <span class="kodza-size-guide__u">cm</span></th>
+            <th scope="col">Length <span class="kodza-size-guide__u">cm</span></th>
+            <th scope="col">Sleeve <span class="kodza-size-guide__u">cm</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-size="XS"><th scope="row">XS</th><td>100</td><td>70</td><td>61</td></tr>
+          <tr data-size="S"><th scope="row">S</th><td>104</td><td>72</td><td>62</td></tr>
+          <tr data-size="M"><th scope="row">M</th><td>110</td><td>74</td><td>63</td></tr>
+          <tr data-size="L"><th scope="row">L</th><td>116</td><td>76</td><td>64</td></tr>
+          <tr data-size="XL"><th scope="row">XL</th><td>122</td><td>78</td><td>65</td></tr>
+        </tbody>
+      </table>
+      <p class="kodza-size-guide__how">Measured flat on the shirt. Chest: pit to pit, ×2.</p>
+    </div>
+  </dialog>
+</div>

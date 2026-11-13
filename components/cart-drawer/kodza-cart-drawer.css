@@ -1,0 +1,1614 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Cart Drawer
+   The bag of a shop, in a side panel (a sheet from the bottom on phones). An add-to-cart form
+   anywhere on the page sends its picture flying into the bag, the count rolls, the drawer opens
+   and the new line slides in. Quantities change in place, a removed line offers Undo, prices roll
+   digit by digit, and the free shipping bar fills up (data-free-shipping, in cents).
+   Everything is tuned with the --kz-cart-drawer-* variables. */
+.kodza-cart-drawer {
+  --kz-cart-drawer-bg: var(--kz-color-paper, #ffffff);
+  --kz-cart-drawer-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-cart-drawer-muted: color-mix(in srgb, var(--kz-cart-drawer-fg) 62%, transparent);
+  --kz-cart-drawer-line: color-mix(in srgb, var(--kz-cart-drawer-fg) 10%, transparent);
+  --kz-cart-drawer-soft: color-mix(in srgb, var(--kz-cart-drawer-fg) 5%, transparent);
+  --kz-cart-drawer-ink: var(--kz-color-accent, var(--kz-cart-drawer-fg));
+  --kz-cart-drawer-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-cart-drawer-backdrop: rgba(10, 10, 10, 0.3);
+  --kz-cart-drawer-width: 440px;
+  --kz-cart-drawer-radius: calc(20px * var(--kz-radius-scale, 1));
+  --kz-cart-drawer-duration: 0.6s;
+  --kz-cart-drawer-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  display: inline-block;
+  color: var(--kz-cart-drawer-fg);
+}
+
+/* ---------- The bag button ---------- */
+.kodza-cart-drawer__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 8px 0 14px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-cart-drawer-soft);
+  color: var(--kz-cart-drawer-fg);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-cart-drawer__trigger:hover {
+  background: var(--kz-cart-drawer-line);
+}
+
+.kodza-cart-drawer__trigger:active {
+  transform: scale(0.97);
+}
+
+.kodza-cart-drawer__bag {
+  display: block;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  transform-origin: 50% 85%;
+}
+
+/* The count: a pill of ink, its digits roll */
+.kodza-cart-drawer__badge {
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-cart-drawer-ink);
+  color: var(--kz-cart-drawer-on-ink);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: 26px;
+  box-sizing: border-box;
+}
+
+.kodza-cart-drawer__trigger[data-count="0"] .kodza-cart-drawer__badge {
+  background: var(--kz-cart-drawer-line);
+  color: var(--kz-cart-drawer-muted);
+}
+
+/* Rolling text: one cell per character, the old one leaves while the new one arrives */
+.kodza-cart-drawer__roll {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+.kodza-cart-drawer__char {
+  position: relative;
+  display: inline-block;
+  white-space: pre;
+}
+
+.kodza-cart-drawer__char > span {
+  display: inline-block;
+}
+
+.kodza-cart-drawer__was {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.kodza-cart-drawer__trigger:focus-visible,
+.kodza-cart-drawer__close:focus-visible,
+.kodza-cart-drawer__checkout:focus-visible,
+.kodza-cart-drawer__remove:focus-visible,
+.kodza-cart-drawer__undo:focus-visible,
+.kodza-cart-drawer__name:focus-visible,
+.kodza-cart-drawer__pick-add:focus-visible {
+  outline: 2px solid var(--kz-cart-drawer-fg);
+  outline-offset: 3px;
+}
+
+/* ---------- The panel: pinned to the right edge, full height ---------- */
+.kodza-cart-drawer__panel:focus {
+  outline: none;
+}
+
+.kodza-cart-drawer__panel {
+  position: fixed;
+  inset: 8px 8px 8px auto;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  width: min(var(--kz-cart-drawer-width), calc(100% - 16px));
+  max-width: none;
+  height: calc(100% - 16px);
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-cart-drawer-radius);
+  background: var(--kz-cart-drawer-bg);
+  box-shadow: 0 0 0 1px var(--kz-cart-drawer-line), -20px 0 60px -20px rgba(10, 10, 10, 0.3);
+  color: var(--kz-cart-drawer-fg);
+  font: inherit;
+  overflow: hidden;
+  transform: translateX(calc(100% + 16px));
+}
+
+.kodza-cart-drawer__panel:not([open]) {
+  display: none;
+}
+
+.kodza-cart-drawer__panel.is-open {
+  transform: none;
+}
+
+.kodza-cart-drawer__panel.is-moving {
+  transition: transform calc(var(--kz-cart-drawer-duration) * var(--kz-motion-scale, 1)) var(--kz-cart-drawer-ease);
+}
+
+.kodza-cart-drawer__panel::backdrop {
+  background: transparent;
+  transition: background-color calc(var(--kz-cart-drawer-duration) * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-cart-drawer__panel.is-open::backdrop {
+  background: var(--kz-cart-drawer-backdrop);
+}
+
+.kodza-cart-drawer__grip {
+  display: none;
+}
+
+.kodza-cart-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 20px 14px 24px;
+}
+
+.kodza-cart-drawer__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(22px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.2;
+  letter-spacing: var(--kz-font-display-tracking, -0.025em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-cart-drawer__count {
+  height: 1.2em;
+  color: var(--kz-cart-drawer-muted);
+  font-weight: 500;
+}
+
+.kodza-cart-drawer__close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-cart-drawer-soft);
+  color: var(--kz-cart-drawer-fg);
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-cart-drawer__close:hover {
+  background: var(--kz-cart-drawer-line);
+}
+
+.kodza-cart-drawer__close svg,
+.kodza-cart-drawer__step svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+/* ---------- Free shipping: a line that fills up, a sentence that rolls ---------- */
+.kodza-cart-drawer__shipping {
+  display: grid;
+  gap: 10px;
+  margin: 0 24px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--kz-cart-drawer-line);
+}
+
+.kodza-cart-drawer__shipping[hidden] {
+  display: none;
+}
+
+.kodza-cart-drawer__shipping-text {
+  display: grid;
+  overflow: hidden;
+  margin: 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-cart-drawer-muted);
+}
+
+.kodza-cart-drawer__swap {
+  grid-area: 1 / 1;
+}
+
+.kodza-cart-drawer__amount {
+  height: 1.4em;
+  color: var(--kz-cart-drawer-fg);
+  font-weight: 500;
+}
+
+.kodza-cart-drawer__shipping.is-free .kodza-cart-drawer__shipping-text {
+  color: var(--kz-cart-drawer-fg);
+}
+
+.kodza-cart-drawer__meter {
+  position: relative;
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-cart-drawer-line);
+}
+
+.kodza-cart-drawer__meter span {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--kz-cart-drawer-ink);
+  transform: scaleX(var(--kz-cart-drawer-progress, 0));
+  transform-origin: left;
+  transition: transform calc(0.8s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- The lines and the empty bag, in one cell ---------- */
+.kodza-cart-drawer__body {
+  display: grid;
+  min-height: 0;
+}
+
+.kodza-cart-drawer__items,
+.kodza-cart-drawer__empty {
+  grid-area: 1 / 1;
+  min-height: 0;
+}
+
+.kodza-cart-drawer__items {
+  margin: 0;
+  padding: 0 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+
+.kodza-cart-drawer__item {
+  position: relative;
+  display: grid;
+  margin: 0;
+  padding: 0;
+  overflow: clip;
+  border-bottom: 1px solid var(--kz-cart-drawer-line);
+}
+
+.kodza-cart-drawer__item:last-child {
+  border-bottom: 0;
+}
+
+.kodza-cart-drawer__line,
+.kodza-cart-drawer__removed {
+  grid-area: 1 / 1;
+}
+
+.kodza-cart-drawer__line {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  grid-template-rows: auto 1fr auto;
+  column-gap: 14px;
+  row-gap: 4px;
+  padding: 16px 0;
+}
+
+.kodza-cart-drawer__thumb {
+  grid-row: 1 / 4;
+  display: block;
+  width: 64px;
+  height: 80px;
+  overflow: hidden;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  background: var(--kz-cart-drawer-soft);
+}
+
+.kodza-cart-drawer__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+}
+
+.kodza-cart-drawer__info {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.kodza-cart-drawer__name {
+  overflow: hidden;
+  color: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+a.kodza-cart-drawer__name:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.kodza-cart-drawer__options {
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-cart-drawer-muted);
+}
+
+.kodza-cart-drawer__price {
+  justify-self: end;
+  height: 1.4em;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* The quantity: a real number field between two buttons */
+.kodza-cart-drawer__stepper {
+  grid-column: 2;
+  grid-row: 3;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  border-radius: var(--kz-radius-pill, 999px);
+  box-shadow: inset 0 0 0 1px var(--kz-cart-drawer-line);
+}
+
+.kodza-cart-drawer__step {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--kz-cart-drawer-fg);
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-cart-drawer__step:hover {
+  background: var(--kz-cart-drawer-soft);
+}
+
+.kodza-cart-drawer__step svg {
+  width: 12px;
+  height: 12px;
+}
+
+.kodza-cart-drawer__qty {
+  width: 28px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  box-sizing: border-box;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.kodza-cart-drawer__qty::-webkit-inner-spin-button,
+.kodza-cart-drawer__qty::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.kodza-cart-drawer__qty:focus-visible {
+  outline: 1.5px solid var(--kz-cart-drawer-fg);
+  outline-offset: -1px;
+}
+
+.kodza-cart-drawer__remove,
+.kodza-cart-drawer__undo {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--kz-cart-drawer-muted);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  text-decoration: underline;
+  text-decoration-color: var(--kz-cart-drawer-line);
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-cart-drawer__remove {
+  grid-column: 3;
+  grid-row: 3;
+  align-self: center;
+  justify-self: end;
+}
+
+.kodza-cart-drawer__remove:hover,
+.kodza-cart-drawer__undo:hover {
+  color: var(--kz-cart-drawer-fg);
+  text-decoration-color: currentColor;
+}
+
+/* Removed: the line steps aside, "Removed. Undo" takes its place for a few seconds */
+.kodza-cart-drawer__removed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0;
+  font-size: 14px;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.kodza-cart-drawer__removed-text {
+  overflow: hidden;
+  color: var(--kz-cart-drawer-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kodza-cart-drawer__undo {
+  color: var(--kz-cart-drawer-fg);
+  text-decoration-color: currentColor;
+}
+
+.kodza-cart-drawer__line,
+.kodza-cart-drawer__removed {
+  transition:
+    opacity calc(0.35s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.5s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear calc(0.35s * var(--kz-motion-scale, 1));
+}
+
+.kodza-cart-drawer__item.is-removed .kodza-cart-drawer__line {
+  position: absolute;
+  inset: 0 0 auto;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateX(-48px);
+  /* The line leaves first, quickly, to the left */
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease-in,
+    transform calc(0.26s * var(--kz-motion-scale, 1)) cubic-bezier(0.55, 0, 1, 0.45),
+    visibility 0s linear calc(0.26s * var(--kz-motion-scale, 1));
+}
+
+/* Then "Removed. Undo" rises into the empty place */
+.kodza-cart-drawer__item.is-removed .kodza-cart-drawer__removed {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(0.24s * var(--kz-motion-scale, 1)), calc(0.24s * var(--kz-motion-scale, 1)), 0s;
+}
+
+.kodza-cart-drawer__item.is-leaving {
+  pointer-events: none;
+}
+
+/* The empty bag: a word, and two things to start with */
+.kodza-cart-drawer__empty {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 28px 24px;
+  overflow-y: auto;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity calc(0.4s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.6s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear calc(0.4s * var(--kz-motion-scale, 1));
+}
+
+.kodza-cart-drawer.is-empty .kodza-cart-drawer__empty {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(0.15s * var(--kz-motion-scale, 1)), calc(0.15s * var(--kz-motion-scale, 1)), 0s;
+}
+
+.kodza-cart-drawer__empty-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.kodza-cart-drawer__empty-text {
+  margin: 0 0 14px;
+  color: var(--kz-cart-drawer-muted);
+  font-size: 15px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.kodza-cart-drawer__picks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.kodza-cart-drawer__pick {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 8px;
+  margin: 0;
+}
+
+.kodza-cart-drawer__pick img {
+  grid-column: 1 / -1;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  margin: 0 0 8px;
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+  background: var(--kz-cart-drawer-soft);
+  object-fit: cover;
+}
+
+.kodza-cart-drawer__pick-name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kodza-cart-drawer__pick-price {
+  color: var(--kz-cart-drawer-muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-cart-drawer__pick-add {
+  grid-column: 1 / -1;
+  height: 36px;
+  margin-top: 8px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-cart-drawer-soft);
+  color: var(--kz-cart-drawer-fg);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-cart-drawer__pick-add:hover {
+  background: var(--kz-cart-drawer-line);
+}
+
+.kodza-cart-drawer__sr,
+.kodza-cart-drawer__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- The foot: the subtotal and the way out ---------- */
+.kodza-cart-drawer__foot {
+  display: grid;
+  gap: 10px;
+  padding: 18px 24px 24px;
+  border-top: 1px solid var(--kz-cart-drawer-line);
+  background: var(--kz-cart-drawer-bg);
+}
+
+.kodza-cart-drawer__total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.kodza-cart-drawer__subtotal {
+  height: 1.4em;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.kodza-cart-drawer__note {
+  margin: 0 0 6px;
+  text-wrap: pretty;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-cart-drawer-muted);
+}
+
+.kodza-cart-drawer__checkout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-cart-drawer-ink);
+  color: var(--kz-cart-drawer-on-ink);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  text-decoration: none;
+  transition:
+    opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-cart-drawer__checkout:hover {
+  opacity: 0.86;
+}
+
+.kodza-cart-drawer__checkout:active {
+  transform: scale(0.98);
+}
+
+.kodza-cart-drawer__checkout[aria-disabled="true"] {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* The content arrives in a short cascade once the panel is moving in */
+.kodza-cart-drawer__panel.is-open .is-cascade {
+  animation: kodza-cart-drawer-in calc(0.6s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc((0.12s + var(--i, 0) * 50ms) * var(--kz-motion-scale, 1));
+}
+
+@keyframes kodza-cart-drawer-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+/* Phones: a sheet from the bottom, dragged down by its grip or its head to close */
+@media (max-width: 640px) {
+  .kodza-cart-drawer__panel {
+    inset: auto 0 0;
+    width: 100%;
+    height: calc(100% - 40px);
+    border-radius: var(--kz-cart-drawer-radius) var(--kz-cart-drawer-radius) 0 0;
+    box-shadow: 0 -20px 60px -20px rgba(10, 10, 10, 0.3);
+    transform: translateY(100%);
+  }
+
+  .kodza-cart-drawer__panel.is-open {
+    transform: translateY(var(--kz-cart-drawer-y, 0px));
+  }
+
+  .kodza-cart-drawer__grip {
+    display: grid;
+    place-items: center;
+    height: 22px;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .kodza-cart-drawer__grip span {
+    width: 40px;
+    height: 5px;
+    border-radius: var(--kz-radius-pill, 999px);
+    background: var(--kz-cart-drawer-line);
+  }
+
+  .kodza-cart-drawer__head {
+    padding-top: 4px;
+    touch-action: none;
+  }
+
+  .kodza-cart-drawer__items {
+    padding: 0 20px;
+  }
+
+  .kodza-cart-drawer__shipping {
+    margin: 0 20px;
+  }
+
+  .kodza-cart-drawer__foot {
+    padding: 16px 20px 20px;
+  }
+
+  @keyframes kodza-cart-drawer-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-cart-drawer__panel.is-moving,
+  .kodza-cart-drawer__panel::backdrop,
+  .kodza-cart-drawer__trigger,
+  .kodza-cart-drawer__checkout,
+  .kodza-cart-drawer__meter span,
+  .kodza-cart-drawer__line,
+  .kodza-cart-drawer__removed,
+  .kodza-cart-drawer__empty {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .kodza-cart-drawer__panel.is-open .is-cascade {
+    animation: none;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-cart-drawer {
+  --kz-cart-drawer-bg: #161616;
+  --kz-cart-drawer-fg: #f2f2f0;
+  --kz-cart-drawer-muted: rgba(242, 242, 240, 0.62);
+  --kz-cart-drawer-line: rgba(255, 255, 255, 0.12);
+  --kz-cart-drawer-soft: rgba(255, 255, 255, 0.07);
+  --kz-cart-drawer-ink: #f2f2f0;
+  --kz-cart-drawer-on-ink: #0a0a0a;
+  --kz-cart-drawer-backdrop: rgba(0, 0, 0, 0.55);
+}
+*/
+
+/* kodza-guard a91030f9c760 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-cart-drawer__trigger):not(#_),
+:where(.kodza-cart-drawer__close):not(#_),
+:where(.kodza-cart-drawer__pick-add):not(#_),
+:where(.kodza-cart-drawer__checkout):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-cart-drawer__panel):not(#_) {
+  outline: revert;
+  transition: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-cart-drawer:not(#_),
+.kodza-cart-drawer__label:not(#_),
+.kodza-cart-drawer__grip:not(#_),
+.kodza-cart-drawer__head:not(#_),
+.kodza-cart-drawer__count:not(#_),
+.kodza-cart-drawer__shipping:not(#_),
+.kodza-cart-drawer__swap:not(#_),
+.kodza-cart-drawer__amount:not(#_),
+.kodza-cart-drawer__meter:not(#_),
+.kodza-cart-drawer__body:not(#_),
+.kodza-cart-drawer__empty:not(#_),
+.kodza-cart-drawer__picks:not(#_),
+.kodza-cart-drawer__pick-name:not(#_),
+.kodza-cart-drawer__pick-price:not(#_),
+.kodza-cart-drawer__sr:not(#_),
+.kodza-cart-drawer__foot:not(#_),
+.kodza-cart-drawer__subtotal:not(#_),
+.kodza-cart-drawer__grip span:where(:not([class*="kodza-"])):not(#_),
+.kodza-cart-drawer__meter span:where(:not([class*="kodza-"])):not(#_),
+.kodza-cart-drawer__total span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-cart-drawer__trigger:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-cart-drawer__bag:not(#_),
+.kodza-cart-drawer__close svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cart-drawer__panel:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cart-drawer__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cart-drawer__close:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-cart-drawer__shipping-text:not(#_),
+.kodza-cart-drawer__note:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cart-drawer__items:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cart-drawer__empty-title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cart-drawer__empty-text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cart-drawer__pick:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cart-drawer__pick-add:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-cart-drawer__total:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cart-drawer__checkout:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cart-drawer__live:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cart-drawer__pick input:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-cart-drawer__pick img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-cart-drawer__items:not(#_):where(:not([hidden])),
+.kodza-cart-drawer__empty-title:not(#_):where(:not([hidden])),
+.kodza-cart-drawer__empty-text:not(#_):where(:not([hidden])),
+.kodza-cart-drawer__pick-add:not(#_):where(:not([hidden])),
+.kodza-cart-drawer__note:not(#_):where(:not([hidden])),
+.kodza-cart-drawer__live:not(#_):where(:not([hidden])),
+.kodza-cart-drawer__pick input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-cart-drawer__items:not(#_):where([hidden]),
+.kodza-cart-drawer__empty-title:not(#_):where([hidden]),
+.kodza-cart-drawer__empty-text:not(#_):where([hidden]),
+.kodza-cart-drawer__pick-add:not(#_):where([hidden]),
+.kodza-cart-drawer__note:not(#_):where([hidden]),
+.kodza-cart-drawer__live:not(#_):where([hidden]),
+.kodza-cart-drawer__pick input:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-cart-drawer__trigger:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 8px 0 14px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-cart-drawer-soft);
+  color: var(--kz-cart-drawer-fg);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-cart-drawer__trigger:hover:not(#_) {
+  background: var(--kz-cart-drawer-line);
+}
+
+.kodza-cart-drawer__trigger:active:not(#_) {
+  transform: scale(0.97);
+}
+
+.kodza-cart-drawer__bag:not(#_) {
+  display: block;
+}
+
+.kodza-cart-drawer__trigger:focus-visible:not(#_),
+.kodza-cart-drawer__close:focus-visible:not(#_),
+.kodza-cart-drawer__pick-add:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-cart-drawer-fg);
+  outline-offset: 3px;
+}
+
+.kodza-cart-drawer__checkout:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-cart-drawer-fg);
+  outline-offset: 3px;
+}
+
+.kodza-cart-drawer__panel:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-cart-drawer__panel:not(#_) {
+  position: fixed;
+  display: grid;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-cart-drawer-radius);
+  background: var(--kz-cart-drawer-bg);
+  box-shadow: 0 0 0 1px var(--kz-cart-drawer-line), -20px 0 60px -20px rgba(10, 10, 10, 0.3);
+  color: var(--kz-cart-drawer-fg);
+  font: inherit;
+}
+
+.kodza-cart-drawer__panel:not([open]):not(#_) {
+  display: none;
+}
+
+.kodza-cart-drawer__panel.is-moving:not(#_) {
+  transition: transform calc(var(--kz-cart-drawer-duration) * var(--kz-motion-scale, 1)) var(--kz-cart-drawer-ease);
+}
+
+.kodza-cart-drawer__title:not(#_) {
+  display: flex;
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(22px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.2;
+  letter-spacing: var(--kz-font-display-tracking, -0.025em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-cart-drawer__close:not(#_) {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--kz-cart-drawer-soft);
+  color: var(--kz-cart-drawer-fg);
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-cart-drawer__close:hover:not(#_) {
+  background: var(--kz-cart-drawer-line);
+}
+
+.kodza-cart-drawer__close svg:not(#_),
+.kodza-cart-drawer__step svg:not(#_) {
+  display: block;
+}
+
+.kodza-cart-drawer__shipping-text:not(#_) {
+  display: grid;
+  margin: 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-cart-drawer-muted);
+}
+
+.kodza-cart-drawer__shipping.is-free .kodza-cart-drawer__shipping-text:not(#_) {
+  color: var(--kz-cart-drawer-fg);
+}
+
+.kodza-cart-drawer__items:not(#_) {
+  margin: 0;
+  padding: 0 24px;
+  list-style: none;
+}
+
+.kodza-cart-drawer__thumb img:not(#_) {
+  display: block;
+  margin: 0;
+}
+
+.kodza-cart-drawer__empty-title:not(#_) {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.kodza-cart-drawer__empty-text:not(#_) {
+  margin: 0 0 14px;
+  color: var(--kz-cart-drawer-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.kodza-cart-drawer__pick:not(#_) {
+  display: grid;
+  margin: 0;
+}
+
+.kodza-cart-drawer__pick img:not(#_) {
+  display: block;
+  margin: 0 0 8px;
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+  background: var(--kz-cart-drawer-soft);
+}
+
+.kodza-cart-drawer__pick-add:not(#_) {
+  grid-column: 1 / -1;
+  height: 36px;
+  margin-top: 8px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-cart-drawer-soft);
+  color: var(--kz-cart-drawer-fg);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-cart-drawer__pick-add:hover:not(#_) {
+  background: var(--kz-cart-drawer-line);
+}
+
+.kodza-cart-drawer__live:not(#_) {
+  position: absolute;
+  margin: -1px;
+  padding: 0;
+}
+
+.kodza-cart-drawer__total:not(#_) {
+  display: flex;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.kodza-cart-drawer__note:not(#_) {
+  margin: 0 0 6px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-cart-drawer-muted);
+}
+
+.kodza-cart-drawer__checkout:not(#_) {
+  display: flex;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-cart-drawer-ink);
+  color: var(--kz-cart-drawer-on-ink);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  text-decoration: none;
+  transition: opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-cart-drawer__panel.is-open .is-cascade:not(#_) {
+  animation: kodza-cart-drawer-in calc(0.6s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc((0.12s + var(--i, 0) * 50ms) * var(--kz-motion-scale, 1));
+}
+
+@media (max-width: 640px) {
+  .kodza-cart-drawer__panel:not(#_) {
+    border-radius: var(--kz-cart-drawer-radius) var(--kz-cart-drawer-radius) 0 0;
+    box-shadow: 0 -20px 60px -20px rgba(10, 10, 10, 0.3);
+  }
+}
+
+@media (max-width: 640px) {
+  .kodza-cart-drawer__items:not(#_) {
+    padding: 0 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-cart-drawer__panel.is-moving:not(#_),
+  .kodza-cart-drawer__checkout:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-cart-drawer__trigger:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-cart-drawer__panel.is-open .is-cascade:not(#_) {
+    animation: none;
+  }
+}

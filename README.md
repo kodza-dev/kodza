@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 234. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 244. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-234 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+244 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -537,6 +537,24 @@ Written like it's going live tomorrow. Because it probably is.
 | Component | What it does | |
 | --- | --- | --- |
 | [Spec Sheet](components/spec-sheet/) | A product or project section: its name very big, a pinned spec sheet beside its pictures, and tabs that wipe the name across with the pictures while every value rolls to the next model. | [Demo](https://kodza.dev/components/spec-sheet/) |
+
+</details>
+
+<details>
+<summary><b>E-commerce</b> · 10</summary>
+
+| Component | What it does | |
+| --- | --- | --- |
+| [Buy Box](components/buy-box/) | The right-hand column of a product page as one cart form: colours and sizes in a sliding ink pill, a price that rolls with the size, quantity, Add to cart, a ships-today line and folding details. | [Demo](https://kodza.dev/components/buy-box/) |
+| [Cart Drawer](components/cart-drawer/) | Side cart for a shop: an added product flies into the bag, the drawer opens and the line slides in. Quantities change in place, Undo after a removal, prices roll, free shipping fills up. | [Demo](https://kodza.dev/components/cart-drawer/) |
+| [Free Shipping Bar](components/free-shipping-bar/) | A free shipping progress bar that listens to the cart: the amount left rolls digit by digit, a small van rides the line, and the sentence rolls into a thank-you once the threshold is met. | [Demo](https://kodza.dev/components/free-shipping-bar/) |
+| [Product Card](components/product-card/) | A shop grid card: the second photo rises on hover (a swipe on phones), colour swatches swap the photos in place, and Add rolls into the sizes and sends the form to the cart. | [Demo](https://kodza.dev/components/product-card/) |
+| [Product Gallery](components/product-gallery/) | The photos of a product page: each slides in from the side you head to and zooms towards the mouse, a click opens it full screen, and a colour chosen on the page switches the photos. | [Demo](https://kodza.dev/components/product-gallery/) |
+| [Product Grid](components/product-grid/) | A shop collection grid with category pills, colour dots and a sort: cards that go step back, the rest glide to their place, the count rolls and the address keeps the filters. | [Demo](https://kodza.dev/components/product-grid/) |
+| [Product Page](components/product-page/) | A whole product page in one block: photos held in view while the buy box scrolls past, colours that switch the photos, the reviews, You may also like, and on a phone a bar with Add to cart once the buy box has gone. | [Demo](https://kodza.dev/components/product-page/) |
+| [Quick View](components/quick-view/) | Shop card whose photo grows into a window with a short buy form: colour, size, Add to cart. Escape or the veil send it back into its card, which keeps the chosen colour. A sheet on phones. | [Demo](https://kodza.dev/components/quick-view/) |
+| [Size Guide](components/size-guide/) | A size guide link that opens the size chart in a drawer, with cm and inches that roll from one to the other and the size picked in the product form underlined. | [Demo](https://kodza.dev/components/size-guide/) |
+| [Sticky Buy Bar](components/sticky-buy-bar/) | A bar that comes up from the bottom once the page's Add to cart has scrolled away: picture, name, variant, price and the same button. Never over the footer or the open cart. | [Demo](https://kodza.dev/components/sticky-buy-bar/) |
 
 </details>
 

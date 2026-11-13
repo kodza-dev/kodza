@@ -1,0 +1,205 @@
+<section class="kodza-product-grid">
+  <div class="kodza-product-grid__head">
+    <h2 class="kodza-product-grid__heading">Living room</h2>
+    <p class="kodza-product-grid__count" aria-live="polite"><span class="kodza-product-grid__num">5</span> <span class="kodza-product-grid__unit">products</span></p>
+  </div>
+  <form class="kodza-product-grid__filters" method="get">
+    <fieldset class="kodza-product-grid__pills">
+      <legend class="kodza-product-grid__hidden">Category</legend>
+      <span class="kodza-product-grid__indicator" aria-hidden="true"></span>
+      <label class="kodza-product-grid__pill"><input type="radio" name="category" value="all" checked><span class="kodza-product-grid__label">All</span></label>
+      <label class="kodza-product-grid__pill"><input type="radio" name="category" value="seating"><span class="kodza-product-grid__label">Seating</span></label>
+      <label class="kodza-product-grid__pill"><input type="radio" name="category" value="lighting"><span class="kodza-product-grid__label">Lighting</span></label>
+      <label class="kodza-product-grid__pill"><input type="radio" name="category" value="storage"><span class="kodza-product-grid__label">Storage</span></label>
+    </fieldset>
+    <div class="kodza-product-grid__refine">
+      <fieldset class="kodza-product-grid__tones">
+        <legend class="kodza-product-grid__legend">Colour</legend>
+        <label class="kodza-product-grid__tone" style="--kz-product-grid-tone: #e9e5dc"><input type="radio" name="colour" value="chalk"><span class="kodza-product-grid__hidden">Chalk</span></label>
+        <label class="kodza-product-grid__tone" style="--kz-product-grid-tone: #8f8c86"><input type="radio" name="colour" value="stone"><span class="kodza-product-grid__hidden">Stone</span></label>
+        <label class="kodza-product-grid__tone" style="--kz-product-grid-tone: #1a1a1a"><input type="radio" name="colour" value="ink"><span class="kodza-product-grid__hidden">Ink</span></label>
+      </fieldset>
+      <label class="kodza-product-grid__select kodza-product-grid__select--inline">
+        <span class="kodza-product-grid__select-label">Sort</span>
+        <select class="kodza-product-grid__select-native" name="sort">
+          <option value="featured" selected>Featured</option>
+          <option value="price-asc">Price, low to high</option>
+          <option value="price-desc">Price, high to low</option>
+        </select>
+      </label>
+      <button class="kodza-product-grid__apply" type="submit">Apply</button>
+    </div>
+  </form>
+  <div class="kodza-product-grid__results">
+    <ul class="kodza-product-grid__list">
+      <li class="kodza-product-grid__item" data-category="seating" data-colours="chalk stone ink" data-price="129000">
+        <form class="kodza-product-grid__card" action="/cart/add" method="post" data-kodza-cart-add data-title="Low Sofa" data-price="129000" data-currency="EUR" data-url="/products/low-sofa">
+          <input type="hidden" name="id" value="low-sofa">
+          <div class="kodza-product-grid__media">
+            <div class="kodza-product-grid__track">
+              <img class="kodza-product-grid__image" src="https://kodza.dev/media/shop/kz-shop-sofa-chalk-800.webp" width="640" height="800" alt="A long, low sofa in chalk-white bouclé" loading="lazy" decoding="async">
+              <img class="kodza-product-grid__image kodza-product-grid__image--second" src="https://kodza.dev/media/shop/kz-shop-sofa-chalk-b-800.webp" width="640" height="800" alt="" loading="lazy" decoding="async">
+            </div>
+            <span class="kodza-product-grid__tag">New</span>
+          </div>
+          <div class="kodza-product-grid__info">
+            <h3 class="kodza-product-grid__title"><a class="kodza-product-grid__link" href="/products/low-sofa">Low Sofa</a></h3>
+            <p class="kodza-product-grid__price">€1,290</p>
+            <fieldset class="kodza-product-grid__swatches">
+              <legend class="kodza-product-grid__hidden">Colour</legend>
+              <label class="kodza-product-grid__swatch" style="--kz-product-grid-swatch: #e9e5dc">
+                <input type="radio" name="options[Colour]" value="Chalk" checked data-image="https://kodza.dev/media/shop/kz-shop-sofa-chalk-800.webp" data-image-second="https://kodza.dev/media/shop/kz-shop-sofa-chalk-b-800.webp" data-alt="A long, low sofa in chalk-white bouclé">
+                <span class="kodza-product-grid__hidden">Chalk</span>
+              </label>
+              <label class="kodza-product-grid__swatch" style="--kz-product-grid-swatch: #8f8c86">
+                <input type="radio" name="options[Colour]" value="Stone" data-image="https://kodza.dev/media/shop/kz-shop-sofa-stone-800.webp" data-image-second="https://kodza.dev/media/shop/kz-shop-sofa-stone-b-800.webp" data-alt="A long, low sofa in stone-grey bouclé">
+                <span class="kodza-product-grid__hidden">Stone</span>
+              </label>
+              <label class="kodza-product-grid__swatch" style="--kz-product-grid-swatch: #1a1a1a">
+                <input type="radio" name="options[Colour]" value="Ink" data-image="https://kodza.dev/media/shop/kz-shop-sofa-ink-800.webp" data-image-second="https://kodza.dev/media/shop/kz-shop-sofa-ink-b-800.webp" data-alt="A long, low sofa in ink-black bouclé">
+                <span class="kodza-product-grid__hidden">Ink</span>
+              </label>
+            </fieldset>
+          </div>
+          <div class="kodza-product-grid__add">
+            <button class="kodza-product-grid__open" type="button" aria-expanded="false"><span class="kodza-product-grid__word">Add</span></button>
+            <div class="kodza-product-grid__sizes" role="group" aria-label="Choose a size">
+              <button class="kodza-product-grid__size" type="submit" name="options[Size]" value="2 seats">2 seats</button>
+              <button class="kodza-product-grid__size" type="submit" name="options[Size]" value="3 seats">3 seats</button>
+              <button class="kodza-product-grid__size" type="submit" name="options[Size]" value="Corner" disabled>Corner<span class="kodza-product-grid__hidden">, sold out</span></button>
+            </div>
+          </div>
+        </form>
+      </li>
+      <li class="kodza-product-grid__item" data-category="lighting" data-colours="chalk ink" data-price="28900">
+        <form class="kodza-product-grid__card" action="/cart/add" method="post" data-kodza-cart-add data-title="Dome Lamp" data-price="28900" data-currency="EUR" data-url="/products/dome-lamp">
+          <input type="hidden" name="id" value="dome-lamp">
+          <div class="kodza-product-grid__media">
+            <div class="kodza-product-grid__track">
+              <img class="kodza-product-grid__image" src="https://kodza.dev/media/shop/kz-shop-lamp-chalk-800.webp" width="640" height="800" alt="A chalk-white mushroom lamp, its dome on a round foot" loading="lazy" decoding="async">
+              <img class="kodza-product-grid__image kodza-product-grid__image--second" src="https://kodza.dev/media/shop/kz-shop-lamp-chalk-b-800.webp" width="640" height="800" alt="" loading="lazy" decoding="async">
+            </div>
+            <span class="kodza-product-grid__tag">Last 2</span>
+          </div>
+          <div class="kodza-product-grid__info">
+            <h3 class="kodza-product-grid__title"><a class="kodza-product-grid__link" href="/products/dome-lamp">Dome Lamp</a></h3>
+            <p class="kodza-product-grid__price">€289</p>
+            <fieldset class="kodza-product-grid__swatches">
+              <legend class="kodza-product-grid__hidden">Colour</legend>
+              <label class="kodza-product-grid__swatch" style="--kz-product-grid-swatch: #e9e5dc">
+                <input type="radio" name="options[Colour]" value="Chalk" checked data-image="https://kodza.dev/media/shop/kz-shop-lamp-chalk-800.webp" data-image-second="https://kodza.dev/media/shop/kz-shop-lamp-chalk-b-800.webp" data-alt="A chalk-white mushroom lamp, its dome on a round foot">
+                <span class="kodza-product-grid__hidden">Chalk</span>
+              </label>
+              <label class="kodza-product-grid__swatch" style="--kz-product-grid-swatch: #1a1a1a">
+                <input type="radio" name="options[Colour]" value="Ink" data-image="https://kodza.dev/media/shop/kz-shop-lamp-ink-800.webp" data-image-second="https://kodza.dev/media/shop/kz-shop-lamp-ink-b-800.webp" data-alt="An ink-black mushroom lamp, its dome on a round foot">
+                <span class="kodza-product-grid__hidden">Ink</span>
+              </label>
+            </fieldset>
+          </div>
+          <div class="kodza-product-grid__add">
+            <button class="kodza-product-grid__open" type="submit"><span class="kodza-product-grid__word">Add</span></button>
+          </div>
+        </form>
+      </li>
+      <li class="kodza-product-grid__item" data-category="seating" data-colours="chalk stone ink" data-price="39000">
+        <form class="kodza-product-grid__card" action="/cart/add" method="post" data-kodza-cart-add data-title="Shell Chair" data-price="39000" data-currency="EUR" data-url="/products/shell-chair">
+          <input type="hidden" name="id" value="shell-chair">
+          <div class="kodza-product-grid__media">
+            <div class="kodza-product-grid__track">
+              <img class="kodza-product-grid__image" src="https://kodza.dev/media/shop/kz-shop-chair-chalk-800.webp" width="640" height="800" alt="A chalk-white shell chair on four thin legs" loading="lazy" decoding="async">
+              <img class="kodza-product-grid__image kodza-product-grid__image--second" src="https://kodza.dev/media/shop/kz-shop-chair-chalk-b-800.webp" width="640" height="800" alt="" loading="lazy" decoding="async">
+            </div>
+          </div>
+          <div class="kodza-product-grid__info">
+            <h3 class="kodza-product-grid__title"><a class="kodza-product-grid__link" href="/products/shell-chair">Shell Chair</a></h3>
+            <p class="kodza-product-grid__price">€390</p>
+            <fieldset class="kodza-product-grid__swatches">
+              <legend class="kodza-product-grid__hidden">Colour</legend>
+              <label class="kodza-product-grid__swatch" style="--kz-product-grid-swatch: #e9e5dc">
+                <input type="radio" name="options[Colour]" value="Chalk" checked data-image="https://kodza.dev/media/shop/kz-shop-chair-chalk-800.webp" data-image-second="https://kodza.dev/media/shop/kz-shop-chair-chalk-b-800.webp" data-alt="A chalk-white shell chair on four thin legs">
+                <span class="kodza-product-grid__hidden">Chalk</span>
+              </label>
+              <label class="kodza-product-grid__swatch" style="--kz-product-grid-swatch: #8f8c86">
+                <input type="radio" name="options[Colour]" value="Stone" data-image="https://kodza.dev/media/shop/kz-shop-chair-stone-800.webp" data-image-second="https://kodza.dev/media/shop/kz-shop-chair-stone-b-800.webp" data-alt="A stone-grey shell chair on four thin legs">
+                <span class="kodza-product-grid__hidden">Stone</span>
+              </label>
+              <label class="kodza-product-grid__swatch" style="--kz-product-grid-swatch: #1a1a1a">
+                <input type="radio" name="options[Colour]" value="Ink" data-image="https://kodza.dev/media/shop/kz-shop-chair-ink-800.webp" data-image-second="https://kodza.dev/media/shop/kz-shop-chair-ink-b-800.webp" data-alt="An ink-black shell chair on four thin legs">
+                <span class="kodza-product-grid__hidden">Ink</span>
+              </label>
+            </fieldset>
+          </div>
+          <div class="kodza-product-grid__add">
+            <button class="kodza-product-grid__open" type="submit"><span class="kodza-product-grid__word">Add</span></button>
+          </div>
+        </form>
+      </li>
+      <li class="kodza-product-grid__item" data-category="storage" data-colours="stone ink" data-price="27500">
+        <form class="kodza-product-grid__card" action="/cart/add" method="post" data-kodza-cart-add data-title="Tool Trolley" data-price="27500" data-currency="EUR" data-url="/products/tool-trolley">
+          <input type="hidden" name="id" value="tool-trolley">
+          <div class="kodza-product-grid__media">
+            <div class="kodza-product-grid__track">
+              <img class="kodza-product-grid__image" src="https://kodza.dev/media/shop/kz-shop-trolley-stone-800.webp" width="640" height="800" alt="A stone-grey three-tier trolley on castors" loading="lazy" decoding="async">
+              <img class="kodza-product-grid__image kodza-product-grid__image--second" src="https://kodza.dev/media/shop/kz-shop-trolley-stone-b-800.webp" width="640" height="800" alt="" loading="lazy" decoding="async">
+            </div>
+          </div>
+          <div class="kodza-product-grid__info">
+            <h3 class="kodza-product-grid__title"><a class="kodza-product-grid__link" href="/products/tool-trolley">Tool Trolley</a></h3>
+            <p class="kodza-product-grid__price">€275</p>
+            <fieldset class="kodza-product-grid__swatches">
+              <legend class="kodza-product-grid__hidden">Colour</legend>
+              <label class="kodza-product-grid__swatch" style="--kz-product-grid-swatch: #8f8c86">
+                <input type="radio" name="options[Colour]" value="Stone" checked data-image="https://kodza.dev/media/shop/kz-shop-trolley-stone-800.webp" data-image-second="https://kodza.dev/media/shop/kz-shop-trolley-stone-b-800.webp" data-alt="A stone-grey three-tier trolley on castors">
+                <span class="kodza-product-grid__hidden">Stone</span>
+              </label>
+              <label class="kodza-product-grid__swatch" style="--kz-product-grid-swatch: #1a1a1a">
+                <input type="radio" name="options[Colour]" value="Ink" data-image="https://kodza.dev/media/shop/kz-shop-trolley-ink-800.webp" data-image-second="https://kodza.dev/media/shop/kz-shop-trolley-ink-b-800.webp" data-alt="An ink-black three-tier trolley on castors">
+                <span class="kodza-product-grid__hidden">Ink</span>
+              </label>
+            </fieldset>
+          </div>
+          <div class="kodza-product-grid__add">
+            <button class="kodza-product-grid__open" type="submit"><span class="kodza-product-grid__word">Add</span></button>
+          </div>
+        </form>
+      </li>
+      <li class="kodza-product-grid__item" data-category="seating" data-colours="chalk stone" data-price="18900">
+        <form class="kodza-product-grid__card" action="/cart/add" method="post" data-kodza-cart-add data-title="Round Pouf" data-price="18900" data-currency="EUR" data-url="/products/round-pouf">
+          <input type="hidden" name="id" value="round-pouf">
+          <div class="kodza-product-grid__media">
+            <div class="kodza-product-grid__track">
+              <img class="kodza-product-grid__image" src="https://kodza.dev/media/shop/kz-shop-pouf-chalk-800.webp" width="640" height="800" alt="A chalk-white round pouf, low and soft" loading="lazy" decoding="async">
+              <img class="kodza-product-grid__image kodza-product-grid__image--second" src="https://kodza.dev/media/shop/kz-shop-pouf-chalk-b-800.webp" width="640" height="800" alt="" loading="lazy" decoding="async">
+            </div>
+          </div>
+          <div class="kodza-product-grid__info">
+            <h3 class="kodza-product-grid__title"><a class="kodza-product-grid__link" href="/products/round-pouf">Round Pouf</a></h3>
+            <p class="kodza-product-grid__price">€189</p>
+            <fieldset class="kodza-product-grid__swatches">
+              <legend class="kodza-product-grid__hidden">Colour</legend>
+              <label class="kodza-product-grid__swatch" style="--kz-product-grid-swatch: #e9e5dc">
+                <input type="radio" name="options[Colour]" value="Chalk" checked data-image="https://kodza.dev/media/shop/kz-shop-pouf-chalk-800.webp" data-image-second="https://kodza.dev/media/shop/kz-shop-pouf-chalk-b-800.webp" data-alt="A chalk-white round pouf, low and soft">
+                <span class="kodza-product-grid__hidden">Chalk</span>
+              </label>
+              <label class="kodza-product-grid__swatch" style="--kz-product-grid-swatch: #8f8c86">
+                <input type="radio" name="options[Colour]" value="Stone" data-image="https://kodza.dev/media/shop/kz-shop-pouf-stone-800.webp" data-image-second="https://kodza.dev/media/shop/kz-shop-pouf-stone-b-800.webp" data-alt="A stone-grey round pouf, low and soft">
+                <span class="kodza-product-grid__hidden">Stone</span>
+              </label>
+            </fieldset>
+          </div>
+          <div class="kodza-product-grid__add">
+            <button class="kodza-product-grid__open" type="button" aria-expanded="false"><span class="kodza-product-grid__word">Add</span></button>
+            <div class="kodza-product-grid__sizes" role="group" aria-label="Choose a size">
+              <button class="kodza-product-grid__size" type="submit" name="options[Size]" value="Small">Small</button>
+              <button class="kodza-product-grid__size" type="submit" name="options[Size]" value="Large">Large</button>
+            </div>
+          </div>
+        </form>
+      </li>
+    </ul>
+    <div class="kodza-product-grid__empty" hidden>
+      <p class="kodza-product-grid__nothing">Nothing fits both. Loosen one filter.</p>
+      <button class="kodza-product-grid__clear" type="button">Clear filters</button>
+    </div>
+  </div>
+</section>

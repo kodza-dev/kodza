@@ -1,0 +1,5356 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Product Page
+   A whole product page in one block: the photos on the left, held in view while the buy box
+   scrolls past, the reviews, then "You may also like". Each part is the Kodza component of the
+   same name copied whole under kodza-product-page__gallery, __buy, __reviews and __card (Product Gallery, Buy Box, Review
+   Summary, Product Card), with its own --kz-product-page-gallery-*, -buy-*, -reviews-* and -card-* variables further down. On a
+   phone, a bar with Add to cart comes up from the bottom once the buy box has scrolled away.
+   The page itself is tuned with the --kz-product-page-* variables below. */
+.kodza-product-page {
+  --kz-product-page-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-product-page-muted: color-mix(in srgb, var(--kz-product-page-fg) 62%, transparent);
+  --kz-product-page-line: color-mix(in srgb, var(--kz-product-page-fg) 12%, transparent);
+  --kz-product-page-paper: var(--kz-color-paper, #ffffff);
+  --kz-product-page-ink: var(--kz-color-accent, var(--kz-product-page-fg));
+  --kz-product-page-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-product-page-width: var(--kz-page-width, 1440px); /* the edge of the content */
+  --kz-product-page-gutter: var(--kz-page-gutter, clamp(16px, 4vw, 40px)); /* from the screen's edges */
+  --kz-product-page-photos: 1fr; /* the photos' column: all the room the buy box leaves (or a cap, 760px) */
+  --kz-product-page-side: 420px; /* the most the buy box takes */
+  --kz-product-page-gap: clamp(32px, 5vw, 80px); /* between the photos and the buy box */
+  --kz-product-page-sticky: 24px; /* the photos stay this far from the top while the buy box scrolls */
+  --kz-product-page-pad-y: clamp(24px, 4vw, 56px);
+  --kz-product-page-related: 4; /* cards in a row under "You may also like" */
+  --kz-product-page-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: var(--kz-product-page-pad-y) var(--kz-product-page-gutter) calc(var(--kz-product-page-pad-y) * 2);
+  color: var(--kz-product-page-fg);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.kodza-product-page__inner {
+  max-width: var(--kz-product-page-width);
+  margin: 0 auto;
+}
+
+/* ---------- The photos and the buy box ---------- */
+.kodza-product-page__top {
+  display: grid;
+  grid-template-columns: minmax(0, var(--kz-product-page-photos)) minmax(300px, var(--kz-product-page-side));
+  align-items: start;
+  gap: var(--kz-product-page-gap);
+}
+
+.kodza-product-page__media {
+  position: sticky;
+  top: var(--kz-product-page-sticky);
+  min-width: 0;
+}
+
+.kodza-product-page__side {
+  min-width: 0;
+}
+
+.kodza-product-page__side .kodza-product-page__buy {
+  max-width: none;
+}
+
+/* ---------- You may also like ---------- */
+.kodza-product-page__related {
+  display: grid;
+  gap: 28px;
+  padding-top: clamp(48px, 6vw, 80px);
+  border-top: 1px solid var(--kz-product-page-line);
+}
+
+.kodza-product-page__related-head {
+  display: grid;
+  gap: 10px;
+}
+
+.kodza-product-page__eyebrow {
+  margin: 0;
+  color: var(--kz-product-page-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+}
+
+.kodza-product-page__related-title {
+  margin: 0;
+  color: var(--kz-product-page-fg);
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(28px, 3.4vw, 44px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.05;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+}
+
+.kodza-product-page__related-list {
+  display: grid;
+  grid-template-columns: repeat(var(--kz-product-page-related), minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 24px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-product-page__related-item {
+  display: flex;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-product-page__related-item .kodza-product-page__card {
+  max-width: none;
+}
+
+/* ---------- The bar, on a phone: Add to cart without scrolling back up ---------- */
+.kodza-product-page__bar {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .kodza-product-page {
+    --kz-product-page-related: 2;
+  }
+}
+
+@media (max-width: 820px) {
+  .kodza-product-page__top {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .kodza-product-page__media {
+    position: static;
+  }
+
+  .kodza-product-page.is-ready .kodza-product-page__bar {
+    position: fixed;
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(12px, env(safe-area-inset-bottom));
+    left: max(12px, env(safe-area-inset-left));
+    z-index: 40;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 8px 8px 8px 8px;
+    border: 1px solid var(--kz-product-page-line);
+    border-radius: calc(18px * var(--kz-radius-scale, 1));
+    background: var(--kz-product-page-paper);
+    box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.06);
+    color: var(--kz-product-page-fg);
+    transform: translateY(calc(100% + 24px));
+    transition: transform calc(0.5s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .kodza-product-page.is-ready .kodza-product-page__bar.is-shown {
+    transform: none;
+    transition-duration: calc(0.6s * var(--kz-motion-scale, 1));
+    transition-timing-function: var(--kz-product-page-ease);
+  }
+}
+
+.kodza-product-page__bar-image {
+  display: block;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  background: color-mix(in srgb, var(--kz-product-page-fg) 5%, transparent);
+  object-fit: cover;
+}
+
+.kodza-product-page__bar-info {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.kodza-product-page__bar-name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.kodza-product-page__bar-line {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+  color: var(--kz-product-page-muted);
+  font-size: 13px;
+}
+
+/* The variant and the price roll in their own box (the script) */
+.kodza-product-page__bar-variant,
+.kodza-product-page__bar-price {
+  display: inline-grid;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.kodza-product-page__bar-variant {
+  min-width: 0;
+}
+
+.kodza-product-page__bar-variant > span,
+.kodza-product-page__bar-price > span {
+  grid-area: 1 / 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kodza-product-page__bar-price {
+  flex: none;
+  color: var(--kz-product-page-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-product-page__bar-add {
+  display: grid;
+  place-items: center;
+  min-width: 128px;
+  height: 44px;
+  margin: 0;
+  padding: 0 18px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-ink);
+  box-shadow: none;
+  color: var(--kz-product-page-on-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-product-page-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-product-page__bar-add:active {
+  transform: scale(0.97);
+}
+
+.kodza-product-page__bar-add:focus {
+  outline: none;
+}
+
+.kodza-product-page__bar-add:focus-visible {
+  outline: 2px solid var(--kz-product-page-fg);
+  outline-offset: 3px;
+}
+
+.kodza-product-page__bar-word {
+  display: inline-flex;
+  align-items: center;
+  grid-area: 1 / 1;
+  gap: 6px;
+}
+
+.kodza-product-page__bar-tick {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-product-page__bar-tick path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: kodza-product-page-tick calc(0.38s * var(--kz-motion-scale, 1)) var(--kz-product-page-ease) calc(0.16s * var(--kz-motion-scale, 1)) forwards;
+}
+
+@keyframes kodza-product-page-tick {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-page.is-ready .kodza-product-page__bar,
+  .kodza-product-page.is-ready .kodza-product-page__bar.is-shown,
+  .kodza-product-page__bar-add {
+    transition: none;
+  }
+
+  .kodza-product-page__bar-tick path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- Product Gallery, as kodza-product-page__gallery ---------- */
+.kodza-product-page__gallery {
+  --kz-product-page-gallery-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-product-page-gallery-soft: color-mix(in srgb, var(--kz-product-page-gallery-fg) 6%, transparent);
+  --kz-product-page-gallery-line: color-mix(in srgb, var(--kz-product-page-gallery-fg) 14%, transparent);
+  --kz-product-page-gallery-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-product-page-gallery-thumb: 76px; /* width of a thumbnail, on the left of the photo */
+  --kz-product-page-gallery-gap: 12px;
+  --kz-product-page-gallery-ratio: 4 / 5;
+  --kz-product-page-gallery-ring: var(--kz-color-paper, #ffffff);
+  --kz-product-page-gallery-shade: rgba(10, 10, 10, 0.9);
+  --kz-product-page-gallery-viewer-fg: var(--kz-color-paper, #ffffff);
+  --kz-product-page-gallery-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  grid-template-columns: var(--kz-product-page-gallery-thumb) minmax(0, 1fr);
+  gap: var(--kz-product-page-gallery-gap);
+  align-items: start;
+  width: 100%;
+  margin: 0;
+  color: var(--kz-product-page-gallery-fg);
+}
+
+/* Without the script: the photos of the first colour, side by side, one per screen */
+.kodza-product-page__gallery:not(.is-ready) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.kodza-product-page__gallery-photos {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  border-radius: var(--kz-product-page-gallery-radius);
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.kodza-product-page__gallery-photos img {
+  display: block;
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  margin: 0;
+  aspect-ratio: var(--kz-product-page-gallery-ratio);
+  object-fit: cover;
+  scroll-snap-align: start;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.kodza-product-page__gallery-photos img[hidden] {
+  display: none;
+}
+
+/* The large photo: the photos stacked in one frame, the current one on top */
+.kodza-product-page__gallery-stage {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  overflow: hidden;
+  border-radius: var(--kz-product-page-gallery-radius);
+  background: var(--kz-product-page-gallery-soft);
+  touch-action: pan-y;
+}
+
+.kodza-product-page__gallery.is-ready .kodza-product-page__gallery-photos {
+  display: grid;
+  overflow: visible;
+  border-radius: 0;
+}
+
+.kodza-product-page__gallery.is-ready .kodza-product-page__gallery-photos img {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+.kodza-product-page__gallery.is-ready .kodza-product-page__gallery-photos img.is-current {
+  z-index: 2;
+  visibility: visible;
+}
+
+.kodza-product-page__gallery.is-ready .kodza-product-page__gallery-photos img.is-leaving {
+  z-index: 1;
+  visibility: visible;
+}
+
+/* Held by the full-screen viewer while it is open */
+.kodza-product-page__gallery.is-ready .kodza-product-page__gallery-photos img.is-away {
+  visibility: hidden;
+}
+
+/* The whole photo is the button that opens it full screen */
+.kodza-product-page__gallery-open {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  cursor: zoom-in;
+}
+
+.kodza-product-page__gallery-open:focus-visible {
+  outline: 2px solid var(--kz-product-page-gallery-fg);
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 4px var(--kz-product-page-gallery-ring);
+}
+
+/* The zoom: under the mouse, the photo grows towards the pointer inside its frame
+   (the gesture of Zoom Lens --inside), from the sharper file once it is there */
+.kodza-product-page__gallery.is-ready .kodza-product-page__gallery-photos {
+  transform-origin: var(--kz-product-page-gallery-ox, 50%) var(--kz-product-page-gallery-oy, 50%);
+  transition: transform calc(0.7s * var(--kz-motion-scale, 1)) var(--kz-product-page-gallery-ease);
+}
+
+.kodza-product-page__gallery-stage.is-zooming .kodza-product-page__gallery-photos {
+  transform: scale(var(--kz-product-page-gallery-zoom, 2.4));
+}
+
+/* Going full screen: the photo is back to its size at once, the viewer grows from it */
+.kodza-product-page__gallery-stage.is-snapping .kodza-product-page__gallery-photos {
+  transition: none;
+}
+
+.kodza-product-page__gallery-stage.is-zooming .kodza-product-page__gallery-open {
+  cursor: zoom-in;
+}
+
+/* The thumbnails, in a column on the left; one ring glides to the current one */
+.kodza-product-page__gallery-thumbs {
+  position: relative;
+  display: flex;
+  grid-column: 1;
+  grid-row: 1;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-product-page__gallery-thumb {
+  display: grid;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  background: var(--kz-product-page-gallery-soft);
+  aspect-ratio: var(--kz-product-page-gallery-ratio);
+  cursor: pointer;
+  opacity: 0.62;
+  transition: opacity calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-page__gallery-thumb img {
+  display: block;
+  grid-area: 1 / 1;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.kodza-product-page__gallery-thumb[aria-current="true"] {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .kodza-product-page__gallery-thumb:hover {
+    opacity: 1;
+  }
+}
+
+.kodza-product-page__gallery-thumb:focus-visible {
+  outline: 2px solid var(--kz-product-page-gallery-fg);
+  outline-offset: 3px;
+}
+
+.kodza-product-page__gallery-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--kz-product-page-gallery-ring-h, 0px);
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  box-shadow: inset 0 0 0 1.5px var(--kz-product-page-gallery-fg);
+  pointer-events: none;
+  transform: translateY(var(--kz-product-page-gallery-ring-y, 0px));
+  transition: transform calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-product-page-gallery-ease);
+}
+
+/* The dots, on a phone, in place of the thumbnails */
+.kodza-product-page__gallery-dots {
+  display: none;
+  grid-column: 1;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-product-page__gallery-dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.kodza-product-page__gallery-dot::before {
+  content: "";
+  width: 18px;
+  height: 6px;
+  background: currentColor;
+  opacity: 0.25;
+  /* A 6px dot cut out of the 18px pill, which opens when its photo is shown */
+  clip-path: inset(0 6px round var(--kz-radius-pill, 999px));
+  transition:
+    clip-path calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-product-page-gallery-ease),
+    opacity calc(0.4s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-page__gallery-dot[aria-current="true"]::before {
+  clip-path: inset(0 0 round var(--kz-radius-pill, 999px));
+  opacity: 1;
+}
+
+.kodza-product-page__gallery-dot:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-product-page__gallery-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .kodza-product-page__gallery.is-ready {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .kodza-product-page__gallery-stage {
+    grid-column: 1;
+  }
+
+  .kodza-product-page__gallery-thumbs {
+    display: none;
+  }
+
+  .kodza-product-page__gallery-dots {
+    display: flex;
+    grid-row: 2;
+  }
+}
+
+/* The full-screen viewer: the gesture of Lightbox */
+.kodza-product-page__gallery-viewer {
+  /* A modal dialog sits on the screen itself: 100% is the screen */
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: none;
+  color: var(--kz-product-page-gallery-viewer-fg);
+}
+
+.kodza-product-page__gallery-viewer::backdrop {
+  background: none;
+}
+
+.kodza-product-page__gallery-shade {
+  position: absolute;
+  inset: 0;
+  background: var(--kz-product-page-gallery-shade);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.kodza-product-page__gallery-image {
+  position: fixed;
+  max-width: none;
+  margin: 0;
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
+  transform-origin: 0 0;
+  cursor: zoom-out;
+  user-select: none;
+  -webkit-user-drag: none;
+  touch-action: none;
+}
+
+.kodza-product-page__gallery-bar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px 22px;
+}
+
+.kodza-product-page__gallery-caption {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-product-page__gallery-caption > span,
+.kodza-product-page__gallery-count > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.kodza-product-page__gallery-caption > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kodza-product-page__gallery-count {
+  display: inline-grid;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--kz-product-page-gallery-viewer-fg) 62%, transparent);
+  font-family: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+}
+
+.kodza-product-page__gallery-nav {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.kodza-product-page__gallery-button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--kz-product-page-gallery-viewer-fg) 10%, transparent);
+  color: inherit;
+  cursor: pointer;
+  transition:
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-page__gallery-button:hover {
+  background: color-mix(in srgb, var(--kz-product-page-gallery-viewer-fg) 18%, transparent);
+}
+
+.kodza-product-page__gallery-button:active {
+  transform: scale(0.94);
+}
+
+.kodza-product-page__gallery-button:focus-visible {
+  outline: 2px solid var(--kz-product-page-gallery-viewer-fg);
+  outline-offset: 2px;
+}
+
+.kodza-product-page__gallery-button svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-product-page__gallery-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+}
+
+.kodza-product-page__gallery-viewer.is-single .kodza-product-page__gallery-nav {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-page__gallery.is-ready .kodza-product-page__gallery-photos,
+  .kodza-product-page__gallery-thumb,
+  .kodza-product-page__gallery-ring,
+  .kodza-product-page__gallery-dot::before,
+  .kodza-product-page__gallery-button {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Buy Box, as kodza-product-page__buy ---------- */
+.kodza-product-page__buy {
+  --kz-product-page-buy-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-product-page-buy-muted: color-mix(in srgb, var(--kz-product-page-buy-fg) 62%, transparent);
+  --kz-product-page-buy-line: color-mix(in srgb, var(--kz-product-page-buy-fg) 14%, transparent);
+  --kz-product-page-buy-soft: color-mix(in srgb, var(--kz-product-page-buy-fg) 5%, transparent);
+  --kz-product-page-buy-paper: var(--kz-color-paper, #ffffff);
+  --kz-product-page-buy-ink: var(--kz-color-accent, var(--kz-product-page-buy-fg));
+  --kz-product-page-buy-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-product-page-buy-width: 440px; /* the most it takes; a column can make it narrower */
+  --kz-product-page-buy-title-size: clamp(28px, 3.2vw, 38px);
+  --kz-product-page-buy-control: 52px; /* the height of the quantity and of Add to cart */
+  --kz-product-page-buy-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+  width: 100%;
+  max-width: var(--kz-product-page-buy-width);
+  margin: 0;
+  color: var(--kz-product-page-buy-fg);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* ---------- Name, price, reviews ---------- */
+.kodza-product-page__buy-head {
+  display: grid;
+  gap: 10px;
+}
+
+.kodza-product-page__buy-eyebrow {
+  margin: 0;
+  color: var(--kz-product-page-buy-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.3);
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+}
+
+.kodza-product-page__buy-title {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-product-page-buy-title-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.05;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+}
+
+.kodza-product-page__buy-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 2px 0 0;
+}
+
+/* The price rolls when a size changes it (the script) */
+.kodza-product-page__buy-amount,
+.kodza-product-page__buy-picked,
+.kodza-product-page__buy-when {
+  display: inline-grid;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.kodza-product-page__buy-amount > span,
+.kodza-product-page__buy-picked > span,
+.kodza-product-page__buy-when > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-product-page__buy-amount {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-product-page__buy-tax {
+  color: var(--kz-product-page-buy-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-product-page__buy-reviews {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  text-decoration: none;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-product-page__buy-reviews:focus-visible {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: 3px;
+}
+
+/* Five stars filled to the score, each cut from its own shape */
+.kodza-product-page__buy-stars {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.kodza-product-page__buy-star {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--kz-product-page-buy-fg) 16%, transparent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.6l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.4l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.6l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.4l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-product-page__buy-star::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--kz-product-page-buy-fg);
+  transform-origin: left;
+}
+
+.kodza-product-page__buy-star:nth-child(1)::before { scale: clamp(0, var(--kz-score, 5) - 0, 1) 1; }
+.kodza-product-page__buy-star:nth-child(2)::before { scale: clamp(0, var(--kz-score, 5) - 1, 1) 1; }
+.kodza-product-page__buy-star:nth-child(3)::before { scale: clamp(0, var(--kz-score, 5) - 2, 1) 1; }
+.kodza-product-page__buy-star:nth-child(4)::before { scale: clamp(0, var(--kz-score, 5) - 3, 1) 1; }
+.kodza-product-page__buy-star:nth-child(5)::before { scale: clamp(0, var(--kz-score, 5) - 4, 1) 1; }
+
+.kodza-product-page__buy-score {
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-product-page__buy-count {
+  color: var(--kz-product-page-buy-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--kz-product-page-buy-line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease, color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-product-page__buy-reviews:hover .kodza-product-page__buy-count {
+    color: var(--kz-product-page-buy-fg);
+    text-decoration-color: currentColor;
+  }
+}
+
+/* ---------- Options ---------- */
+.kodza-product-page__buy-group {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-product-page__buy-legend {
+  display: block;
+  float: left; /* inside the fieldset's box, so the Size guide link can line up with it */
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 0;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+/* The colour's name, after the legend: it rolls when another one is chosen */
+.kodza-product-page__buy-picked {
+  margin-left: 4px;
+  color: var(--kz-product-page-buy-muted);
+  font-weight: 400;
+}
+
+.kodza-product-page__buy-guide {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: var(--kz-product-page-buy-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  text-decoration: underline;
+  text-decoration-color: var(--kz-product-page-buy-line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease, color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-product-page__buy-guide:hover {
+    color: var(--kz-product-page-buy-fg);
+    text-decoration-color: currentColor;
+  }
+}
+
+.kodza-product-page__buy-guide:focus-visible {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: 3px;
+}
+
+/* Colours: a 36 px target around a 24 px dot */
+.kodza-product-page__buy-swatches {
+  clear: both;
+  display: flex;
+  gap: 6px;
+  margin: 0 0 0 -6px;
+}
+
+.kodza-product-page__buy-swatch {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  cursor: pointer;
+}
+
+.kodza-product-page__buy-swatch::before {
+  content: "";
+  width: 24px;
+  height: 24px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-buy-swatch, var(--kz-product-page-buy-soft));
+  box-shadow:
+    inset 0 0 0 1px var(--kz-product-page-buy-line),
+    0 0 0 0 var(--kz-product-page-buy-fg);
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-product-page-buy-ease);
+}
+
+/* The chosen colour: a ring of ink, a hair away from the dot */
+.kodza-product-page__buy-swatch:has(:checked)::before {
+  box-shadow:
+    inset 0 0 0 1px var(--kz-product-page-buy-line),
+    0 0 0 2.5px var(--kz-product-page-buy-paper),
+    0 0 0 4px var(--kz-product-page-buy-fg);
+}
+
+.kodza-product-page__buy-swatch:has(:focus-visible) {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: 0;
+}
+
+.kodza-product-page__buy-swatch input,
+.kodza-product-page__buy-size input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Sizes: one track, the chosen one in an ink pill */
+.kodza-product-page__buy-track {
+  clear: both;
+  position: relative;
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  height: 48px;
+  padding: 4px;
+  box-sizing: border-box;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-buy-soft);
+  box-shadow: inset 0 0 0 1px var(--kz-product-page-buy-line);
+}
+
+.kodza-product-page__buy-size {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  cursor: pointer;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-page__buy-label,
+.kodza-product-page__buy-copy {
+  overflow: hidden;
+  padding: 0 6px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Without the script, the chosen size is filled with ink */
+.kodza-product-page__buy:not(.is-ready) .kodza-product-page__buy-size:has(:checked) {
+  background: var(--kz-product-page-buy-ink);
+  color: var(--kz-product-page-buy-on-ink);
+}
+
+@media (hover: hover) {
+  .kodza-product-page__buy-size:hover:not(:has(:disabled)) {
+    background: var(--kz-product-page-buy-soft);
+  }
+}
+
+.kodza-product-page__buy-size:has(:focus-visible) {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: 2px;
+}
+
+/* Sold out: struck through and out of reach, and said in words */
+.kodza-product-page__buy-size:has(:disabled) {
+  color: var(--kz-product-page-buy-muted);
+  cursor: not-allowed;
+}
+
+.kodza-product-page__buy-size:has(:disabled) .kodza-product-page__buy-label {
+  opacity: 0.6;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.kodza-product-page__buy-size input:disabled {
+  cursor: not-allowed;
+}
+
+/* The ink pill and its copy of the labels in on-ink, cut to the same shape (the script) */
+.kodza-product-page__buy-ink {
+  position: absolute;
+  inset: 4px;
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-buy-ink);
+  color: var(--kz-product-page-buy-on-ink);
+  pointer-events: none;
+}
+
+.kodza-product-page__buy-copy {
+  display: grid;
+  place-items: center;
+}
+
+/* ---------- Quantity and Add to cart ---------- */
+.kodza-product-page__buy-actions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  margin-top: -4px;
+}
+
+.kodza-product-page__buy-quantity {
+  display: flex;
+  align-items: center;
+  height: var(--kz-product-page-buy-control);
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: var(--kz-radius-pill, 999px);
+  box-shadow: inset 0 0 0 1px var(--kz-product-page-buy-line);
+}
+
+.kodza-product-page__buy-step {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease, opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-product-page__buy-step svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+@media (hover: hover) {
+  .kodza-product-page__buy-step:hover:not([aria-disabled="true"]) {
+    background: var(--kz-product-page-buy-soft);
+  }
+}
+
+.kodza-product-page__buy-step[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.kodza-product-page__buy-step:focus {
+  outline: none;
+}
+
+.kodza-product-page__buy-step:focus-visible {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: -2px;
+}
+
+/* The number, in a window: the old one rolls out as the new one rolls in (the script) */
+.kodza-product-page__buy-number {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
+}
+
+.kodza-product-page__buy-input,
+.kodza-product-page__buy-old {
+  grid-area: 1 / 1;
+  width: 3ch;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-product-page__buy-input {
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font-family: inherit;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.kodza-product-page__buy-input::-webkit-outer-spin-button,
+.kodza-product-page__buy-input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.kodza-product-page__buy-input:focus {
+  outline: none;
+}
+
+.kodza-product-page__buy-number:has(:focus-visible) {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: 0;
+}
+
+.kodza-product-page__buy-old {
+  align-self: center;
+  pointer-events: none;
+}
+
+.kodza-product-page__buy-add {
+  display: grid;
+  place-items: center;
+  height: var(--kz-product-page-buy-control);
+  margin: 0;
+  padding: 0 20px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-buy-ink);
+  box-shadow: none;
+  color: var(--kz-product-page-buy-on-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease, transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-product-page-buy-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .kodza-product-page__buy-add:hover {
+    background: color-mix(in srgb, var(--kz-product-page-buy-ink) 86%, var(--kz-product-page-buy-paper));
+  }
+}
+
+.kodza-product-page__buy-add:active {
+  transform: scale(0.98);
+}
+
+.kodza-product-page__buy-add:focus {
+  outline: none;
+}
+
+.kodza-product-page__buy-add:focus-visible {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: 3px;
+}
+
+/* The words of the button in one cell: Add to cart, then Added with a tick (the script) */
+.kodza-product-page__buy-word {
+  display: inline-flex;
+  align-items: center;
+  grid-area: 1 / 1;
+  gap: 8px;
+}
+
+.kodza-product-page__buy-tick {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-product-page__buy-tick path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: kodza-product-page-buy-tick calc(0.38s * var(--kz-motion-scale, 1)) var(--kz-product-page-buy-ease) calc(0.16s * var(--kz-motion-scale, 1)) forwards;
+}
+
+@keyframes kodza-product-page-buy-tick {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- When it ships ---------- */
+.kodza-product-page__buy-ship {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -8px 0 0;
+  color: var(--kz-product-page-buy-muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.kodza-product-page__buy-van {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+
+/* ---------- The details ---------- */
+.kodza-product-page__buy-more {
+  border-top: 1px solid var(--kz-product-page-buy-line);
+}
+
+.kodza-product-page__buy-fold {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--kz-product-page-buy-line);
+}
+
+.kodza-product-page__buy-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  padding: 18px 0;
+  color: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  list-style: none;
+  cursor: pointer;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-product-page__buy-summary::-webkit-details-marker {
+  display: none;
+}
+
+.kodza-product-page__buy-summary::marker {
+  content: "";
+}
+
+.kodza-product-page__buy-summary:focus {
+  outline: none;
+}
+
+.kodza-product-page__buy-summary:focus-visible {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: -2px;
+}
+
+/* A plus whose upright bar lies down once open */
+.kodza-product-page__buy-plus {
+  position: relative;
+  flex: none;
+  width: 12px;
+  height: 12px;
+}
+
+.kodza-product-page__buy-plus::before,
+.kodza-product-page__buy-plus::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 12px;
+  height: 1.5px;
+  margin-top: -0.75px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: currentColor;
+  transition: transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-product-page-buy-ease);
+}
+
+.kodza-product-page__buy-plus::after {
+  transform: rotate(90deg);
+}
+
+.kodza-product-page__buy-fold[open]:not(.kodza-product-page__buy.is-ready .kodza-product-page__buy-fold) .kodza-product-page__buy-plus::after,
+.kodza-product-page__buy-fold.is-open .kodza-product-page__buy-plus::after {
+  transform: rotate(0deg);
+}
+
+.kodza-product-page__buy-panel {
+  padding: 0 0 20px;
+  color: var(--kz-product-page-buy-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.kodza-product-page__buy-panel > p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.kodza-product-page__buy-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 420px) {
+  .kodza-product-page__buy {
+    gap: 24px;
+  }
+
+  .kodza-product-page__buy-actions {
+    gap: 8px;
+  }
+
+  .kodza-product-page__buy-step {
+    width: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-page__buy-swatch::before,
+  .kodza-product-page__buy-count,
+  .kodza-product-page__buy-guide,
+  .kodza-product-page__buy-size,
+  .kodza-product-page__buy-step,
+  .kodza-product-page__buy-add,
+  .kodza-product-page__buy-plus::before,
+  .kodza-product-page__buy-plus::after {
+    transition: none;
+  }
+
+  .kodza-product-page__buy-tick path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- Review Summary, as kodza-product-page__reviews ---------- */
+.kodza-product-page__reviews {
+  --kz-product-page-reviews-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-product-page-reviews-dim: color-mix(in srgb, var(--kz-product-page-reviews-ink) 64%, transparent);
+  --kz-product-page-reviews-card: var(--kz-color-paper, #ffffff);
+  --kz-product-page-reviews-line: color-mix(in srgb, var(--kz-product-page-reviews-ink) 10%, transparent);
+  --kz-product-page-reviews-rail: color-mix(in srgb, var(--kz-product-page-reviews-ink) 10%, transparent); /* empty stars and bar tracks */
+  --kz-product-page-reviews-muted: color-mix(in srgb, var(--kz-product-page-reviews-ink) 26%, transparent); /* the bars not chosen while filtered */
+  --kz-product-page-reviews-face: #e6e6e3;
+  --kz-product-page-reviews-hover: color-mix(in srgb, var(--kz-product-page-reviews-ink) 4%, transparent);
+  --kz-product-page-reviews-pressed: color-mix(in srgb, var(--kz-product-page-reviews-ink) 7%, transparent);
+  --kz-product-page-reviews-bg: transparent;
+  --kz-product-page-reviews-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z' stroke='black' stroke-width='1.2' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --kz-product-page-reviews-lines: 5; /* lines shown before "Read more" */
+  --kz-product-page-reviews-columns: minmax(280px, 340px) minmax(0, 1fr); /* summary, reviews */
+  --kz-product-page-reviews-card-min: 280px; /* the narrowest review card */
+  --kz-product-page-reviews-sticky: 24px; /* where the summary stays while the reviews scroll */
+  --kz-product-page-reviews-width: none;
+  --kz-product-page-reviews-pad-y: clamp(64px, 8vw, 104px);
+  --kz-product-page-reviews-gutter: 0px;
+  --kz-product-page-reviews-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-product-page-reviews-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-product-page-reviews-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-product-page__reviews / inline-size;
+  box-sizing: border-box;
+  width: 100%;
+  padding-block: var(--kz-product-page-reviews-pad-y);
+  padding-left: max(var(--kz-product-page-reviews-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-product-page-reviews-gutter), env(safe-area-inset-right, 0px));
+  background: var(--kz-product-page-reviews-bg);
+  color: var(--kz-product-page-reviews-ink);
+}
+
+.kodza-product-page__reviews-inner {
+  max-width: var(--kz-product-page-reviews-width);
+  margin: 0 auto;
+}
+
+/* The header */
+.kodza-product-page__reviews-head {
+  margin-bottom: clamp(28px, 3.6vw, 48px);
+}
+
+.kodza-product-page__reviews-eyebrow {
+  margin: 0 0 18px;
+  font-family: var(--kz-font-label, var(--kz-product-page-reviews-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-product-page-reviews-dim);
+}
+
+.kodza-product-page__reviews-title {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4.6vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+  color: inherit;
+}
+
+/* The summary on the left, the reviews on the right; one column on a tablet and a phone */
+.kodza-product-page__reviews-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+@container kodza-product-page__reviews (min-width: 860px) {
+  .kodza-product-page__reviews-body {
+    grid-template-columns: var(--kz-product-page-reviews-columns);
+    gap: 32px;
+  }
+
+  .kodza-product-page__reviews-summary {
+    position: sticky;
+    top: var(--kz-product-page-reviews-sticky);
+  }
+}
+
+/* The summary card */
+.kodza-product-page__reviews-summary {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 28px;
+  border: 1px solid var(--kz-product-page-reviews-line);
+  border-radius: var(--kz-product-page-reviews-radius);
+  background: var(--kz-product-page-reviews-card);
+}
+
+.kodza-product-page__reviews-overall {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.kodza-product-page__reviews-score {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(64px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, none);
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-product-page__reviews-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kodza-product-page__reviews-count {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-product-page-reviews-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-product-page-reviews-dim);
+  white-space: nowrap;
+}
+
+/* Stars: an empty star, and over it the ink, scaled to the decimal */
+.kodza-product-page__reviews-stars {
+  --kz-product-page-reviews-star-size: 20px;
+  display: inline-flex;
+  gap: 2px;
+  flex: none;
+}
+
+.kodza-product-page__reviews-stars--small {
+  --kz-product-page-reviews-star-size: 14px;
+  gap: 1px;
+}
+
+.kodza-product-page__reviews-star {
+  --kz-product-page-reviews-i: 0;
+  --kz-product-page-reviews-fill: clamp(0, calc(var(--kz-score, 0) - var(--kz-product-page-reviews-i)), 1);
+  position: relative;
+  width: var(--kz-product-page-reviews-star-size);
+  height: var(--kz-product-page-reviews-star-size);
+  overflow: hidden;
+  background: var(--kz-product-page-reviews-rail);
+  -webkit-mask: var(--kz-product-page-reviews-star) center / contain no-repeat;
+  mask: var(--kz-product-page-reviews-star) center / contain no-repeat;
+}
+
+.kodza-product-page__reviews-star:nth-child(2) { --kz-product-page-reviews-i: 1; }
+.kodza-product-page__reviews-star:nth-child(3) { --kz-product-page-reviews-i: 2; }
+.kodza-product-page__reviews-star:nth-child(4) { --kz-product-page-reviews-i: 3; }
+.kodza-product-page__reviews-star:nth-child(5) { --kz-product-page-reviews-i: 4; }
+
+.kodza-product-page__reviews-star::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--kz-product-page-reviews-ink);
+  transform-origin: left center;
+  scale: var(--kz-product-page-reviews-fill) 1;
+}
+
+/* The share of each rating, as a button that filters the reviews */
+.kodza-product-page__reviews-bars {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 20px 0 0;
+  border-top: 1px solid var(--kz-product-page-reviews-line);
+  list-style: none;
+}
+
+.kodza-product-page__reviews-bars > li {
+  --kz-product-page-reviews-i: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-product-page__reviews-bars > li:nth-child(2) { --kz-product-page-reviews-i: 1; }
+.kodza-product-page__reviews-bars > li:nth-child(3) { --kz-product-page-reviews-i: 2; }
+.kodza-product-page__reviews-bars > li:nth-child(4) { --kz-product-page-reviews-i: 3; }
+.kodza-product-page__reviews-bars > li:nth-child(5) { --kz-product-page-reviews-i: 4; }
+
+.kodza-product-page__reviews-bar {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) 36px;
+  align-items: center;
+  column-gap: 14px;
+  width: 100%;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The hover and pressed background reaches past the row, so the labels stay in line with the card */
+.kodza-product-page__reviews-bar::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 -12px;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  background: transparent;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-product-page__reviews-bar:hover::before {
+    background: var(--kz-product-page-reviews-hover);
+  }
+}
+
+.kodza-product-page__reviews-bar[aria-pressed="true"]::before {
+  background: var(--kz-product-page-reviews-pressed);
+}
+
+.kodza-product-page__reviews-bar:focus-visible {
+  outline: none;
+}
+
+.kodza-product-page__reviews-bar:focus-visible::before {
+  outline: 2px solid var(--kz-product-page-reviews-ink);
+  outline-offset: 0;
+}
+
+.kodza-product-page__reviews-bar-label,
+.kodza-product-page__reviews-share {
+  font-family: var(--kz-font-label, var(--kz-product-page-reviews-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+}
+
+.kodza-product-page__reviews-share {
+  font-weight: var(--kz-font-label-weight, 400);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--kz-product-page-reviews-dim);
+}
+
+.kodza-product-page__reviews-track {
+  position: relative;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-reviews-rail);
+}
+
+.kodza-product-page__reviews-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--kz-product-page-reviews-ink);
+  clip-path: inset(0 calc(100% - var(--kz-share, 0) * 100%) 0 0 round var(--kz-radius-pill, 999px));
+  transition: background-color calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-product-page__reviews.is-filtered .kodza-product-page__reviews-bar[aria-pressed="false"] .kodza-product-page__reviews-fill {
+  background: var(--kz-product-page-reviews-muted);
+}
+
+/* The entrance: empty until the summary comes into view, then the stars and the bars fill in turn */
+.kodza-product-page__reviews.is-armed:not(.is-in) .kodza-product-page__reviews-meta .kodza-product-page__reviews-star::before,
+.kodza-product-page__reviews--inline.is-armed:not(.is-in) .kodza-product-page__reviews-star::before {
+  scale: 0 1;
+}
+
+.kodza-product-page__reviews.is-armed:not(.is-in) .kodza-product-page__reviews-fill {
+  clip-path: inset(0 100% 0 0 round var(--kz-radius-pill, 999px));
+}
+
+.kodza-product-page__reviews.is-in .kodza-product-page__reviews-meta .kodza-product-page__reviews-star::before,
+.kodza-product-page__reviews--inline.is-in .kodza-product-page__reviews-star::before {
+  transition: scale calc(0.7s * var(--kz-motion-scale, 1)) var(--kz-product-page-reviews-ease) calc((0.15s + var(--kz-product-page-reviews-i) * 0.11s) * var(--kz-motion-scale, 1));
+}
+
+.kodza-product-page__reviews.is-in .kodza-product-page__reviews-fill {
+  transition:
+    clip-path calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-product-page-reviews-ease) calc((0.3s + var(--kz-product-page-reviews-i) * 0.09s) * var(--kz-motion-scale, 1)),
+    background-color calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+/* The rolling average (the engine of Counter): a column of digits per digit */
+.kodza-product-page__reviews-value {
+  display: inline-flex;
+}
+
+.kodza-product-page__reviews-digit {
+  position: relative;
+  display: inline-block;
+  height: 1.1em;
+  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: 0.1em;
+}
+
+.kodza-product-page__reviews-fit {
+  visibility: hidden;
+}
+
+.kodza-product-page__reviews-strip {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50% 0;
+  text-align: center;
+}
+
+.kodza-product-page__reviews-strip > span {
+  display: block;
+  height: 1.1em;
+  line-height: 1.1;
+}
+
+.kodza-product-page__reviews-char {
+  white-space: pre;
+}
+
+.kodza-product-page__reviews-sr,
+.kodza-product-page__reviews-max {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The reviews */
+.kodza-product-page__reviews-list {
+  min-width: 0;
+}
+
+.kodza-product-page__reviews-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 36px;
+  margin-bottom: 16px;
+}
+
+.kodza-product-page__reviews-status {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.kodza-product-page__reviews-status-count {
+  font-family: var(--kz-font-label, var(--kz-product-page-reviews-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  font-variant-numeric: tabular-nums;
+  color: var(--kz-product-page-reviews-dim);
+}
+
+/* A word that changes rolls: the old one goes up, the new one comes from below */
+.kodza-product-page__reviews-slot {
+  display: inline-grid;
+  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: 0.15em;
+  vertical-align: bottom;
+}
+
+.kodza-product-page__reviews-slot > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.kodza-product-page__reviews-clear {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  margin: 0;
+  padding: 0 14px;
+  border: 1px solid var(--kz-product-page-reviews-line);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-reviews-card);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    opacity calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-product-page-reviews-ease),
+    translate calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-product-page-reviews-ease),
+    border-color calc(0.2s * var(--kz-motion-scale, 1)),
+    visibility 0s;
+}
+
+.kodza-product-page__reviews:not(.is-filtered) .kodza-product-page__reviews-clear {
+  opacity: 0;
+  translate: 0 6px;
+  visibility: hidden;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    translate calc(0.2s * var(--kz-motion-scale, 1)),
+    visibility 0s calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-product-page__reviews-clear:hover {
+    border-color: var(--kz-product-page-reviews-ink);
+  }
+}
+
+.kodza-product-page__reviews-clear:focus-visible {
+  outline: 2px solid var(--kz-product-page-reviews-ink);
+  outline-offset: 3px;
+}
+
+.kodza-product-page__reviews-reviews {
+  position: relative;
+  isolation: isolate; /* a review on its way out goes behind the others, never behind the page */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--kz-product-page-reviews-card-min)), 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+/* While the list takes its new height, what is past it stays hidden */
+.kodza-product-page__reviews-reviews.is-sizing {
+  overflow: hidden;
+  overflow: clip;
+}
+
+.kodza-product-page__reviews-review {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 28px;
+  border: 1px solid var(--kz-product-page-reviews-line);
+  border-radius: var(--kz-product-page-reviews-radius);
+  background: var(--kz-product-page-reviews-card);
+}
+
+.kodza-product-page__reviews-review[hidden] {
+  display: none;
+}
+
+.kodza-product-page__reviews-review-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kodza-product-page__reviews-date,
+.kodza-product-page__reviews-role {
+  font-family: var(--kz-font-label, var(--kz-product-page-reviews-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-product-page-reviews-dim);
+}
+
+.kodza-product-page__reviews-date {
+  white-space: nowrap;
+}
+
+.kodza-product-page__reviews-review-title {
+  margin: 4px 0 -4px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.kodza-product-page__reviews-quote {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.kodza-product-page__reviews-quote p {
+  margin: 0;
+}
+
+.kodza-product-page__reviews-quote p + p {
+  margin-top: 0.8em;
+}
+
+/* "Read more": a long review stops after a few lines and fades out; open, the fade slides away
+   below the text (the mask grows) while the height follows */
+.kodza-product-page__reviews-quote.is-long {
+  max-height: calc(var(--kz-product-page-reviews-lines) * 1.55em);
+  overflow: hidden;
+  -webkit-mask: linear-gradient(to bottom, #000 calc(100% - 1.55em), transparent) top / 100% 100% no-repeat;
+  mask: linear-gradient(to bottom, #000 calc(100% - 1.55em), transparent) top / 100% 100% no-repeat;
+  transition:
+    -webkit-mask-size calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-product-page-reviews-ease),
+    mask-size calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-product-page-reviews-ease);
+}
+
+.kodza-product-page__reviews-quote.is-long.is-open {
+  max-height: none;
+  -webkit-mask-size: 100% 400%;
+  mask-size: 100% 400%;
+}
+
+.kodza-product-page__reviews-quote.is-long.is-closing {
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.kodza-product-page__reviews-more {
+  align-self: flex-start;
+  display: inline-grid;
+  margin: -4px 0 0;
+  padding: 2px 0;
+  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.2);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.kodza-product-page__reviews-more > span {
+  grid-area: 1 / 1;
+  transition:
+    translate calc(0.38s * var(--kz-motion-scale, 1)) var(--kz-product-page-reviews-ease),
+    opacity calc(0.38s * var(--kz-motion-scale, 1)) var(--kz-product-page-reviews-ease);
+}
+
+.kodza-product-page__reviews-more > span:last-child,
+.kodza-product-page__reviews-more.is-open > span:first-child {
+  translate: 0 -110%;
+  opacity: 0;
+}
+
+.kodza-product-page__reviews-more > span:last-child {
+  translate: 0 110%;
+}
+
+.kodza-product-page__reviews-more.is-open > span:last-child {
+  translate: 0 0;
+  opacity: 1;
+}
+
+.kodza-product-page__reviews-more:focus-visible {
+  outline: 2px solid var(--kz-product-page-reviews-ink);
+  outline-offset: 3px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-product-page__reviews-who {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 3px;
+  margin-top: 8px;
+}
+
+.kodza-product-page__reviews-face {
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-reviews-face);
+  object-fit: cover;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.kodza-product-page__reviews-name {
+  align-self: end;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.kodza-product-page__reviews-role {
+  align-self: start;
+}
+
+.kodza-product-page__reviews-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 28px;
+  border: 1px dashed var(--kz-product-page-reviews-line);
+  border-radius: var(--kz-product-page-reviews-radius);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-product-page-reviews-dim);
+}
+
+.kodza-product-page__reviews-empty[hidden] {
+  display: none;
+}
+
+/* Between 560px and 860px, the average on the left of the summary and the bars on its right */
+@container kodza-product-page__reviews (min-width: 560px) and (max-width: 859.98px) {
+  .kodza-product-page__reviews-summary {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 32px;
+  }
+
+  .kodza-product-page__reviews-overall {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .kodza-product-page__reviews-bars {
+    padding: 0 0 0 32px;
+    border-top: 0;
+    border-left: 1px solid var(--kz-product-page-reviews-line);
+  }
+}
+
+@container kodza-product-page__reviews (max-width: 559.98px) {
+  .kodza-product-page__reviews-summary,
+  .kodza-product-page__reviews-review {
+    padding: 24px;
+  }
+}
+
+/* The one-line variant, under a buy button: stars, average, number of reviews */
+.kodza-product-page__reviews--inline {
+  container-type: normal;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0;
+}
+
+.kodza-product-page__reviews--inline .kodza-product-page__reviews-stars {
+  --kz-product-page-reviews-star-size: 16px;
+  gap: 1px;
+}
+
+.kodza-product-page__reviews--inline > .kodza-product-page__reviews-value {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-product-page__reviews--inline > .kodza-product-page__reviews-count {
+  font-size: var(--kz-font-label-size, 12.5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-page__reviews *,
+  .kodza-product-page__reviews *::before,
+  .kodza-product-page__reviews *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Product Card, as kodza-product-page__card ---------- */
+.kodza-product-page__card {
+  --kz-product-page-card-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-product-page-card-muted: color-mix(in srgb, var(--kz-product-page-card-fg) 62%, transparent);
+  --kz-product-page-card-line: color-mix(in srgb, var(--kz-product-page-card-fg) 14%, transparent);
+  --kz-product-page-card-soft: color-mix(in srgb, var(--kz-product-page-card-fg) 5%, transparent);
+  --kz-product-page-card-paper: var(--kz-color-paper, #ffffff);
+  --kz-product-page-card-ink: var(--kz-color-accent, var(--kz-product-page-card-fg));
+  --kz-product-page-card-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-product-page-card-width: 360px; /* the most it takes; a grid column can make it narrower */
+  --kz-product-page-card-radius: calc(14px * var(--kz-radius-scale, 1));
+  --kz-product-page-card-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  max-width: var(--kz-product-page-card-width);
+  margin: 0;
+  color: var(--kz-product-page-card-fg);
+}
+
+/* ---------- The photos ---------- */
+.kodza-product-page__card-media {
+  position: relative;
+  grid-area: 1 / 1;
+  overflow: hidden;
+  border-radius: var(--kz-product-page-card-radius);
+  background: var(--kz-product-page-card-soft);
+}
+
+/* Both photos in one cell: the second one rises over the first */
+.kodza-product-page__card-track {
+  display: grid;
+}
+
+.kodza-product-page__card-image {
+  display: block;
+  grid-area: 1 / 1;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  margin: 0;
+  object-fit: cover;
+}
+
+.kodza-product-page__card-image--second {
+  clip-path: inset(100% 0 0 0);
+  transform: scale(1.08);
+  transition:
+    clip-path calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease),
+    transform calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease);
+}
+
+/* The pointer over the photo (the script), or over the card without the script */
+.kodza-product-page__card.is-peek .kodza-product-page__card-image--second,
+.kodza-product-page__card:not(.is-ready):hover .kodza-product-page__card-image--second {
+  clip-path: inset(0);
+  transform: none;
+}
+
+/* The old photo of a colour, on its way out (the script) */
+.kodza-product-page__card-leaving {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* "New", "Last 2" */
+.kodza-product-page__card-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  padding: 6px 9px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-card-paper);
+  color: var(--kz-product-page-card-fg);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  pointer-events: none;
+}
+
+/* The dots of the swipe, on phones (the script) */
+.kodza-product-page__card-dots {
+  position: absolute;
+  top: 16px;
+  right: 14px;
+  z-index: 1;
+  display: flex;
+  gap: 10px; /* the long dot spreads 5px into each side and still leaves 5px */
+  padding: 0 5px;
+  pointer-events: none;
+}
+
+/* Each dot has the room of the long one; the short ones are clipped, so nothing reflows */
+.kodza-product-page__card-dot {
+  width: 16px;
+  height: 6px;
+  margin: 0 -5px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: color-mix(in srgb, var(--kz-product-page-card-fg) 22%, transparent);
+  clip-path: inset(0 5px round var(--kz-radius-pill, 999px));
+  transition:
+    clip-path calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease),
+    background-color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-page__card-dot.is-current {
+  background: var(--kz-product-page-card-fg);
+  clip-path: inset(0 0 round var(--kz-radius-pill, 999px));
+}
+
+/* ---------- Name, price, colours ---------- */
+.kodza-product-page__card-info {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 4px 16px;
+  padding: 14px 2px 0;
+}
+
+.kodza-product-page__card-title {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+
+.kodza-product-page__card-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The whole card is the link */
+.kodza-product-page__card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--kz-product-page-card-radius);
+}
+
+.kodza-product-page__card-link:focus {
+  outline: none;
+}
+
+.kodza-product-page__card-link:focus-visible::after {
+  outline: 2px solid var(--kz-product-page-card-fg);
+  outline-offset: 4px;
+}
+
+.kodza-product-page__card-price {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.kodza-product-page__card-swatches {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 4px;
+  min-width: 0;
+  margin: 6px 0 0 -5px;
+  padding: 0;
+  border: 0;
+}
+
+/* Each colour: a 28 px target around an 16 px dot */
+.kodza-product-page__card-swatch {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  cursor: pointer;
+}
+
+.kodza-product-page__card-swatch::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-card-swatch, var(--kz-product-page-card-soft));
+  box-shadow:
+    inset 0 0 0 1px var(--kz-product-page-card-line),
+    0 0 0 0 var(--kz-product-page-card-fg);
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease);
+}
+
+/* The chosen colour: a ring of ink, a hair away from the dot */
+.kodza-product-page__card-swatch:has(:checked)::before {
+  box-shadow:
+    inset 0 0 0 1px var(--kz-product-page-card-line),
+    0 0 0 2px var(--kz-product-page-card-paper),
+    0 0 0 3.5px var(--kz-product-page-card-fg);
+}
+
+.kodza-product-page__card-swatch:has(:focus-visible) {
+  outline: 2px solid var(--kz-product-page-card-fg);
+  outline-offset: 0;
+}
+
+.kodza-product-page__card-swatch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kodza-product-page__card-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Add, and the sizes ---------- */
+.kodza-product-page__card-add {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-area: 1 / 1;
+  align-self: end;
+  height: 44px;
+  margin: 12px;
+  overflow: hidden;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-card-ink);
+  color: var(--kz-product-page-card-on-ink);
+  transition:
+    opacity calc(0.3s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease);
+}
+
+.kodza-product-page__card-open,
+.kodza-product-page__card-size {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-product-page__card-open {
+  display: grid;
+  place-items: center;
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease);
+}
+
+/* The word in the button rolls: Add, then Added (the script) */
+.kodza-product-page__card-word {
+  display: block;
+  grid-area: 1 / 1;
+}
+
+.kodza-product-page__card-sizes {
+  display: flex;
+  grid-area: 1 / 1;
+  min-width: 0;
+  visibility: hidden;
+  transform: translateY(100%);
+  transition:
+    transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease),
+    visibility 0s linear calc(0.45s * var(--kz-motion-scale, 1));
+}
+
+.kodza-product-page__card-size {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  padding: 0 6px;
+  transform: translateY(70%);
+  opacity: 0;
+  transition:
+    transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease),
+    opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-page__card-size + .kodza-product-page__card-size {
+  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--kz-product-page-card-on-ink) 18%, transparent);
+}
+
+.kodza-product-page__card-size:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--kz-product-page-card-on-ink) 14%, transparent);
+}
+
+/* Sold out: struck through and out of reach, and said in words */
+.kodza-product-page__card-size:disabled {
+  color: color-mix(in srgb, var(--kz-product-page-card-on-ink) 50%, transparent);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  cursor: not-allowed;
+}
+
+.kodza-product-page__card-open:focus,
+.kodza-product-page__card-size:focus {
+  outline: none;
+}
+
+.kodza-product-page__card-open:focus-visible,
+.kodza-product-page__card-size:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--kz-product-page-card-on-ink);
+}
+
+/* Picking a size: Add goes up, the sizes come from below, one after the other */
+/* Add is hidden once it has gone up, and back at once when the sizes go: the focus can return to it */
+.kodza-product-page__card.is-picking .kodza-product-page__card-open {
+  visibility: hidden;
+  transform: translateY(-100%);
+  transition:
+    transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease),
+    visibility 0s linear calc(0.45s * var(--kz-motion-scale, 1));
+}
+
+.kodza-product-page__card.is-picking .kodza-product-page__card-sizes {
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.kodza-product-page__card.is-picking .kodza-product-page__card-size {
+  transform: none;
+  opacity: 1;
+  transition-delay:
+    calc(var(--kz-product-page-card-i, 0) * 0.035s * var(--kz-motion-scale, 1)),
+    calc(var(--kz-product-page-card-i, 0) * 0.035s * var(--kz-motion-scale, 1)),
+    0s;
+}
+
+/* With a pointer, Add waits for it (or for the keyboard) */
+@media (hover: hover) {
+  .kodza-product-page__card-add {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .kodza-product-page__card:hover .kodza-product-page__card-add,
+  .kodza-product-page__card:focus-within .kodza-product-page__card-add,
+  .kodza-product-page__card.is-picking .kodza-product-page__card-add,
+  .kodza-product-page__card.is-added .kodza-product-page__card-add {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* With a finger: the photos sit side by side and swipe, a tap on them opens the product */
+@media (hover: none) {
+  .kodza-product-page__card.is-ready .kodza-product-page__card-media {
+    z-index: 2;
+  }
+
+  .kodza-product-page__card.is-ready .kodza-product-page__card-track {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .kodza-product-page__card.is-ready .kodza-product-page__card-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .kodza-product-page__card.is-ready .kodza-product-page__card-image {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+  }
+
+  .kodza-product-page__card.is-ready .kodza-product-page__card-image--second {
+    clip-path: none;
+    transform: none;
+  }
+
+  .kodza-product-page__card-add {
+    z-index: 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-page__card-image--second,
+  .kodza-product-page__card-add,
+  .kodza-product-page__card-open,
+  .kodza-product-page__card-sizes,
+  .kodza-product-page__card-size,
+  .kodza-product-page__card-dot,
+  .kodza-product-page__card-swatch::before {
+    transition: none;
+  }
+
+  .kodza-product-page__card-image--second {
+    transform: none;
+  }
+}
+
+/* kodza-guard 4764ee868524 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-product-page__gallery-thumb):not(#_),
+:where(.kodza-product-page__buy-reviews):not(#_),
+:where(.kodza-product-page__buy-swatch):not(#_),
+:where(.kodza-product-page__buy-guide):not(#_),
+:where(.kodza-product-page__buy-step):not(#_),
+:where(.kodza-product-page__buy-add):not(#_),
+:where(.kodza-product-page__buy-summary):not(#_),
+:where(.kodza-product-page__reviews-clear):not(#_),
+:where(.kodza-product-page__card-swatch):not(#_),
+:where(.kodza-product-page__bar-add):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-product-page__gallery-open):not(#_) {
+  outline: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-product-page__gallery-dot):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-product-page__gallery-button):not(#_) {
+  outline: revert;
+  position: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-product-page__buy-size):not(#_) {
+  outline: revert;
+  background-color: revert;
+  background-image: revert;
+  outline-offset: revert;
+  color: revert;
+}
+
+:where(.kodza-product-page__buy-input):not(#_),
+:where(.kodza-product-page__card-link):not(#_),
+:where(.kodza-product-page__card-open):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-product-page__reviews-eyebrow):not(#_),
+:where(.kodza-product-page__reviews-title):not(#_),
+:where(.kodza-product-page__reviews-score):not(#_),
+:where(.kodza-product-page__reviews-count):not(#_),
+:where(.kodza-product-page__reviews-status):not(#_),
+:where(.kodza-product-page__reviews-review):not(#_),
+:where(.kodza-product-page__reviews-date):not(#_),
+:where(.kodza-product-page__reviews-review-title):not(#_),
+:where(.kodza-product-page__reviews-who):not(#_),
+:where(.kodza-product-page__reviews-empty):not(#_),
+:where(.kodza-product-page__reviews-bars li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-product-page__reviews-bars :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-product-page__reviews-quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-product-page__reviews-quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-product-page__reviews-bars):not(#_) {
+  border-left-width: revert;
+  border-left-style: revert;
+  border-left-color: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-product-page__reviews-bar):not(#_) {
+  outline: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-product-page__reviews-quote):not(#_) {
+  transition: revert;
+  max-height: revert;
+}
+
+:where(.kodza-product-page__reviews-more):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-product-page__card-image):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-product-page__card-size):not(#_) {
+  outline: revert;
+  text-decoration: revert;
+}
+
+:where(.kodza-product-page__card input:where(:not([class*="kodza-"]))):not(#_) {
+  margin: revert;
+  position: revert;
+}
+
+:where(.kodza-product-page__reviews-empty):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-product-page__reviews-empty):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-product-page__inner:not(#_),
+.kodza-product-page__top:not(#_),
+.kodza-product-page__media:not(#_),
+.kodza-product-page__gallery:not(#_),
+.kodza-product-page__gallery-thumbs:not(#_),
+.kodza-product-page__gallery-ring:not(#_),
+.kodza-product-page__gallery-stage:not(#_),
+.kodza-product-page__gallery-photos:not(#_),
+.kodza-product-page__gallery-dots:not(#_),
+.kodza-product-page__gallery-shade:not(#_),
+.kodza-product-page__gallery-bar:not(#_),
+.kodza-product-page__gallery-nav:not(#_),
+.kodza-product-page__gallery-count:not(#_),
+.kodza-product-page__side:not(#_),
+.kodza-product-page__buy-head:not(#_),
+.kodza-product-page__buy-amount:not(#_),
+.kodza-product-page__buy-tax:not(#_),
+.kodza-product-page__buy-stars:not(#_),
+.kodza-product-page__buy-star:not(#_),
+.kodza-product-page__buy-score:not(#_),
+.kodza-product-page__buy-hidden:not(#_),
+.kodza-product-page__buy-count:not(#_),
+.kodza-product-page__buy-picked:not(#_),
+.kodza-product-page__buy-swatches:not(#_),
+.kodza-product-page__buy-label:not(#_),
+.kodza-product-page__buy-ink:not(#_),
+.kodza-product-page__buy-copy:not(#_),
+.kodza-product-page__buy-actions:not(#_),
+.kodza-product-page__buy-number:not(#_),
+.kodza-product-page__buy-word:not(#_),
+.kodza-product-page__buy-when:not(#_),
+.kodza-product-page__buy-more:not(#_),
+.kodza-product-page__buy-plus:not(#_),
+.kodza-product-page__buy-panel:not(#_),
+.kodza-product-page__reviews-inner:not(#_),
+.kodza-product-page__reviews-head:not(#_),
+.kodza-product-page__reviews-body:not(#_),
+.kodza-product-page__reviews-overall:not(#_),
+.kodza-product-page__reviews-value:not(#_),
+.kodza-product-page__reviews-digit:not(#_),
+.kodza-product-page__reviews-fit:not(#_),
+.kodza-product-page__reviews-strip:not(#_),
+.kodza-product-page__reviews-char:not(#_),
+.kodza-product-page__reviews-sr:not(#_),
+.kodza-product-page__reviews-max:not(#_),
+.kodza-product-page__reviews-meta:not(#_),
+.kodza-product-page__reviews-stars:not(#_),
+.kodza-product-page__reviews-star:not(#_),
+.kodza-product-page__reviews-bar-label:not(#_),
+.kodza-product-page__reviews-track:not(#_),
+.kodza-product-page__reviews-fill:not(#_),
+.kodza-product-page__reviews-share:not(#_),
+.kodza-product-page__reviews-list:not(#_),
+.kodza-product-page__reviews-toolbar:not(#_),
+.kodza-product-page__reviews-status-label:not(#_),
+.kodza-product-page__reviews-status-count:not(#_),
+.kodza-product-page__reviews-reviews:not(#_),
+.kodza-product-page__reviews-review-top:not(#_),
+.kodza-product-page__reviews-face:not(#_),
+.kodza-product-page__reviews-name:not(#_),
+.kodza-product-page__reviews-role:not(#_),
+.kodza-product-page__related:not(#_),
+.kodza-product-page__related-head:not(#_),
+.kodza-product-page__card-media:not(#_),
+.kodza-product-page__card-track:not(#_),
+.kodza-product-page__card-tag:not(#_),
+.kodza-product-page__card-info:not(#_),
+.kodza-product-page__card-add:not(#_),
+.kodza-product-page__card-word:not(#_),
+.kodza-product-page__card-sizes:not(#_),
+.kodza-product-page__bar-name:not(#_),
+.kodza-product-page__bar-line:not(#_),
+.kodza-product-page__bar-variant:not(#_),
+.kodza-product-page__bar-price:not(#_),
+.kodza-product-page__bar-word:not(#_),
+.kodza-product-page__gallery-caption span:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__gallery-count span:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__buy-amount span:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__buy-picked span:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__buy-when span:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__reviews-strip span:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__reviews-status-label span:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__reviews-status-count span:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__reviews-more span:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__bar-variant span:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__bar-price span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-product-page__gallery-thumb:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-product-page__gallery-open:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-product-page__gallery-dot:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-product-page__gallery-viewer:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__gallery-caption:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__gallery-button:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-product-page__buy:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__buy-eyebrow:not(#_),
+.kodza-product-page__buy-title:not(#_),
+.kodza-product-page__eyebrow:not(#_),
+.kodza-product-page__related-title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__buy-price:not(#_),
+.kodza-product-page__buy-panel p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-product-page__buy-panel :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__buy-reviews:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__buy-group:not(#_),
+.kodza-product-page__card-swatches:not(#_),
+.kodza-product-page__card-hidden:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__buy-legend:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+}
+
+.kodza-product-page__buy-swatch:not(#_),
+.kodza-product-page__card-swatch:not(#_) {
+  border: revert;
+  padding: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__buy-guide:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__buy-size:not(#_) {
+  border: revert;
+  padding: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__buy-step:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-product-page__buy-input:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-product-page__buy-add:not(#_),
+.kodza-product-page__bar-add:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-product-page__buy-ship:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__buy-van:not(#_),
+.kodza-product-page__gallery-button svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__buy-step svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__buy-fold:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__buy-summary:not(#_) {
+  border: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__reviews-eyebrow:not(#_),
+.kodza-product-page__reviews-title:not(#_),
+.kodza-product-page__reviews-count:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-product-page__reviews-score:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-product-page__reviews-bars:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-product-page__reviews-bar:not(#_) {
+  border-radius: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-product-page__reviews-status:not(#_),
+.kodza-product-page__reviews-review-title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-product-page__reviews-clear:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-product-page__reviews-review:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-product-page__reviews-date:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-product-page__reviews-quote:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__reviews-who:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-product-page__reviews-more:not(#_) {
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-product-page__reviews-empty:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-product-page__related-list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__related-item:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__card:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__card-image:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__card-title:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__card-link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__card-price:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__card-open:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-product-page__card-size:not(#_) {
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-product-page__bar-image:not(#_) {
+  border: revert;
+  padding: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__bar-info:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__gallery-thumb img:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__gallery-photos img:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-product-page__buy-swatch input:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__buy-size input:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__card input:where(:not([class*="kodza-"])):not(#_),
+.kodza-product-page__card-swatch input:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-product-page__reviews-bars li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-product-page__reviews-bars :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-product-page__reviews-quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-product-page__reviews-quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-product-page__gallery-open:not(#_):where(:not([hidden])),
+.kodza-product-page__gallery-viewer:not(#_):where(:not([hidden])),
+.kodza-product-page__buy-eyebrow:not(#_):where(:not([hidden])),
+.kodza-product-page__buy-title:not(#_):where(:not([hidden])),
+.kodza-product-page__buy-group:not(#_):where(:not([hidden])),
+.kodza-product-page__buy-guide:not(#_):where(:not([hidden])),
+.kodza-product-page__buy-input:not(#_):where(:not([hidden])),
+.kodza-product-page__buy-van:not(#_):where(:not([hidden])),
+.kodza-product-page__buy-fold:not(#_):where(:not([hidden])),
+.kodza-product-page__reviews-eyebrow:not(#_):where(:not([hidden])),
+.kodza-product-page__reviews-title:not(#_):where(:not([hidden])),
+.kodza-product-page__reviews-score:not(#_):where(:not([hidden])),
+.kodza-product-page__reviews-count:not(#_):where(:not([hidden])),
+.kodza-product-page__reviews-date:not(#_):where(:not([hidden])),
+.kodza-product-page__reviews-review-title:not(#_):where(:not([hidden])),
+.kodza-product-page__reviews-quote:not(#_):where(:not([hidden])),
+.kodza-product-page__eyebrow:not(#_):where(:not([hidden])),
+.kodza-product-page__related-title:not(#_):where(:not([hidden])),
+.kodza-product-page__card-title:not(#_):where(:not([hidden])),
+.kodza-product-page__card-link:not(#_):where(:not([hidden])),
+.kodza-product-page__card-price:not(#_):where(:not([hidden])),
+.kodza-product-page__card-hidden:not(#_):where(:not([hidden])),
+.kodza-product-page__gallery-button svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-product-page__buy-swatch input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-product-page__buy-size input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-product-page__buy-step svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-product-page__buy-panel p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-product-page__buy-panel :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-product-page__reviews-bars li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-product-page__reviews-bars :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-product-page__reviews-quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-product-page__reviews-quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-product-page__card input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-product-page__card-swatch input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-product-page__gallery-open:not(#_):where([hidden]),
+.kodza-product-page__gallery-viewer:not(#_):where([hidden]),
+.kodza-product-page__buy-eyebrow:not(#_):where([hidden]),
+.kodza-product-page__buy-title:not(#_):where([hidden]),
+.kodza-product-page__buy-group:not(#_):where([hidden]),
+.kodza-product-page__buy-guide:not(#_):where([hidden]),
+.kodza-product-page__buy-input:not(#_):where([hidden]),
+.kodza-product-page__buy-van:not(#_):where([hidden]),
+.kodza-product-page__buy-fold:not(#_):where([hidden]),
+.kodza-product-page__reviews-eyebrow:not(#_):where([hidden]),
+.kodza-product-page__reviews-title:not(#_):where([hidden]),
+.kodza-product-page__reviews-score:not(#_):where([hidden]),
+.kodza-product-page__reviews-count:not(#_):where([hidden]),
+.kodza-product-page__reviews-date:not(#_):where([hidden]),
+.kodza-product-page__reviews-review-title:not(#_):where([hidden]),
+.kodza-product-page__reviews-quote:not(#_):where([hidden]),
+.kodza-product-page__eyebrow:not(#_):where([hidden]),
+.kodza-product-page__related-title:not(#_):where([hidden]),
+.kodza-product-page__card-title:not(#_):where([hidden]),
+.kodza-product-page__card-link:not(#_):where([hidden]),
+.kodza-product-page__card-price:not(#_):where([hidden]),
+.kodza-product-page__card-hidden:not(#_):where([hidden]),
+.kodza-product-page__gallery-button svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-product-page__buy-swatch input:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-product-page__buy-size input:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-product-page__buy-step svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-product-page__buy-panel p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-product-page__buy-panel :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-product-page__reviews-bars li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-product-page__reviews-bars :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-product-page__reviews-quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-product-page__reviews-quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-product-page__card input:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-product-page__card-swatch input:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-product-page__gallery-dot:not(#_)::before,
+.kodza-product-page__buy-star:not(#_)::before,
+.kodza-product-page__buy-swatch:not(#_)::before,
+.kodza-product-page__buy-plus:not(#_)::before,
+.kodza-product-page__buy-plus:not(#_)::after,
+.kodza-product-page__reviews-star:not(#_)::before,
+.kodza-product-page__reviews-bar:not(#_)::before,
+.kodza-product-page__card-link:not(#_)::after,
+.kodza-product-page__card-swatch:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-product-page__side .kodza-product-page__buy:not(#_) {
+  max-width: none;
+}
+
+.kodza-product-page__eyebrow:not(#_) {
+  margin: 0;
+  color: var(--kz-product-page-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+}
+
+.kodza-product-page__related-title:not(#_) {
+  margin: 0;
+  color: var(--kz-product-page-fg);
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(28px, 3.4vw, 44px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.05;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+}
+
+.kodza-product-page__related-list:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-product-page__related-item:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-product-page__related-item .kodza-product-page__card:not(#_) {
+  max-width: none;
+}
+
+.kodza-product-page__bar-image:not(#_) {
+  display: block;
+  margin: 0;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  background: color-mix(in srgb, var(--kz-product-page-fg) 5%, transparent);
+}
+
+.kodza-product-page__bar-info:not(#_) {
+  display: grid;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.kodza-product-page__bar-add:not(#_) {
+  display: grid;
+  place-items: center;
+  min-width: 128px;
+  height: 44px;
+  margin: 0;
+  padding: 0 18px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-ink);
+  box-shadow: none;
+  color: var(--kz-product-page-on-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-product-page-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-product-page__bar-add:active:not(#_) {
+  transform: scale(0.97);
+}
+
+.kodza-product-page__bar-add:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-product-page__bar-add:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-product-page-fg);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-page__bar-add:not(#_) {
+    transition: none;
+  }
+}
+
+.kodza-product-page__gallery-photos img:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-product-page__gallery-photos img[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-product-page__gallery-open:not(#_) {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  cursor: zoom-in;
+}
+
+.kodza-product-page__gallery-open:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-product-page-gallery-fg);
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 4px var(--kz-product-page-gallery-ring);
+}
+
+.kodza-product-page__gallery-stage.is-zooming .kodza-product-page__gallery-open:not(#_) {
+  cursor: zoom-in;
+}
+
+.kodza-product-page__gallery-thumb:not(#_) {
+  display: grid;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  background: var(--kz-product-page-gallery-soft);
+  aspect-ratio: var(--kz-product-page-gallery-ratio);
+  cursor: pointer;
+  opacity: 0.62;
+  transition: opacity calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-page__gallery-thumb img:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-product-page__gallery-thumb[aria-current="true"]:not(#_) {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .kodza-product-page__gallery-thumb:hover:not(#_) {
+    opacity: 1;
+  }
+}
+
+.kodza-product-page__gallery-thumb:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-product-page-gallery-fg);
+  outline-offset: 3px;
+}
+
+.kodza-product-page__gallery-dot:not(#_) {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.kodza-product-page__gallery-dot:not(#_)::before {
+  content: "";
+  width: 18px;
+  height: 6px;
+  background: currentColor;
+  opacity: 0.25;
+  clip-path: inset(0 6px round var(--kz-radius-pill, 999px));
+  transition: clip-path calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-product-page-gallery-ease),
+    opacity calc(0.4s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-page__gallery-dot[aria-current="true"]:not(#_)::before {
+  clip-path: inset(0 0 round var(--kz-radius-pill, 999px));
+  opacity: 1;
+}
+
+.kodza-product-page__gallery-dot:focus-visible:not(#_) {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-product-page__gallery-viewer:not(#_) {
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--kz-product-page-gallery-viewer-fg);
+}
+
+.kodza-product-page__gallery-caption:not(#_) {
+  display: grid;
+  margin: 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-product-page__gallery-button:not(#_) {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--kz-product-page-gallery-viewer-fg) 10%, transparent);
+  color: inherit;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-page__gallery-button:hover:not(#_) {
+  background: color-mix(in srgb, var(--kz-product-page-gallery-viewer-fg) 18%, transparent);
+}
+
+.kodza-product-page__gallery-button:active:not(#_) {
+  transform: scale(0.94);
+}
+
+.kodza-product-page__gallery-button:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-product-page-gallery-viewer-fg);
+  outline-offset: 2px;
+}
+
+.kodza-product-page__gallery-close:not(#_) {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-page__gallery-thumb:not(#_),
+  .kodza-product-page__gallery-dot:not(#_)::before,
+  .kodza-product-page__gallery-button:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.kodza-product-page__buy:not(#_) {
+  display: grid;
+  max-width: var(--kz-product-page-buy-width);
+  margin: 0;
+  color: var(--kz-product-page-buy-fg);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.kodza-product-page__buy-eyebrow:not(#_) {
+  margin: 0;
+  color: var(--kz-product-page-buy-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.3);
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+}
+
+.kodza-product-page__buy-title:not(#_) {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-product-page-buy-title-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.05;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, none);
+}
+
+.kodza-product-page__buy-price:not(#_) {
+  display: flex;
+  margin: 2px 0 0;
+}
+
+.kodza-product-page__buy-reviews:not(#_) {
+  display: inline-flex;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  text-decoration: none;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-product-page__buy-reviews:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: 3px;
+}
+
+.kodza-product-page__buy-group:not(#_) {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-product-page__buy-legend:not(#_) {
+  display: block;
+  float: left;
+  margin: 0 0 10px;
+  padding: 0;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-product-page__buy-guide:not(#_) {
+  position: absolute;
+  color: var(--kz-product-page-buy-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  text-decoration: underline;
+  text-decoration-color: var(--kz-product-page-buy-line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease, color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-product-page__buy-guide:hover:not(#_) {
+    color: var(--kz-product-page-buy-fg);
+    text-decoration-color: currentColor;
+  }
+}
+
+.kodza-product-page__buy-guide:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: 3px;
+}
+
+.kodza-product-page__buy-swatch:not(#_) {
+  position: relative;
+  display: grid;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-product-page__buy-swatch:has(:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: 0;
+}
+
+.kodza-product-page__buy-swatch input:not(#_),
+.kodza-product-page__buy-size input:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kodza-product-page__buy-size:not(#_) {
+  position: relative;
+  display: grid;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-page__buy:not(.is-ready) .kodza-product-page__buy-size:has(:checked):not(#_) {
+  background: var(--kz-product-page-buy-ink);
+  color: var(--kz-product-page-buy-on-ink);
+}
+
+@media (hover: hover) {
+  .kodza-product-page__buy-size:hover:not(:has(:disabled)):not(#_) {
+    background: var(--kz-product-page-buy-soft);
+  }
+}
+
+.kodza-product-page__buy-size:has(:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: 2px;
+}
+
+.kodza-product-page__buy-size:has(:disabled):not(#_) {
+  color: var(--kz-product-page-buy-muted);
+}
+
+.kodza-product-page__buy-size input:disabled:not(#_) {
+  cursor: not-allowed;
+}
+
+.kodza-product-page__buy-step:not(#_) {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease, opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .kodza-product-page__buy-step:hover:not([aria-disabled="true"]):not(#_) {
+    background: var(--kz-product-page-buy-soft);
+  }
+}
+
+.kodza-product-page__buy-step[aria-disabled="true"]:not(#_) {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.kodza-product-page__buy-step:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-product-page__buy-step:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: -2px;
+}
+
+.kodza-product-page__buy-input:not(#_) {
+  grid-area: 1 / 1;
+  width: 3ch;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-product-page__buy-input:not(#_) {
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font-family: inherit;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.kodza-product-page__buy-input:not(#_)::-webkit-outer-spin-button,
+.kodza-product-page__buy-input:not(#_)::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.kodza-product-page__buy-input:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-product-page__buy-add:not(#_) {
+  display: grid;
+  place-items: center;
+  height: var(--kz-product-page-buy-control);
+  margin: 0;
+  padding: 0 20px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-buy-ink);
+  box-shadow: none;
+  color: var(--kz-product-page-buy-on-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease, transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-product-page-buy-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .kodza-product-page__buy-add:hover:not(#_) {
+    background: color-mix(in srgb, var(--kz-product-page-buy-ink) 86%, var(--kz-product-page-buy-paper));
+  }
+}
+
+.kodza-product-page__buy-add:active:not(#_) {
+  transform: scale(0.98);
+}
+
+.kodza-product-page__buy-add:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-product-page__buy-add:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: 3px;
+}
+
+.kodza-product-page__buy-ship:not(#_) {
+  display: flex;
+  margin: -8px 0 0;
+  color: var(--kz-product-page-buy-muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.kodza-product-page__buy-fold:not(#_) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--kz-product-page-buy-line);
+}
+
+.kodza-product-page__buy-summary:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 18px 0;
+  color: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  list-style: none;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-product-page__buy-summary:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-product-page__buy-summary:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-product-page-buy-fg);
+  outline-offset: -2px;
+}
+
+.kodza-product-page__buy-panel > p:not(#_) {
+  margin: 0;
+}
+
+@media (max-width: 420px) {
+  .kodza-product-page__buy-step:not(#_) {
+    width: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-page__buy-guide:not(#_),
+  .kodza-product-page__buy-size:not(#_) {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-page__buy-step:not(#_),
+  .kodza-product-page__buy-add:not(#_) {
+    transition: none;
+  }
+}
+
+.kodza-product-page__reviews-eyebrow:not(#_) {
+  margin: 0 0 18px;
+  font-family: var(--kz-font-label, var(--kz-product-page-reviews-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, inherit);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-product-page-reviews-dim);
+}
+
+.kodza-product-page__reviews-title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4.6vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  color: inherit;
+}
+
+.kodza-product-page__reviews-score:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(64px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, none);
+}
+
+.kodza-product-page__reviews-count:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-product-page-reviews-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-product-page-reviews-dim);
+}
+
+.kodza-product-page__reviews-bars:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 20px 0 0;
+  border-top: 1px solid var(--kz-product-page-reviews-line);
+  list-style: none;
+}
+
+.kodza-product-page__reviews-bars > li:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-product-page__reviews-bar:not(#_) {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) 36px;
+  align-items: center;
+  column-gap: 14px;
+  width: 100%;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-product-page__reviews-bar:not(#_)::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 -12px;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  background: transparent;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-product-page__reviews-bar:hover:not(#_)::before {
+    background: var(--kz-product-page-reviews-hover);
+  }
+}
+
+.kodza-product-page__reviews-bar[aria-pressed="true"]:not(#_)::before {
+  background: var(--kz-product-page-reviews-pressed);
+}
+
+.kodza-product-page__reviews-bar:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-product-page__reviews-bar:focus-visible:not(#_)::before {
+  outline: 2px solid var(--kz-product-page-reviews-ink);
+  outline-offset: 0;
+}
+
+.kodza-product-page__reviews.is-in .kodza-product-page__reviews-fill:not(#_) {
+  transition: clip-path calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-product-page-reviews-ease) calc((0.3s + var(--kz-product-page-reviews-i) * 0.09s) * var(--kz-motion-scale, 1)),
+    background-color calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-product-page__reviews-status:not(#_) {
+  display: flex;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.kodza-product-page__reviews-clear:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  margin: 0;
+  padding: 0 14px;
+  border: 1px solid var(--kz-product-page-reviews-line);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-product-page-reviews-card);
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-product-page-reviews-ease),
+    translate calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-product-page-reviews-ease),
+    border-color calc(0.2s * var(--kz-motion-scale, 1)),
+    visibility 0s;
+}
+
+.kodza-product-page__reviews:not(.is-filtered) .kodza-product-page__reviews-clear:not(#_) {
+  opacity: 0;
+  translate: 0 6px;
+  visibility: hidden;
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)),
+    translate calc(0.2s * var(--kz-motion-scale, 1)),
+    visibility 0s calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+@media (hover: hover) {
+  .kodza-product-page__reviews-clear:hover:not(#_) {
+    border-color: var(--kz-product-page-reviews-ink);
+  }
+}
+
+.kodza-product-page__reviews-clear:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-product-page-reviews-ink);
+  outline-offset: 3px;
+}
+
+.kodza-product-page__reviews-review:not(#_) {
+  box-sizing: border-box;
+  display: flex;
+  margin: 0;
+  padding: 28px;
+  border: 1px solid var(--kz-product-page-reviews-line);
+  border-radius: var(--kz-product-page-reviews-radius);
+  background: var(--kz-product-page-reviews-card);
+}
+
+.kodza-product-page__reviews-review[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-product-page__reviews-date:not(#_) {
+  font-family: var(--kz-font-label, var(--kz-product-page-reviews-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-product-page-reviews-dim);
+}
+
+.kodza-product-page__reviews-review-title:not(#_) {
+  margin: 4px 0 -4px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+}
+
+.kodza-product-page__reviews-quote:not(#_) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.kodza-product-page__reviews-quote p:not(#_) {
+  margin: 0;
+}
+
+.kodza-product-page__reviews-quote p + p:not(#_) {
+  margin-top: 0.8em;
+}
+
+.kodza-product-page__reviews-quote.is-long:not(#_) {
+  max-height: calc(var(--kz-product-page-reviews-lines) * 1.55em);
+  transition: -webkit-mask-size calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-product-page-reviews-ease),
+    mask-size calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-product-page-reviews-ease);
+}
+
+.kodza-product-page__reviews-quote.is-long.is-open:not(#_) {
+  max-height: none;
+}
+
+.kodza-product-page__reviews-more:not(#_) {
+  align-self: flex-start;
+  display: inline-grid;
+  margin: -4px 0 0;
+  padding: 2px 0;
+  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.2);
+  letter-spacing: var(--kz-font-label-tracking, 0);
+  text-transform: var(--kz-font-label-case, inherit);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.kodza-product-page__reviews-more:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-product-page-reviews-ink);
+  outline-offset: 3px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-product-page__reviews-who:not(#_) {
+  display: grid;
+  margin-top: 8px;
+}
+
+.kodza-product-page__reviews-empty:not(#_) {
+  margin: 0;
+  padding: 28px;
+  border: 1px dashed var(--kz-product-page-reviews-line);
+  border-radius: var(--kz-product-page-reviews-radius);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-product-page-reviews-dim);
+}
+
+.kodza-product-page__reviews-empty[hidden]:not(#_) {
+  display: none;
+}
+
+@container kodza-product-page__reviews (min-width: 560px) and (max-width: 859.98px) {
+  .kodza-product-page__reviews-bars:not(#_) {
+    padding: 0 0 0 32px;
+    border-top: 0;
+    border-left: 1px solid var(--kz-product-page-reviews-line);
+  }
+}
+
+@container kodza-product-page__reviews (max-width: 559.98px) {
+  .kodza-product-page__reviews-review:not(#_) {
+    padding: 24px;
+  }
+}
+
+.kodza-product-page__reviews--inline > .kodza-product-page__reviews-count:not(#_) {
+  font-size: var(--kz-font-label-size, 12.5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-page__reviews *:not(#_),
+  .kodza-product-page__reviews *:not(#_)::before,
+  .kodza-product-page__reviews *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+.kodza-product-page__card:not(#_) {
+  position: relative;
+  display: grid;
+  max-width: var(--kz-product-page-card-width);
+  margin: 0;
+  color: var(--kz-product-page-card-fg);
+}
+
+.kodza-product-page__card-image:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-product-page__card-image--second:not(#_) {
+  transition: clip-path calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease),
+    transform calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease);
+}
+
+.kodza-product-page__card-title:not(#_) {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.kodza-product-page__card-link:not(#_) {
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-product-page__card-link:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-product-page__card-price:not(#_) {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.kodza-product-page__card-swatches:not(#_) {
+  position: relative;
+  display: flex;
+  margin: 6px 0 0 -5px;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-product-page__card-swatch:not(#_) {
+  position: relative;
+  display: grid;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-product-page__card-swatch:has(:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-product-page-card-fg);
+  outline-offset: 0;
+}
+
+.kodza-product-page__card-swatch input:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kodza-product-page__card-hidden:where(legend):not(#_) {
+  position: absolute;
+  margin: -1px;
+  padding: 0;
+  white-space: nowrap;
+  border: 0;
+}
+
+.kodza-product-page__card-open:not(#_),
+.kodza-product-page__card-size:not(#_) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, revert);
+  text-transform: var(--kz-font-label-case, revert);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-product-page__card-open:not(#_) {
+  display: grid;
+  place-items: center;
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease);
+}
+
+.kodza-product-page__card-size:not(#_) {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  padding: 0 6px;
+  transform: translateY(70%);
+  opacity: 0;
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease),
+    opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-product-page__card-size + .kodza-product-page__card-size:not(#_) {
+  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--kz-product-page-card-on-ink) 18%, transparent);
+}
+
+.kodza-product-page__card-size:hover:not(:disabled):not(#_) {
+  background: color-mix(in srgb, var(--kz-product-page-card-on-ink) 14%, transparent);
+}
+
+.kodza-product-page__card-size:disabled:not(#_) {
+  color: color-mix(in srgb, var(--kz-product-page-card-on-ink) 50%, transparent);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  cursor: not-allowed;
+}
+
+.kodza-product-page__card-open:focus:not(#_),
+.kodza-product-page__card-size:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-product-page__card-open:focus-visible:not(#_),
+.kodza-product-page__card-size:focus-visible:not(#_) {
+  box-shadow: inset 0 0 0 2px var(--kz-product-page-card-on-ink);
+}
+
+.kodza-product-page__card.is-picking .kodza-product-page__card-open:not(#_) {
+  visibility: hidden;
+  transform: translateY(-100%);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-product-page-card-ease),
+    visibility 0s linear calc(0.45s * var(--kz-motion-scale, 1));
+}
+
+.kodza-product-page__card.is-picking .kodza-product-page__card-size:not(#_) {
+  transform: none;
+  opacity: 1;
+  transition-delay: calc(var(--kz-product-page-card-i, 0) * 0.035s * var(--kz-motion-scale, 1)),
+    calc(var(--kz-product-page-card-i, 0) * 0.035s * var(--kz-motion-scale, 1)),
+    0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-page__card-image--second:not(#_) {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-product-page__card-open:not(#_),
+  .kodza-product-page__card-size:not(#_) {
+    transition: none;
+  }
+}

@@ -1,0 +1,290 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Free Shipping Bar
+   How far the cart is from free shipping: the amount left rolls digit by digit, the line fills up
+   and a little van rides it to the end. Add --band for an ink strip at the top of a page.
+   Everything is tuned with the --kz-free-shipping-bar-* variables. */
+.kodza-free-shipping-bar {
+  --kz-free-shipping-bar-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-free-shipping-bar-muted: color-mix(in srgb, var(--kz-free-shipping-bar-fg) 62%, transparent);
+  --kz-free-shipping-bar-line: color-mix(in srgb, var(--kz-free-shipping-bar-fg) 12%, transparent);
+  --kz-free-shipping-bar-ink: var(--kz-color-accent, var(--kz-free-shipping-bar-fg));
+  --kz-free-shipping-bar-width: 380px;
+  --kz-free-shipping-bar-van: 20px; /* the van, and how high the road is */
+  --kz-free-shipping-bar-duration: calc(0.8s * var(--kz-motion-scale, 1));
+  --kz-free-shipping-bar-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* The band: an ink strip, the sentence and a short road side by side */
+  --kz-free-shipping-bar-band-bg: var(--kz-color-accent, var(--kz-color-ink, #0a0a0a));
+  --kz-free-shipping-bar-band-fg: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-free-shipping-bar-band-height: 44px;
+  --kz-free-shipping-bar-band-road: 120px;
+
+  display: grid;
+  gap: 8px;
+  width: min(100%, var(--kz-free-shipping-bar-width));
+  color: var(--kz-free-shipping-bar-fg);
+}
+
+/* The sentence: the old one and the new one share one cell while they swap */
+.kodza-free-shipping-bar__text {
+  display: grid;
+  overflow: hidden;
+  margin: 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-free-shipping-bar-muted);
+  transition: color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-free-shipping-bar__swap {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.kodza-free-shipping-bar.is-free .kodza-free-shipping-bar__text {
+  color: var(--kz-free-shipping-bar-fg);
+}
+
+/* Rolling digits: one cell per character, the old one leaves while the new one arrives */
+.kodza-free-shipping-bar__roll {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+.kodza-free-shipping-bar__char {
+  position: relative;
+  display: inline-block;
+  white-space: pre;
+}
+
+.kodza-free-shipping-bar__char > span {
+  display: inline-block;
+}
+
+.kodza-free-shipping-bar__was {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.kodza-free-shipping-bar__amount {
+  height: 1.4em;
+  color: var(--kz-free-shipping-bar-fg);
+  font-weight: 500;
+}
+
+/* ---------- The road: a line that fills up, and the van at its tip ---------- */
+.kodza-free-shipping-bar__road {
+  position: relative;
+  display: block;
+  height: calc(var(--kz-free-shipping-bar-van) + 3px);
+}
+
+.kodza-free-shipping-bar__meter {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-free-shipping-bar-line);
+}
+
+.kodza-free-shipping-bar__meter span {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--kz-free-shipping-bar-ink);
+  transform: scaleX(var(--kz-free-shipping-bar-progress, 0));
+  transform-origin: left;
+  transition: transform var(--kz-free-shipping-bar-duration) var(--kz-free-shipping-bar-ease);
+}
+
+/* The van rides a track one van shorter than the road: at 0 it waits at the start, at 1 it is at the end */
+.kodza-free-shipping-bar__rider {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  display: block;
+  width: calc(100% - var(--kz-free-shipping-bar-van));
+  height: var(--kz-free-shipping-bar-van);
+  transform: translateX(calc(var(--kz-free-shipping-bar-progress, 0) * 100%));
+  transition: transform var(--kz-free-shipping-bar-duration) var(--kz-free-shipping-bar-ease);
+}
+
+.kodza-free-shipping-bar__van {
+  display: block;
+  width: var(--kz-free-shipping-bar-van);
+  height: var(--kz-free-shipping-bar-van);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  transform-origin: 50% 100%;
+}
+
+.kodza-free-shipping-bar__van circle {
+  fill: var(--kz-free-shipping-bar-fg);
+  stroke: none;
+}
+
+/* ---------- --band: an ink strip, the sentence and a short road side by side ---------- */
+.kodza-free-shipping-bar--band {
+  --kz-free-shipping-bar-fg: var(--kz-free-shipping-bar-band-fg);
+  --kz-free-shipping-bar-muted: color-mix(in srgb, var(--kz-free-shipping-bar-band-fg) 72%, transparent);
+  --kz-free-shipping-bar-line: color-mix(in srgb, var(--kz-free-shipping-bar-band-fg) 22%, transparent);
+  --kz-free-shipping-bar-ink: var(--kz-free-shipping-bar-band-fg);
+  --kz-free-shipping-bar-van: 16px;
+
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  min-height: var(--kz-free-shipping-bar-band-height);
+  padding: 0 16px;
+  background: var(--kz-free-shipping-bar-band-bg);
+}
+
+.kodza-free-shipping-bar--band .kodza-free-shipping-bar__road {
+  flex: none;
+  width: var(--kz-free-shipping-bar-band-road);
+  margin-bottom: 4px;
+}
+
+@media (max-width: 480px) {
+  .kodza-free-shipping-bar--band .kodza-free-shipping-bar__road {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-free-shipping-bar__text,
+  .kodza-free-shipping-bar__meter span,
+  .kodza-free-shipping-bar__rider {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 3aaaa51937e9 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-free-shipping-bar__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-free-shipping-bar__swap:not(#_),
+.kodza-free-shipping-bar__amount:not(#_),
+.kodza-free-shipping-bar__road:not(#_),
+.kodza-free-shipping-bar__meter:not(#_),
+.kodza-free-shipping-bar__rider:not(#_),
+.kodza-free-shipping-bar__meter span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-free-shipping-bar__van:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-free-shipping-bar:not(#_) {
+  width: min(100%, var(--kz-free-shipping-bar-width));
+}
+
+.kodza-free-shipping-bar__text:not(#_) {
+  display: grid;
+  margin: 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-free-shipping-bar-muted);
+  transition: color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-free-shipping-bar.is-free .kodza-free-shipping-bar__text:not(#_) {
+  color: var(--kz-free-shipping-bar-fg);
+}
+
+.kodza-free-shipping-bar__van:not(#_) {
+  display: block;
+}
+
+.kodza-free-shipping-bar--band:not(#_) {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-free-shipping-bar__text:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

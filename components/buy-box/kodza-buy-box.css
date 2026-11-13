@@ -1,0 +1,1611 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Buy Box
+   The right-hand column of a product page, as one add-to-cart form: price and reviews, colours,
+   sizes in an ink pill, quantity, Add to cart, when it ships, and the details that fold. Without
+   the script it is a plain form that posts to /cart/add, with every option chosen by hand.
+   Everything is tuned with the --kz-buy-box-* variables. */
+.kodza-buy-box {
+  --kz-buy-box-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-buy-box-muted: color-mix(in srgb, var(--kz-buy-box-fg) 62%, transparent);
+  --kz-buy-box-line: color-mix(in srgb, var(--kz-buy-box-fg) 14%, transparent);
+  --kz-buy-box-soft: color-mix(in srgb, var(--kz-buy-box-fg) 5%, transparent);
+  --kz-buy-box-paper: var(--kz-color-paper, #ffffff);
+  --kz-buy-box-ink: var(--kz-color-accent, var(--kz-buy-box-fg));
+  --kz-buy-box-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-buy-box-width: 440px; /* the most it takes; a column can make it narrower */
+  --kz-buy-box-title-size: clamp(28px, 3.2vw, 38px);
+  --kz-buy-box-control: 52px; /* the height of the quantity and of Add to cart */
+  --kz-buy-box-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+  width: 100%;
+  max-width: var(--kz-buy-box-width);
+  margin: 0;
+  color: var(--kz-buy-box-fg);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* ---------- Name, price, reviews ---------- */
+.kodza-buy-box__head {
+  display: grid;
+  gap: 10px;
+}
+
+.kodza-buy-box__eyebrow {
+  margin: 0;
+  color: var(--kz-buy-box-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.3);
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+}
+
+.kodza-buy-box__title {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-buy-box-title-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.05;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+}
+
+.kodza-buy-box__price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 2px 0 0;
+}
+
+/* The price rolls when a size changes it (the script) */
+.kodza-buy-box__amount,
+.kodza-buy-box__picked,
+.kodza-buy-box__when {
+  display: inline-grid;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.kodza-buy-box__amount > span,
+.kodza-buy-box__picked > span,
+.kodza-buy-box__when > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-buy-box__amount {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-buy-box__tax {
+  color: var(--kz-buy-box-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-buy-box__reviews {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  text-decoration: none;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-buy-box__reviews:focus-visible {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: 3px;
+}
+
+/* Five stars filled to the score, each cut from its own shape */
+.kodza-buy-box__stars {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.kodza-buy-box__star {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--kz-buy-box-fg) 16%, transparent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.6l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.4l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.6l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.4l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.kodza-buy-box__star::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--kz-buy-box-fg);
+  transform-origin: left;
+}
+
+.kodza-buy-box__star:nth-child(1)::before { scale: clamp(0, var(--kz-score, 5) - 0, 1) 1; }
+.kodza-buy-box__star:nth-child(2)::before { scale: clamp(0, var(--kz-score, 5) - 1, 1) 1; }
+.kodza-buy-box__star:nth-child(3)::before { scale: clamp(0, var(--kz-score, 5) - 2, 1) 1; }
+.kodza-buy-box__star:nth-child(4)::before { scale: clamp(0, var(--kz-score, 5) - 3, 1) 1; }
+.kodza-buy-box__star:nth-child(5)::before { scale: clamp(0, var(--kz-score, 5) - 4, 1) 1; }
+
+.kodza-buy-box__score {
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-buy-box__count {
+  color: var(--kz-buy-box-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--kz-buy-box-line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease, color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-buy-box__reviews:hover .kodza-buy-box__count {
+    color: var(--kz-buy-box-fg);
+    text-decoration-color: currentColor;
+  }
+}
+
+/* ---------- Options ---------- */
+.kodza-buy-box__group {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-buy-box__legend {
+  display: block;
+  float: left; /* inside the fieldset's box, so the Size guide link can line up with it */
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 0;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+/* The colour's name, after the legend: it rolls when another one is chosen */
+.kodza-buy-box__picked {
+  margin-left: 4px;
+  color: var(--kz-buy-box-muted);
+  font-weight: 400;
+}
+
+.kodza-buy-box__guide {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: var(--kz-buy-box-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  text-decoration: underline;
+  text-decoration-color: var(--kz-buy-box-line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease, color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-buy-box__guide:hover {
+    color: var(--kz-buy-box-fg);
+    text-decoration-color: currentColor;
+  }
+}
+
+.kodza-buy-box__guide:focus-visible {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: 3px;
+}
+
+/* Colours: a 36 px target around a 24 px dot */
+.kodza-buy-box__swatches {
+  clear: both;
+  display: flex;
+  gap: 6px;
+  margin: 0 0 0 -6px;
+}
+
+.kodza-buy-box__swatch {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  cursor: pointer;
+}
+
+.kodza-buy-box__swatch::before {
+  content: "";
+  width: 24px;
+  height: 24px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-buy-box-swatch, var(--kz-buy-box-soft));
+  box-shadow:
+    inset 0 0 0 1px var(--kz-buy-box-line),
+    0 0 0 0 var(--kz-buy-box-fg);
+  transition: box-shadow calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-buy-box-ease);
+}
+
+/* The chosen colour: a ring of ink, a hair away from the dot */
+.kodza-buy-box__swatch:has(:checked)::before {
+  box-shadow:
+    inset 0 0 0 1px var(--kz-buy-box-line),
+    0 0 0 2.5px var(--kz-buy-box-paper),
+    0 0 0 4px var(--kz-buy-box-fg);
+}
+
+.kodza-buy-box__swatch:has(:focus-visible) {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: 0;
+}
+
+.kodza-buy-box__swatch input,
+.kodza-buy-box__size input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Sizes: one track, the chosen one in an ink pill */
+.kodza-buy-box__track {
+  clear: both;
+  position: relative;
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  height: 48px;
+  padding: 4px;
+  box-sizing: border-box;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-buy-box-soft);
+  box-shadow: inset 0 0 0 1px var(--kz-buy-box-line);
+}
+
+.kodza-buy-box__size {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  cursor: pointer;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-buy-box__label,
+.kodza-buy-box__copy {
+  overflow: hidden;
+  padding: 0 6px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Without the script, the chosen size is filled with ink */
+.kodza-buy-box:not(.is-ready) .kodza-buy-box__size:has(:checked) {
+  background: var(--kz-buy-box-ink);
+  color: var(--kz-buy-box-on-ink);
+}
+
+@media (hover: hover) {
+  .kodza-buy-box__size:hover:not(:has(:disabled)) {
+    background: var(--kz-buy-box-soft);
+  }
+}
+
+.kodza-buy-box__size:has(:focus-visible) {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: 2px;
+}
+
+/* Sold out: struck through and out of reach, and said in words */
+.kodza-buy-box__size:has(:disabled) {
+  color: var(--kz-buy-box-muted);
+  cursor: not-allowed;
+}
+
+.kodza-buy-box__size:has(:disabled) .kodza-buy-box__label {
+  opacity: 0.6;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.kodza-buy-box__size input:disabled {
+  cursor: not-allowed;
+}
+
+/* The ink pill and its copy of the labels in on-ink, cut to the same shape (the script) */
+.kodza-buy-box__ink {
+  position: absolute;
+  inset: 4px;
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-buy-box-ink);
+  color: var(--kz-buy-box-on-ink);
+  pointer-events: none;
+}
+
+.kodza-buy-box__copy {
+  display: grid;
+  place-items: center;
+}
+
+/* ---------- Quantity and Add to cart ---------- */
+.kodza-buy-box__actions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  margin-top: -4px;
+}
+
+.kodza-buy-box__quantity {
+  display: flex;
+  align-items: center;
+  height: var(--kz-buy-box-control);
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: var(--kz-radius-pill, 999px);
+  box-shadow: inset 0 0 0 1px var(--kz-buy-box-line);
+}
+
+.kodza-buy-box__step {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease, opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-buy-box__step svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+@media (hover: hover) {
+  .kodza-buy-box__step:hover:not([aria-disabled="true"]) {
+    background: var(--kz-buy-box-soft);
+  }
+}
+
+.kodza-buy-box__step[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.kodza-buy-box__step:focus {
+  outline: none;
+}
+
+.kodza-buy-box__step:focus-visible {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: -2px;
+}
+
+/* The number, in a window: the old one rolls out as the new one rolls in (the script) */
+.kodza-buy-box__number {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  border-radius: calc(6px * var(--kz-radius-scale, 1));
+}
+
+.kodza-buy-box__input,
+.kodza-buy-box__old {
+  grid-area: 1 / 1;
+  width: 3ch;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-buy-box__input {
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font-family: inherit;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.kodza-buy-box__input::-webkit-outer-spin-button,
+.kodza-buy-box__input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.kodza-buy-box__input:focus {
+  outline: none;
+}
+
+.kodza-buy-box__number:has(:focus-visible) {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: 0;
+}
+
+.kodza-buy-box__old {
+  align-self: center;
+  pointer-events: none;
+}
+
+.kodza-buy-box__add {
+  display: grid;
+  place-items: center;
+  height: var(--kz-buy-box-control);
+  margin: 0;
+  padding: 0 20px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-buy-box-ink);
+  box-shadow: none;
+  color: var(--kz-buy-box-on-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease, transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-buy-box-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .kodza-buy-box__add:hover {
+    background: color-mix(in srgb, var(--kz-buy-box-ink) 86%, var(--kz-buy-box-paper));
+  }
+}
+
+.kodza-buy-box__add:active {
+  transform: scale(0.98);
+}
+
+.kodza-buy-box__add:focus {
+  outline: none;
+}
+
+.kodza-buy-box__add:focus-visible {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: 3px;
+}
+
+/* The words of the button in one cell: Add to cart, then Added with a tick (the script) */
+.kodza-buy-box__word {
+  display: inline-flex;
+  align-items: center;
+  grid-area: 1 / 1;
+  gap: 8px;
+}
+
+.kodza-buy-box__tick {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-buy-box__tick path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: kodza-buy-box-tick calc(0.38s * var(--kz-motion-scale, 1)) var(--kz-buy-box-ease) calc(0.16s * var(--kz-motion-scale, 1)) forwards;
+}
+
+@keyframes kodza-buy-box-tick {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- When it ships ---------- */
+.kodza-buy-box__ship {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -8px 0 0;
+  color: var(--kz-buy-box-muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.kodza-buy-box__van {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+
+/* ---------- The details ---------- */
+.kodza-buy-box__more {
+  border-top: 1px solid var(--kz-buy-box-line);
+}
+
+.kodza-buy-box__fold {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--kz-buy-box-line);
+}
+
+.kodza-buy-box__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  padding: 18px 0;
+  color: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  list-style: none;
+  cursor: pointer;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-buy-box__summary::-webkit-details-marker {
+  display: none;
+}
+
+.kodza-buy-box__summary::marker {
+  content: "";
+}
+
+.kodza-buy-box__summary:focus {
+  outline: none;
+}
+
+.kodza-buy-box__summary:focus-visible {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: -2px;
+}
+
+/* A plus whose upright bar lies down once open */
+.kodza-buy-box__plus {
+  position: relative;
+  flex: none;
+  width: 12px;
+  height: 12px;
+}
+
+.kodza-buy-box__plus::before,
+.kodza-buy-box__plus::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 12px;
+  height: 1.5px;
+  margin-top: -0.75px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: currentColor;
+  transition: transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-buy-box-ease);
+}
+
+.kodza-buy-box__plus::after {
+  transform: rotate(90deg);
+}
+
+.kodza-buy-box__fold[open]:not(.kodza-buy-box.is-ready .kodza-buy-box__fold) .kodza-buy-box__plus::after,
+.kodza-buy-box__fold.is-open .kodza-buy-box__plus::after {
+  transform: rotate(0deg);
+}
+
+.kodza-buy-box__panel {
+  padding: 0 0 20px;
+  color: var(--kz-buy-box-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.kodza-buy-box__panel > p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.kodza-buy-box__hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 420px) {
+  .kodza-buy-box {
+    gap: 24px;
+  }
+
+  .kodza-buy-box__actions {
+    gap: 8px;
+  }
+
+  .kodza-buy-box__step {
+    width: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-buy-box__swatch::before,
+  .kodza-buy-box__count,
+  .kodza-buy-box__guide,
+  .kodza-buy-box__size,
+  .kodza-buy-box__step,
+  .kodza-buy-box__add,
+  .kodza-buy-box__plus::before,
+  .kodza-buy-box__plus::after {
+    transition: none;
+  }
+
+  .kodza-buy-box__tick path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* kodza-guard 7460baaae553 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-buy-box__reviews):not(#_),
+:where(.kodza-buy-box__swatch):not(#_),
+:where(.kodza-buy-box__guide):not(#_),
+:where(.kodza-buy-box__step):not(#_),
+:where(.kodza-buy-box__add):not(#_),
+:where(.kodza-buy-box__summary):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-buy-box__size):not(#_) {
+  outline: revert;
+  background-color: revert;
+  background-image: revert;
+  outline-offset: revert;
+  color: revert;
+}
+
+:where(.kodza-buy-box__input):not(#_) {
+  outline: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-buy-box:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-buy-box__head:not(#_),
+.kodza-buy-box__amount:not(#_),
+.kodza-buy-box__tax:not(#_),
+.kodza-buy-box__stars:not(#_),
+.kodza-buy-box__star:not(#_),
+.kodza-buy-box__score:not(#_),
+.kodza-buy-box__hidden:not(#_),
+.kodza-buy-box__count:not(#_),
+.kodza-buy-box__picked:not(#_),
+.kodza-buy-box__swatches:not(#_),
+.kodza-buy-box__label:not(#_),
+.kodza-buy-box__ink:not(#_),
+.kodza-buy-box__copy:not(#_),
+.kodza-buy-box__actions:not(#_),
+.kodza-buy-box__number:not(#_),
+.kodza-buy-box__word:not(#_),
+.kodza-buy-box__when:not(#_),
+.kodza-buy-box__more:not(#_),
+.kodza-buy-box__plus:not(#_),
+.kodza-buy-box__panel:not(#_),
+.kodza-buy-box__amount span:where(:not([class*="kodza-"])):not(#_),
+.kodza-buy-box__picked span:where(:not([class*="kodza-"])):not(#_),
+.kodza-buy-box__when span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-buy-box__eyebrow:not(#_),
+.kodza-buy-box__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-buy-box__price:not(#_),
+.kodza-buy-box__panel p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-buy-box__panel :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-buy-box__reviews:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-buy-box__group:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-buy-box__legend:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+}
+
+.kodza-buy-box__swatch:not(#_) {
+  border: revert;
+  padding: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-buy-box__guide:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-buy-box__size:not(#_) {
+  border: revert;
+  padding: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-buy-box__step:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-buy-box__input:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  outline-offset: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-buy-box__add:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-buy-box__ship:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-buy-box__van:not(#_),
+.kodza-buy-box__step svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-buy-box__fold:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-buy-box__summary:not(#_) {
+  border: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-buy-box__swatch input:where(:not([class*="kodza-"])):not(#_),
+.kodza-buy-box__size input:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-buy-box__eyebrow:not(#_):where(:not([hidden])),
+.kodza-buy-box__title:not(#_):where(:not([hidden])),
+.kodza-buy-box__group:not(#_):where(:not([hidden])),
+.kodza-buy-box__guide:not(#_):where(:not([hidden])),
+.kodza-buy-box__input:not(#_):where(:not([hidden])),
+.kodza-buy-box__van:not(#_):where(:not([hidden])),
+.kodza-buy-box__fold:not(#_):where(:not([hidden])),
+.kodza-buy-box__swatch input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-buy-box__size input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-buy-box__step svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-buy-box__panel p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-buy-box__panel :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-buy-box__eyebrow:not(#_):where([hidden]),
+.kodza-buy-box__title:not(#_):where([hidden]),
+.kodza-buy-box__group:not(#_):where([hidden]),
+.kodza-buy-box__guide:not(#_):where([hidden]),
+.kodza-buy-box__input:not(#_):where([hidden]),
+.kodza-buy-box__van:not(#_):where([hidden]),
+.kodza-buy-box__fold:not(#_):where([hidden]),
+.kodza-buy-box__swatch input:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-buy-box__size input:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-buy-box__step svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-buy-box__panel p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-buy-box__panel :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-buy-box__star:not(#_)::before,
+.kodza-buy-box__swatch:not(#_)::before,
+.kodza-buy-box__plus:not(#_)::before,
+.kodza-buy-box__plus:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-buy-box:not(#_) {
+  display: grid;
+  color: var(--kz-buy-box-fg);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.kodza-buy-box:not(#_) {
+  width: min(100%, var(--kz-buy-box-width));
+}
+
+.kodza-buy-box__eyebrow:not(#_) {
+  margin: 0;
+  color: var(--kz-buy-box-muted);
+  font-family: var(--kz-font-label, var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.3);
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+}
+
+.kodza-buy-box__title:not(#_) {
+  margin: 0;
+  color: inherit;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(var(--kz-buy-box-title-size) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.05;
+  letter-spacing: var(--kz-font-display-tracking, -0.04em);
+  text-transform: var(--kz-font-display-case, none);
+}
+
+.kodza-buy-box__price:not(#_) {
+  display: flex;
+  margin: 2px 0 0;
+}
+
+.kodza-buy-box__reviews:not(#_) {
+  display: inline-flex;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  text-decoration: none;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-buy-box__reviews:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: 3px;
+}
+
+.kodza-buy-box__group:not(#_) {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-buy-box__legend:not(#_) {
+  display: block;
+  float: left;
+  margin: 0 0 10px;
+  padding: 0;
+  color: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-buy-box__guide:not(#_) {
+  position: absolute;
+  color: var(--kz-buy-box-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  text-decoration: underline;
+  text-decoration-color: var(--kz-buy-box-line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease, color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-buy-box__guide:hover:not(#_) {
+    color: var(--kz-buy-box-fg);
+    text-decoration-color: currentColor;
+  }
+}
+
+.kodza-buy-box__guide:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: 3px;
+}
+
+.kodza-buy-box__swatch:not(#_) {
+  position: relative;
+  display: grid;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-buy-box__swatch:has(:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: 0;
+}
+
+.kodza-buy-box__swatch input:not(#_),
+.kodza-buy-box__size input:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kodza-buy-box__size:not(#_) {
+  position: relative;
+  display: grid;
+  margin: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  transition: color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-buy-box:not(.is-ready) .kodza-buy-box__size:has(:checked):not(#_) {
+  background: var(--kz-buy-box-ink);
+  color: var(--kz-buy-box-on-ink);
+}
+
+@media (hover: hover) {
+  .kodza-buy-box__size:hover:not(:has(:disabled)):not(#_) {
+    background: var(--kz-buy-box-soft);
+  }
+}
+
+.kodza-buy-box__size:has(:focus-visible):not(#_) {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: 2px;
+}
+
+.kodza-buy-box__size:has(:disabled):not(#_) {
+  color: var(--kz-buy-box-muted);
+}
+
+.kodza-buy-box__size input:disabled:not(#_) {
+  cursor: not-allowed;
+}
+
+.kodza-buy-box__step:not(#_) {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease, opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .kodza-buy-box__step:hover:not([aria-disabled="true"]):not(#_) {
+    background: var(--kz-buy-box-soft);
+  }
+}
+
+.kodza-buy-box__step[aria-disabled="true"]:not(#_) {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.kodza-buy-box__step:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-buy-box__step:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: -2px;
+}
+
+.kodza-buy-box__input:not(#_) {
+  grid-area: 1 / 1;
+  width: 3ch;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-buy-box__input:not(#_) {
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font-family: inherit;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.kodza-buy-box__input:not(#_)::-webkit-outer-spin-button,
+.kodza-buy-box__input:not(#_)::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.kodza-buy-box__input:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-buy-box__add:not(#_) {
+  display: grid;
+  place-items: center;
+  height: var(--kz-buy-box-control);
+  margin: 0;
+  padding: 0 20px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-buy-box-ink);
+  box-shadow: none;
+  color: var(--kz-buy-box-on-ink);
+  font: inherit;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease, transform calc(0.2s * var(--kz-motion-scale, 1)) var(--kz-buy-box-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .kodza-buy-box__add:hover:not(#_) {
+    background: color-mix(in srgb, var(--kz-buy-box-ink) 86%, var(--kz-buy-box-paper));
+  }
+}
+
+.kodza-buy-box__add:active:not(#_) {
+  transform: scale(0.98);
+}
+
+.kodza-buy-box__add:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-buy-box__add:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: 3px;
+}
+
+.kodza-buy-box__ship:not(#_) {
+  display: flex;
+  margin: -8px 0 0;
+  color: var(--kz-buy-box-muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.kodza-buy-box__fold:not(#_) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--kz-buy-box-line);
+}
+
+.kodza-buy-box__summary:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 18px 0;
+  color: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  list-style: none;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+}
+
+.kodza-buy-box__summary:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-buy-box__summary:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-buy-box-fg);
+  outline-offset: -2px;
+}
+
+.kodza-buy-box__panel > p:not(#_) {
+  margin: 0;
+}
+
+@media (max-width: 420px) {
+  .kodza-buy-box__step:not(#_) {
+    width: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-buy-box__guide:not(#_),
+  .kodza-buy-box__size:not(#_) {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-buy-box__step:not(#_),
+  .kodza-buy-box__add:not(#_) {
+    transition: none;
+  }
+}
