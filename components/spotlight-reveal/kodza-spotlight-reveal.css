@@ -1,0 +1,659 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Spotlight Reveal
+   A hero whose picture sits behind fogged glass: the pointer wipes a soft circle through it, and
+   the fog creeps back slowly behind the hand. The fog is the picture itself, blurred and veiled
+   on a canvas, so the shapes still show through it. The title stays readable over all of it.
+   Under a finger the circle follows the finger; with reduced motion the picture is clear from
+   the start. Everything is tuned with the --kz-spotlight-reveal-* variables (the script reads
+   the fog, the blur and the radius from here). */
+.kodza-spotlight-reveal {
+  --kz-spotlight-reveal-page: var(--kz-color-page, #f2f2f0);
+  --kz-spotlight-reveal-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-spotlight-reveal-dim: color-mix(in srgb, var(--kz-spotlight-reveal-ink) 74%, transparent);
+  --kz-spotlight-reveal-faint: color-mix(in srgb, var(--kz-spotlight-reveal-ink) 64%, transparent);
+  --kz-spotlight-reveal-accent: var(--kz-color-accent, var(--kz-spotlight-reveal-ink));
+  --kz-spotlight-reveal-on-accent: var(--kz-color-on-accent, var(--kz-spotlight-reveal-page));
+  /* The fog: a veil of the page colour over the blurred picture. More opaque hides more */
+  --kz-spotlight-reveal-fog: color-mix(in srgb, var(--kz-spotlight-reveal-page) 70%, transparent);
+  --kz-spotlight-reveal-blur: 28px;
+  /* The reach of the wipe (the radius of its circle), and how long the fog takes to close it again */
+  --kz-spotlight-reveal-reach: clamp(80px, 11vw, 150px);
+  --kz-spotlight-reveal-linger: 1.6s;
+  /* Under the words, a soft veil of the page colour keeps them readable over the clear picture */
+  --kz-spotlight-reveal-veil: color-mix(in srgb, var(--kz-spotlight-reveal-page) 80%, transparent);
+  --kz-spotlight-reveal-base: transparent;
+  /* The hero takes the whole screen, edge to edge; a length makes it a band */
+  --kz-spotlight-reveal-height: max(520px, 100svh);
+  --kz-spotlight-reveal-pad: clamp(24px, 4.5vw, 64px);
+  --kz-spotlight-reveal-position: 50% 50%;
+  --kz-spotlight-reveal-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-spotlight-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-spotlight-reveal-glide: cubic-bezier(0.6, 0, 0.1, 1);
+
+  container: kodza-spotlight-reveal / inline-size;
+  box-sizing: border-box;
+  width: 100%;
+  color: var(--kz-spotlight-reveal-ink);
+}
+
+.kodza-spotlight-reveal__frame {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: max(520px, 100vh);
+  min-height: var(--kz-spotlight-reveal-height);
+  overflow: hidden;
+  background: var(--kz-spotlight-reveal-base);
+}
+
+.kodza-spotlight-reveal__picture {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--kz-spotlight-reveal-position);
+}
+
+/* The fog, drawn by the script. text-indent carries the reach in px to the script (a custom
+   property is read as written, clamp() and all); the canvas has no text for it to move */
+.kodza-spotlight-reveal__fog {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: var(--kz-spotlight-reveal-fog);
+  text-indent: var(--kz-spotlight-reveal-reach);
+  pointer-events: none;
+}
+
+/* The finger may wipe sideways; the page still scrolls up and down */
+.kodza-spotlight-reveal.is-live .kodza-spotlight-reveal__frame {
+  touch-action: pan-y pinch-zoom;
+}
+
+.kodza-spotlight-reveal__frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(to right, color-mix(in srgb, var(--kz-spotlight-reveal-veil) 60%, transparent), transparent 62%),
+    linear-gradient(to top, var(--kz-spotlight-reveal-veil), color-mix(in srgb, var(--kz-spotlight-reveal-veil) 30%, transparent) 46%, transparent 64%);
+  pointer-events: none;
+}
+
+.kodza-spotlight-reveal__hint {
+  position: absolute;
+  z-index: 3;
+  top: var(--kz-spotlight-reveal-pad);
+  left: max(var(--kz-spotlight-reveal-pad), env(safe-area-inset-left, 0px));
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-spotlight-reveal-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 16px);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-spotlight-reveal-faint);
+  pointer-events: none;
+}
+
+.kodza-spotlight-reveal__content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  padding: var(--kz-spotlight-reveal-pad);
+  padding-left: max(var(--kz-spotlight-reveal-pad), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-spotlight-reveal-pad), env(safe-area-inset-right, 0px));
+  pointer-events: none;
+}
+
+.kodza-spotlight-reveal__copy {
+  min-width: 0;
+  max-width: 820px;
+}
+
+.kodza-spotlight-reveal__title {
+  margin: 0 0 22px;
+  /* Bounded by the container too, so the first line keeps to one line on a phone */
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(min(clamp(38px, 6.4vw, 96px), 9.6cqi) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 700);
+  line-height: 1;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-spotlight-reveal-ink);
+  text-wrap: balance;
+}
+
+/* Each line is its own mask: the words rise from behind its bottom edge */
+.kodza-spotlight-reveal__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.kodza-spotlight-reveal__rise {
+  display: block;
+}
+
+.kodza-spotlight-reveal__lead {
+  max-width: 36ch;
+  margin: 0 0 32px;
+  font-size: clamp(16px, 1.35vw, 19px);
+  line-height: 1.55;
+  color: var(--kz-spotlight-reveal-dim);
+  text-wrap: pretty;
+}
+
+.kodza-spotlight-reveal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.kodza-spotlight-reveal__button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 26px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-spotlight-reveal-accent);
+  color: var(--kz-spotlight-reveal-on-accent);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: 1;
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.kodza-spotlight-reveal__button:focus-visible {
+  outline: 2px solid var(--kz-spotlight-reveal-accent);
+  outline-offset: 3px;
+}
+
+.kodza-spotlight-reveal__arrow {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-spotlight-reveal-ease);
+}
+
+@media (hover: hover) {
+  .kodza-spotlight-reveal__button:hover .kodza-spotlight-reveal__arrow {
+    transform: translateX(4px);
+  }
+}
+
+.kodza-spotlight-reveal__caption {
+  flex: none;
+  margin: 0;
+  padding-bottom: 18px;
+  font-family: var(--kz-font-label, var(--kz-spotlight-reveal-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 16px);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-spotlight-reveal-faint);
+  text-wrap: balance;
+}
+
+/* Mid widths: the caption takes two lines, so it leaves the title its room */
+@container kodza-spotlight-reveal (min-width: 721px) and (max-width: 1100px) {
+  .kodza-spotlight-reveal__caption {
+    max-width: 20ch;
+    padding-bottom: 10px;
+  }
+}
+
+/* One column: the caption goes under the button, which takes the row */
+@container kodza-spotlight-reveal (max-width: 720px) {
+  .kodza-spotlight-reveal__content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+
+  .kodza-spotlight-reveal__caption {
+    padding-bottom: 0;
+  }
+
+  .kodza-spotlight-reveal__button {
+    flex: 1 1 auto;
+  }
+}
+
+/* The entrance: the title lines rise while the fog settles on the glass (the script) */
+@media (prefers-reduced-motion: no-preference) {
+  .kodza-spotlight-reveal__rise {
+    animation: kodza-spotlight-reveal-rise calc(1170ms * var(--kz-motion-scale, 1)) var(--kz-spotlight-reveal-glide) calc(350ms * var(--kz-motion-scale, 1)) both;
+  }
+
+  .kodza-spotlight-reveal__line:nth-child(2) .kodza-spotlight-reveal__rise {
+    animation-delay: calc(475ms * var(--kz-motion-scale, 1));
+  }
+
+  .kodza-spotlight-reveal__line:nth-child(3) .kodza-spotlight-reveal__rise {
+    animation-delay: calc(600ms * var(--kz-motion-scale, 1));
+  }
+
+  .kodza-spotlight-reveal__hint,
+  .kodza-spotlight-reveal__lead,
+  .kodza-spotlight-reveal__actions,
+  .kodza-spotlight-reveal__caption {
+    animation: kodza-spotlight-reveal-in calc(900ms * var(--kz-motion-scale, 1)) var(--kz-spotlight-reveal-ease) calc(800ms * var(--kz-motion-scale, 1)) both;
+  }
+
+  .kodza-spotlight-reveal__actions {
+    animation-delay: calc(910ms * var(--kz-motion-scale, 1));
+  }
+
+  .kodza-spotlight-reveal__hint,
+  .kodza-spotlight-reveal__caption {
+    animation-delay: calc(1020ms * var(--kz-motion-scale, 1));
+  }
+}
+
+@keyframes kodza-spotlight-reveal-rise {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+@keyframes kodza-spotlight-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-spotlight-reveal *,
+  .kodza-spotlight-reveal *::before,
+  .kodza-spotlight-reveal *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard acd3bf6bc5bd — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-spotlight-reveal__picture):not(#_),
+:where(.kodza-spotlight-reveal__hint):not(#_),
+:where(.kodza-spotlight-reveal__title):not(#_),
+:where(.kodza-spotlight-reveal__lead):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-spotlight-reveal__button):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+  transition-duration: revert;
+}
+
+:where(.kodza-spotlight-reveal__caption):not(#_) {
+  max-width: revert;
+  transition-duration: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-spotlight-reveal__frame:not(#_),
+.kodza-spotlight-reveal__fog:not(#_),
+.kodza-spotlight-reveal__content:not(#_),
+.kodza-spotlight-reveal__copy:not(#_),
+.kodza-spotlight-reveal__line:not(#_),
+.kodza-spotlight-reveal__rise:not(#_),
+.kodza-spotlight-reveal__actions:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-spotlight-reveal__picture:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-spotlight-reveal__hint:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-spotlight-reveal__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-spotlight-reveal__lead:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-spotlight-reveal__button:not(#_) {
+  margin: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-spotlight-reveal__arrow:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-spotlight-reveal__caption:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  padding-top: revert;
+  padding-right: revert;
+  padding-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-spotlight-reveal__hint:not(#_):where(:not([hidden])),
+.kodza-spotlight-reveal__title:not(#_):where(:not([hidden])),
+.kodza-spotlight-reveal__lead:not(#_):where(:not([hidden])),
+.kodza-spotlight-reveal__arrow:not(#_):where(:not([hidden])),
+.kodza-spotlight-reveal__caption:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-spotlight-reveal__hint:not(#_):where([hidden]),
+.kodza-spotlight-reveal__title:not(#_):where([hidden]),
+.kodza-spotlight-reveal__lead:not(#_):where([hidden]),
+.kodza-spotlight-reveal__arrow:not(#_):where([hidden]),
+.kodza-spotlight-reveal__caption:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-spotlight-reveal__frame:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-spotlight-reveal__picture:not(#_) {
+  position: absolute;
+  display: block;
+  max-width: none;
+}
+
+.kodza-spotlight-reveal__hint:not(#_) {
+  position: absolute;
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-spotlight-reveal-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 16px);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-spotlight-reveal-faint);
+}
+
+.kodza-spotlight-reveal__title:not(#_) {
+  margin: 0 0 22px;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(min(clamp(38px, 6.4vw, 96px), 9.6cqi) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 700);
+  line-height: 1;
+  letter-spacing: var(--kz-font-display-tracking, -0.05em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-spotlight-reveal-ink);
+}
+
+.kodza-spotlight-reveal__lead:not(#_) {
+  max-width: 36ch;
+  margin: 0 0 32px;
+  font-size: clamp(16px, 1.35vw, 19px);
+  line-height: 1.55;
+  color: var(--kz-spotlight-reveal-dim);
+}
+
+.kodza-spotlight-reveal__button:not(#_) {
+  box-sizing: border-box;
+  display: inline-flex;
+  padding: 0 26px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-spotlight-reveal-accent);
+  color: var(--kz-spotlight-reveal-on-accent);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: 1;
+  text-transform: var(--kz-font-label-case, inherit);
+  text-decoration: none;
+}
+
+.kodza-spotlight-reveal__button:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-spotlight-reveal-accent);
+  outline-offset: 3px;
+}
+
+.kodza-spotlight-reveal__arrow:not(#_) {
+  transition: transform calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-spotlight-reveal-ease);
+}
+
+.kodza-spotlight-reveal__caption:not(#_) {
+  margin: 0;
+  padding-bottom: 18px;
+  font-family: var(--kz-font-label, var(--kz-spotlight-reveal-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 16px);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-spotlight-reveal-faint);
+}
+
+@container kodza-spotlight-reveal (min-width: 721px) and (max-width: 1100px) {
+  .kodza-spotlight-reveal__caption:not(#_) {
+    max-width: 20ch;
+    padding-bottom: 10px;
+  }
+}
+
+@container kodza-spotlight-reveal (max-width: 720px) {
+  .kodza-spotlight-reveal__caption:not(#_) {
+    padding-bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-spotlight-reveal *:where(img, p, h1, a, svg):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

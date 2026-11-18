@@ -1,0 +1,596 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Drag Cursor
+   On a zone you can grab (data-cursor="drag": a strip, a slider, a timeline), a "Drag" disc
+   rides beside the hand between two arrows: it tightens when you press and the arrow on the
+   side you pull leans out. The system cursor stays (a grab hand). Nothing under a finger, where
+   the swipe is native, and the strip scrolls with the arrow keys. Everything is tuned with the
+   --kz-drag-cursor-* variables, the follow, the glide and the drift with the constants of the
+   script. */
+.kodza-drag-cursor {
+  --kz-drag-cursor-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-drag-cursor-surface: var(--kz-color-paper, #fff);
+  --kz-drag-cursor-line: color-mix(in srgb, var(--kz-drag-cursor-ink) 10%, transparent);
+  --kz-drag-cursor-faint: color-mix(in srgb, var(--kz-drag-cursor-ink) 62%, transparent);
+  /* The disc: an accent circle and two arrows in ink */
+  --kz-drag-cursor-accent: var(--kz-color-accent, var(--kz-drag-cursor-ink));
+  --kz-drag-cursor-on-accent: var(--kz-color-on-accent, var(--kz-drag-cursor-surface));
+  --kz-drag-cursor-size: 84px;
+  --kz-drag-cursor-squeeze: 0.84;
+  /* How far the arrows step out when you press */
+  --kz-drag-cursor-spread: 7px;
+  --kz-drag-cursor-slide: clamp(220px, 34cqi, 340px);
+  --kz-drag-cursor-ratio: 4 / 5;
+  /* The pictures are cut a touch larger than their frame, so they can drift inside it */
+  --kz-drag-cursor-zoom: 1.18;
+  --kz-drag-cursor-gap: clamp(10px, 1.4vw, 18px);
+  --kz-drag-cursor-gutter: clamp(12px, 2vw, 24px);
+  --kz-drag-cursor-corner: calc(16px * var(--kz-radius-scale, 1));
+  --kz-drag-cursor-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-drag-cursor-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-drag-cursor / inline-size;
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-block: var(--kz-drag-cursor-gutter);
+  padding-left: max(var(--kz-drag-cursor-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-drag-cursor-gutter), env(safe-area-inset-right, 0px));
+  color: var(--kz-drag-cursor-ink);
+}
+
+.kodza-drag-cursor__head {
+  margin-bottom: clamp(24px, 3.4vw, 40px);
+}
+
+.kodza-drag-cursor__eyebrow {
+  margin: 0 0 16px;
+  font-family: var(--kz-font-label, var(--kz-drag-cursor-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 16px);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-drag-cursor-faint);
+}
+
+.kodza-drag-cursor__title {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(min(clamp(30px, 4.2vw, 56px), 8.4cqi) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-drag-cursor-ink);
+  text-wrap: balance;
+}
+
+.kodza-drag-cursor__strip {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--kz-drag-cursor-line) transparent;
+  border-radius: var(--kz-drag-cursor-corner);
+}
+
+.kodza-drag-cursor__strip:focus-visible {
+  outline: 2px solid var(--kz-drag-cursor-ink);
+  outline-offset: 3px;
+}
+
+.kodza-drag-cursor__track {
+  position: relative;
+  display: flex;
+  gap: var(--kz-drag-cursor-gap);
+  width: max-content;
+  margin: 0;
+  padding: 0 0 14px;
+  list-style: none;
+}
+
+.kodza-drag-cursor__slide {
+  flex: none;
+  width: var(--kz-drag-cursor-slide);
+  margin: 0;
+  padding: 0;
+  scroll-snap-align: start;
+}
+
+.kodza-drag-cursor__figure {
+  margin: 0;
+}
+
+.kodza-drag-cursor__frame {
+  display: block;
+  box-sizing: border-box;
+  overflow: hidden;
+  isolation: isolate;
+  aspect-ratio: var(--kz-drag-cursor-ratio);
+  border: 1px solid var(--kz-drag-cursor-line);
+  border-radius: var(--kz-drag-cursor-corner);
+  background: var(--kz-drag-cursor-surface);
+  transform: scale(var(--kz-drag-cursor-squash, 1));
+}
+
+.kodza-drag-cursor__image {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* Each picture drifts against the strip, by how far its slide sits from the middle */
+.kodza-drag-cursor.is-drifting .kodza-drag-cursor__image {
+  transform: translateX(var(--kz-drag-cursor-shift, 0%)) scale(var(--kz-drag-cursor-zoom));
+  will-change: transform;
+}
+
+.kodza-drag-cursor__caption {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  line-height: var(--kz-font-label-leading, 18px);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-drag-cursor__index {
+  font-family: var(--kz-drag-cursor-mono);
+  color: var(--kz-drag-cursor-faint);
+}
+
+/* The disc waits off stage until a mouse or a pen comes over the zone */
+.kodza-drag-cursor__disc {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  display: none;
+  pointer-events: none;
+}
+
+/* Live (a mouse or a pen): the zone shows the grab hand and the disc rides beside it */
+.kodza-drag-cursor.is-live [data-cursor="drag"] {
+  cursor: grab;
+}
+
+.kodza-drag-cursor.is-live [data-cursor="drag"].is-grabbing {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.kodza-drag-cursor.is-live .kodza-drag-cursor__disc {
+  display: block;
+  width: var(--kz-drag-cursor-size);
+  height: var(--kz-drag-cursor-size);
+  margin: calc(var(--kz-drag-cursor-size) / -2) 0 0 calc(var(--kz-drag-cursor-size) / -2);
+  transform: translate(var(--kz-drag-cursor-x, 0px), var(--kz-drag-cursor-y, 0px));
+}
+
+.kodza-drag-cursor__ring {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--kz-drag-cursor-accent);
+  color: var(--kz-drag-cursor-on-accent);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  line-height: 1;
+  text-transform: var(--kz-font-label-case, inherit);
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) linear,
+    transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-drag-cursor-ease);
+}
+
+.kodza-drag-cursor__arrow {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  opacity: 0;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) linear,
+    transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-drag-cursor-ease);
+}
+
+.kodza-drag-cursor__arrow--prev {
+  right: calc(100% + 6px);
+}
+
+.kodza-drag-cursor__arrow--next {
+  left: calc(100% + 6px);
+}
+
+/* A chevron drawn in CSS; the script leans it out on the side you pull */
+.kodza-drag-cursor__arrow::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: solid var(--kz-drag-cursor-ink);
+  border-width: 0 0 2px 2px;
+  transform: translateX(calc(var(--kz-drag-cursor-lean, 0px) * -1)) rotate(45deg);
+}
+
+.kodza-drag-cursor__arrow--next::before {
+  border-width: 2px 2px 0 0;
+  transform: translateX(var(--kz-drag-cursor-lean, 0px)) rotate(45deg);
+}
+
+.kodza-drag-cursor__arrow--prev {
+  --kz-drag-cursor-lean: var(--kz-drag-cursor-lean-prev, 0px);
+}
+
+.kodza-drag-cursor__arrow--next {
+  --kz-drag-cursor-lean: var(--kz-drag-cursor-lean-next, 0px);
+}
+
+.kodza-drag-cursor.is-on .kodza-drag-cursor__ring {
+  opacity: 1;
+  transform: none;
+}
+
+.kodza-drag-cursor.is-on .kodza-drag-cursor__arrow {
+  opacity: 1;
+}
+
+.kodza-drag-cursor.is-on.is-pressed .kodza-drag-cursor__ring {
+  transform: scale(var(--kz-drag-cursor-squeeze));
+}
+
+.kodza-drag-cursor.is-on.is-pressed .kodza-drag-cursor__arrow--prev {
+  transform: translateX(calc(var(--kz-drag-cursor-spread) * -1));
+}
+
+.kodza-drag-cursor.is-on.is-pressed .kodza-drag-cursor__arrow--next {
+  transform: translateX(var(--kz-drag-cursor-spread));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-drag-cursor *,
+  .kodza-drag-cursor *::before,
+  .kodza-drag-cursor *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 83b73c435ee4 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-drag-cursor__eyebrow):not(#_),
+:where(.kodza-drag-cursor__title):not(#_),
+:where(.kodza-drag-cursor__track):not(#_),
+:where(.kodza-drag-cursor__slide):not(#_),
+:where(.kodza-drag-cursor__figure):not(#_),
+:where(.kodza-drag-cursor__image):not(#_),
+:where(.kodza-drag-cursor__caption):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-drag-cursor__strip):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-drag-cursor__head:not(#_),
+.kodza-drag-cursor__index:not(#_),
+.kodza-drag-cursor__disc:not(#_),
+.kodza-drag-cursor__arrow:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-drag-cursor__eyebrow:not(#_),
+.kodza-drag-cursor__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-drag-cursor__strip:not(#_) {
+  box-sizing: revert;
+  box-shadow: revert;
+}
+
+.kodza-drag-cursor__track:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-drag-cursor__slide:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-drag-cursor__figure:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-drag-cursor__image:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-drag-cursor__caption:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-right: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-drag-cursor__eyebrow:not(#_):where(:not([hidden])),
+.kodza-drag-cursor__title:not(#_):where(:not([hidden])),
+.kodza-drag-cursor__slide:not(#_):where(:not([hidden])),
+.kodza-drag-cursor__figure:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-drag-cursor__eyebrow:not(#_):where([hidden]),
+.kodza-drag-cursor__title:not(#_):where([hidden]),
+.kodza-drag-cursor__slide:not(#_):where([hidden]),
+.kodza-drag-cursor__figure:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-drag-cursor__arrow:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-drag-cursor:not(#_) {
+  width: min(100%, 1200px);
+}
+
+.kodza-drag-cursor__eyebrow:not(#_) {
+  margin: 0 0 16px;
+  font-family: var(--kz-font-label, var(--kz-drag-cursor-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  line-height: var(--kz-font-label-leading, 16px);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-drag-cursor-faint);
+}
+
+.kodza-drag-cursor__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(min(clamp(30px, 4.2vw, 56px), 8.4cqi) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.04;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-drag-cursor-ink);
+}
+
+.kodza-drag-cursor__strip:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-drag-cursor-ink);
+  outline-offset: 3px;
+}
+
+.kodza-drag-cursor__track:not(#_) {
+  position: relative;
+  display: flex;
+  margin: 0;
+  padding: 0 0 14px;
+  list-style: none;
+}
+
+.kodza-drag-cursor__slide:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-drag-cursor__figure:not(#_) {
+  margin: 0;
+}
+
+.kodza-drag-cursor__image:not(#_) {
+  display: block;
+  max-width: none;
+}
+
+.kodza-drag-cursor__caption:not(#_) {
+  display: flex;
+  margin-top: 12px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, -0.01em);
+  line-height: var(--kz-font-label-leading, 18px);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-drag-cursor *:where(p, h2, ul, li, figure, img, figcaption):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

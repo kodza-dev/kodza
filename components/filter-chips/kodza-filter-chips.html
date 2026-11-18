@@ -1,0 +1,23 @@
+<form class="kodza-filter-chips" method="get" data-target=".demo-list">
+  <div class="kodza-filter-chips__head">
+    <p class="kodza-filter-chips__count" aria-live="polite"><span class="kodza-filter-chips__num">8</span> <span class="kodza-filter-chips__unit">products</span></p>
+    <div class="kodza-filter-chips__active" role="group" aria-label="Active filters"></div>
+    <button class="kodza-filter-chips__clear" type="button" hidden>Clear all</button>
+  </div>
+  <div class="kodza-filter-chips__row">
+    <fieldset class="kodza-filter-chips__group" data-filter="type">
+      <legend class="kodza-filter-chips__legend">Type</legend>
+      <label class="kodza-filter-chips__chip"><input class="kodza-filter-chips__input" type="checkbox" name="filter_type" value="seating"><span class="kodza-filter-chips__label">Seating</span><span class="kodza-filter-chips__tally">5</span></label>
+      <label class="kodza-filter-chips__chip"><input class="kodza-filter-chips__input" type="checkbox" name="filter_type" value="lighting"><span class="kodza-filter-chips__label">Lighting</span><span class="kodza-filter-chips__tally">2</span></label>
+      <label class="kodza-filter-chips__chip"><input class="kodza-filter-chips__input" type="checkbox" name="filter_type" value="storage"><span class="kodza-filter-chips__label">Storage</span><span class="kodza-filter-chips__tally">1</span></label>
+    </fieldset>
+    <fieldset class="kodza-filter-chips__group" data-filter="colour">
+      <legend class="kodza-filter-chips__legend">Colour</legend>
+      <label class="kodza-filter-chips__chip"><input class="kodza-filter-chips__input" type="checkbox" name="filter_colour" value="chalk"><span class="kodza-filter-chips__label">Chalk</span><span class="kodza-filter-chips__tally">3</span></label>
+      <label class="kodza-filter-chips__chip"><input class="kodza-filter-chips__input" type="checkbox" name="filter_colour" value="stone"><span class="kodza-filter-chips__label">Stone</span><span class="kodza-filter-chips__tally">2</span></label>
+      <label class="kodza-filter-chips__chip"><input class="kodza-filter-chips__input" type="checkbox" name="filter_colour" value="ink"><span class="kodza-filter-chips__label">Ink</span><span class="kodza-filter-chips__tally">3</span></label>
+    </fieldset>
+  </div>
+  <p class="kodza-filter-chips__empty" hidden>Nothing left. Drop a filter.</p>
+  <button class="kodza-filter-chips__apply" type="submit">Apply</button>
+</form>

@@ -1,0 +1,1042 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Awards List
+   Awards, selections and press as lists grouped under their name, with the total of each group
+   and of the section in mono. Each row gives the prize, who gave it, the project and the year,
+   and "×2" when it was won twice. A row with a source is a link: pointing at it, or tabbing to
+   it, inks its hairline and draws its arrow in, and the other rows step back. Past a few rows a
+   group folds the rest behind "Show 3 more", and the rows rise from their masks when the list
+   comes into view. --press on a group lists articles: the headline, the outlet, the issue.
+   A WordPress loop can fill it, one row per list item: the script only counts and folds.
+   Everything is tuned with the --kz-awards-list-* variables, and data-show on the section. */
+.kodza-awards-list {
+  --kz-awards-list-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-awards-list-muted: color-mix(in srgb, var(--kz-awards-list-ink) 62%, transparent);
+  --kz-awards-list-dim: color-mix(in srgb, var(--kz-awards-list-ink) 26%, transparent);
+  --kz-awards-list-line: color-mix(in srgb, var(--kz-awards-list-ink) 12%, transparent);
+  --kz-awards-list-width: var(--kz-page-width, 1440px);
+  --kz-awards-list-gutter: var(--kz-page-gutter, clamp(16px, 4vw, 40px));
+  --kz-awards-list-space: clamp(56px, 7vw, 112px); /* above and below the section */
+  --kz-awards-list-gap: clamp(32px, 6vw, 96px); /* between the two columns of the head */
+  --kz-awards-list-split: minmax(0, 4fr) minmax(0, 8fr); /* the group, then its rows */
+  --kz-awards-list-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 72px) 16px; /* prize, by, project, year, arrow */
+  --kz-awards-list-size: calc(clamp(20px, 2vw, 26px) * var(--kz-font-display-scale, 1)); /* a prize */
+  --kz-awards-list-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-awards-list-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+
+  container: kodza-awards-list / inline-size;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: var(--kz-awards-list-space);
+  padding-bottom: var(--kz-awards-list-space);
+  color: var(--kz-awards-list-ink);
+}
+
+.kodza-awards-list__inner {
+  box-sizing: border-box;
+  max-width: calc(var(--kz-awards-list-width) + 2 * var(--kz-awards-list-gutter));
+  margin: 0 auto;
+  padding-left: max(var(--kz-awards-list-gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--kz-awards-list-gutter), env(safe-area-inset-right, 0px));
+}
+
+/* The head: the title on the left, the intro on the right, on the same baseline */
+.kodza-awards-list__head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  align-items: end;
+  column-gap: var(--kz-awards-list-gap);
+  margin-bottom: clamp(40px, 5vw, 72px);
+}
+
+.kodza-awards-list__eyebrow,
+.kodza-awards-list__count,
+.kodza-awards-list__times,
+.kodza-awards-list__by,
+.kodza-awards-list__project,
+.kodza-awards-list__year,
+.kodza-awards-list__more {
+  font-family: var(--kz-font-label, var(--kz-awards-list-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, none);
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-awards-list__eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 0.7em;
+  grid-column: 1 / -1;
+  margin: 0 0 20px;
+  color: var(--kz-awards-list-muted);
+}
+
+/* The total, after a round dot */
+.kodza-awards-list__total {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+}
+
+.kodza-awards-list__total::before {
+  content: "";
+  flex: none;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.kodza-awards-list__title {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+}
+
+.kodza-awards-list__intro {
+  max-width: 400px;
+  margin: 0;
+  color: var(--kz-awards-list-muted);
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+/* The groups, each on a hairline across the page */
+.kodza-awards-list__groups {
+  border-bottom: 1px solid var(--kz-awards-list-line);
+}
+
+.kodza-awards-list__group {
+  display: grid;
+  grid-template-columns: var(--kz-awards-list-split);
+  align-items: first baseline;
+  column-gap: var(--kz-awards-list-gap);
+  border-top: 1px solid var(--kz-awards-list-line);
+}
+
+/* A group the loop left empty */
+.kodza-awards-list__group:not(:has(.kodza-awards-list__item)) {
+  display: none;
+}
+
+.kodza-awards-list__label {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 22px 0;
+}
+
+.kodza-awards-list__name {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(17px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1.3;
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  text-transform: var(--kz-font-display-case, none);
+}
+
+.kodza-awards-list__count {
+  color: var(--kz-awards-list-muted);
+}
+
+.kodza-awards-list__entries {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-awards-list__item {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-awards-list__item + .kodza-awards-list__item {
+  border-top: 1px solid var(--kz-awards-list-line);
+}
+
+.kodza-awards-list__item[hidden] {
+  display: none;
+}
+
+/* While a group opens or shuts, its list is cut to the height it is easing to */
+.kodza-awards-list__entries.is-moving {
+  overflow: clip;
+}
+
+/* While a row rises, its item is its mask; before the list comes into view, the row waits below */
+.kodza-awards-list__item.is-masked {
+  overflow: clip;
+}
+
+.kodza-awards-list__item.is-waiting > .kodza-awards-list__entry,
+.kodza-awards-list__label.is-waiting > * {
+  transform: translateY(105%);
+}
+
+.kodza-awards-list__label.is-masked {
+  overflow: clip;
+}
+
+/* A row: a link when it has a source, the same row without one */
+.kodza-awards-list__entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--kz-awards-list-columns);
+  grid-template-areas: "prize by project year arrow";
+  align-items: baseline;
+  column-gap: 20px;
+  padding: 22px 0;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color calc(0.35s * var(--kz-motion-scale, 1)) ease;
+}
+
+/* --press: the headline takes the room of the prize and its giver, the outlet sits where the
+   project was, the issue or the date where the year was */
+.kodza-awards-list__group--press .kodza-awards-list__entry {
+  grid-template-areas: "prize prize by year arrow";
+}
+
+/* The ink line drawn over the hairline above the row */
+a.kodza-awards-list__entry::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--kz-awards-list-ink);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-awards-list-ease);
+  pointer-events: none;
+}
+
+.kodza-awards-list__prize {
+  grid-area: prize;
+  font-family: var(--kz-font-display, inherit);
+  font-size: var(--kz-awards-list-size);
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1.2;
+  letter-spacing: var(--kz-font-display-tracking, -0.03em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+}
+
+/* A headline hangs its opening quote in the margin, so the words line up with the prizes */
+.kodza-awards-list__group--press .kodza-awards-list__prize::before {
+  content: "\201C";
+  margin-left: -0.42em;
+}
+
+.kodza-awards-list__group--press .kodza-awards-list__prize::after {
+  content: "\201D";
+}
+
+.kodza-awards-list__times {
+  margin-left: 0.35em;
+  color: var(--kz-awards-list-muted);
+  letter-spacing: 0;
+  vertical-align: 0.35em;
+  white-space: nowrap;
+  transition: color calc(0.35s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-awards-list__by,
+.kodza-awards-list__project,
+.kodza-awards-list__year {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  min-width: 0;
+  color: var(--kz-awards-list-muted);
+  transition: color calc(0.35s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-awards-list__by {
+  grid-area: by;
+}
+
+.kodza-awards-list__project {
+  grid-area: project;
+}
+
+.kodza-awards-list__group--press .kodza-awards-list__by {
+  grid-area: by;
+}
+
+.kodza-awards-list__year {
+  grid-area: year;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
+/* The arrow of Arrow Link: a chevron at rest, its shaft drawn in when the row is pointed at */
+.kodza-awards-list__arrow {
+  grid-area: arrow;
+  align-self: baseline;
+  translate: 0 4px;
+  justify-self: end;
+  width: 16px;
+  height: 16px;
+  color: var(--kz-awards-list-muted);
+  transition: color calc(0.35s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-awards-list__arrow svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-awards-list__tip {
+  transform: translateX(-3.5px);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-awards-list-ease);
+}
+
+.kodza-awards-list__shaft {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-awards-list-ease);
+}
+
+/* The focus ring, around the row */
+a.kodza-awards-list__entry::after {
+  content: "";
+  position: absolute;
+  inset: 6px -12px;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  pointer-events: none;
+}
+
+a.kodza-awards-list__entry:focus-visible::after {
+  box-shadow: 0 0 0 2px var(--kz-awards-list-ink);
+}
+
+a.kodza-awards-list__entry:focus-visible::before {
+  transform: scaleX(1);
+}
+
+a.kodza-awards-list__entry:focus-visible :is(.kodza-awards-list__times, .kodza-awards-list__by, .kodza-awards-list__project, .kodza-awards-list__year, .kodza-awards-list__arrow) {
+  color: var(--kz-awards-list-ink);
+}
+
+a.kodza-awards-list__entry:focus-visible .kodza-awards-list__tip {
+  transform: translateX(1.5px);
+}
+
+a.kodza-awards-list__entry:focus-visible .kodza-awards-list__shaft {
+  stroke-dashoffset: 0;
+}
+
+/* Pointing at a row: it inks, its arrow draws in, the other rows step back */
+@media (hover: hover) {
+  a.kodza-awards-list__entry:hover::before {
+    transform: scaleX(1);
+  }
+
+  a.kodza-awards-list__entry:hover :is(.kodza-awards-list__times, .kodza-awards-list__by, .kodza-awards-list__project, .kodza-awards-list__year, .kodza-awards-list__arrow) {
+    color: var(--kz-awards-list-ink);
+  }
+
+  a.kodza-awards-list__entry:hover .kodza-awards-list__tip {
+    transform: translateX(1.5px);
+  }
+
+  a.kodza-awards-list__entry:hover .kodza-awards-list__shaft {
+    stroke-dashoffset: 0;
+  }
+
+  .kodza-awards-list__groups:has(a.kodza-awards-list__entry:hover) .kodza-awards-list__entry:not(:hover),
+  .kodza-awards-list__groups:has(a.kodza-awards-list__entry:hover) .kodza-awards-list__entry:not(:hover) :is(.kodza-awards-list__times, .kodza-awards-list__by, .kodza-awards-list__project, .kodza-awards-list__year, .kodza-awards-list__arrow) {
+    color: var(--kz-awards-list-dim);
+  }
+}
+
+/* "Show 2 more", written by the script under a group that folds its last rows */
+.kodza-awards-list__more {
+  grid-column: -2;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 18px 0 22px;
+  border: 0;
+  background: none;
+  color: var(--kz-awards-list-muted);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-awards-list__more-word {
+  display: inline-grid;
+  overflow: clip;
+  overflow-clip-margin: 2px;
+}
+
+.kodza-awards-list__more-word > span {
+  grid-area: 1 / 1;
+}
+
+/* A plus that turns into a minus */
+.kodza-awards-list__plus {
+  position: relative;
+  flex: none;
+  width: 10px;
+  height: 10px;
+}
+
+.kodza-awards-list__plus::before,
+.kodza-awards-list__plus::after {
+  content: "";
+  position: absolute;
+  top: 4.25px;
+  left: 0;
+  width: 10px;
+  height: 1.5px;
+  border-radius: calc(1px * var(--kz-radius-scale, 1));
+  background: currentColor;
+  transition: transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-awards-list-ease);
+}
+
+.kodza-awards-list__plus::after {
+  transform: rotate(90deg);
+}
+
+.kodza-awards-list__more[aria-expanded="true"] .kodza-awards-list__plus::after {
+  transform: rotate(0deg);
+}
+
+@media (hover: hover) {
+  .kodza-awards-list__more:hover {
+    color: var(--kz-awards-list-ink);
+  }
+}
+
+.kodza-awards-list__more:focus-visible {
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+  outline: 2px solid var(--kz-awards-list-ink);
+  outline-offset: 2px;
+  color: var(--kz-awards-list-ink);
+}
+
+/* A medium column: each group above its rows, so the rows keep the whole width for their columns */
+@container kodza-awards-list (max-width: 1100px) {
+  .kodza-awards-list__group {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-awards-list__label {
+    padding: 22px 0 6px;
+  }
+}
+
+/* A narrow column: the head on one column, a row's giver, project and year on a second line,
+   after its prize */
+@container kodza-awards-list (max-width: 720px) {
+  .kodza-awards-list__head {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 20px;
+  }
+
+  /* The prize on its own line, then giver · project · year, which wrap rather than squeeze */
+  .kodza-awards-list__entry,
+  .kodza-awards-list__group--press .kodza-awards-list__entry {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    row-gap: 6px;
+    column-gap: 0.7em;
+    padding: 18px 28px 18px 0;
+  }
+
+  .kodza-awards-list__by,
+  .kodza-awards-list__project,
+  .kodza-awards-list__year {
+    flex: none;
+    max-width: 100%;
+  }
+
+  .kodza-awards-list__prize {
+    flex: 1 0 100%;
+    font-size: min(var(--kz-awards-list-size), calc(20px * var(--kz-font-display-scale, 1)));
+  }
+
+  /* by · project · year */
+  .kodza-awards-list__project::before,
+  .kodza-awards-list__year::before {
+    content: "";
+    flex: none;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* Across both lines of the row */
+  .kodza-awards-list__arrow {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    translate: 0 -50%;
+  }
+
+  a.kodza-awards-list__entry::after {
+    inset: 4px -8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-awards-list__entry,
+  .kodza-awards-list__entry::before,
+  .kodza-awards-list__times,
+  .kodza-awards-list__by,
+  .kodza-awards-list__project,
+  .kodza-awards-list__year,
+  .kodza-awards-list__arrow,
+  .kodza-awards-list__tip,
+  .kodza-awards-list__shaft,
+  .kodza-awards-list__more,
+  .kodza-awards-list__plus::before,
+  .kodza-awards-list__plus::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-awards-list {
+  --kz-awards-list-ink: #f2f2f0;
+  --kz-awards-list-muted: rgba(242, 242, 240, 0.62);
+  --kz-awards-list-dim: rgba(242, 242, 240, 0.26);
+  --kz-awards-list-line: rgba(255, 255, 255, 0.12);
+}
+*/
+
+/* kodza-guard c99e1f14a602 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-awards-list__item):not(#_) {
+  border-top-width: revert;
+  border-top-style: revert;
+  border-top-color: revert;
+}
+
+:where(.kodza-awards-list__more):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-awards-list__arrow svg:where(:not([class*="kodza-"]))):not(#_) {
+  color: revert;
+}
+
+:where(.kodza-awards-list__item):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-awards-list__item):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-awards-list__head:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-right: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-awards-list__eyebrow:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-awards-list__total:not(#_),
+.kodza-awards-list__groups:not(#_),
+.kodza-awards-list__group:not(#_),
+.kodza-awards-list__label:not(#_),
+.kodza-awards-list__count:not(#_),
+.kodza-awards-list__prize:not(#_),
+.kodza-awards-list__times:not(#_),
+.kodza-awards-list__by:not(#_),
+.kodza-awards-list__project:not(#_),
+.kodza-awards-list__year:not(#_),
+.kodza-awards-list__arrow:not(#_),
+.kodza-awards-list__shaft:not(#_),
+.kodza-awards-list__tip:not(#_),
+.kodza-awards-list__plus:not(#_),
+.kodza-awards-list__more-word:not(#_),
+.kodza-awards-list__more-word span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-awards-list__title:not(#_),
+.kodza-awards-list__name:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-awards-list__intro:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-awards-list__entries:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-awards-list__item:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-awards-list__entry:not(#_) {
+  border: revert;
+  margin: revert;
+  border-radius: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-awards-list__more:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-awards-list__arrow svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-awards-list__title:not(#_):where(:not([hidden])),
+.kodza-awards-list__intro:not(#_):where(:not([hidden])),
+.kodza-awards-list__name:not(#_):where(:not([hidden])),
+.kodza-awards-list__entries:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-awards-list__title:not(#_):where([hidden]),
+.kodza-awards-list__intro:not(#_):where([hidden]),
+.kodza-awards-list__name:not(#_):where([hidden]),
+.kodza-awards-list__entries:not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-awards-list__total:not(#_)::before,
+.kodza-awards-list__entry:not(#_)::before,
+.kodza-awards-list__prize:not(#_)::before,
+.kodza-awards-list__prize:not(#_)::after,
+.kodza-awards-list__entry:not(#_)::after,
+.kodza-awards-list__plus:not(#_)::before,
+.kodza-awards-list__plus:not(#_)::after,
+.kodza-awards-list__project:not(#_)::before,
+.kodza-awards-list__year:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-awards-list__head:not(#_) {
+  display: grid;
+  margin-bottom: clamp(40px, 5vw, 72px);
+}
+
+.kodza-awards-list__eyebrow:not(#_) {
+  font-family: var(--kz-font-label, var(--kz-awards-list-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-awards-list__more:not(#_) {
+  font-family: var(--kz-font-label, var(--kz-awards-list-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: var(--kz-font-label-leading, 1.5);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, none);
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-awards-list__eyebrow:not(#_) {
+  display: flex;
+  margin: 0 0 20px;
+  color: var(--kz-awards-list-muted);
+}
+
+.kodza-awards-list__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(clamp(32px, 4vw, 56px) * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.02;
+  letter-spacing: var(--kz-font-display-tracking, -0.045em);
+  text-transform: var(--kz-font-display-case, none);
+}
+
+.kodza-awards-list__intro:not(#_) {
+  max-width: 400px;
+  margin: 0;
+  color: var(--kz-awards-list-muted);
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.55;
+}
+
+.kodza-awards-list__name:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(17px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 500);
+  line-height: 1.3;
+  letter-spacing: var(--kz-font-display-tracking, -0.02em);
+  text-transform: var(--kz-font-display-case, none);
+}
+
+.kodza-awards-list__entries:not(#_) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-awards-list__item:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-awards-list__item + .kodza-awards-list__item:not(#_) {
+  border-top: 1px solid var(--kz-awards-list-line);
+}
+
+.kodza-awards-list__item[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-awards-list__entry:where(a):not(#_) {
+  position: relative;
+  display: grid;
+  padding: 22px 0;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+  transition: color calc(0.35s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-awards-list__arrow svg:not(#_) {
+  display: block;
+}
+
+a.kodza-awards-list__entry:focus-visible :is(.kodza-awards-list__times, .kodza-awards-list__by, .kodza-awards-list__project, .kodza-awards-list__year, .kodza-awards-list__arrow):where(svg):not(#_) {
+  color: var(--kz-awards-list-ink);
+}
+
+@media (hover: hover) {
+  a.kodza-awards-list__entry:hover :is(.kodza-awards-list__times, .kodza-awards-list__by, .kodza-awards-list__project, .kodza-awards-list__year, .kodza-awards-list__arrow):where(svg):not(#_) {
+    color: var(--kz-awards-list-ink);
+  }
+}
+
+@media (hover: hover) {
+  .kodza-awards-list__groups:has(a.kodza-awards-list__entry:hover) .kodza-awards-list__entry:not(:hover):where(a):not(#_),
+  .kodza-awards-list__groups:has(a.kodza-awards-list__entry:hover) .kodza-awards-list__entry:not(:hover) :is(.kodza-awards-list__times, .kodza-awards-list__by, .kodza-awards-list__project, .kodza-awards-list__year, .kodza-awards-list__arrow):where(svg):not(#_) {
+    color: var(--kz-awards-list-dim);
+  }
+}
+
+.kodza-awards-list__more:not(#_) {
+  grid-column: -2;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 18px 0 22px;
+  border: 0;
+  background: none;
+  color: var(--kz-awards-list-muted);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-awards-list__more:hover:not(#_) {
+    color: var(--kz-awards-list-ink);
+  }
+}
+
+.kodza-awards-list__more:focus-visible:not(#_) {
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+  outline: 2px solid var(--kz-awards-list-ink);
+  outline-offset: 2px;
+  color: var(--kz-awards-list-ink);
+}
+
+@container kodza-awards-list (max-width: 720px) {
+  .kodza-awards-list__entry:where(a):not(#_),
+  .kodza-awards-list__group--press .kodza-awards-list__entry:where(a):not(#_) {
+    display: flex;
+    padding: 18px 28px 18px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-awards-list__entry:where(a):not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-awards-list__more:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

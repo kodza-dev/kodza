@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 244. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 250. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-244 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+250 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -342,11 +342,15 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Cursor</b> · 1</summary>
+<summary><b>Cursor</b> · 5</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
+| [Cursor Label](components/cursor-label/) | A project grid whose name tags follow the pointer inside each card, a step behind, cut by the card's edge and leaving by the edge the hand leaves by. In the corner on focus and under a finger. | [Demo](https://kodza.dev/components/cursor-label/) |
 | [Custom Cursor](components/hover-custom-cursor/) | Inside its zone the pointer becomes a dot with a soft lag, and a pill that says what a click will do over each item. No GSAP. | [Demo](https://kodza.dev/components/hover-custom-cursor/) |
+| [Drag Cursor](components/drag-cursor/) | A Drag disc beside the pointer over any zone marked data-cursor="drag": it tightens on press, the arrow you pull toward leans out, and a strip gets mouse drag with its snap. Swipe under a finger. | [Demo](https://kodza.dev/components/drag-cursor/) |
+| [Image Trail](components/image-trail/) | A hero that deals its pictures under the pointer: the next one lands where the hand is, on top of the last, then shrinks away. Quick hands scatter more. A still fan under a finger. | [Demo](https://kodza.dev/components/image-trail/) |
+| [Spotlight Reveal](components/spotlight-reveal/) | A hero whose picture sits behind fogged glass: the pointer wipes a soft circle through it and the fog slowly closes behind. Canvas only, the finger works too. | [Demo](https://kodza.dev/components/spotlight-reveal/) |
 
 </details>
 
@@ -465,10 +469,11 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Testimonials & logos</b> · 6</summary>
+<summary><b>Testimonials & logos</b> · 7</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
+| [Awards List](components/awards-list/) | Awards, selections and press in grouped lists with totals in mono: prize, jury, project and year per row, a row that inks with its arrow, the rest folded behind Show more. | [Demo](https://kodza.dev/components/awards-list/) |
 | [Logo Grid](components/logo-grid/) | Client logos in a hairline grid, grey and all the same weight. A cell can link to its case study: on hover or focus the logo rolls up and the result rises in. Tiers for sponsors. | [Demo](https://kodza.dev/components/logo-grid/) |
 | [Logo Swap](components/logo-swap/) | More customer logos than cells: every few seconds one cell swaps its logo, the old one leaving upwards as the next rises in. Every logo weighs the same; hover or pause holds them. | [Demo](https://kodza.dev/components/logo-swap/) |
 | [Quote Spotlight](components/quote-spotlight/) | One big quote at a time, faces or press logos as tabs under it: a ring fills while it is read, then the next quote rises line by line. Click, swipe or arrow keys pick one; hover or pause holds it. | [Demo](https://kodza.dev/components/quote-spotlight/) |
@@ -541,12 +546,13 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>E-commerce</b> · 10</summary>
+<summary><b>E-commerce</b> · 11</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
 | [Buy Box](components/buy-box/) | The right-hand column of a product page as one cart form: colours and sizes in a sliding ink pill, a price that rolls with the size, quantity, Add to cart, a ships-today line and folding details. | [Demo](https://kodza.dev/components/buy-box/) |
 | [Cart Drawer](components/cart-drawer/) | Side cart for a shop: an added product flies into the bag, the drawer opens and the line slides in. Quantities change in place, Undo after a removal, prices roll, free shipping fills up. | [Demo](https://kodza.dev/components/cart-drawer/) |
+| [Filter Chips](components/filter-chips/) | Filter chips over a list you already have: real checkboxes in a GET form the shop already reads, chips that fill with ink, tags that lift into the head and counts that roll. | [Demo](https://kodza.dev/components/filter-chips/) |
 | [Free Shipping Bar](components/free-shipping-bar/) | A free shipping progress bar that listens to the cart: the amount left rolls digit by digit, a small van rides the line, and the sentence rolls into a thank-you once the threshold is met. | [Demo](https://kodza.dev/components/free-shipping-bar/) |
 | [Product Card](components/product-card/) | A shop grid card: the second photo rises on hover (a swipe on phones), colour swatches swap the photos in place, and Add rolls into the sizes and sends the form to the cart. | [Demo](https://kodza.dev/components/product-card/) |
 | [Product Gallery](components/product-gallery/) | The photos of a product page: each slides in from the side you head to and zooms towards the mouse, a click opens it full screen, and a colour chosen on the page switches the photos. | [Demo](https://kodza.dev/components/product-gallery/) |
