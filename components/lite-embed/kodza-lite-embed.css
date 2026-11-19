@@ -1,0 +1,362 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Lite Embed
+   A YouTube or Vimeo facade: the poster and the Play pill of the Video Player, and nothing loaded
+   from YouTube before the click (the connection warms up on hover or focus). On Play the dot
+   spins while the player loads behind, then the poster lifts away like a curtain. Without the
+   script it stays a plain link to the video. The poster is any image you host (YouTube's own sits
+   at i.ytimg.com/vi/VIDEO_ID/hqdefault.jpg). Tuned with the --kz-lite-embed-* variables; the
+   provider, the video and a start time go in data-provider, data-id and data-start. */
+.kodza-lite-embed {
+  --kz-lite-embed-ink: var(--kz-color-ink, #0a0a0a);
+  --kz-lite-embed-light: var(--kz-color-page, #f2f2f0);
+  --kz-lite-embed-surface: color-mix(in srgb, var(--kz-lite-embed-light) 86%, transparent);
+  --kz-lite-embed-base: #141414;
+  --kz-lite-embed-shadow: 0 10px 30px rgba(10, 10, 10, 0.16), 0 1px 2px rgba(10, 10, 10, 0.08);
+  --kz-lite-embed-ratio: 16 / 9;
+  --kz-lite-embed-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-lite-embed-pill-height: 52px;
+  --kz-lite-embed-dot: 36px;
+  --kz-lite-embed-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-lite-embed-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  container: kodza-lite-embed / inline-size;
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  aspect-ratio: var(--kz-lite-embed-ratio);
+  border-radius: var(--kz-lite-embed-radius);
+  background: var(--kz-lite-embed-base);
+  color: var(--kz-lite-embed-ink);
+}
+
+.kodza-lite-embed__link {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.kodza-lite-embed__poster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kodza-lite-embed__frame {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--kz-lite-embed-base);
+}
+
+.kodza-lite-embed__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--kz-lite-embed-pill-height);
+  padding: 0 20px 0 8px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-lite-embed-surface);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow: var(--kz-lite-embed-shadow);
+  translate: -50% -50%;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  line-height: 1;
+  white-space: nowrap;
+  transition: scale calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-lite-embed-ease);
+}
+
+.kodza-lite-embed__dot {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--kz-lite-embed-dot);
+  height: var(--kz-lite-embed-dot);
+  border-radius: 50%;
+  background: var(--kz-lite-embed-ink);
+  color: var(--kz-lite-embed-light);
+}
+
+.kodza-lite-embed__icon,
+.kodza-lite-embed__wait {
+  grid-area: 1 / 1;
+  width: 14px;
+  height: 14px;
+  transition:
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    scale calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-lite-embed-ease);
+}
+
+.kodza-lite-embed__icon {
+  fill: currentColor;
+}
+
+/* The waiting ring: a quarter of a circle that turns while the player loads */
+.kodza-lite-embed__wait {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-dasharray: 9 26;
+  opacity: 0;
+  scale: 0.4;
+}
+
+.kodza-lite-embed__length {
+  font-family: var(--kz-font-label, var(--kz-lite-embed-mono));
+  font-size: var(--kz-font-label-size, 12.5px);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.68;
+}
+
+.kodza-lite-embed__link:active .kodza-lite-embed__play {
+  scale: 0.96;
+}
+
+.kodza-lite-embed.is-loading .kodza-lite-embed__link {
+  cursor: progress;
+}
+
+.kodza-lite-embed.is-loading .kodza-lite-embed__icon {
+  opacity: 0;
+  scale: 0.4;
+}
+
+.kodza-lite-embed.is-loading .kodza-lite-embed__wait {
+  opacity: 1;
+  scale: 1;
+  animation: kodza-lite-embed-turn calc(0.8s * var(--kz-motion-scale, 1)) linear infinite;
+}
+
+/* The curtain cuts the poster: the pill's blur is dropped first, Chrome would not cut it */
+.kodza-lite-embed.is-open .kodza-lite-embed__play {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.kodza-lite-embed.is-played .kodza-lite-embed__link {
+  visibility: hidden;
+}
+
+@keyframes kodza-lite-embed-turn {
+  to {
+    rotate: 1turn;
+  }
+}
+
+@media (hover: hover) {
+  .kodza-lite-embed__link:hover .kodza-lite-embed__play {
+    scale: 1.04;
+  }
+}
+
+.kodza-lite-embed__link:focus-visible {
+  outline: 0;
+}
+
+.kodza-lite-embed__link:focus-visible .kodza-lite-embed__play {
+  outline: 2px solid var(--kz-lite-embed-light);
+  outline-offset: 3px;
+}
+
+@container kodza-lite-embed (max-width: 399px) {
+  .kodza-lite-embed__play {
+    --kz-lite-embed-pill-height: 44px;
+    --kz-lite-embed-dot: 32px;
+
+    gap: 10px;
+    padding: 0 16px 0 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-lite-embed__play,
+  .kodza-lite-embed__icon,
+  .kodza-lite-embed__wait {
+    transition-duration: 0.01ms;
+  }
+
+  .kodza-lite-embed.is-loading .kodza-lite-embed__wait {
+    animation-duration: calc(1.6s * var(--kz-motion-scale, 1));
+  }
+}
+
+/* kodza-guard 890ad3635d4d — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-lite-embed__link):not(#_) {
+  outline: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-lite-embed__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-lite-embed__poster:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-lite-embed__dot:not(#_),
+.kodza-lite-embed__word:not(#_),
+.kodza-lite-embed__length:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-lite-embed__icon:not(#_),
+.kodza-lite-embed__wait:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-lite-embed__icon:not(#_):where(:not([hidden])),
+.kodza-lite-embed__wait:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-lite-embed__icon:not(#_):where([hidden]),
+.kodza-lite-embed__wait:not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-lite-embed__link:not(#_) {
+  position: absolute;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.kodza-lite-embed__poster:not(#_) {
+  display: block;
+}
+
+.kodza-lite-embed__icon:not(#_),
+.kodza-lite-embed__wait:not(#_) {
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    scale calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-lite-embed-ease);
+}
+
+.kodza-lite-embed__link:focus-visible:not(#_) {
+  outline: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-lite-embed__icon:not(#_),
+  .kodza-lite-embed__wait:not(#_) {
+    transition-duration: 0.01ms;
+  }
+}

@@ -1,0 +1,47 @@
+<figure class="kodza-video-player">
+  <div class="kodza-video-player__screen">
+    <video class="kodza-video-player__video" src="https://kodza.dev/media/kz-reel.mp4" poster="https://kodza.dev/media/kz-reel-poster.webp" width="1920" height="1080" preload="metadata" playsinline controls>
+      <track kind="captions" src="https://kodza.dev/media/kz-reel-captions.vtt" srclang="en" label="English">
+      <track kind="chapters" src="https://kodza.dev/media/kz-reel-chapters.vtt" srclang="en" label="Chapters">
+    </video>
+    <span class="kodza-video-player__caption" aria-hidden="true"></span>
+    <button class="kodza-video-player__start" type="button">
+      <span class="kodza-video-player__dot"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6L12.6 8z"/></svg></span>
+      <span class="kodza-video-player__word">Play</span>
+      <span class="kodza-video-player__length">0:20</span>
+    </button>
+    <div class="kodza-video-player__bar">
+      <button class="kodza-video-player__toggle" type="button" aria-label="Play">
+        <span class="kodza-video-player__swap">
+          <svg class="kodza-video-player__play-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6L12.6 8z"/></svg>
+          <svg class="kodza-video-player__pause-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.6 3h2.3v10H4.6zM9.1 3h2.3v10H9.1z"/></svg>
+        </span>
+      </button>
+      <span class="kodza-video-player__clock" aria-hidden="true"><span class="kodza-video-player__now">0:00</span><span class="kodza-video-player__total">0:20</span></span>
+      <span class="kodza-video-player__chapter" aria-hidden="true"><span class="kodza-video-player__chapter-name"></span></span>
+      <div class="kodza-video-player__scrub" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0">
+        <span class="kodza-video-player__rail"><span class="kodza-video-player__buffer"></span><span class="kodza-video-player__progress"></span></span>
+        <span class="kodza-video-player__knob"></span>
+        <span class="kodza-video-player__tip" aria-hidden="true"><span class="kodza-video-player__tip-time">0:00</span><span class="kodza-video-player__tip-chapter"></span></span>
+      </div>
+      <span class="kodza-video-player__sound">
+        <button class="kodza-video-player__mute" type="button" aria-label="Mute" aria-pressed="false">
+          <span class="kodza-video-player__swap">
+            <svg class="kodza-video-player__on-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 6h2.4L8.5 3v10L4.9 10H2.5z"/><path d="M11 5.6a3.4 3.4 0 0 1 0 4.8M12.9 3.7a6 6 0 0 1 0 8.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <svg class="kodza-video-player__off-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 6h2.4L8.5 3v10L4.9 10H2.5z"/><path d="M11 6.2l3.6 3.6M14.6 6.2 11 9.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </span>
+        </button>
+        <span class="kodza-video-player__volume" role="slider" tabindex="0" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><span class="kodza-video-player__level"></span></span>
+      </span>
+      <button class="kodza-video-player__captions" type="button" aria-label="Captions" aria-pressed="false">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.7" y="3" width="12.6" height="10" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4.4 8.2h4.2M10.2 8.2h1.4M4.4 10.4h2M8 10.4h3.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </button>
+      <button class="kodza-video-player__full" type="button" aria-label="Full screen">
+        <span class="kodza-video-player__swap">
+          <svg class="kodza-video-player__enter-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg class="kodza-video-player__exit-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2.5V6H2.5M13.5 6H10V2.5M10 13.5V10h3.5M2.5 10H6v3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </button>
+    </div>
+  </div>
+</figure>

@@ -10,7 +10,7 @@ Full-bleed slides that change with a curtain while the title rises from a mask. 
 
 | File | Size | What it is |
 | --- | ---: | --- |
-| [`kodza-slider-horizontal-fullscreen.html`](kodza-slider-horizontal-fullscreen.html) | 2.1 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
+| [`kodza-slider-horizontal-fullscreen.html`](kodza-slider-horizontal-fullscreen.html) | 2.2 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
 | [`kodza-slider-horizontal-fullscreen.css`](kodza-slider-horizontal-fullscreen.css) | 13.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
 | [`kodza-slider-horizontal-fullscreen.js`](kodza-slider-horizontal-fullscreen.js) | 9.4 KB | The script. One copy per page runs every instance. |
 
@@ -54,7 +54,7 @@ CSS variables, set on `.kodza-slider` itself:
 | `--kz-slider-duration` | `1s` |  |
 | `--kz-slider-ease` | `cubic-bezier(0.76, 0, 0.24, 1)` |  |
 
-- Attributes: `data-dir` (e.g. `-1`, `1`), `data-direction` (e.g. `vertical`)
+- Attributes: `data-cursor` (e.g. `arrows`), `data-cursor-count`, `data-cursor-next`, `data-cursor-prev`, `data-dir` (e.g. `-1`, `1`), `data-direction` (e.g. `vertical`), `data-kodza-arrow-cursor`
 
 ## Keyboard
 

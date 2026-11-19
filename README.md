@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 250. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 255. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-250 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+255 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -256,7 +256,7 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Media</b> · 6</summary>
+<summary><b>Media</b> · 10</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -264,7 +264,11 @@ Written like it's going live tomorrow. Because it probably is.
 | [Carousel](components/carousel/) | A native scroll-snap carousel that works before the script loads. Then: page buttons, a rolling count, a progress bar or dots, and mouse drag with a throw. Never steals the wheel. | [Demo](https://kodza.dev/components/carousel/) |
 | [Fullscreen Slider](components/slider-horizontal-fullscreen/) | Full-bleed slides that change with a curtain while the title rises from a mask. Horizontal or vertical, buttons, arrow keys and swipe. No GSAP. | [Demo](https://kodza.dev/components/slider-horizontal-fullscreen/) |
 | [Image Gallery](components/image-gallery/) | An editorial image grid: each image grows into a fullscreen viewer in one continuous motion, with curtain transitions between images and keyboard and swipe support. | [Demo](https://kodza.dev/components/image-gallery/) |
+| [Image Hotspots](components/image-hotspots/) | Points on a picture, each opening a card about what it marks. One card serves them all: it glides from point to point while its text rolls. | [Demo](https://kodza.dev/components/image-hotspots/) |
 | [Lightbox](components/lightbox/) | Wrap an article and every picture in it opens large: it grows from its own place to the screen, arrows or a swipe go to the next, and it returns to its place on Escape. | [Demo](https://kodza.dev/components/lightbox/) |
+| [Lite Embed](components/lite-embed/) | A YouTube or Vimeo facade: a poster and a Play pill, nothing loaded from YouTube before the click. The player loads behind the poster, which lifts away once it's there. Without the script, a link to the video. | [Demo](https://kodza.dev/components/lite-embed/) |
+| [Masonry Grid](components/masonry-grid/) | Images of every height in columns that keep the reading order. Each one glides to its new place when the column count changes, and Load more brings the next ones in, one after another. | [Demo](https://kodza.dev/components/masonry-grid/) |
+| [Video Player](components/video-player/) | A native video with its own controls: the Play pill stretches into a bar with chapters on the track, captions, sound and full screen. It steps aside while the video plays. | [Demo](https://kodza.dev/components/video-player/) |
 | [Zoom Lens](components/zoom-lens/) | A closer look under the pointer: a round lens follows with a little lag and shows the detail from a sharper file, or the picture itself zooms towards the pointer. | [Demo](https://kodza.dev/components/zoom-lens/) |
 
 </details>
@@ -342,10 +346,11 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Cursor</b> · 5</summary>
+<summary><b>Cursor</b> · 6</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
+| [Arrow Cursor](components/arrow-cursor/) | A disc beside the pointer over any picture marked data-cursor="arrows": its arrow swings to the half you are on, the slide count rolls under it, and a click calls the host's own Previous / Next buttons. | [Demo](https://kodza.dev/components/arrow-cursor/) |
 | [Cursor Label](components/cursor-label/) | A project grid whose name tags follow the pointer inside each card, a step behind, cut by the card's edge and leaving by the edge the hand leaves by. In the corner on focus and under a finger. | [Demo](https://kodza.dev/components/cursor-label/) |
 | [Custom Cursor](components/hover-custom-cursor/) | Inside its zone the pointer becomes a dot with a soft lag, and a pill that says what a click will do over each item. No GSAP. | [Demo](https://kodza.dev/components/hover-custom-cursor/) |
 | [Drag Cursor](components/drag-cursor/) | A Drag disc beside the pointer over any zone marked data-cursor="drag": it tightens on press, the arrow you pull toward leans out, and a strip gets mouse drag with its snap. Swipe under a finger. | [Demo](https://kodza.dev/components/drag-cursor/) |
