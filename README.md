@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 274. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 278. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-274 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+278 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -220,22 +220,26 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Data display</b> · 15</summary>
+<summary><b>Data display</b> · 19</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
 | [Accordion](components/accordion-component/) | Questions that open on their answer, on a native <details>: the panel opens at its real height, the answer rises, the plus turns into a minus. One open at a time if you like. | [Demo](https://kodza.dev/components/accordion-component/) |
 | [Avatar](components/avatar/) | Initials or a picture in four sizes, a status told by a shape (full, ring, bar, faded), and a group that spreads when you come near, the face you point at saying its name. | [Demo](https://kodza.dev/components/avatar/) |
 | [Badge](components/badge/) | Small labels: soft, solid, live, mono and a count that rolls. Remove a tag and it shrinks away while its neighbours glide to their new place, across lines too. | [Demo](https://kodza.dev/components/badge/) |
+| [Bar Chart](components/bar-chart/) | A bar chart drawn from a real table: bars rise into view, the value rides above the bar you point at, series switch on one shared scale, and the table is one click away. | [Demo](https://kodza.dev/components/bar-chart/) |
 | [Code Block](components/code-block/) | Code to read and copy: file name, line numbers, highlighted and folded lines, a monochrome syntax in weight and light. Copy rolls to Copied and takes everything, folded lines too; a terminal copies its commands only. | [Demo](https://kodza.dev/components/code-block/) |
 | [Countdown](components/event-day-counter/) | A live countdown to a date: every digit that changes falls out of its window as the next one drops in, and at zero the figures step aside for your message. Large or inline. | [Demo](https://kodza.dev/components/event-day-counter/) |
 | [Counter](components/counter-animation/) | A figure that rolls into place like an odometer when it comes into view: digits on the right spin more and land last, a zero takes a full turn. Readable without the script. | [Demo](https://kodza.dev/components/counter-animation/) |
 | [Departure Board](components/departure-board/) | The next departures from a place, worked out at its own time: the day's timetable by season and weekday, the next trip on top with a countdown that rolls every minute, gone trips faded, a line once the day is over. | [Demo](https://kodza.dev/components/departure-board/) |
+| [Donut](components/donut/) | A donut chart drawn from a real table: the parts draw one after the other in shades of ink, the total counts up in the centre, and pointing at a part rolls the centre to its value. | [Demo](https://kodza.dev/components/donut/) |
 | [Filter Transitions](components/filter-transitions/) | A filterable grid: the ink pill slides to the filter, leaving cards step back, the others glide to their new place and the new ones arrive in turn. | [Demo](https://kodza.dev/components/filter-transitions/) |
 | [Kbd](components/kbd/) | Keyboard keys with a little depth, alone, in a combo or in a list of shortcuts. Type one for real and its keys sink as you press them; the whole combo down lights its line. | [Demo](https://kodza.dev/components/kbd/) |
+| [Line Chart](components/line-chart/) | A line chart drawn from a real table: one or two lines draw into view, a guide snaps to the nearest point with every value in one bubble, and the table is one click away. | [Demo](https://kodza.dev/components/line-chart/) |
 | [Menu Board](components/menu-board/) | A restaurant menu by service: dish, original name, a tabular price on a dotted leader, marks in icon and words. Opens on the service served now; tabs, or stacked with pinned titles (data-layout="stack"). | [Demo](https://kodza.dev/components/menu-board/) |
 | [Separator](components/separator/) | Lines that draw themselves from their middle when they come into view: a plain rule, one with a label or a section title, one around a CSS dot, and verticals between items. | [Demo](https://kodza.dev/components/separator/) |
 | [Show More](components/collapsible/) | Long content kept short until asked: a text cut by a soft fade, or a list that says how many items are left. It opens at its real height and the button's words roll. | [Demo](https://kodza.dev/components/collapsible/) |
+| [Sparkline](components/sparkline/) | A trend the size of a word, in a sentence or a table cell: the line draws when it comes into view, its last point lands, and the last value and the change rise in mono beside it. Screen readers hear one sentence. | [Demo](https://kodza.dev/components/sparkline/) |
 | [Stat Card](components/stat-card/) | A key figure, its change and the curve behind it: the figure rolls, the curve draws itself and a guide follows your pointer with the value of the day. Trends told by arrows. | [Demo](https://kodza.dev/components/stat-card/) |
 | [Table](components/table/) | A data table that sorts when you click a column: rows glide to their new place, the sorted column gets a soft band, the header stays on top and the edges fade while it scrolls. | [Demo](https://kodza.dev/components/table/) |
 | [Timeline](components/timeline-component/) | Dated steps along a rail that fills as you scroll: each dot fills when the ink reaches it, each step rises into place the first time it is seen, the last one reached stays marked. | [Demo](https://kodza.dev/components/timeline-component/) |

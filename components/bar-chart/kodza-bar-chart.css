@@ -1,0 +1,1117 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Bar Chart
+   A bar chart drawn from a real table: the columns rise from the baseline one after another
+   when the chart comes into view. Point at a bar, focus the chart and use the arrows, or tap it,
+   and the others step back while its value glides above it in a small ink bubble. A table with
+   several value columns (2025, 2026) gets a switch: each bar glides to its new height, on one
+   scale for all of them. --horizontal is a ranking, sorted, with the name on the bar:
+   it turns white exactly where the bar covers it. "Chart / Table" slides from one to the other,
+   and the table stays for screen readers. Without the script, the table simply shows.
+   Everything is tuned with the --kz-bar-chart-* variables. */
+.kodza-bar-chart {
+  --kz-bar-chart-bg: var(--kz-color-paper, #ffffff);
+  --kz-bar-chart-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-bar-chart-muted: color-mix(in srgb, var(--kz-bar-chart-fg) 60%, transparent);
+  --kz-bar-chart-border: color-mix(in srgb, var(--kz-bar-chart-fg) 10%, transparent);
+  --kz-bar-chart-line: color-mix(in srgb, var(--kz-bar-chart-fg) 8%, transparent); /* the gridlines */
+  --kz-bar-chart-soft: color-mix(in srgb, var(--kz-bar-chart-fg) 5%, transparent); /* the rails of --horizontal */
+  --kz-bar-chart-bar: var(--kz-color-accent, var(--kz-bar-chart-fg));
+  --kz-bar-chart-on-bar: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-bar-chart-dim: 0.2; /* the opacity of the other bars while one is read */
+  --kz-bar-chart-height: 260px; /* the plot of the columns */
+  --kz-bar-chart-row: 44px; /* one line of --horizontal */
+  --kz-bar-chart-pad: 28px;
+  --kz-bar-chart-mono: var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-bar-chart-grow: 0.9s; /* a bar rising or gliding to a new value */
+  --kz-bar-chart-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  gap: 22px;
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: var(--kz-bar-chart-pad);
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-bar-chart-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-bar-chart-border);
+  color: var(--kz-bar-chart-fg);
+}
+
+.kodza-bar-chart.is-narrow {
+  --kz-bar-chart-pad: 20px;
+}
+
+.kodza-bar-chart__head,
+.kodza-bar-chart__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  min-width: 0;
+}
+
+.kodza-bar-chart__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.kodza-bar-chart__source {
+  margin: 0;
+  color: var(--kz-bar-chart-muted);
+  font-family: var(--kz-font-label, var(--kz-bar-chart-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+/* The switches: real radio buttons, an ink pill that slides, and a white copy of the labels cut
+   to the pill, so a label turns white exactly at its edges */
+.kodza-bar-chart__switch {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  box-sizing: border-box;
+  height: 36px;
+  padding: 3px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-bar-chart-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-bar-chart-border);
+}
+
+.kodza-bar-chart__head .kodza-bar-chart__switch {
+  transition: opacity calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-bar-chart-ease);
+}
+
+.kodza-bar-chart.is-table .kodza-bar-chart__head .kodza-bar-chart__switch {
+  opacity: 0;
+}
+
+.kodza-bar-chart__switch:has(:focus-visible) {
+  outline: 2px solid var(--kz-bar-chart-fg);
+  outline-offset: 2px;
+}
+
+.kodza-bar-chart__option,
+.kodza-bar-chart__copy {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 100%;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: var(--kz-radius-pill, 999px);
+  color: var(--kz-bar-chart-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-bar-chart__option input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .kodza-bar-chart__option:hover {
+    color: var(--kz-bar-chart-fg);
+  }
+}
+
+.kodza-bar-chart__pill {
+  position: absolute;
+  inset: 3px;
+  display: flex;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-bar-chart-bar);
+  pointer-events: none;
+}
+
+.kodza-bar-chart__copy {
+  color: var(--kz-bar-chart-on-bar);
+}
+
+/* The quiet one, Chart / Table: in the label font, a soft pill */
+.kodza-bar-chart__switch--quiet {
+  height: 30px;
+}
+
+.kodza-bar-chart__switch--quiet .kodza-bar-chart__option,
+.kodza-bar-chart__switch--quiet .kodza-bar-chart__copy {
+  padding: 0 11px;
+  font-family: var(--kz-font-label, var(--kz-bar-chart-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+}
+
+.kodza-bar-chart__switch--quiet .kodza-bar-chart__pill {
+  background: color-mix(in srgb, var(--kz-bar-chart-fg) 8%, transparent);
+}
+
+.kodza-bar-chart__switch--quiet .kodza-bar-chart__copy {
+  color: var(--kz-bar-chart-fg);
+}
+
+.kodza-bar-chart__views {
+  position: relative;
+  min-width: 0;
+}
+
+.kodza-bar-chart__views.is-swapping {
+  overflow: clip;
+  overflow-clip-margin: 6px;
+}
+
+/* In the chart view the table stays in the page for screen readers, out of sight */
+.kodza-bar-chart.is-ready:not(.is-table) .kodza-bar-chart__sheet:not(.is-leaving) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-bar-chart.is-table .kodza-bar-chart__chart:not(.is-leaving) {
+  display: none;
+}
+
+.kodza-bar-chart__views .is-leaving {
+  position: absolute;
+  inset: 0 0 auto;
+  pointer-events: none;
+}
+
+.kodza-bar-chart__plot {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: var(--kz-bar-chart-height) auto;
+  column-gap: 14px;
+  row-gap: 10px;
+  padding-top: 34px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  outline: none;
+}
+
+.kodza-bar-chart__plot:focus-visible {
+  outline: 2px solid var(--kz-bar-chart-fg);
+  outline-offset: 8px;
+}
+
+.kodza-bar-chart__ticks {
+  position: relative;
+  min-width: 2ch;
+}
+
+.kodza-bar-chart__tick {
+  position: absolute;
+  white-space: nowrap;
+  right: 0;
+  bottom: calc(var(--at) * 100%);
+  transform: translateY(50%);
+}
+
+.kodza-bar-chart__tick,
+.kodza-bar-chart__axis,
+.kodza-bar-chart__tip,
+.kodza-bar-chart__value {
+  font-family: var(--kz-font-label, var(--kz-bar-chart-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--kz-font-label-leading, 1.2);
+}
+
+.kodza-bar-chart__tick,
+.kodza-bar-chart__axis {
+  color: var(--kz-bar-chart-muted);
+}
+
+/* A word that changes rolls: both stay in one cell while the old one leaves */
+.kodza-bar-chart__roll {
+  display: inline-grid;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.kodza-bar-chart__roll > span {
+  grid-area: 1 / 1;
+  justify-self: end;
+}
+
+.kodza-bar-chart__cols {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  align-items: end;
+  height: 100%;
+}
+
+.kodza-bar-chart__lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.kodza-bar-chart__lines span {
+  position: absolute;
+  right: 0;
+  bottom: calc(var(--at) * 100%);
+  left: 0;
+  height: 1px;
+  background: var(--kz-bar-chart-line);
+}
+
+.kodza-bar-chart__lines span:first-child {
+  background: color-mix(in srgb, var(--kz-bar-chart-fg) 22%, transparent);
+}
+
+.kodza-bar-chart__col {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
+  overflow: clip;
+}
+
+/* Every bar is as tall as the plot and slides up out of its column: the rounded top never squashes */
+.kodza-bar-chart__bar {
+  width: min(62%, 56px);
+  min-width: 3px;
+  height: 100%;
+  border-radius: calc(6px * var(--kz-radius-scale, 1)) calc(6px * var(--kz-radius-scale, 1)) 0 0;
+  background: var(--kz-bar-chart-bar);
+  transform: translateY(calc((1 - var(--v, 0)) * 100%));
+  transition:
+    transform calc(var(--kz-bar-chart-grow) * var(--kz-motion-scale, 1)) var(--kz-bar-chart-ease) var(--delay, 0s),
+    opacity calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-bar-chart.is-entering .kodza-bar-chart__col,
+.kodza-bar-chart.is-entering .kodza-bar-chart__row {
+  --delay: calc(var(--i) * 0.05s * var(--kz-motion-scale, 1));
+}
+
+.kodza-bar-chart.is-moving .kodza-bar-chart__col,
+.kodza-bar-chart.is-moving .kodza-bar-chart__row {
+  --delay: calc(var(--i) * 0.018s * var(--kz-motion-scale, 1));
+}
+
+.kodza-bar-chart.is-pointing .kodza-bar-chart__col:not(.is-active) .kodza-bar-chart__bar,
+.kodza-bar-chart.is-pointing .kodza-bar-chart__row:not(.is-active) {
+  opacity: var(--kz-bar-chart-dim);
+}
+
+.kodza-bar-chart__axis {
+  display: grid;
+  grid-column: 2;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+}
+
+.kodza-bar-chart__axis span {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+  white-space: nowrap;
+  transition: color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-bar-chart__axis span.is-skipped {
+  visibility: hidden;
+}
+
+.kodza-bar-chart__axis span.is-active {
+  visibility: visible;
+  color: var(--kz-bar-chart-fg);
+}
+
+/* The bubble: one for the chart, it glides from bar to bar and rides the bar's top. The script
+   gives the size of the columns in px (--cw, --ch): it moves by transform alone */
+.kodza-bar-chart__tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  box-sizing: border-box;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-bar-chart-bar);
+  color: var(--kz-bar-chart-on-bar);
+  line-height: 24px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(
+    calc(var(--tx, 0.5) * var(--cw, 0) * 1px - 50%),
+    calc((1 - var(--tv, 0)) * var(--ch, 0) * 1px - 100% - 10px + var(--lift, 4px))
+  );
+  pointer-events: none;
+  transition:
+    opacity calc(0.18s * var(--kz-motion-scale, 1)),
+    transform calc(0.28s * var(--kz-motion-scale, 1)) var(--kz-bar-chart-ease);
+}
+
+.kodza-bar-chart.is-moving .kodza-bar-chart__tip {
+  transition-duration:
+    calc(0.18s * var(--kz-motion-scale, 1)),
+    calc(var(--kz-bar-chart-grow) * var(--kz-motion-scale, 1));
+}
+
+.kodza-bar-chart.is-pointing .kodza-bar-chart__tip {
+  --lift: 0px;
+  opacity: 1;
+}
+
+/* --horizontal: a ranking. Each line glides to its rank */
+.kodza-bar-chart__rows {
+  position: relative;
+  height: calc(var(--n) * var(--kz-bar-chart-row));
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  outline: none;
+}
+
+.kodza-bar-chart__rows:focus-visible {
+  outline: 2px solid var(--kz-bar-chart-fg);
+  outline-offset: 8px;
+}
+
+.kodza-bar-chart__row {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--value-width, auto);
+  align-items: center;
+  column-gap: 14px;
+  height: calc(var(--kz-bar-chart-row) - 8px);
+  transform: translateY(calc(var(--rank, 0) * var(--kz-bar-chart-row)));
+  transition:
+    transform calc(0.7s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    opacity calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-bar-chart__track {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  background: var(--kz-bar-chart-soft);
+}
+
+.kodza-bar-chart__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--kz-bar-chart-bar);
+  transform: translateX(calc((var(--v, 0) - 1) * 100%));
+}
+
+.kodza-bar-chart__name {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* The white double carries its own ink, cut to the bar's shape: its text always sits on the bar */
+.kodza-bar-chart__name--on {
+  background: var(--kz-bar-chart-bar);
+  color: var(--kz-bar-chart-on-bar);
+  clip-path: inset(0 calc((1 - var(--v, 0)) * 100%) 0 0 round calc(8px * var(--kz-radius-scale, 1)));
+}
+
+.kodza-bar-chart__fill,
+.kodza-bar-chart__name--on {
+  transition:
+    transform calc(var(--kz-bar-chart-grow) * var(--kz-motion-scale, 1)) var(--kz-bar-chart-ease) var(--delay, 0s),
+    clip-path calc(var(--kz-bar-chart-grow) * var(--kz-motion-scale, 1)) var(--kz-bar-chart-ease) var(--delay, 0s);
+}
+
+.kodza-bar-chart__value {
+  text-align: right;
+  white-space: nowrap;
+  color: var(--kz-bar-chart-fg);
+}
+
+/* The table: the chart's data, and what shows without the script */
+.kodza-bar-chart table {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-bar-chart caption {
+  margin: 0 0 14px;
+  padding: 0;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-align: left;
+}
+
+.kodza-bar-chart.is-ready caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-bar-chart th,
+.kodza-bar-chart td {
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-bottom: 1px solid var(--kz-bar-chart-line);
+  background: none;
+  font-weight: 400;
+  text-align: right;
+}
+
+.kodza-bar-chart th:first-child {
+  padding-left: 0;
+  font-weight: 500;
+  text-align: left;
+}
+
+.kodza-bar-chart td:last-child,
+.kodza-bar-chart th:last-child {
+  padding-right: 0;
+}
+
+.kodza-bar-chart td {
+  font-family: var(--kz-bar-chart-mono);
+  font-size: 13px;
+}
+
+.kodza-bar-chart thead th {
+  height: 32px;
+  color: var(--kz-bar-chart-muted);
+  font-family: var(--kz-font-label, var(--kz-bar-chart-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-bar-chart tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.kodza-bar-chart__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Set by the script while it puts everything back at once (kodza:replay, the still path) */
+.kodza-bar-chart.is-reset .kodza-bar-chart__bar,
+.kodza-bar-chart.is-reset .kodza-bar-chart__tip,
+.kodza-bar-chart.is-reset .kodza-bar-chart__row,
+.kodza-bar-chart.is-reset .kodza-bar-chart__fill,
+.kodza-bar-chart.is-reset .kodza-bar-chart__name--on {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-bar-chart *,
+  .kodza-bar-chart *::before,
+  .kodza-bar-chart *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 5d27386d22b3 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-bar-chart__title):not(#_),
+:where(.kodza-bar-chart__source):not(#_),
+:where(.kodza-bar-chart__option input:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+}
+
+:where(.kodza-bar-chart__plot):not(#_),
+:where(.kodza-bar-chart__rows):not(#_) {
+  outline-offset: revert;
+}
+
+:where(.kodza-bar-chart__sheet table:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-bar-chart__sheet caption:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-bar-chart__sheet thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-bar-chart__sheet tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-bar-chart__sheet tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-bar-chart__sheet td:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  position: revert;
+  transition-duration: revert;
+}
+
+:where(.kodza-bar-chart__sheet th:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  position: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  transition-duration: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-bar-chart:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  position: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-bar-chart__head:not(#_),
+.kodza-bar-chart__pill:not(#_),
+.kodza-bar-chart__views:not(#_),
+.kodza-bar-chart__chart:not(#_),
+.kodza-bar-chart__ticks:not(#_),
+.kodza-bar-chart__tick:not(#_),
+.kodza-bar-chart__roll:not(#_),
+.kodza-bar-chart__cols:not(#_),
+.kodza-bar-chart__lines:not(#_),
+.kodza-bar-chart__col:not(#_),
+.kodza-bar-chart__bar:not(#_),
+.kodza-bar-chart__axis:not(#_),
+.kodza-bar-chart__sheet:not(#_),
+.kodza-bar-chart__foot:not(#_),
+.kodza-bar-chart__live:not(#_),
+.kodza-bar-chart__row:not(#_),
+.kodza-bar-chart__track:not(#_),
+.kodza-bar-chart__fill:not(#_),
+.kodza-bar-chart__name:not(#_),
+.kodza-bar-chart__value:not(#_),
+.kodza-bar-chart__roll span:where(:not([class*="kodza-"])):not(#_),
+.kodza-bar-chart__lines span:where(:not([class*="kodza-"])):not(#_),
+.kodza-bar-chart__axis span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-bar-chart__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-bar-chart__option:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-bar-chart__plot:not(#_),
+.kodza-bar-chart__rows:not(#_) {
+  box-sizing: revert;
+  box-shadow: revert;
+}
+
+.kodza-bar-chart__source:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-bar-chart__option input:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-bar-chart__sheet table:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-bar-chart__sheet caption:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  line-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-bar-chart__sheet thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-bar-chart__sheet tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-bar-chart__sheet tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-bar-chart__sheet th:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  line-height: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-bar-chart__sheet td:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+  transition-delay: revert;
+}
+
+.kodza-bar-chart__title:not(#_):where(:not([hidden])),
+.kodza-bar-chart__source:not(#_):where(:not([hidden])),
+.kodza-bar-chart__option input:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-bar-chart__sheet table:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-bar-chart__sheet caption:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-bar-chart__sheet thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-bar-chart__sheet tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-bar-chart__sheet th:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-bar-chart__sheet tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-bar-chart__sheet td:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-bar-chart__title:not(#_):where([hidden]),
+.kodza-bar-chart__source:not(#_):where([hidden]),
+.kodza-bar-chart__option input:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-bar-chart__sheet table:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-bar-chart__sheet caption:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-bar-chart__sheet thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-bar-chart__sheet tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-bar-chart__sheet th:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-bar-chart__sheet tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-bar-chart__sheet td:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-bar-chart__sheet :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-bar-chart:not(#_) {
+  display: grid;
+  box-sizing: border-box;
+  padding: var(--kz-bar-chart-pad);
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-bar-chart-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-bar-chart-border);
+  color: var(--kz-bar-chart-fg);
+}
+
+.kodza-bar-chart__title:not(#_) {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.kodza-bar-chart__source:not(#_) {
+  margin: 0;
+  color: var(--kz-bar-chart-muted);
+  font-family: var(--kz-font-label, var(--kz-bar-chart-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-bar-chart__option:not(#_) {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: var(--kz-radius-pill, 999px);
+  color: var(--kz-bar-chart-muted);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 13px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  transition: color calc(0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-bar-chart__option input:not(#_) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .kodza-bar-chart__option:hover:not(#_) {
+    color: var(--kz-bar-chart-fg);
+  }
+}
+
+.kodza-bar-chart__switch--quiet .kodza-bar-chart__option:not(#_) {
+  padding: 0 11px;
+  font-family: var(--kz-font-label, var(--kz-bar-chart-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+}
+
+.kodza-bar-chart__views .is-leaving:where(table, caption, thead, tr, th, tbody, td):not(#_) {
+  position: absolute;
+}
+
+.kodza-bar-chart__plot:not(#_) {
+  outline: none;
+}
+
+.kodza-bar-chart__plot:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-bar-chart-fg);
+  outline-offset: 8px;
+}
+
+.kodza-bar-chart.is-moving .kodza-bar-chart__tip:not(#_) {
+  transition-duration: calc(0.18s * var(--kz-motion-scale, 1)),
+    calc(var(--kz-bar-chart-grow) * var(--kz-motion-scale, 1));
+}
+
+.kodza-bar-chart__rows:not(#_) {
+  outline: none;
+}
+
+.kodza-bar-chart__rows:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-bar-chart-fg);
+  outline-offset: 8px;
+}
+
+.kodza-bar-chart table:not(#_) {
+  margin: 0;
+  border: 0;
+  font-size: 14px;
+}
+
+.kodza-bar-chart caption:not(#_) {
+  margin: 0 0 14px;
+  padding: 0;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-align: left;
+}
+
+.kodza-bar-chart.is-ready caption:not(#_) {
+  position: absolute;
+}
+
+.kodza-bar-chart th:not(#_),
+.kodza-bar-chart td:not(#_) {
+  padding: 0 12px;
+  border: 0;
+  border-bottom: 1px solid var(--kz-bar-chart-line);
+  background: none;
+  font-weight: 400;
+  text-align: right;
+}
+
+.kodza-bar-chart th:first-child:not(#_) {
+  padding-left: 0;
+  font-weight: 500;
+  text-align: left;
+}
+
+.kodza-bar-chart td:last-child:not(#_),
+.kodza-bar-chart th:last-child:not(#_) {
+  padding-right: 0;
+}
+
+.kodza-bar-chart td:not(#_) {
+  font-family: var(--kz-bar-chart-mono);
+  font-size: 13px;
+}
+
+.kodza-bar-chart thead th:not(#_) {
+  color: var(--kz-bar-chart-muted);
+  font-family: var(--kz-font-label, var(--kz-bar-chart-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+}
+
+.kodza-bar-chart tbody tr:last-child > *:not(#_) {
+  border-bottom: 0;
+}
+
+.kodza-bar-chart.is-reset .kodza-bar-chart__bar:not(#_),
+.kodza-bar-chart.is-reset .kodza-bar-chart__tip:not(#_),
+.kodza-bar-chart.is-reset .kodza-bar-chart__row:not(#_),
+.kodza-bar-chart.is-reset .kodza-bar-chart__fill:not(#_),
+.kodza-bar-chart.is-reset .kodza-bar-chart__name--on:not(#_) {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-bar-chart *:not(#_),
+  .kodza-bar-chart *:not(#_)::before,
+  .kodza-bar-chart *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
