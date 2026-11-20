@@ -1,11 +1,20 @@
 // Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license
 // Kodza — Word Rotator
-// Turns the words into a rotating slot: letters rise in and out one after the other (or the
-// word flips with --flip), the slot eases to the new word's width, and the cycle pauses
-// while the sentence is out of view or the tab hidden. With reduced motion, the first word
-// simply stays. Screen readers get the words once, as a list.
+// Turns the words into a rotating slot: each letter rolls like a reel, the old one going up as
+// the new one comes up behind it, masked by the line; the word turns over like a block with
+// --flip, or with --morph the letters the two words share glide to their new place while the
+// others roll. The slot eases to the new word's width, and the cycle
+// pauses while the sentence is out of view or the tab hidden. With reduced motion, the first
+// word simply stays. Screen readers get the words once, as a list. Settings: the constants
+// below, data-interval on the root and the --kz-rotator-* variables of the CSS.
 (() => {
   const SELECTOR = '.kodza-rotator';
+  const INTERVAL = 2400; // ms a word stays, without data-interval: reading time, the pace leaves it
+  const WIDTH = 700; // ms for the slot to reach the new width (and, with --morph, for a shared letter to glide)
+  const ROLL = 680; // ms for a letter to roll: the old one goes up as the new one comes up behind it
+  const STAGGER = 26; // ms between two letters
+  const TRAVEL = '118%'; // how far a letter rolls, a little more than its height: the two never overlap
+  const FLIP = 760; // ms for the word to turn over, with --flip
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   // The site's pace, --kz-motion-scale (set on :root, read on the instance): every duration of the
   // script times it, and 0 moves nothing, like reduced motion
@@ -14,7 +23,27 @@
     return pace >= 0 ? pace : 1;
   };
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
-  const leave = 'cubic-bezier(0.55, 0, 0.75, 0.2)';
+  // One curve for the letter that leaves and the one that arrives: they move as one reel
+  const roll = 'cubic-bezier(0.65, 0, 0.35, 1)';
+
+  // The letters two words share, in order (longest common subsequence): pairs [old, new] of
+  // indexes. Kept in order, the gliding letters never cross; matched from the end, a shared
+  // ending ("-ing") glides as one piece instead of coming apart
+  const shared = (a, b) => {
+    const table = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+    for (let i = 1; i <= a.length; i++) {
+      for (let j = 1; j <= b.length; j++) {
+        table[i][j] = a[i - 1] === b[j - 1] ? table[i - 1][j - 1] + 1 : Math.max(table[i - 1][j], table[i][j - 1]);
+      }
+    }
+    const pairs = [];
+    for (let i = a.length, j = b.length; i > 0 && j > 0;) {
+      if (a[i - 1] === b[j - 1]) pairs.push([--i, --j]);
+      else if (table[i - 1][j] >= table[i][j - 1]) i--;
+      else j--;
+    }
+    return pairs;
+  };
 
   // One instance. Everything it starts is tied to `signal`, so kodza:destroy stops it all
   function mount(root, signal) {
@@ -24,7 +53,8 @@
     const words = [...slot.children].map((el) => el.textContent);
     if (words.length < 2) return;
     const flip = root.classList.contains('kodza-rotator--flip');
-    const interval = parseInt(root.dataset.interval, 10) || 2400; // the time to read a word: not motion, the pace leaves it
+    const morph = root.classList.contains('kodza-rotator--morph');
+    const interval = parseInt(root.dataset.interval, 10) || INTERVAL;
     let index = 0;
     let timer = 0;
     let visible = true;
@@ -40,6 +70,10 @@
     };
     slot.replaceChildren(make(words[0]));
 
+    // The k-th leaving letter and the k-th arriving one start together, on the same curve
+    const out = (chars) => Promise.all(chars.map((char, k) => char.animate([{ transform: 'none' }, { transform: `translateY(-${TRAVEL})` }], { duration: ROLL * pace, delay: k * STAGGER * pace, easing: roll, fill: 'forwards' }).finished));
+    const up = (chars) => chars.forEach((char, k) => char.animate([{ transform: `translateY(${TRAVEL})` }, { transform: 'none' }], { duration: ROLL * pace, delay: k * STAGGER * pace, easing: roll, fill: 'backwards' }));
+
     const next = () => {
       const old = slot.lastElementChild;
       index = (index + 1) % words.length;
@@ -49,14 +83,33 @@
       // The slot eases to the new word's width; the old one, in the same cell, is cut by it
       const pad = slot.offsetWidth - Math.max(old.offsetWidth, word.offsetWidth);
       const to = word.offsetWidth + pad;
-      slot.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: 700 * pace, easing: ease });
-      if (flip) {
-        old.animate([{ transform: 'none', opacity: 1 }, { transform: 'rotateX(90deg)', opacity: 0 }], { duration: 520 * pace, easing: leave, fill: 'forwards' }).finished.then(() => old.remove());
-        word.animate([{ transform: 'rotateX(-90deg)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 760 * pace, delay: 140 * pace, easing: ease, fill: 'backwards' });
+      // With --morph the slot keeps pace with the gliding letters, so a shrinking slot never cuts them
+      slot.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: WIDTH * pace, easing: morph ? roll : ease });
+      if (morph) {
+        // Measured in the slot's own pixels: a parent scaled by transform must not shift them
+        const box = slot.getBoundingClientRect();
+        const scale = box.width / slot.offsetWidth || 1;
+        const leftOf = (char) => (char.getBoundingClientRect().left - box.left) / scale;
+        const olds = [...old.children];
+        const news = [...word.children];
+        const pairs = shared(olds.map((char) => char.textContent), news.map((char) => char.textContent));
+        const kept = new Set(pairs.map(([i]) => i));
+        const found = new Set(pairs.map(([, j]) => j));
+        pairs.forEach(([i, j]) => {
+          const shift = leftOf(olds[i]) - leftOf(news[j]);
+          olds[i].style.visibility = 'hidden';
+          // On the reel's curve: a shared letter reaches its place as the others finish rolling, no gap opens
+          news[j].animate([{ transform: `translateX(${shift}px)` }, { transform: 'none' }], { duration: WIDTH * pace, easing: roll });
+        });
+        out(olds.filter((char, i) => !kept.has(i))).then(() => old.remove());
+        up(news.filter((char, j) => !found.has(j)));
+      } else if (flip) {
+        // Two faces of one block turning on its axis: the new word is the face that comes up
+        old.animate([{ transform: 'none' }, { transform: 'rotateX(90deg)' }], { duration: FLIP * pace, easing: roll, fill: 'forwards' }).finished.then(() => old.remove());
+        word.animate([{ transform: 'rotateX(-90deg)' }, { transform: 'none' }], { duration: FLIP * pace, easing: roll });
       } else {
-        const gone = [...old.children].map((char, i) => char.animate([{ transform: 'none' }, { transform: 'translateY(-112%)' }], { duration: 420 * pace, delay: i * 14 * pace, easing: leave, fill: 'forwards' }).finished);
-        Promise.all(gone).then(() => old.remove());
-        [...word.children].forEach((char, i) => char.animate([{ transform: 'translateY(112%)' }, { transform: 'none' }], { duration: 640 * pace, delay: (90 + i * 24) * pace, easing: ease, fill: 'backwards' }));
+        out([...old.children]).then(() => old.remove());
+        up([...word.children]);
       }
     };
 

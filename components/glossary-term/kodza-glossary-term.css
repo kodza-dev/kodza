@@ -1,0 +1,723 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Glossary Term
+   The words of the glossary at the end of a text get a dotted underline the first time they show
+   up; point at one, focus it or tap it, and a card unfolds from the word with its definition and a
+   link to the list, where the entry gets a way back. A marker fills the word while the card is
+   open. Without the script, the glossary stays at the end, as written.
+   Settings: the --kz-glossary-term-* variables below; the words and timings are in the script. */
+.kodza-glossary-term {
+  --kz-glossary-term-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-glossary-term-muted: color-mix(in srgb, var(--kz-glossary-term-fg) 62%, transparent);
+  --kz-glossary-term-rule: color-mix(in srgb, var(--kz-glossary-term-fg) 12%, transparent);
+  --kz-glossary-term-dots: color-mix(in srgb, currentColor 55%, transparent); /* the underline at rest */
+  --kz-glossary-term-flag: color-mix(in srgb, var(--kz-glossary-term-fg) 7%, transparent); /* an entry just reached */
+  --kz-glossary-term-term: var(--kz-glossary-term-fg); /* the words, a step darker than the text */
+  --kz-glossary-term-weight: 500;
+  --kz-glossary-term-mark: color-mix(in srgb, var(--kz-glossary-term-fg) 10%, transparent); /* fills the open word */
+  --kz-glossary-term-card-bg: var(--kz-color-paper, #ffffff);
+  --kz-glossary-term-card-fg: var(--kz-glossary-term-fg);
+  --kz-glossary-term-card-border: color-mix(in srgb, var(--kz-glossary-term-card-fg) 10%, transparent);
+  --kz-glossary-term-card-shadow: rgba(10, 10, 10, 0.16);
+  --kz-glossary-term-card-width: 300px;
+  --kz-glossary-term-label-font: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+
+  position: relative;
+}
+
+/* The paragraphs it holds: their own spacing, whatever the theme gives to p */
+.kodza-glossary-term > p {
+  margin: 0 0 1em;
+}
+
+.kodza-glossary-term__term {
+  appearance: none;
+  display: inline;
+  margin: 0;
+  padding: 0 0.12em;
+  border: 0;
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+  background:
+    linear-gradient(var(--kz-glossary-term-mark), var(--kz-glossary-term-mark)) left 0 / 0% 100% no-repeat,
+    linear-gradient(currentColor, currentColor) left 100% / 0% 1px no-repeat,
+    radial-gradient(circle, var(--kz-glossary-term-dots) 0.7px, transparent 1px) left 100% / 4px 2px repeat-x;
+  color: var(--kz-glossary-term-term);
+  font: inherit;
+  font-weight: var(--kz-glossary-term-weight);
+  letter-spacing: inherit;
+  text-align: inherit;
+  text-transform: inherit;
+  cursor: help;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-size calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Pointed at, the dots join into a line; open (or reached from the list), a marker fills the word
+   too, left to right, the way a pen goes */
+.kodza-glossary-term__term.is-open,
+.kodza-glossary-term__term.is-flagged {
+  background-size: 100% 100%, 100% 1px, 4px 2px;
+}
+
+@media (hover: hover) {
+  .kodza-glossary-term__term:hover:not(.is-open):not(.is-flagged) {
+    background-size: 0% 100%, 100% 1px, 4px 2px;
+  }
+}
+
+.kodza-glossary-term__term:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+}
+
+/* The card, placed by the script; its shadow follows what is shown of it */
+.kodza-glossary-term__card {
+  position: absolute;
+  z-index: 30;
+  display: block;
+  box-sizing: border-box;
+  width: var(--kz-glossary-term-card-width);
+  filter: drop-shadow(0 12px 18px var(--kz-glossary-term-card-shadow));
+  color: var(--kz-glossary-term-card-fg);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-align: left;
+  text-indent: 0;
+  text-transform: none;
+  white-space: normal;
+}
+
+.kodza-glossary-term__card[hidden] {
+  display: none;
+}
+
+.kodza-glossary-term__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 14px 16px 13px;
+  border-radius: calc(14px * var(--kz-radius-scale, 1));
+  background: var(--kz-glossary-term-card-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-glossary-term-card-border);
+}
+
+.kodza-glossary-term__name,
+.kodza-glossary-term__more,
+.kodza-glossary-term__back,
+.kodza-glossary-term__heading {
+  font-family: var(--kz-glossary-term-label-font);
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, uppercase);
+}
+
+.kodza-glossary-term__name {
+  display: block;
+  color: color-mix(in srgb, var(--kz-glossary-term-card-fg) 62%, transparent);
+}
+
+.kodza-glossary-term__definition {
+  display: block;
+  text-wrap: pretty;
+}
+
+.kodza-glossary-term__definition > * {
+  margin: 0;
+}
+
+.kodza-glossary-term__more,
+.kodza-glossary-term__back {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-glossary-term__more:hover,
+.kodza-glossary-term__back:hover {
+  text-decoration-color: currentColor;
+}
+
+.kodza-glossary-term__more:focus-visible,
+.kodza-glossary-term__back:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+}
+
+.kodza-glossary-term__back {
+  appearance: none;
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* The glossary, a list of rows under a 1px rule; stacked when its column is narrow */
+.kodza-glossary-term__glossary {
+  container: kodza-glossary-term / inline-size;
+  margin-top: 2.5em;
+}
+
+.kodza-glossary-term__heading {
+  margin: 0 0 12px;
+  color: var(--kz-glossary-term-muted);
+}
+
+.kodza-glossary-term__list {
+  display: grid;
+  grid-template-columns: minmax(96px, 28%) minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--kz-glossary-term-rule);
+}
+
+.kodza-glossary-term__list dt,
+.kodza-glossary-term__list dd {
+  position: relative;
+  margin: 0;
+  padding: 14px 0;
+  border-top: 1px solid var(--kz-glossary-term-rule);
+  scroll-margin: 96px;
+}
+
+.kodza-glossary-term__list dt {
+  padding-right: 16px;
+  font-weight: 600;
+}
+
+.kodza-glossary-term__list dt:focus {
+  outline: none;
+}
+
+.kodza-glossary-term__list dt:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.kodza-glossary-term__list dd {
+  color: var(--kz-glossary-term-muted);
+  text-wrap: pretty;
+}
+
+@container kodza-glossary-term (max-width: 479.98px) {
+  .kodza-glossary-term__list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kodza-glossary-term__list dd {
+    padding-top: 0;
+    border-top: 0;
+  }
+}
+
+/* An entry reached from a card: a band of ink washes over its row, holds, and leaves to the right */
+.kodza-glossary-term__list dt::before,
+.kodza-glossary-term__list dd::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 -12px;
+  z-index: -1;
+  background: var(--kz-glossary-term-flag);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform calc(0.55s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.kodza-glossary-term__list dd::before {
+  inset: 0 -12px 0 0;
+  transition-delay: calc(0.08s * var(--kz-motion-scale, 1));
+}
+
+.kodza-glossary-term__list .is-flagged::before {
+  transform: scaleX(1);
+}
+
+.kodza-glossary-term__list .is-unflagged::before {
+  transform-origin: right;
+  transition-duration: calc(0.6s * var(--kz-motion-scale, 1));
+  transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-glossary-term__list {
+  isolation: isolate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-glossary-term__term,
+  .kodza-glossary-term__more,
+  .kodza-glossary-term__back,
+  .kodza-glossary-term__list dt::before,
+  .kodza-glossary-term__list dd::before {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* kodza-guard 7af55d196af8 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-glossary-term__term):not(#_),
+:where(.kodza-glossary-term__list dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-glossary-term__list :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-glossary-term__more):not(#_),
+:where(.kodza-glossary-term__back):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-glossary-term:not(#_),
+.kodza-glossary-term__name:not(#_),
+.kodza-glossary-term__definition:not(#_),
+.kodza-glossary-term__glossary:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-glossary-term__term:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-glossary-term__more:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-glossary-term__heading:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-glossary-term__list:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  border-top-width: revert;
+  border-right-width: revert;
+  border-left-width: revert;
+  border-top-style: revert;
+  border-right-style: revert;
+  border-left-style: revert;
+  border-top-color: revert;
+  border-right-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-glossary-term__back:not(#_) {
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-glossary-term p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-glossary-term :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-glossary-term__list dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-glossary-term__list :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border-radius: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-glossary-term__list dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-glossary-term__list :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  border-right-width: revert;
+  border-bottom-width: revert;
+  border-left-width: revert;
+  border-right-style: revert;
+  border-bottom-style: revert;
+  border-left-style: revert;
+  border-right-color: revert;
+  border-bottom-color: revert;
+  border-left-color: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-glossary-term__more:not(#_):where(:not([hidden])),
+.kodza-glossary-term__heading:not(#_):where(:not([hidden])),
+.kodza-glossary-term p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-glossary-term :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-glossary-term__list dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-glossary-term__list :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-glossary-term__list dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-glossary-term__list :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-glossary-term__more:not(#_):where([hidden]),
+.kodza-glossary-term__heading:not(#_):where([hidden]),
+.kodza-glossary-term p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-glossary-term :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-glossary-term__list dt:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-glossary-term__list :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-glossary-term__list dd:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-glossary-term__list :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-glossary-term > p:not(#_) {
+  margin: 0 0 1em;
+}
+
+.kodza-glossary-term__term:not(#_) {
+  appearance: none;
+  display: inline;
+  margin: 0;
+  padding: 0 0.12em;
+  border: 0;
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+  background: linear-gradient(var(--kz-glossary-term-mark), var(--kz-glossary-term-mark)) left 0 / 0% 100% no-repeat,
+    linear-gradient(currentColor, currentColor) left 100% / 0% 1px no-repeat,
+    radial-gradient(circle, var(--kz-glossary-term-dots) 0.7px, transparent 1px) left 100% / 4px 2px repeat-x;
+  color: var(--kz-glossary-term-term);
+  font: inherit;
+  font-weight: var(--kz-glossary-term-weight);
+  letter-spacing: inherit;
+  text-align: inherit;
+  text-transform: inherit;
+  cursor: help;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-size calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-glossary-term__term.is-open:not(#_),
+.kodza-glossary-term__term.is-flagged:not(#_) {
+  background-size: 100% 100%, 100% 1px, 4px 2px;
+}
+
+@media (hover: hover) {
+  .kodza-glossary-term__term:hover:not(.is-open):not(.is-flagged):not(#_) {
+    background-size: 0% 100%, 100% 1px, 4px 2px;
+  }
+}
+
+.kodza-glossary-term__term:focus-visible:not(#_) {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+}
+
+.kodza-glossary-term__more:not(#_),
+.kodza-glossary-term__heading:not(#_) {
+  font-family: var(--kz-glossary-term-label-font);
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, uppercase);
+}
+
+.kodza-glossary-term__back:not(#_) {
+  font-family: var(--kz-glossary-term-label-font);
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  line-height: var(--kz-font-label-leading, 1.4);
+  text-transform: var(--kz-font-label-case, uppercase);
+}
+
+.kodza-glossary-term__more:not(#_) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-glossary-term__back:not(#_) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-glossary-term__more:hover:not(#_) {
+  text-decoration-color: currentColor;
+}
+
+.kodza-glossary-term__back:hover:not(#_) {
+  text-decoration-color: currentColor;
+}
+
+.kodza-glossary-term__more:focus-visible:not(#_) {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+}
+
+.kodza-glossary-term__back:focus-visible:not(#_) {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+}
+
+.kodza-glossary-term__back:not(#_) {
+  appearance: none;
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.kodza-glossary-term__heading:not(#_) {
+  margin: 0 0 12px;
+  color: var(--kz-glossary-term-muted);
+}
+
+.kodza-glossary-term__list:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--kz-glossary-term-rule);
+}
+
+.kodza-glossary-term__list dt:not(#_),
+.kodza-glossary-term__list dd:not(#_) {
+  position: relative;
+  margin: 0;
+  padding: 14px 0;
+  border-top: 1px solid var(--kz-glossary-term-rule);
+}
+
+.kodza-glossary-term__list dt:not(#_) {
+  padding-right: 16px;
+  font-weight: 600;
+}
+
+.kodza-glossary-term__list dt:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-glossary-term__list dt:focus-visible:not(#_) {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.kodza-glossary-term__list dd:not(#_) {
+  color: var(--kz-glossary-term-muted);
+}
+
+@container kodza-glossary-term (max-width: 479.98px) {
+  .kodza-glossary-term__list dd:not(#_) {
+    padding-top: 0;
+    border-top: 0;
+  }
+}
+
+.kodza-glossary-term__list .is-flagged:not(#_)::before {
+  transform: scaleX(1);
+}
+
+.kodza-glossary-term__list .is-unflagged:not(#_)::before {
+  transform-origin: right;
+  transition-duration: calc(0.6s * var(--kz-motion-scale, 1));
+  transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-glossary-term__term:not(#_),
+  .kodza-glossary-term__back:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-glossary-term__more:not(#_) {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

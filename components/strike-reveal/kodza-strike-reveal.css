@@ -1,0 +1,254 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Strike Reveal
+   In a title, a pen strikes the old word (its del element), which dims, then the line opens and
+   the right word (its ins element) rises from its mask. Plays once when the title reaches the
+   screen; several pairs play in turn. data-strike="scribble" scratches the word out instead.
+   Without the script, the browser's own strike-through. Everything is tuned with the
+   --kz-strike-reveal-* variables. */
+.kodza-strike-reveal {
+  /* The pen: the accent of the site if it has one, else the colour of the text */
+  --kz-strike-reveal-color: var(--kz-color-accent, currentColor);
+  --kz-strike-reveal-width: 0.065em;
+  /* What is left of the struck word */
+  --kz-strike-reveal-fade: 0.38;
+  /* The stroke, the line opening, the new word rising */
+  --kz-strike-reveal-draw: 0.55s;
+  --kz-strike-reveal-open: 0.6s;
+  --kz-strike-reveal-rise: 0.7s;
+  /* Between two pairs of one title */
+  --kz-strike-reveal-stagger: 0.9s;
+}
+
+.kodza-strike-reveal ins {
+  text-decoration: none;
+  background: none;
+}
+
+.kodza-strike-reveal.is-live del {
+  position: relative;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.kodza-strike-reveal__old {
+  opacity: var(--kz-strike-reveal-fade);
+}
+
+.kodza-strike-reveal__svg {
+  position: absolute;
+  inset: -0.2em -0.16em;
+  width: calc(100% + 0.32em);
+  height: calc(100% + 0.4em);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.kodza-strike-reveal__svg path {
+  fill: none;
+  stroke: var(--kz-strike-reveal-color);
+  stroke-width: var(--kz-strike-reveal-width);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+}
+
+.kodza-strike-reveal.is-live ins {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.kodza-strike-reveal__new {
+  display: inline-block;
+}
+
+/* Before it plays: the old word whole, no stroke, the line closed on it and the new word under its mask */
+.kodza-strike-reveal.is-waiting .kodza-strike-reveal__old {
+  opacity: 1;
+}
+
+.kodza-strike-reveal.is-waiting .kodza-strike-reveal__svg path {
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+.kodza-strike-reveal.is-waiting ins:not(.is-held) {
+  width: 0;
+  margin-left: calc(-1 * var(--gap, 0px));
+}
+
+.kodza-strike-reveal.is-waiting ins,
+.kodza-strike-reveal.is-playing ins,
+.kodza-strike-reveal.is-rewinding ins {
+  clip-path: inset(-0.3em 0 0 -0.1em);
+}
+
+.kodza-strike-reveal.is-waiting .kodza-strike-reveal__new {
+  transform: translateY(105%);
+}
+
+.kodza-strike-reveal.is-playing {
+  animation: kodza-strike-reveal-clock var(--clock, 1.5s) linear both;
+  animation-delay: var(--wait, 0ms);
+}
+
+.kodza-strike-reveal.is-playing .kodza-strike-reveal__svg path {
+  animation: kodza-strike-reveal-draw calc(var(--kz-strike-reveal-draw) * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1) both;
+  animation-delay: calc(var(--wait, 0ms) + var(--i, 0) * var(--kz-strike-reveal-stagger) * var(--kz-motion-scale, 1));
+}
+
+.kodza-strike-reveal[data-strike="scribble"].is-playing .kodza-strike-reveal__svg path {
+  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+.kodza-strike-reveal.is-playing .kodza-strike-reveal__old {
+  animation: kodza-strike-reveal-fade calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1) both;
+  animation-delay: calc(var(--wait, 0ms) + (var(--i, 0) * var(--kz-strike-reveal-stagger) + var(--kz-strike-reveal-draw) * 0.5) * var(--kz-motion-scale, 1));
+}
+
+.kodza-strike-reveal.is-playing ins:not(.is-held) {
+  animation: kodza-strike-reveal-open calc(var(--kz-strike-reveal-open) * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1) both;
+  animation-delay: calc(var(--wait, 0ms) + (var(--i, 0) * var(--kz-strike-reveal-stagger) + var(--kz-strike-reveal-draw) * 0.7) * var(--kz-motion-scale, 1));
+}
+
+.kodza-strike-reveal.is-playing .kodza-strike-reveal__new {
+  animation: kodza-strike-reveal-rise calc(var(--kz-strike-reveal-rise) * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--wait, 0ms) + (var(--i, 0) * var(--kz-strike-reveal-stagger) + var(--kz-strike-reveal-draw) * 0.7 + 0.15s) * var(--kz-motion-scale, 1));
+}
+
+/* Played again: the new word sinks, the line closes and the pen takes its stroke back, all pairs together */
+.kodza-strike-reveal.is-rewinding {
+  animation: kodza-strike-reveal-rewind calc(0.55s * var(--kz-motion-scale, 1)) linear both;
+}
+
+.kodza-strike-reveal.is-rewinding .kodza-strike-reveal__new {
+  animation: kodza-strike-reveal-rise calc(0.3s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1) reverse both;
+}
+
+.kodza-strike-reveal.is-rewinding ins:not(.is-held) {
+  animation: kodza-strike-reveal-open calc(0.4s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1) reverse both;
+  animation-delay: calc(0.12s * var(--kz-motion-scale, 1));
+}
+
+.kodza-strike-reveal.is-rewinding .kodza-strike-reveal__svg path {
+  animation: kodza-strike-reveal-draw calc(0.38s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1) reverse both;
+  animation-delay: calc(0.15s * var(--kz-motion-scale, 1));
+}
+
+.kodza-strike-reveal.is-rewinding .kodza-strike-reveal__old {
+  animation: kodza-strike-reveal-fade calc(0.38s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1) reverse both;
+  animation-delay: calc(0.15s * var(--kz-motion-scale, 1));
+}
+
+/* The length of a play, on the title itself: its end says the whole title is written */
+@keyframes kodza-strike-reveal-clock {
+  from, to { --kz-strike-reveal-clock: 1; }
+}
+
+@keyframes kodza-strike-reveal-rewind {
+  from, to { --kz-strike-reveal-clock: 0; }
+}
+
+/* The round cap of an empty dash would leave a dot: the stroke shows only once the pen moves */
+@keyframes kodza-strike-reveal-draw {
+  0% { stroke-dashoffset: 1; opacity: 0; }
+  2% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes kodza-strike-reveal-fade {
+  from { opacity: 1; }
+  to { opacity: var(--kz-strike-reveal-fade); }
+}
+
+@keyframes kodza-strike-reveal-open {
+  from { width: 0; margin-left: calc(-1 * var(--gap, 0px)); }
+  to { width: var(--w, auto); margin-left: 0; }
+}
+
+@keyframes kodza-strike-reveal-rise {
+  from { transform: translateY(105%); }
+  to { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-strike-reveal *,
+  .kodza-strike-reveal.is-playing,
+  .kodza-strike-reveal.is-rewinding {
+    animation: none !important;
+  }
+  .kodza-strike-reveal.is-waiting .kodza-strike-reveal__old {
+    opacity: var(--kz-strike-reveal-fade);
+  }
+  .kodza-strike-reveal.is-waiting .kodza-strike-reveal__svg path {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  .kodza-strike-reveal.is-waiting ins:not(.is-held) {
+    width: auto;
+    margin-left: 0;
+  }
+  .kodza-strike-reveal.is-waiting .kodza-strike-reveal__new {
+    transform: none;
+  }
+}
+
+/* kodza-guard f52b7ca5d4dc — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-strike-reveal__old:not(#_),
+.kodza-strike-reveal__new:not(#_),
+.kodza-strike-reveal del:where(:not([class*="kodza-"])):not(#_),
+.kodza-strike-reveal ins:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-strike-reveal__svg:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-strike-reveal__svg:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-strike-reveal__svg:not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-strike-reveal__svg:not(#_) {
+  position: absolute;
+}

@@ -2,7 +2,7 @@
 
 [![Word Rotator, live on kodza.dev](https://kodza.dev/anim/word-rotator/og.jpg)](https://kodza.dev/components/word-rotator/)
 
-One word of a sentence keeps changing: the next one's letters rise as the old ones leave, or the word flips over. The space follows the word, the sentence moves along.
+One word of a sentence keeps changing: the next one's letters rise as the old ones leave, the word flips over, or the letters both words share glide into place. The space follows the word, the sentence moves along.
 
 **[Live demo](https://kodza.dev/components/word-rotator/)** · Text effects · HTML, CSS, JS · No dependencies
 
@@ -10,9 +10,9 @@ One word of a sentence keeps changing: the next one's letters rise as the old on
 
 | File | Size | What it is |
 | --- | ---: | --- |
-| [`kodza-word-rotator.html`](kodza-word-rotator.html) | 0.4 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
-| [`kodza-word-rotator.css`](kodza-word-rotator.css) | 2.2 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
-| [`kodza-word-rotator.js`](kodza-word-rotator.js) | 8.1 KB | The script. One copy per page runs every instance. |
+| [`kodza-word-rotator.html`](kodza-word-rotator.html) | 0.6 KB | The markup. Adapt the text and links, paste it where the component goes, as many times as you need. |
+| [`kodza-word-rotator.css`](kodza-word-rotator.css) | 2.3 KB | The styles. It only touches `kodza-` classes. The lines at the end with `:not(#_)` are the theme guard: they keep your site's CSS off the component. Keep them. |
+| [`kodza-word-rotator.js`](kodza-word-rotator.js) | 11.2 KB | The script. One copy per page runs every instance. |
 
 Byte for byte what the Copy button on kodza.dev gives you.
 
@@ -49,7 +49,7 @@ CSS variables, set on `.kodza-rotator` itself:
 | `--kz-rotator-ease` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |
 | `--kz-rotator-color` | `currentColor` | the colour of the sentence; give the word its own here |
 
-- Modifiers: `.kodza-rotator--flip`
+- Modifiers: `.kodza-rotator--flip`, `.kodza-rotator--morph`
 - Attributes: `data-interval`
 
 ---

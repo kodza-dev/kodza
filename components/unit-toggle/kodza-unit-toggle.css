@@ -1,0 +1,265 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Unit Toggle
+   The measures of a text are written in one system, each in a data element (value: the number,
+   data-unit: its unit), and this small switch shows them all in the other one: the digits roll
+   one after the other, each value eases to its new width, and the ink pill slides to the chosen
+   system, front edge first. The choice follows the visitor from page to page. Without the script,
+   the values as written, and the switch keeps its place, empty.
+   Settings: the --kz-unit-toggle-* variables below (the switch) and --kz-unit-toggle-value-*
+   (the values in the text); the units and timings are the constants of the script. */
+.kodza-unit-toggle {
+  --kz-unit-toggle-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-unit-toggle-muted: color-mix(in srgb, var(--kz-unit-toggle-fg) 62%, transparent);
+  --kz-unit-toggle-bg: var(--kz-color-paper, #ffffff);
+  --kz-unit-toggle-border: color-mix(in srgb, var(--kz-unit-toggle-fg) 12%, transparent);
+  --kz-unit-toggle-ink: var(--kz-color-accent, var(--kz-unit-toggle-fg));
+  --kz-unit-toggle-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-unit-toggle-height: 32px; /* the whole switch; the pill is 2 × --kz-unit-toggle-pad shorter */
+  --kz-unit-toggle-pad: 3px;
+  --kz-unit-toggle-space: 12px; /* on each side of a label */
+  /* Unit names keep their case (km, not KM): the label case is left out on purpose */
+  --kz-unit-toggle-font: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  --kz-unit-toggle-size: var(--kz-font-label-size, 12px);
+  --kz-unit-toggle-weight: var(--kz-font-label-weight, 500);
+  --kz-unit-toggle-tracking: var(--kz-font-label-tracking, 0);
+
+  position: relative;
+  display: inline-flex;
+  box-sizing: border-box;
+  flex: none;
+  max-width: 100%;
+  height: var(--kz-unit-toggle-height);
+  padding: var(--kz-unit-toggle-pad);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-unit-toggle-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-unit-toggle-border);
+  color: var(--kz-unit-toggle-fg);
+  vertical-align: middle;
+}
+
+/* Without the script the switch would do nothing: it holds its place until it works */
+.kodza-unit-toggle:not(.is-ready) {
+  visibility: hidden;
+}
+
+.kodza-unit-toggle__option {
+  appearance: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0 var(--kz-unit-toggle-space);
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-unit-toggle-muted);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-unit-toggle__option:hover {
+    color: var(--kz-unit-toggle-fg);
+  }
+}
+
+.kodza-unit-toggle__option[aria-pressed="true"] {
+  color: var(--kz-unit-toggle-fg);
+}
+
+.kodza-unit-toggle__option:focus-visible {
+  outline: 2px solid var(--kz-unit-toggle-fg);
+  outline-offset: 2px;
+}
+
+.kodza-unit-toggle__label {
+  font-family: var(--kz-unit-toggle-font);
+  font-size: var(--kz-unit-toggle-size);
+  font-weight: var(--kz-unit-toggle-weight);
+  line-height: 1;
+  letter-spacing: var(--kz-unit-toggle-tracking);
+  white-space: nowrap;
+}
+
+/* The ink pill (added by the script): two windows slide in the lane, one cut at the pill's left
+   edge, one at its right edge, while the ink inside them holds still. Only transforms move, and
+   the labels turn white exactly at the edges of the pill */
+.kodza-unit-toggle__lane {
+  position: absolute;
+  inset: var(--kz-unit-toggle-pad);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.kodza-unit-toggle__pill,
+.kodza-unit-toggle__edge,
+.kodza-unit-toggle__mirror {
+  position: absolute;
+  inset: 0;
+}
+
+.kodza-unit-toggle__pill {
+  overflow: hidden;
+  border-radius: var(--kz-radius-pill, 999px) 0 0 var(--kz-radius-pill, 999px);
+  transform: translateX(var(--kz-unit-l, 0px));
+}
+
+.kodza-unit-toggle__edge {
+  overflow: hidden;
+  border-radius: 0 var(--kz-radius-pill, 999px) var(--kz-radius-pill, 999px) 0;
+  transform: translateX(calc(-1 * var(--kz-unit-l, 0px) - var(--kz-unit-r, 100%)));
+}
+
+.kodza-unit-toggle__mirror {
+  background: var(--kz-unit-toggle-ink);
+  color: var(--kz-unit-toggle-on-ink);
+  transform: translateX(var(--kz-unit-r, 100%));
+}
+
+.kodza-unit-toggle__ghost {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 var(--kz-unit-toggle-space);
+}
+
+/* A value in the text, once the script has taken it. It keeps the type of its sentence */
+.kodza-unit-toggle__value {
+  display: inline-flex;
+  align-items: baseline;
+  color: var(--kz-unit-toggle-value-fg, inherit);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Read once, whole, by a screen reader; the parts on screen are for the eye */
+.kodza-unit-toggle__said {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-unit-toggle__face {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+/* The number and the unit, each in its own window: the old characters leave one after the other,
+   the new ones follow from the other side */
+.kodza-unit-toggle__part {
+  display: inline-grid;
+  clip-path: inset(0 -0.04em);
+}
+
+.kodza-unit-toggle__run {
+  grid-area: 1 / 1;
+  justify-self: start;
+  white-space: pre;
+}
+
+.kodza-unit-toggle__char {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-unit-toggle__option {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 8b89c8ce1178 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-unit-toggle__option):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-unit-toggle__option:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-unit-toggle__label:not(#_),
+.kodza-unit-toggle__lane:not(#_),
+.kodza-unit-toggle__pill:not(#_),
+.kodza-unit-toggle__edge:not(#_),
+.kodza-unit-toggle__mirror:not(#_) {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-unit-toggle__option:not(#_) {
+  appearance: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0 var(--kz-unit-toggle-space);
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-unit-toggle-muted);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-unit-toggle__option:hover:not(#_) {
+    color: var(--kz-unit-toggle-fg);
+  }
+}
+
+.kodza-unit-toggle__option[aria-pressed="true"]:not(#_) {
+  color: var(--kz-unit-toggle-fg);
+}
+
+.kodza-unit-toggle__option:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-unit-toggle-fg);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-unit-toggle__option:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

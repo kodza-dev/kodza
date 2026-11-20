@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 255. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 271. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-255 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+271 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -274,19 +274,35 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Text effects</b> · 9</summary>
+<summary><b>Text effects</b> · 25</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
 | [Annotated Text](components/text-highlight/) | Hand-drawn marks that draw themselves on key words when the paragraph shows up: underline, strike, circle or marker. | [Demo](https://kodza.dev/components/text-highlight/) |
+| [Circle Text](components/circle-text/) | A round link with its label written around the edge, repeated to close the circle. It turns slowly, speeds up with the scroll, slows down under the pointer. | [Demo](https://kodza.dev/components/circle-text/) |
+| [Drop Cap](components/drop-cap/) | A drop cap set to the pixel over two or three lines, measured from your fonts. The letter rises from its baseline, then the paragraph shows. Works on WordPress .has-drop-cap. | [Demo](https://kodza.dev/components/drop-cap/) |
 | [Eye Glyph](components/eye-glyph/) | Any letter with a hole becomes an eye: the pupil follows the pointer, lashes grow on top, and real lids close it when it blinks. Poke one and it winks. | [Demo](https://kodza.dev/components/eye-glyph/) |
+| [Glossary Term](components/glossary-term/) | Reads the glossary at the end of a text and underlines its words where they first appear. Point, focus or tap one: a card unfolds with the definition and a link to the entry, which links back. | [Demo](https://kodza.dev/components/glossary-term/) |
 | [Inline Image Text](components/inline-image-text/) | A large sentence with small pictures set in its lines, at letter height. Lines rise from their mask and each picture opens as its line lands. Sized in em; a muted loop works too. | [Demo](https://kodza.dev/components/inline-image-text/) |
+| [Local Time](components/local-time/) | The time at your place, to the minute: the digits roll on the minute like a counter, the gap to the visitor is worked out in their browser, and office hours say when you reply. | [Demo](https://kodza.dev/components/local-time/) |
+| [Magnetic Letters](components/magnetic-letters/) | The letters of a big word step a few pixels away from the mouse, lean a little and spring back when it leaves. The word stays readable, keeps its own spacing, and a finger moves nothing. | [Demo](https://kodza.dev/components/magnetic-letters/) |
 | [Marquee](components/scrolling-text-loop/) | An endless ticker that never jumps, eases to a stop under the pointer and fades at both edges. Runs either way, with words or with logos, every logo given the same visual weight. | [Demo](https://kodza.dev/components/scrolling-text-loop/) |
+| [Middle Truncate](components/middle-truncate/) | Cuts a long name in the middle so both ends stay readable. Hover, focus or a tap widens the cut and the missing characters open from its centre. | [Demo](https://kodza.dev/components/middle-truncate/) |
+| [Overflow Marquee](components/overflow-marquee/) | A one-line title cut by an ellipsis glides on hover or keyboard focus to show its end, waits, then comes back. A title that fits never moves; soft edges stand in for the ellipsis while it glides. | [Demo](https://kodza.dev/components/overflow-marquee/) |
+| [Pull Quote](components/pull-quote/) | The line of an article worth stopping on: a large mark hung in the margin, a 1px rule, the source in mono. On screen, the rule draws, then each line rises from its mask. Works on .wp-block-pullquote. | [Demo](https://kodza.dev/components/pull-quote/) |
+| [Read Aloud](components/read-aloud/) | A Listen button that reads an article with the browser's own voice: the sentence being read stays lit, a pill follows each word, a click on a word reads on from there. Hidden without speech synthesis. | [Demo](https://kodza.dev/components/read-aloud/) |
+| [Relative Time](components/relative-time/) | "3 minutes ago" on a real <time>, in the page's language and kept up to date: only the part that changes rolls, and hover or focus shows the exact date in your time zone. | [Demo](https://kodza.dev/components/relative-time/) |
+| [Scramble Text](components/scramble-text/) | A label or a short title that decodes when it reaches the screen, and again whenever its text changes: symbols settling letter by letter, or a split-flap. Letters keep their width; screen readers read the final text. | [Demo](https://kodza.dev/components/scramble-text/) |
 | [Scroll Text Reveal](components/animated-text-reveal/) | Words light up one after the other as a paragraph scrolls by, and dim again on the way back. Fade, blur or rise. No GSAP. | [Demo](https://kodza.dev/components/animated-text-reveal/) |
 | [Shimmer Text](components/text-shimmer/) | A band of light that sweeps across text, the way a busy interface says "still working on it". Looping, on hover, or following the pointer. | [Demo](https://kodza.dev/components/text-shimmer/) |
+| [Strike Reveal](components/strike-reveal/) | A hand-drawn stroke strikes a word in a heading, the word dims, then the line opens and the right word rises from its mask. Real <del> and <ins>. | [Demo](https://kodza.dev/components/strike-reveal/) |
+| [Text Block Reveal](components/text-block-reveal/) | A block of ink runs along each line of a heading, covers it and pulls away to leave the words written. Real line breaks, lines in cascade. | [Demo](https://kodza.dev/components/text-block-reveal/) |
+| [Text Fit](components/text-fit/) | Each line of a heading fills its column exactly, like a poster: every line, split at each <br>, gets the font size that reaches both edges, refitted when the column changes or the font loads. A ceiling holds short lines. | [Demo](https://kodza.dev/components/text-fit/) |
 | [Text Reveal](components/text-split-scroll-reveal/) | Text that writes itself in when it reaches the screen: lines rising from a mask, words coming into focus, or letters. Plays once. | [Demo](https://kodza.dev/components/text-split-scroll-reveal/) |
 | [Typewriter](components/typewriter-effect/) | Phrases typed with a human rhythm and an honest caret. Retypes only what changes, or selects it like an editor before typing over it. | [Demo](https://kodza.dev/components/typewriter-effect/) |
-| [Word Rotator](components/word-rotator/) | One word of a sentence keeps changing: the next one's letters rise as the old ones leave, or the word flips over. The space follows the word, the sentence moves along. | [Demo](https://kodza.dev/components/word-rotator/) |
+| [Unit Toggle](components/unit-toggle/) | Marks each measure of a text once, in either system, and shows them all in metric or imperial: the digits roll, each value eases to its width, and the choice follows the visitor. | [Demo](https://kodza.dev/components/unit-toggle/) |
+| [Variable Weight Hover](components/variable-weight-hover/) | A big link whose letters get bolder the closer the pointer comes, on the weight axis of a variable font, while the line keeps its width. Works on a title or a menu too. | [Demo](https://kodza.dev/components/variable-weight-hover/) |
+| [Word Rotator](components/word-rotator/) | One word of a sentence keeps changing: the next one's letters rise as the old ones leave, the word flips over, or the letters both words share glide into place. The space follows the word, the sentence moves along. | [Demo](https://kodza.dev/components/word-rotator/) |
 
 </details>
 

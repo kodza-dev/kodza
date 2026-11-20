@@ -1,0 +1,454 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Pull Quote
+   The line of an article worth stopping on: a large opening mark in the display font, hung in the
+   margin on wide screens (inside the column on a phone), a 1px rule, the source in small mono.
+   When it reaches the screen, the rule draws, the mark rises, then the lines rise from behind their
+   masks. On the WordPress Pullquote block, add the class: it takes over the theme's version.
+   Settings: the --kz-pull-quote-* variables below, data-align="center" on the figure. */
+.kodza-pull-quote {
+  --kz-pull-quote-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-pull-quote-muted: color-mix(in srgb, var(--kz-pull-quote-fg) 62%, transparent);
+  --kz-pull-quote-rule: color-mix(in srgb, var(--kz-pull-quote-fg) 16%, transparent);
+  --kz-pull-quote-mark: var(--kz-color-accent, var(--kz-pull-quote-fg));
+  --kz-pull-quote-font: var(--kz-font-display, inherit);
+  --kz-pull-quote-weight: var(--kz-font-display-weight, 500);
+  --kz-pull-quote-case: var(--kz-font-display-case, none);
+  --kz-pull-quote-tracking: var(--kz-font-display-tracking, -0.03em);
+  --kz-pull-quote-size: calc(clamp(26px, 3.4vw, 40px) * var(--kz-font-display-scale, 1));
+  --kz-pull-quote-leading: 1.2;
+  /* The column the mark sits in, and how far the quote runs past the text column on wide screens */
+  --kz-pull-quote-gutter: 1.05em;
+  --kz-pull-quote-overhang: 48px;
+  /* Above and below the quote, in the article */
+  --kz-pull-quote-space: 56px;
+  --kz-pull-quote-source-font: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  --kz-pull-quote-source-size: var(--kz-font-label-size, 13px);
+  --kz-pull-quote-source-weight: var(--kz-font-label-weight, 400);
+  --kz-pull-quote-source-tracking: var(--kz-font-label-tracking, 0);
+  --kz-pull-quote-source-case: var(--kz-font-label-case, none);
+  --kz-pull-quote-source-leading: var(--kz-font-label-leading, 1.45);
+  --kz-pull-quote-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-pull-quote-draw: cubic-bezier(0.65, 0, 0.35, 1);
+
+  box-sizing: border-box;
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--kz-pull-quote-gutter) minmax(0, 1fr);
+  align-items: start;
+  margin: var(--kz-pull-quote-space) 0;
+  padding: 32px 0 0;
+  color: var(--kz-pull-quote-fg);
+  font-size: var(--kz-pull-quote-size);
+  text-align: start;
+}
+
+.kodza-pull-quote::before {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  margin: -0.06em 0 0 -0.04em;
+  color: var(--kz-pull-quote-mark);
+  font-family: var(--kz-pull-quote-font);
+  font-size: 2.4em;
+  font-weight: var(--kz-pull-quote-weight);
+  line-height: 0.8;
+  content: "\201C";
+}
+
+.kodza-pull-quote::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--kz-pull-quote-rule);
+  content: "";
+  transform-origin: left;
+}
+
+.kodza-pull-quote blockquote {
+  grid-column: 2;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--kz-pull-quote-font);
+  font-size: 1em;
+  font-style: normal;
+  font-weight: var(--kz-pull-quote-weight);
+  line-height: var(--kz-pull-quote-leading);
+  letter-spacing: var(--kz-pull-quote-tracking);
+  text-transform: var(--kz-pull-quote-case);
+  quotes: none;
+}
+
+.kodza-pull-quote blockquote::before,
+.kodza-pull-quote blockquote::after {
+  content: none;
+}
+
+.kodza-pull-quote blockquote p {
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-wrap: balance;
+}
+
+.kodza-pull-quote blockquote p + p {
+  margin-top: 0.5em;
+}
+
+.kodza-pull-quote figcaption,
+.kodza-pull-quote cite {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 0;
+  color: var(--kz-pull-quote-muted);
+  font-family: var(--kz-pull-quote-source-font);
+  font-size: var(--kz-pull-quote-source-size);
+  font-style: normal;
+  font-weight: var(--kz-pull-quote-source-weight);
+  line-height: var(--kz-pull-quote-source-leading);
+  letter-spacing: var(--kz-pull-quote-source-tracking);
+  text-transform: var(--kz-pull-quote-source-case);
+}
+
+.kodza-pull-quote figcaption::before,
+.kodza-pull-quote cite::before {
+  flex: none;
+  width: 24px;
+  height: 1px;
+  background: currentColor;
+  content: "";
+}
+
+.kodza-pull-quote[data-align="center"] {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+}
+
+.kodza-pull-quote[data-align="center"]::before {
+  grid-row: 1;
+  height: 0.5em;
+  margin: 0 0 0.2em;
+}
+
+.kodza-pull-quote[data-align="center"]::after {
+  left: calc(50% - 24px);
+  width: 48px;
+  transform-origin: center;
+}
+
+.kodza-pull-quote[data-align="center"] blockquote,
+.kodza-pull-quote[data-align="center"] figcaption,
+.kodza-pull-quote[data-align="center"] cite {
+  grid-column: 1;
+}
+
+/* On a wide screen the mark hangs in the margin, so the words line up with the text of the
+   article, and the quote runs a little past the column */
+@media (min-width: 1024px) {
+  .kodza-pull-quote {
+    margin-inline: calc(var(--kz-pull-quote-gutter) * -1) calc(var(--kz-pull-quote-overhang) * -1);
+  }
+
+  .kodza-pull-quote[data-align="center"] {
+    margin-inline: calc(var(--kz-pull-quote-overhang) * -1);
+  }
+}
+
+/* The entrance, set by the script: the quote waits hidden until it reaches the screen */
+.kodza-pull-quote.is-split .kodza-pull-quote__lines {
+  display: flex;
+  flex-direction: column;
+}
+
+.kodza-pull-quote[data-align="center"].is-split .kodza-pull-quote__lines {
+  align-items: center;
+}
+
+.kodza-pull-quote__line {
+  display: block;
+  overflow: hidden;
+  overflow: clip;
+  margin: -0.1em -0.5em;
+  padding: 0.1em 0.5em;
+}
+
+.kodza-pull-quote__lift {
+  display: block;
+  white-space: nowrap;
+}
+
+.kodza-pull-quote__word {
+  display: inline-block;
+}
+
+.kodza-pull-quote__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-pull-quote.is-armed:not(.is-in)::after {
+  transform: scaleX(0);
+}
+
+.kodza-pull-quote.is-armed:not(.is-in)::before {
+  clip-path: inset(0 0 100% 0);
+  transform: translateY(0.3em);
+}
+
+.kodza-pull-quote.is-armed:not(.is-in) .kodza-pull-quote__lift {
+  transform: translateY(115%);
+}
+
+.kodza-pull-quote.is-armed:not(.is-in) figcaption,
+.kodza-pull-quote.is-armed:not(.is-in) cite {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.kodza-pull-quote.is-in::after {
+  transition: transform calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-pull-quote-draw);
+}
+
+.kodza-pull-quote.is-in::before {
+  transition:
+    clip-path calc(0.8s * var(--kz-motion-scale, 1)) var(--kz-pull-quote-ease) calc(0.15s * var(--kz-motion-scale, 1)),
+    transform calc(0.8s * var(--kz-motion-scale, 1)) var(--kz-pull-quote-ease) calc(0.15s * var(--kz-motion-scale, 1));
+}
+
+.kodza-pull-quote.is-in .kodza-pull-quote__lift {
+  transition: transform calc(0.85s * var(--kz-motion-scale, 1)) var(--kz-pull-quote-ease) calc((0.35s + var(--kz-pull-quote-i, 0) * 0.08s) * var(--kz-motion-scale, 1));
+}
+
+/* The source after the fifth line at the latest: a long quote does not keep it waiting */
+.kodza-pull-quote.is-in figcaption,
+.kodza-pull-quote.is-in cite {
+  transition:
+    opacity calc(0.6s * var(--kz-motion-scale, 1)) ease calc((0.6s + min(var(--kz-pull-quote-n, 1), 5) * 0.08s) * var(--kz-motion-scale, 1)),
+    transform calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-pull-quote-ease) calc((0.6s + min(var(--kz-pull-quote-n, 1), 5) * 0.08s) * var(--kz-motion-scale, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-pull-quote.is-in::before,
+  .kodza-pull-quote.is-in::after,
+  .kodza-pull-quote.is-in .kodza-pull-quote__lift,
+  .kodza-pull-quote.is-in figcaption,
+  .kodza-pull-quote.is-in cite {
+    transition: none;
+  }
+}
+
+/* kodza-guard b7110efa09d4 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-pull-quote figcaption:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-pull-quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-pull-quote:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pull-quote__sr:not(#_),
+.kodza-pull-quote__lines:not(#_),
+.kodza-pull-quote__line:not(#_),
+.kodza-pull-quote__lift:not(#_),
+.kodza-pull-quote__word:not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-pull-quote blockquote:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-pull-quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pull-quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-pull-quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pull-quote figcaption:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-pull-quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-pull-quote blockquote:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-pull-quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-pull-quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-pull-quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-pull-quote blockquote:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-pull-quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-pull-quote p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-pull-quote :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-pull-quote:not(#_)::before,
+.kodza-pull-quote:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-pull-quote:not(#_) {
+  box-sizing: border-box;
+  position: relative;
+  display: grid;
+  padding: 32px 0 0;
+  color: var(--kz-pull-quote-fg);
+  font-size: var(--kz-pull-quote-size);
+  text-align: start;
+}
+
+.kodza-pull-quote blockquote:not(#_) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--kz-pull-quote-font);
+  font-size: 1em;
+  font-style: normal;
+  font-weight: var(--kz-pull-quote-weight);
+  line-height: var(--kz-pull-quote-leading);
+  letter-spacing: var(--kz-pull-quote-tracking);
+  text-transform: var(--kz-pull-quote-case);
+}
+
+.kodza-pull-quote blockquote p:not(#_) {
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+.kodza-pull-quote figcaption:not(#_) {
+  display: flex;
+  margin: 24px 0 0;
+  color: var(--kz-pull-quote-muted);
+  font-family: var(--kz-pull-quote-source-font);
+  font-size: var(--kz-pull-quote-source-size);
+  font-style: normal;
+  font-weight: var(--kz-pull-quote-source-weight);
+  line-height: var(--kz-pull-quote-source-leading);
+  letter-spacing: var(--kz-pull-quote-source-tracking);
+  text-transform: var(--kz-pull-quote-source-case);
+}
+
+.kodza-pull-quote[data-align="center"]:not(#_) {
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .kodza-pull-quote:not(#_) {
+    margin-inline: calc(var(--kz-pull-quote-gutter) * -1) calc(var(--kz-pull-quote-overhang) * -1);
+  }
+}
+
+@media (min-width: 1024px) {
+  .kodza-pull-quote[data-align="center"]:not(#_) {
+    margin-inline: calc(var(--kz-pull-quote-overhang) * -1);
+  }
+}
+
+.kodza-pull-quote.is-in figcaption:not(#_) {
+  transition: opacity calc(0.6s * var(--kz-motion-scale, 1)) ease calc((0.6s + min(var(--kz-pull-quote-n, 1), 5) * 0.08s) * var(--kz-motion-scale, 1)),
+    transform calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-pull-quote-ease) calc((0.6s + min(var(--kz-pull-quote-n, 1), 5) * 0.08s) * var(--kz-motion-scale, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-pull-quote.is-in figcaption:not(#_) {
+    transition: none;
+  }
+}

@@ -1,0 +1,224 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Relative Time
+   "3 minutes ago" on a real time element: the gap is written in the page's language, kept up to
+   date (each minute the first hour, then each hour), and only the part that changes rolls. Hover
+   or focus shows the exact date, in the visitor's time zone. Without the script, the date written
+   inside the time element. Settings: the --kz-relative-time-* variables below, data-style,
+   data-limit and data-locale on each time element, and the words of the script (data-text-*). */
+.kodza-relative-time {
+  /* The dashed line under the date: there is more to read */
+  --kz-relative-time-line: color-mix(in srgb, currentColor 40%, transparent);
+  /* The exact date, in a small bubble */
+  --kz-relative-time-tip-bg: var(--kz-color-ink, #0a0a0a);
+  --kz-relative-time-tip-fg: var(--kz-color-paper, #ffffff);
+  --kz-relative-time-tip-muted: color-mix(in srgb, var(--kz-relative-time-tip-fg) 62%, transparent);
+  --kz-relative-time-tip-font: var(--kz-font-label, var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace));
+  --kz-relative-time-tip-size: var(--kz-font-label-size, 12px);
+  --kz-relative-time-tip-weight: var(--kz-font-label-weight, 400);
+  --kz-relative-time-tip-tracking: var(--kz-font-label-tracking, 0);
+  --kz-relative-time-tip-case: var(--kz-font-label-case, none);
+  --kz-relative-time-tip-leading: var(--kz-font-label-leading, 1.45);
+  --kz-relative-time-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* The text of the sentence around it, unless --kz-relative-time-fg is set */
+  color: var(--kz-relative-time-fg, currentColor);
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-relative-time.is-live {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+  background: repeating-linear-gradient(90deg, var(--kz-relative-time-line) 0 2px, transparent 2px 5px) left calc(100% - 0.06em) / 100% 1px no-repeat;
+  cursor: help;
+}
+
+.kodza-relative-time:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+}
+
+/* Read once, whole, by a screen reader; the parts on screen are for the eye */
+.kodza-relative-time__said {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-relative-time__face {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+/* Each part in its own window: the old words leave upwards, the new ones rise from below */
+.kodza-relative-time__part {
+  display: inline-grid;
+  clip-path: inset(0 -0.2em);
+}
+
+.kodza-relative-time__part > span {
+  grid-area: 1 / 1;
+  justify-self: start;
+  white-space: pre;
+}
+
+.kodza-relative-time__tip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  z-index: 30;
+  display: grid;
+  gap: 1px;
+  padding: 7px 10px;
+  border-radius: calc(9px * var(--kz-radius-scale, 1));
+  background: var(--kz-relative-time-tip-bg);
+  color: var(--kz-relative-time-tip-fg);
+  font-family: var(--kz-relative-time-tip-font);
+  font-size: var(--kz-relative-time-tip-size);
+  font-style: normal;
+  font-weight: var(--kz-relative-time-tip-weight);
+  letter-spacing: var(--kz-relative-time-tip-tracking);
+  line-height: var(--kz-relative-time-tip-leading);
+  text-transform: var(--kz-relative-time-tip-case);
+  text-align: start;
+  white-space: nowrap;
+  pointer-events: none;
+  visibility: hidden;
+  transform: translate(calc(-50% + var(--kz-relative-time-shift, 0px)), 4px);
+  clip-path: inset(100% 0 0 0 round calc(9px * var(--kz-radius-scale, 1)));
+  transition:
+    transform calc(0.18s * var(--kz-motion-scale, 1)) var(--kz-relative-time-ease),
+    clip-path calc(0.18s * var(--kz-motion-scale, 1)) var(--kz-relative-time-ease),
+    visibility 0s linear calc(0.18s * var(--kz-motion-scale, 1));
+}
+
+/* Out of the layout while it is closed: a hidden bubble near the edge of a phone would still widen the page */
+.kodza-relative-time__tip[hidden] {
+  display: none;
+}
+
+/* The gap between the date and the bubble still counts as the date, for the pointer */
+.kodza-relative-time__tip::after {
+  content: "";
+  position: absolute;
+  inset: 100% 0 -10px;
+}
+
+.kodza-relative-time__hour {
+  color: var(--kz-relative-time-tip-muted);
+}
+
+.kodza-relative-time.is-below .kodza-relative-time__tip {
+  top: calc(100% + 10px);
+  bottom: auto;
+  transform: translate(calc(-50% + var(--kz-relative-time-shift, 0px)), -4px);
+  clip-path: inset(0 0 100% 0 round calc(9px * var(--kz-radius-scale, 1)));
+}
+
+.kodza-relative-time.is-below .kodza-relative-time__tip::after {
+  inset: -10px 0 100%;
+}
+
+.kodza-relative-time.is-open .kodza-relative-time__tip {
+  pointer-events: auto;
+  visibility: visible;
+  transform: translate(calc(-50% + var(--kz-relative-time-shift, 0px)), 0);
+  clip-path: inset(0 0 0 0 round calc(9px * var(--kz-radius-scale, 1)));
+  transition:
+    transform calc(0.22s * var(--kz-motion-scale, 1)) var(--kz-relative-time-ease),
+    clip-path calc(0.22s * var(--kz-motion-scale, 1)) var(--kz-relative-time-ease),
+    visibility 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-relative-time__tip,
+  .kodza-relative-time.is-open .kodza-relative-time__tip {
+    transition: none;
+  }
+}
+
+/* kodza-guard 3b414f9b23c9 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-relative-time):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-relative-time):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-relative-time):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-relative-time:not(#_) {
+  border: revert;
+  padding: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-relative-time__said:not(#_),
+.kodza-relative-time__face:not(#_),
+.kodza-relative-time__part:not(#_),
+.kodza-relative-time__tip:not(#_),
+.kodza-relative-time__day:not(#_),
+.kodza-relative-time__hour:not(#_),
+.kodza-relative-time__part span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-relative-time__tip:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-relative-time:not(#_) {
+  color: var(--kz-relative-time-fg, currentColor);
+}
+
+.kodza-relative-time.is-live:not(#_) {
+  position: relative;
+  display: inline-flex;
+  background: repeating-linear-gradient(90deg, var(--kz-relative-time-line) 0 2px, transparent 2px 5px) left calc(100% - 0.06em) / 100% 1px no-repeat;
+}
+
+.kodza-relative-time:focus-visible:not(#_) {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+}
