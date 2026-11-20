@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 271. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 274. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-271 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+274 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -274,7 +274,7 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Text effects</b> · 25</summary>
+<summary><b>Text effects</b> · 28</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -292,13 +292,16 @@ Written like it's going live tomorrow. Because it probably is.
 | [Pull Quote](components/pull-quote/) | The line of an article worth stopping on: a large mark hung in the margin, a 1px rule, the source in mono. On screen, the rule draws, then each line rises from its mask. Works on .wp-block-pullquote. | [Demo](https://kodza.dev/components/pull-quote/) |
 | [Read Aloud](components/read-aloud/) | A Listen button that reads an article with the browser's own voice: the sentence being read stays lit, a pill follows each word, a click on a word reads on from there. Hidden without speech synthesis. | [Demo](https://kodza.dev/components/read-aloud/) |
 | [Relative Time](components/relative-time/) | "3 minutes ago" on a real <time>, in the page's language and kept up to date: only the part that changes rolls, and hover or focus shows the exact date in your time zone. | [Demo](https://kodza.dev/components/relative-time/) |
+| [Revision Diff](components/revision-diff/) | Compares a text with its previous version word by word: removed words come back struck through, added words underlined, a margin mark on each change. Arrows, N and P step through. | [Demo](https://kodza.dev/components/revision-diff/) |
 | [Scramble Text](components/scramble-text/) | A label or a short title that decodes when it reaches the screen, and again whenever its text changes: symbols settling letter by letter, or a split-flap. Letters keep their width; screen readers read the final text. | [Demo](https://kodza.dev/components/scramble-text/) |
 | [Scroll Text Reveal](components/animated-text-reveal/) | Words light up one after the other as a paragraph scrolls by, and dim again on the way back. Fade, blur or rise. No GSAP. | [Demo](https://kodza.dev/components/animated-text-reveal/) |
 | [Shimmer Text](components/text-shimmer/) | A band of light that sweeps across text, the way a busy interface says "still working on it". Looping, on hover, or following the pointer. | [Demo](https://kodza.dev/components/text-shimmer/) |
+| [Spoiler](components/spoiler/) | Hides an answer inside a sentence under a bar of ink, line by line, at its real width. A click, a tap or Enter parts the ink from the point touched; again, and it closes back. | [Demo](https://kodza.dev/components/spoiler/) |
 | [Strike Reveal](components/strike-reveal/) | A hand-drawn stroke strikes a word in a heading, the word dims, then the line opens and the right word rises from its mask. Real <del> and <ins>. | [Demo](https://kodza.dev/components/strike-reveal/) |
 | [Text Block Reveal](components/text-block-reveal/) | A block of ink runs along each line of a heading, covers it and pulls away to leave the words written. Real line breaks, lines in cascade. | [Demo](https://kodza.dev/components/text-block-reveal/) |
 | [Text Fit](components/text-fit/) | Each line of a heading fills its column exactly, like a poster: every line, split at each <br>, gets the font size that reaches both edges, refitted when the column changes or the font loads. A ceiling holds short lines. | [Demo](https://kodza.dev/components/text-fit/) |
 | [Text Reveal](components/text-split-scroll-reveal/) | Text that writes itself in when it reaches the screen: lines rising from a mask, words coming into focus, or letters. Plays once. | [Demo](https://kodza.dev/components/text-split-scroll-reveal/) |
+| [Transcript](components/transcript/) | The words of a video or a podcast beside it, at their time: the sentence being said fills with ink as it is spoken, the panel follows it, lets go when you scroll and brings it back. A click plays from there. | [Demo](https://kodza.dev/components/transcript/) |
 | [Typewriter](components/typewriter-effect/) | Phrases typed with a human rhythm and an honest caret. Retypes only what changes, or selects it like an editor before typing over it. | [Demo](https://kodza.dev/components/typewriter-effect/) |
 | [Unit Toggle](components/unit-toggle/) | Marks each measure of a text once, in either system, and shows them all in metric or imperial: the digits roll, each value eases to its width, and the choice follows the visitor. | [Demo](https://kodza.dev/components/unit-toggle/) |
 | [Variable Weight Hover](components/variable-weight-hover/) | A big link whose letters get bolder the closer the pointer comes, on the weight axis of a variable font, while the line keeps its width. Works on a title or a menu too. | [Demo](https://kodza.dev/components/variable-weight-hover/) |

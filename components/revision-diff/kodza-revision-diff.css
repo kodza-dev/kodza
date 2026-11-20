@@ -1,0 +1,816 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Revision Diff
+   What changed in a page since the last version, right in the text. A switch opens the changes:
+   the words that left grow back in place and are struck through, the words that arrived take an
+   underline, the rest steps back. Up and down step from one change to the next, a rail glides in
+   the margin to it, and N or P do the same from the keyboard. Without the script, the page reads
+   as it is now.
+   Settings: the --kz-revision-diff-* variables below, data-open (changes shown at once),
+   data-locale (the date), the words of the script (data-text-*) and the timings in the script. */
+.kodza-revision-diff {
+  --kz-revision-diff-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-revision-diff-paper: var(--kz-color-paper, #fff);
+  --kz-revision-diff-accent: var(--kz-color-accent, var(--kz-revision-diff-fg));
+  --kz-revision-diff-on-accent: var(--kz-color-on-accent, var(--kz-revision-diff-paper));
+  /* The text that did not change, while the changes show */
+  --kz-revision-diff-calm: color-mix(in srgb, var(--kz-revision-diff-fg) 74%, transparent);
+  /* The words that left (56 % keeps them AA on white) */
+  --kz-revision-diff-gone: color-mix(in srgb, var(--kz-revision-diff-fg) 56%, transparent);
+  --kz-revision-diff-dim: color-mix(in srgb, var(--kz-revision-diff-fg) 62%, transparent);
+  --kz-revision-diff-border: color-mix(in srgb, var(--kz-revision-diff-fg) 10%, transparent);
+  /* The change you are on */
+  --kz-revision-diff-tint: color-mix(in srgb, var(--kz-revision-diff-fg) 8%, transparent);
+  --kz-revision-diff-tick: color-mix(in srgb, var(--kz-revision-diff-fg) 18%, transparent);
+  /* How far the bar stays from the top of the screen as the page scrolls under it */
+  --kz-revision-diff-top: 16px;
+  /* The margin on the left of the text, where the rail runs */
+  --kz-revision-diff-gutter: 22px;
+  --kz-revision-diff-text-size: 17px;
+  --kz-revision-diff-leading: 1.6;
+  --kz-revision-diff-heading-size: 20px;
+  --kz-revision-diff-font: var(--kz-font-label, inherit);
+  --kz-revision-diff-size: var(--kz-font-label-size, 14px);
+  --kz-revision-diff-weight: var(--kz-font-label-weight, 500);
+  --kz-revision-diff-tracking: var(--kz-font-label-tracking, 0);
+  --kz-revision-diff-case: var(--kz-font-label-case, none);
+  --kz-revision-diff-mono: var(--kz-font-mono, ui-monospace, "SFMono-Regular", Menlo, monospace);
+  display: block;
+  margin: 0;
+  color: var(--kz-revision-diff-fg);
+  container-type: inline-size;
+}
+
+.kodza-revision-diff__bar {
+  position: sticky;
+  top: var(--kz-revision-diff-top);
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  box-sizing: border-box;
+  min-height: 52px;
+  margin: 0 0 32px;
+  padding: 7px 7px 7px 20px;
+  border: 1px solid var(--kz-revision-diff-border);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-revision-diff-paper);
+  font-family: var(--kz-revision-diff-font);
+  font-size: var(--kz-revision-diff-size);
+  font-weight: var(--kz-revision-diff-weight);
+  letter-spacing: var(--kz-revision-diff-tracking);
+  text-transform: var(--kz-revision-diff-case);
+  line-height: 1;
+}
+
+@container (max-width: 519px) {
+  .kodza-revision-diff__bar {
+    padding: 12px 12px 12px 16px;
+    border-radius: calc(14px * var(--kz-radius-scale, 1));
+  }
+}
+
+.kodza-revision-diff__summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.kodza-revision-diff__dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kz-revision-diff-fg);
+}
+
+.kodza-revision-diff__since {
+  margin-left: 0.3em;
+  color: var(--kz-revision-diff-dim);
+}
+
+.kodza-revision-diff__controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kodza-revision-diff__step,
+.kodza-revision-diff__switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-revision-diff__step {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff__step svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.kodza-revision-diff__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 44px;
+  justify-content: center;
+  font-family: var(--kz-revision-diff-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+  color: var(--kz-revision-diff-dim);
+  transition: color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff.is-open .kodza-revision-diff__count {
+  color: var(--kz-revision-diff-fg);
+}
+
+/* The number rolls in its own slot: the old one leaves, the new one comes in from the side it
+   is going to */
+.kodza-revision-diff__index {
+  display: inline-grid;
+  overflow: hidden;
+  height: 1.3em;
+  line-height: 1.3em;
+  text-align: right;
+}
+
+.kodza-revision-diff__index > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-revision-diff__switch {
+  gap: 10px;
+  height: 38px;
+  margin-left: 8px;
+  padding: 0 16px 0 12px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-revision-diff-tint);
+  white-space: nowrap;
+  transition: background-color calc(0.3s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff__track {
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  width: 30px;
+  height: 18px;
+  border: 1.5px solid currentColor;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-revision-diff__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: currentColor;
+  transition: transform calc(0.35s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kodza-revision-diff__switch[aria-checked="true"] {
+  background: var(--kz-revision-diff-accent);
+  color: var(--kz-revision-diff-on-accent);
+}
+
+.kodza-revision-diff__switch[aria-checked="true"] .kodza-revision-diff__thumb {
+  transform: translateX(12px);
+}
+
+.kodza-revision-diff__step:focus,
+.kodza-revision-diff__switch:focus {
+  outline: none;
+}
+
+.kodza-revision-diff__step:focus-visible,
+.kodza-revision-diff__switch:focus-visible {
+  outline: 2px solid var(--kz-revision-diff-fg);
+  outline-offset: 2px;
+}
+
+.kodza-revision-diff__step:disabled,
+.kodza-revision-diff__switch:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .kodza-revision-diff__step:not(:disabled):hover {
+    background: var(--kz-revision-diff-tint);
+  }
+}
+
+.kodza-revision-diff__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.kodza-revision-diff__body {
+  position: relative;
+  box-sizing: border-box;
+  padding: 0 0 0 var(--kz-revision-diff-gutter);
+  font-size: var(--kz-revision-diff-text-size);
+  line-height: var(--kz-revision-diff-leading);
+  transition: color calc(0.4s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff__body p,
+.kodza-revision-diff__body li,
+.kodza-revision-diff__body blockquote {
+  margin: 0 0 14px;
+  font-size: inherit;
+  line-height: inherit;
+  text-wrap: pretty;
+}
+
+.kodza-revision-diff__body h2,
+.kodza-revision-diff__body h3,
+.kodza-revision-diff__body h4 {
+  margin: 30px 0 10px;
+  font-size: var(--kz-revision-diff-heading-size);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.kodza-revision-diff__body > :first-child,
+.kodza-revision-diff__gutter + * {
+  margin-top: 0;
+}
+
+.kodza-revision-diff__body > :last-child {
+  margin-bottom: 0;
+}
+
+.kodza-revision-diff.is-open .kodza-revision-diff__body {
+  color: var(--kz-revision-diff-calm);
+}
+
+/* The changes are in the text only while they show: hidden, the page reads as it is now */
+.kodza-revision-diff:not(.is-diff) .kodza-revision-diff__del,
+.kodza-revision-diff:not(.is-diff) .kodza-revision-diff__gone {
+  display: none;
+}
+
+.kodza-revision-diff__del,
+.kodza-revision-diff__ins {
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+  color: inherit;
+  text-decoration: none;
+  -webkit-box-decoration-break: slice;
+  box-decoration-break: slice;
+}
+
+/* Closing: everything goes back at once, quicker */
+.kodza-revision-diff__del {
+  font-size: 0;
+  opacity: 0;
+  transition: font-size calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    background-color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff__out {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 58%;
+  background-repeat: no-repeat;
+  background-size: 0 max(1px, 0.08em);
+  -webkit-box-decoration-break: slice;
+  box-decoration-break: slice;
+  transition: background-size calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff__ins {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 94%;
+  background-repeat: no-repeat;
+  background-size: 0 1px;
+  transition: background-size calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    background-color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+/* Opening, in order: the words that left grow back in place and push the line apart, then show,
+   then the strike runs through them and they step back; the words that arrived take their line */
+.kodza-revision-diff.is-open .kodza-revision-diff__del {
+  font-size: 1em;
+  opacity: 1;
+  color: var(--kz-revision-diff-gone);
+  transition: font-size calc(0.55s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity calc(0.3s * var(--kz-motion-scale, 1)) ease calc(0.25s * var(--kz-motion-scale, 1)),
+    color calc(0.4s * var(--kz-motion-scale, 1)) ease calc(0.9s * var(--kz-motion-scale, 1)),
+    background-color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff.is-open .kodza-revision-diff__out {
+  background-size: 100% max(1px, 0.08em);
+  transition: background-size calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1) calc(0.45s * var(--kz-motion-scale, 1));
+}
+
+.kodza-revision-diff.is-open .kodza-revision-diff__ins {
+  color: var(--kz-revision-diff-fg);
+  background-size: 100% 1px;
+  transition: background-size calc(0.5s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1) calc(0.3s * var(--kz-motion-scale, 1)),
+    color calc(0.4s * var(--kz-motion-scale, 1)) ease,
+    background-color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff.is-open .is-current {
+  background-color: var(--kz-revision-diff-tint);
+}
+
+.kodza-revision-diff.is-measuring,
+.kodza-revision-diff.is-measuring * {
+  transition: none !important;
+}
+
+.kodza-revision-diff .is-growing {
+  box-sizing: border-box;
+  overflow: clip;
+}
+
+/* In the margin: a faint mark for each change, and the rail on the one you are on */
+.kodza-revision-diff__gutter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  pointer-events: none;
+}
+
+.kodza-revision-diff__tick,
+.kodza-revision-diff__rail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  opacity: 0;
+}
+
+.kodza-revision-diff__tick {
+  background: var(--kz-revision-diff-tick);
+  transition: opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff__rail {
+  background: var(--kz-revision-diff-fg);
+  transition: transform calc(0.5s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    height calc(0.5s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff.is-open .kodza-revision-diff__tick,
+.kodza-revision-diff.is-open .kodza-revision-diff__rail {
+  opacity: 1;
+  transition: opacity calc(0.4s * var(--kz-motion-scale, 1)) ease calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-revision-diff.is-open:not(.is-tracking) .kodza-revision-diff__rail {
+  transition: transform calc(0.5s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    height calc(0.5s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity calc(0.4s * var(--kz-motion-scale, 1)) ease calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-revision-diff.is-tracking .kodza-revision-diff__tick {
+  transition: opacity calc(0.4s * var(--kz-motion-scale, 1)) ease calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+@media (forced-colors: active) {
+  .kodza-revision-diff.is-open .kodza-revision-diff__out {
+    text-decoration: line-through;
+  }
+
+  .kodza-revision-diff.is-open .kodza-revision-diff__ins {
+    text-decoration: underline;
+  }
+
+  .kodza-revision-diff__rail {
+    background: Highlight;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-revision-diff *,
+  .kodza-revision-diff.is-open * {
+    transition: none !important;
+  }
+}
+
+/* kodza-guard 630086c35a13 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-revision-diff):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-revision-diff__summary):not(#_),
+:where(.kodza-revision-diff__dot):not(#_),
+:where(.kodza-revision-diff__since):not(#_),
+:where(.kodza-revision-diff__controls):not(#_),
+:where(.kodza-revision-diff__count):not(#_),
+:where(.kodza-revision-diff__index):not(#_),
+:where(.kodza-revision-diff__sr):not(#_),
+:where(.kodza-revision-diff__thumb):not(#_),
+:where(.kodza-revision-diff__gutter):not(#_),
+:where(.kodza-revision-diff__tick):not(#_),
+:where(.kodza-revision-diff__rail):not(#_),
+:where(.kodza-revision-diff__del):not(#_),
+:where(.kodza-revision-diff__out):not(#_),
+:where(.kodza-revision-diff__ins):not(#_),
+:where(.kodza-revision-diff__before):not(#_),
+:where(.kodza-revision-diff__summary span:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-revision-diff__index span:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-revision-diff__count span:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-revision-diff__switch span:where(:not([class*="kodza-"]))):not(#_) {
+  box-sizing: revert;
+}
+
+:where(.kodza-revision-diff__step):not(#_),
+:where(.kodza-revision-diff__switch):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-revision-diff__gone):not(#_),
+:where(.kodza-revision-diff__step svg:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-revision-diff__body h3:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-revision-diff__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-revision-diff__body p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-revision-diff__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition: revert;
+  box-sizing: revert;
+  background-color: revert;
+}
+
+:where(.kodza-revision-diff__gone):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-revision-diff__gone):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-revision-diff:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-revision-diff__step:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-revision-diff__switch:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-revision-diff__gone:not(#_),
+.kodza-revision-diff__body p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-revision-diff__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-revision-diff__step svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-revision-diff__body h3:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-revision-diff__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-revision-diff__body h3:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-revision-diff__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-revision-diff__body p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-revision-diff__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-revision-diff__body h3:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-revision-diff__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-revision-diff__body p:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-revision-diff__body :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-revision-diff:not(#_) {
+  display: block;
+  color: var(--kz-revision-diff-fg);
+}
+
+.kodza-revision-diff__step:not(#_),
+.kodza-revision-diff__switch:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-revision-diff__step:not(#_) {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff__step svg:not(#_) {
+  display: block;
+}
+
+.kodza-revision-diff__switch:not(#_) {
+  gap: 10px;
+  height: 38px;
+  margin-left: 8px;
+  padding: 0 16px 0 12px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-revision-diff-tint);
+  white-space: nowrap;
+  transition: background-color calc(0.3s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff__switch[aria-checked="true"]:not(#_) {
+  background: var(--kz-revision-diff-accent);
+  color: var(--kz-revision-diff-on-accent);
+}
+
+.kodza-revision-diff__step:focus:not(#_),
+.kodza-revision-diff__switch:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-revision-diff__step:focus-visible:not(#_),
+.kodza-revision-diff__switch:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-revision-diff-fg);
+  outline-offset: 2px;
+}
+
+.kodza-revision-diff__step:disabled:not(#_),
+.kodza-revision-diff__switch:disabled:not(#_) {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .kodza-revision-diff__step:not(:disabled):hover:not(#_) {
+    background: var(--kz-revision-diff-tint);
+  }
+}
+
+.kodza-revision-diff__body p:not(#_) {
+  margin: 0 0 14px;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.kodza-revision-diff__body h3:not(#_) {
+  margin: 30px 0 10px;
+  font-size: var(--kz-revision-diff-heading-size);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.kodza-revision-diff__body > :first-child:where(h3, p):not(#_),
+.kodza-revision-diff__gutter + *:not(#_) {
+  margin-top: 0;
+}
+
+.kodza-revision-diff__body > :last-child:where(h3, p):not(#_) {
+  margin-bottom: 0;
+}
+
+.kodza-revision-diff:not(.is-diff) .kodza-revision-diff__gone:not(#_) {
+  display: none;
+}
+
+.kodza-revision-diff.is-open .kodza-revision-diff__del:not(#_) {
+  transition: font-size calc(0.55s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity calc(0.3s * var(--kz-motion-scale, 1)) ease calc(0.25s * var(--kz-motion-scale, 1)),
+    color calc(0.4s * var(--kz-motion-scale, 1)) ease calc(0.9s * var(--kz-motion-scale, 1)),
+    background-color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff.is-open .kodza-revision-diff__out:not(#_) {
+  transition: background-size calc(0.45s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1) calc(0.45s * var(--kz-motion-scale, 1));
+}
+
+.kodza-revision-diff.is-open .kodza-revision-diff__ins:not(#_) {
+  transition: background-size calc(0.5s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1) calc(0.3s * var(--kz-motion-scale, 1)),
+    color calc(0.4s * var(--kz-motion-scale, 1)) ease,
+    background-color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-revision-diff.is-open .is-current:not(#_) {
+  background-color: var(--kz-revision-diff-tint);
+}
+
+.kodza-revision-diff.is-measuring:not(#_) {
+  transition: none !important;
+}
+
+.kodza-revision-diff.is-measuring *:not(#_) {
+  transition: none !important;
+}
+
+.kodza-revision-diff .is-growing:not(#_) {
+  box-sizing: border-box;
+  overflow: clip;
+}
+
+.kodza-revision-diff.is-open .kodza-revision-diff__tick:not(#_),
+.kodza-revision-diff.is-open .kodza-revision-diff__rail:not(#_) {
+  transition: opacity calc(0.4s * var(--kz-motion-scale, 1)) ease calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-revision-diff.is-open:not(.is-tracking) .kodza-revision-diff__rail:not(#_) {
+  transition: transform calc(0.5s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    height calc(0.5s * var(--kz-motion-scale, 1)) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity calc(0.4s * var(--kz-motion-scale, 1)) ease calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+.kodza-revision-diff.is-tracking .kodza-revision-diff__tick:not(#_) {
+  transition: opacity calc(0.4s * var(--kz-motion-scale, 1)) ease calc(0.3s * var(--kz-motion-scale, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-revision-diff *:not(#_),
+  .kodza-revision-diff.is-open *:not(#_) {
+    transition: none !important;
+  }
+}
