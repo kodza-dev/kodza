@@ -1,0 +1,997 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Availability Calendar
+   One or two months drawn from a list of booked dates. A booked day sits on a soft band and its
+   number is struck through; the bands draw in reading order when the calendar comes into view.
+   In nights, a check-in or check-out day is cut on the diagonal, and a changeover day (one guest
+   leaves, the next arrives) shows the cut inside a full band. The arrows slide the months by one.
+   Without the script, the list simply shows. Everything is tuned with the --kz-availability-*
+   variables. */
+.kodza-availability {
+  --kz-availability-bg: var(--kz-color-paper, #ffffff);
+  --kz-availability-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-availability-muted: color-mix(in srgb, var(--kz-availability-fg) 60%, transparent);
+  --kz-availability-border: color-mix(in srgb, var(--kz-availability-fg) 10%, transparent);
+  --kz-availability-soft: color-mix(in srgb, var(--kz-availability-fg) 6%, transparent); /* the arrows, hovered */
+  --kz-availability-ink: var(--kz-color-accent, var(--kz-availability-fg)); /* today's ring, the strike, the status dot */
+  --kz-availability-band: color-mix(in srgb, var(--kz-availability-ink) 10%, transparent); /* under a booked day */
+  --kz-availability-cell: 38px; /* the height of a day */
+  --kz-availability-gap: 32px; /* between two months */
+  --kz-availability-pad: 28px;
+  --kz-availability-mono: var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-availability-draw: 0.42s; /* a band drawing across its day */
+  --kz-availability-stagger: 26ms; /* the delay from one booked day to the next */
+  --kz-availability-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  gap: 22px;
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: var(--kz-availability-pad);
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-availability-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-availability-border);
+  color: var(--kz-availability-fg);
+}
+
+.kodza-availability.is-narrow {
+  --kz-availability-pad: 20px;
+  --kz-availability-cell: 36px;
+}
+
+.kodza-availability.is-ready > .kodza-availability__label,
+.kodza-availability.is-ready > .kodza-availability__booked {
+  display: none;
+}
+
+.kodza-availability__booked {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.kodza-availability__head,
+.kodza-availability__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  min-width: 0;
+}
+
+.kodza-availability__head {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}
+
+.kodza-availability__heading {
+  display: grid;
+  flex: 1 1 auto;
+  gap: 6px;
+  min-width: 0;
+}
+
+.kodza-availability__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.kodza-availability__label,
+.kodza-availability__status,
+.kodza-availability__legend,
+.kodza-availability__weekday {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-availability-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  font-variant-numeric: tabular-nums;
+  color: var(--kz-availability-muted);
+}
+
+.kodza-availability__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kodza-availability__status::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-availability-ink);
+}
+
+.kodza-availability__nav {
+  display: flex;
+  flex: none;
+  gap: 2px;
+  margin: -4px -6px 0 0;
+}
+
+.kodza-availability__arrow {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-availability__arrow:hover {
+  background: var(--kz-availability-soft);
+}
+
+.kodza-availability__arrow[aria-disabled="true"] {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.kodza-availability__arrow[aria-disabled="true"]:hover {
+  background: none;
+}
+
+.kodza-availability__arrow:focus-visible {
+  outline: 2px solid var(--kz-availability-fg);
+  outline-offset: -2px;
+}
+
+.kodza-availability__arrow svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* The months: the stage clips, the track slides by one month and its gap */
+.kodza-availability__stage {
+  overflow: hidden;
+  min-width: 0;
+}
+
+.kodza-availability__track {
+  display: flex;
+  gap: var(--kz-availability-gap);
+}
+
+.kodza-availability__month {
+  flex: 0 0 calc((100% - (var(--kz-availability-shown, 1) - 1) * var(--kz-availability-gap)) / var(--kz-availability-shown, 1));
+  min-width: 0;
+}
+
+.kodza-availability__grid {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  background: none;
+}
+
+.kodza-availability__caption {
+  margin: 0 0 10px;
+  padding: 0;
+  caption-side: top;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: inherit;
+}
+
+.kodza-availability__weekday {
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: center;
+  font-size: var(--kz-font-label-size, 11px);
+  vertical-align: middle;
+}
+
+.kodza-availability__day,
+.kodza-availability__blank {
+  height: var(--kz-availability-cell);
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.kodza-availability__day {
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.kodza-availability__num {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+/* The band under a booked day: it draws from the left, day after day */
+.kodza-availability__day:is(.is-booked, .is-turn, .is-in, .is-out)::before {
+  content: "";
+  position: absolute;
+  inset: 3px 0;
+  background: var(--kz-availability-band);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform calc(var(--kz-availability-draw) * var(--kz-motion-scale, 1)) var(--kz-availability-ease);
+  transition-delay: calc((var(--kz-availability-lead, 0) + var(--kz-availability-at, 0)) * var(--kz-availability-stagger) * var(--kz-motion-scale, 1));
+}
+
+.kodza-availability__month.is-drawn .kodza-availability__day::before {
+  transform: none;
+}
+
+.kodza-availability__day.is-cap-start::before {
+  left: 2px;
+  border-top-left-radius: calc(9px * var(--kz-radius-scale, 1));
+  border-bottom-left-radius: calc(9px * var(--kz-radius-scale, 1));
+}
+
+.kodza-availability__day.is-cap-end::before {
+  right: 2px;
+  border-top-right-radius: calc(9px * var(--kz-radius-scale, 1));
+  border-bottom-right-radius: calc(9px * var(--kz-radius-scale, 1));
+}
+
+/* Nights: the arrival is booked from the afternoon, the departure until the morning */
+.kodza-availability__day.is-in::before {
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+.kodza-availability__day.is-out::before {
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+/* A changeover: the same cut, drawn through the band in the card's own colour */
+.kodza-availability__day.is-turn::after {
+  content: "";
+  position: absolute;
+  inset: 3px 0;
+  background: linear-gradient(to top right, transparent calc(50% - 1px), var(--kz-availability-bg) calc(50% - 1px), var(--kz-availability-bg) calc(50% + 1px), transparent calc(50% + 1px));
+  opacity: 0;
+  transition: opacity calc(0.3s * var(--kz-motion-scale, 1)) ease;
+  transition-delay: calc((var(--kz-availability-lead, 0) + var(--kz-availability-at, 0)) * var(--kz-availability-stagger) * var(--kz-motion-scale, 1) + 0.2s * var(--kz-motion-scale, 1));
+}
+
+.kodza-availability__month.is-drawn .kodza-availability__day.is-turn::after {
+  opacity: 1;
+}
+
+.kodza-availability__day:is(.is-booked, .is-turn) .kodza-availability__num {
+  color: var(--kz-availability-muted);
+}
+
+/* The strike through a booked number, drawn just after its band */
+.kodza-availability__day:is(.is-booked, .is-turn):not(.is-past) .kodza-availability__num::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 9px;
+  right: 9px;
+  height: 1.5px;
+  margin-top: -0.75px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform calc(0.3s * var(--kz-motion-scale, 1)) var(--kz-availability-ease);
+  transition-delay: calc((var(--kz-availability-lead, 0) + var(--kz-availability-at, 0)) * var(--kz-availability-stagger) * var(--kz-motion-scale, 1) + 0.12s * var(--kz-motion-scale, 1));
+}
+
+.kodza-availability__month.is-drawn .kodza-availability__day:is(.is-booked, .is-turn):not(.is-past) .kodza-availability__num::after {
+  transform: none;
+}
+
+.kodza-availability__day.is-today .kodza-availability__num {
+  box-shadow: inset 0 0 0 1.5px var(--kz-availability-ink);
+  font-weight: 600;
+  color: var(--kz-availability-fg);
+}
+
+.kodza-availability__day.is-past .kodza-availability__num {
+  color: var(--kz-availability-muted);
+}
+
+.kodza-availability__day.is-past::before {
+  opacity: 0.55;
+}
+
+.kodza-availability__month.is-instant .kodza-availability__day::before,
+.kodza-availability__month.is-instant .kodza-availability__day::after,
+.kodza-availability__month.is-instant .kodza-availability__day:is(.is-booked, .is-turn):not(.is-past) .kodza-availability__num::after {
+  transition: none;
+}
+
+.kodza-availability__note {
+  margin: 0;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--kz-availability-muted);
+}
+
+.kodza-availability__legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+}
+
+.kodza-availability__key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kodza-availability__swatch {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  overflow: hidden;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+  box-shadow: inset 0 0 0 1px var(--kz-availability-border);
+}
+
+.kodza-availability__swatch--booked {
+  background: var(--kz-availability-band);
+  box-shadow: none;
+}
+
+.kodza-availability__swatch--half::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--kz-availability-band);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+.kodza-availability__live,
+.kodza-availability__hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-availability *,
+  .kodza-availability *::before,
+  .kodza-availability *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 2ec34c290af6 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-availability__label):not(#_),
+:where(.kodza-availability__booked):not(#_),
+:where(.kodza-availability__title):not(#_),
+:where(.kodza-availability__status):not(#_),
+:where(.kodza-availability__grid):not(#_),
+:where(.kodza-availability__caption):not(#_),
+:where(.kodza-availability__weekday):not(#_),
+:where(.kodza-availability__blank):not(#_),
+:where(.kodza-availability__day):not(#_),
+:where(.kodza-availability__note):not(#_),
+:where(.kodza-availability__legend):not(#_),
+:where(.kodza-availability__live):not(#_),
+:where(.kodza-availability__booked li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__booked :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-availability__booked time:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__booked :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-availability__arrow svg:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-availability__grid thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-availability__grid tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-availability__grid tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-availability__arrow):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-availability__label):not(#_):where(:not([hidden])),
+:where(.kodza-availability__booked):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-availability__label):not(#_):where([hidden]),
+:where(.kodza-availability__booked):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-availability__label:not(#_),
+.kodza-availability__status:not(#_),
+.kodza-availability__legend:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-availability__booked:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  padding-top: revert;
+  padding-right: revert;
+  padding-bottom: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-availability__head:not(#_),
+.kodza-availability__heading:not(#_),
+.kodza-availability__nav:not(#_),
+.kodza-availability__stage:not(#_),
+.kodza-availability__track:not(#_),
+.kodza-availability__month:not(#_),
+.kodza-availability__hidden:not(#_),
+.kodza-availability__num:not(#_),
+.kodza-availability__foot:not(#_),
+.kodza-availability__key:not(#_),
+.kodza-availability__swatch:not(#_),
+.kodza-availability__weekday span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-availability__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-availability__arrow:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-availability__grid:not(#_) {
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-availability__caption:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-availability__weekday:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-availability__blank:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-availability__day:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-availability__note:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-availability__live:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-availability__booked li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__booked :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-availability__booked time:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__booked :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-availability__arrow svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-availability__grid thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-availability__grid tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-availability__grid tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-availability__title:not(#_):where(:not([hidden])),
+.kodza-availability__grid:not(#_):where(:not([hidden])),
+.kodza-availability__caption:not(#_):where(:not([hidden])),
+.kodza-availability__weekday:not(#_):where(:not([hidden])),
+.kodza-availability__blank:not(#_):where(:not([hidden])),
+.kodza-availability__day:not(#_):where(:not([hidden])),
+.kodza-availability__note:not(#_):where(:not([hidden])),
+.kodza-availability__live:not(#_):where(:not([hidden])),
+.kodza-availability__booked li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__booked :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-availability__booked time:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__booked :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-availability__arrow svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-availability__grid thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-availability__grid tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-availability__grid tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-availability__title:not(#_):where([hidden]),
+.kodza-availability__grid:not(#_):where([hidden]),
+.kodza-availability__caption:not(#_):where([hidden]),
+.kodza-availability__weekday:not(#_):where([hidden]),
+.kodza-availability__blank:not(#_):where([hidden]),
+.kodza-availability__day:not(#_):where([hidden]),
+.kodza-availability__note:not(#_):where([hidden]),
+.kodza-availability__live:not(#_):where([hidden]),
+.kodza-availability__booked li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__booked :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-availability__booked time:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__booked :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-availability__arrow svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-availability__grid thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-availability__grid tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-availability__grid tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-availability__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-availability__status:not(#_)::before,
+.kodza-availability__day:not(#_)::before,
+.kodza-availability__day:not(#_)::after,
+.kodza-availability__num:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-availability.is-ready > .kodza-availability__label:not(#_),
+.kodza-availability.is-ready > .kodza-availability__booked:not(#_) {
+  display: none;
+}
+
+.kodza-availability__booked:not(#_) {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.kodza-availability__title:not(#_) {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.kodza-availability__label:not(#_),
+.kodza-availability__status:not(#_),
+.kodza-availability__legend:not(#_),
+.kodza-availability__weekday:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-availability-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-availability-muted);
+}
+
+.kodza-availability__status:not(#_) {
+  display: flex;
+}
+
+.kodza-availability__arrow:not(#_) {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-availability__arrow:hover:not(#_) {
+  background: var(--kz-availability-soft);
+}
+
+.kodza-availability__arrow[aria-disabled="true"]:not(#_) {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.kodza-availability__arrow[aria-disabled="true"]:hover:not(#_) {
+  background: none;
+}
+
+.kodza-availability__arrow:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-availability-fg);
+  outline-offset: -2px;
+}
+
+.kodza-availability__grid:not(#_) {
+  margin: 0;
+  border: 0;
+  background: none;
+}
+
+.kodza-availability__caption:not(#_) {
+  margin: 0 0 10px;
+  padding: 0;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: inherit;
+}
+
+.kodza-availability__weekday:not(#_) {
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: center;
+  font-size: var(--kz-font-label-size, 11px);
+  vertical-align: middle;
+}
+
+.kodza-availability__day:not(#_),
+.kodza-availability__blank:not(#_) {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.kodza-availability__day:not(#_) {
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.kodza-availability__note:not(#_) {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--kz-availability-muted);
+}
+
+.kodza-availability__legend:not(#_) {
+  display: flex;
+}
+
+.kodza-availability__live:not(#_) {
+  position: absolute;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-availability *:not(#_),
+  .kodza-availability *:not(#_)::before,
+  .kodza-availability *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+  }
+}
