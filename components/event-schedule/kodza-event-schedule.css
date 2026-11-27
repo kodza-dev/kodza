@@ -1,0 +1,1363 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Event Schedule
+   The programme of an event, read against the venue's clock: one tab per day whose ink pill
+   slides, the venue time ticking in the bar, the sessions already over greyed out, the one on
+   stage marked Live, the next one counting down, and a "Now" marker that moves down the rail as
+   the day goes. Each session opens on its summary and an "Add to calendar" button. Without the
+   script, the days simply stack. Everything is tuned with the --kz-event-schedule-* variables. */
+
+/* Fills its column at zero weight: a theme that sizes its content blocks keeps the last word */
+:where(.kodza-event-schedule) {
+  width: 100%;
+}
+
+.kodza-event-schedule {
+  --kz-event-schedule-bg: var(--kz-color-paper, #ffffff); /* the day tabs */
+  --kz-event-schedule-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-event-schedule-muted: color-mix(in srgb, var(--kz-event-schedule-fg) 62%, transparent);
+  --kz-event-schedule-border: color-mix(in srgb, var(--kz-event-schedule-fg) 12%, transparent); /* the rail */
+  --kz-event-schedule-soft: color-mix(in srgb, var(--kz-event-schedule-fg) 7%, transparent); /* the Next badge, the calendar button */
+  --kz-event-schedule-hover: color-mix(in srgb, var(--kz-event-schedule-fg) 4%, transparent); /* a row under the pointer, the row on stage */
+  --kz-event-schedule-dot: color-mix(in srgb, var(--kz-event-schedule-fg) 28%, transparent); /* a session still to come */
+  --kz-event-schedule-ink: var(--kz-color-accent, var(--kz-event-schedule-fg)); /* the pill, Live, Now, the time gone */
+  --kz-event-schedule-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-event-schedule-rail: 52px; /* the column of the rail, left of the sessions */
+  --kz-event-schedule-time: 96px; /* the column of the times */
+  --kz-event-schedule-mono: var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-event-schedule-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: block;
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  container: kodza-event-schedule / inline-size;
+  color: var(--kz-event-schedule-fg);
+}
+
+.kodza-event-schedule.is-moving .kodza-event-schedule__days {
+  overflow: clip;
+}
+
+.kodza-event-schedule__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 24px;
+  margin: 0 0 20px;
+}
+
+/* The days: one ink pill cut to the chosen day, and a copy of the labels cut the same, in the
+   pill's own colour */
+.kodza-event-schedule__tabs {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+  padding: 4px;
+  overflow-x: auto;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-event-schedule-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-event-schedule-border);
+  scrollbar-width: none;
+}
+
+.kodza-event-schedule__indicator,
+.kodza-event-schedule__mirror {
+  position: absolute;
+  inset: 0 auto 0 0;
+  box-sizing: border-box;
+  width: var(--kz-ind-w, 100%); /* the whole row, set by the script: it scrolls in a narrow column */
+  border-radius: var(--kz-radius-pill, 999px);
+  clip-path: inset(4px var(--kz-ind-r, 100%) 4px var(--kz-ind-l, 0) round var(--kz-radius-pill, 999px));
+  pointer-events: none;
+}
+
+.kodza-event-schedule__indicator {
+  background: var(--kz-event-schedule-ink);
+}
+
+.kodza-event-schedule__mirror {
+  display: flex;
+  padding: 4px;
+  color: var(--kz-event-schedule-on-ink);
+}
+
+.kodza-event-schedule.is-live .kodza-event-schedule__indicator,
+.kodza-event-schedule.is-live .kodza-event-schedule__mirror {
+  transition: clip-path calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-event-schedule-ease);
+}
+
+.kodza-event-schedule__tab,
+.kodza-event-schedule__ghost {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 16px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+}
+
+.kodza-event-schedule__tab {
+  position: relative;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-event-schedule-muted);
+  cursor: pointer;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-event-schedule__tab[aria-selected="true"] {
+  color: var(--kz-event-schedule-fg);
+}
+
+@media (hover: hover) {
+  .kodza-event-schedule__tab:hover {
+    color: var(--kz-event-schedule-fg);
+  }
+}
+
+.kodza-event-schedule__tab:focus-visible {
+  outline: 2px solid var(--kz-event-schedule-fg);
+  outline-offset: -2px;
+}
+
+.kodza-event-schedule__num {
+  font-family: var(--kz-event-schedule-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.62;
+}
+
+/* "Le Havre time · 11:18" */
+.kodza-event-schedule__clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-event-schedule-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  color: var(--kz-event-schedule-muted);
+}
+
+.kodza-event-schedule__clock-time {
+  color: var(--kz-event-schedule-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-event-schedule__sep {
+  flex: none;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* What rolls: each window clips its line top and bottom, never its sides */
+.kodza-event-schedule__clock-time,
+.kodza-event-schedule__badge-text,
+.kodza-event-schedule__add-label {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.kodza-event-schedule__line {
+  display: block;
+  white-space: nowrap;
+}
+
+.kodza-event-schedule__cell {
+  position: relative;
+  display: inline-block;
+  clip-path: inset(0 -0.3em);
+}
+
+.kodza-event-schedule__glyph {
+  display: block;
+}
+
+/* What leaves stops sizing its window, so the width only follows the new words */
+.kodza-event-schedule .is-leaving {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* The words for screen readers, and the live region: read out, not shown */
+.kodza-event-schedule__sr,
+.kodza-event-schedule__announce {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.kodza-event-schedule__days {
+  position: relative;
+}
+
+.kodza-event-schedule__day {
+  margin: 0;
+}
+
+.kodza-event-schedule__day + .kodza-event-schedule__day {
+  margin-top: 40px;
+}
+
+.kodza-event-schedule__days > .kodza-event-schedule__day {
+  margin: 0;
+}
+
+.kodza-event-schedule__day[hidden] {
+  display: none;
+}
+
+.kodza-event-schedule__day:focus {
+  outline: none;
+}
+
+/* The day that leaves stops sizing the list: the height follows the day that comes */
+.kodza-event-schedule__day.is-going {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.kodza-event-schedule__date {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--kz-event-schedule-fg);
+}
+
+/* With tabs, the tab says the day: the heading stays for screen readers */
+.kodza-event-schedule.has-tabs .kodza-event-schedule__date {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-event-schedule__list {
+  position: relative;
+}
+
+.kodza-event-schedule__sessions {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-event-schedule__list > .kodza-event-schedule__sessions {
+  padding-left: var(--kz-event-schedule-rail);
+}
+
+/* The rail: the track, the time already gone in ink, and Now where the clock stands */
+.kodza-event-schedule__rail {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--kz-event-schedule-rail);
+  pointer-events: none;
+}
+
+.kodza-event-schedule__rail::before,
+.kodza-event-schedule__elapsed {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 20px;
+  width: 1px;
+  background: var(--kz-event-schedule-border);
+}
+
+.kodza-event-schedule__elapsed {
+  background: var(--kz-event-schedule-ink);
+  transform: scaleY(var(--kz-es-fill, 0));
+  transform-origin: center top;
+}
+
+.kodza-event-schedule__now {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 20.5px;
+  display: none;
+  align-items: center;
+  box-sizing: border-box;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-event-schedule-ink);
+  color: var(--kz-event-schedule-on-ink);
+  font-family: var(--kz-font-label, var(--kz-event-schedule-mono));
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  transform: translate(-50%, calc(var(--kz-es-at, 0px) - 50%));
+}
+
+.kodza-event-schedule__rail.is-today .kodza-event-schedule__now {
+  display: inline-flex;
+}
+
+.kodza-event-schedule.is-live .kodza-event-schedule__elapsed,
+.kodza-event-schedule.is-live .kodza-event-schedule__now {
+  transition: transform calc(0.8s * var(--kz-motion-scale, 1)) var(--kz-event-schedule-ease);
+}
+
+.kodza-event-schedule.is-tracking .kodza-event-schedule__elapsed,
+.kodza-event-schedule.is-tracking .kodza-event-schedule__now,
+.kodza-event-schedule.is-instant * {
+  transition: none;
+}
+
+/* A session. Without the script: the time on the left, the rest on the right */
+.kodza-event-schedule__session {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--kz-event-schedule-time) minmax(0, 1fr);
+  gap: 0 20px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 18px 12px;
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-event-schedule__session > .kodza-event-schedule__when {
+  grid-row: span 3;
+}
+
+.kodza-event-schedule__session > :not(.kodza-event-schedule__when) {
+  grid-column: 2;
+}
+
+.kodza-event-schedule__list .kodza-event-schedule__session {
+  display: block;
+  padding: 0;
+}
+
+.kodza-event-schedule__session.is-live {
+  background: var(--kz-event-schedule-hover);
+}
+
+@media (hover: hover) {
+  .kodza-event-schedule__session.is-expandable:hover {
+    background: var(--kz-event-schedule-hover);
+  }
+}
+
+.kodza-event-schedule__dot {
+  position: absolute;
+  top: 26px;
+  left: calc(20.5px - var(--kz-event-schedule-rail) - 3.5px);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--kz-event-schedule-dot);
+  transition: background-color calc(0.4s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-event-schedule__session.is-past .kodza-event-schedule__dot,
+.kodza-event-schedule__session.is-live .kodza-event-schedule__dot {
+  background: var(--kz-event-schedule-ink);
+}
+
+.kodza-event-schedule__head {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--kz-event-schedule-time) minmax(0, 1fr) auto 16px;
+  align-items: start;
+  gap: 0 20px;
+  padding: 18px 12px;
+}
+
+.kodza-event-schedule__when {
+  margin: 0;
+  font-family: var(--kz-event-schedule-mono);
+  font-size: 13px;
+  line-height: 23px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--kz-event-schedule-muted);
+}
+
+.kodza-event-schedule__main {
+  min-width: 0;
+}
+
+.kodza-event-schedule__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--kz-event-schedule-fg);
+  text-wrap: pretty;
+  transition: color calc(0.4s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-event-schedule__session.is-past .kodza-event-schedule__title {
+  color: var(--kz-event-schedule-muted);
+}
+
+/* The title is the button: its hit area covers the whole row */
+.kodza-event-schedule__toggle {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kodza-event-schedule__toggle::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+}
+
+.kodza-event-schedule__toggle:focus-visible {
+  outline: none;
+}
+
+.kodza-event-schedule__toggle:focus-visible::after {
+  outline: 2px solid var(--kz-event-schedule-fg);
+  outline-offset: -2px;
+}
+
+.kodza-event-schedule__meta {
+  margin: 4px 0 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.45);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  color: var(--kz-event-schedule-muted);
+}
+
+.kodza-event-schedule__room + .kodza-event-schedule__speaker::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  margin: 0 9px;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: middle;
+}
+
+/* Live, in 12 min, Next */
+.kodza-event-schedule__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  box-sizing: border-box;
+  height: 24px;
+  margin: 0;
+  padding: 0 10px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-event-schedule-soft);
+  color: var(--kz-event-schedule-fg);
+  font-family: var(--kz-font-label, var(--kz-event-schedule-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+}
+
+.kodza-event-schedule__status[hidden] {
+  display: none;
+}
+
+.kodza-event-schedule__status[data-state="live"] {
+  background: var(--kz-event-schedule-ink);
+  color: var(--kz-event-schedule-on-ink);
+}
+
+.kodza-event-schedule__pulse {
+  display: none;
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.kodza-event-schedule__status[data-state="live"] .kodza-event-schedule__pulse {
+  display: block;
+  animation: kodza-event-schedule-pulse calc(1.6s * var(--kz-motion-scale, 1)) ease-in-out infinite;
+}
+
+@keyframes kodza-event-schedule-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+}
+
+.kodza-event-schedule__head > .kodza-event-schedule__status {
+  grid-column: 3;
+}
+
+/* Its own column, badge or not: the chevrons stay in line */
+.kodza-event-schedule__head > .kodza-event-schedule__chev {
+  grid-column: 4;
+}
+
+.kodza-event-schedule__chev {
+  display: flex;
+  align-items: center;
+  height: 23px;
+  color: var(--kz-event-schedule-muted);
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-event-schedule-ease);
+}
+
+.kodza-event-schedule__chev svg {
+  display: block;
+}
+
+.kodza-event-schedule__session.is-open .kodza-event-schedule__chev {
+  transform: rotate(180deg);
+}
+
+/* The summary unrolls under the title: the row's height grows, nothing below jumps */
+.kodza-event-schedule__detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-event-schedule-ease);
+}
+
+.kodza-event-schedule__session.is-open > .kodza-event-schedule__detail {
+  grid-template-rows: 1fr;
+}
+
+.kodza-event-schedule__detail-inner {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 12px 0 calc(var(--kz-event-schedule-time) + 32px);
+}
+
+.kodza-event-schedule__detail-body {
+  padding: 0 0 20px;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity calc(0.25s * var(--kz-motion-scale, 1)) ease,
+    transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-event-schedule-ease);
+}
+
+.kodza-event-schedule__session.is-open .kodza-event-schedule__detail-body {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(0.08s * var(--kz-motion-scale, 1));
+}
+
+.kodza-event-schedule__summary {
+  max-width: 60ch;
+  margin: 6px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-event-schedule-muted);
+  text-wrap: pretty;
+}
+
+.kodza-event-schedule__detail .kodza-event-schedule__summary {
+  margin: 0 0 14px;
+}
+
+.kodza-event-schedule__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 16px 0 14px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-event-schedule-soft);
+  color: var(--kz-event-schedule-fg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-event-schedule__add svg {
+  flex: none;
+}
+
+@media (hover: hover) {
+  .kodza-event-schedule__add:hover {
+    background: var(--kz-event-schedule-border);
+  }
+}
+
+.kodza-event-schedule__add:focus-visible {
+  outline: 2px solid var(--kz-event-schedule-fg);
+  outline-offset: 2px;
+}
+
+/* A narrow column: the time and the badge on one line, the title under them */
+@container kodza-event-schedule (max-width: 599px) {
+  .kodza-event-schedule {
+    --kz-event-schedule-rail: 40px;
+  }
+
+  .kodza-event-schedule__tab,
+  .kodza-event-schedule__ghost {
+    gap: 6px;
+    padding: 0 12px;
+  }
+
+  .kodza-event-schedule__head {
+    grid-template-columns: auto auto minmax(0, 1fr) 16px;
+    grid-template-areas:
+      "when status . chev"
+      "main main main main";
+    gap: 6px 12px;
+    padding: 16px 12px;
+  }
+
+  .kodza-event-schedule__head > .kodza-event-schedule__when {
+    grid-area: when;
+  }
+
+  .kodza-event-schedule__head > .kodza-event-schedule__status {
+    grid-area: status;
+    align-self: center;
+  }
+
+  .kodza-event-schedule__head > .kodza-event-schedule__main {
+    grid-area: main;
+  }
+
+  .kodza-event-schedule__head > .kodza-event-schedule__chev {
+    grid-area: chev;
+  }
+
+  .kodza-event-schedule__dot {
+    top: 24px;
+  }
+
+  .kodza-event-schedule__detail-inner {
+    padding-left: 12px;
+  }
+
+  .kodza-event-schedule__session:not(.is-expandable) .kodza-event-schedule__head,
+  .kodza-event-schedule__list .kodza-event-schedule__session {
+    padding: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-event-schedule *,
+  .kodza-event-schedule *::before,
+  .kodza-event-schedule *::after {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+}
+
+/* Dark theme, for a dark section: set the variables on the root (or a parent)
+   .your-dark-section .kodza-event-schedule {
+     --kz-event-schedule-bg: #161616;
+     --kz-event-schedule-fg: #f2f2f0;
+     --kz-event-schedule-muted: rgba(242, 242, 240, 0.62);
+     --kz-event-schedule-border: rgba(255, 255, 255, 0.12);
+     --kz-event-schedule-soft: rgba(255, 255, 255, 0.08);
+     --kz-event-schedule-hover: rgba(255, 255, 255, 0.05);
+     --kz-event-schedule-dot: rgba(255, 255, 255, 0.3);
+     --kz-event-schedule-ink: #f2f2f0;
+     --kz-event-schedule-on-ink: #0a0a0a;
+   } */
+
+/* kodza-guard cd51eeed9c9f — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-event-schedule__tab):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-event-schedule__clock):not(#_),
+:where(.kodza-event-schedule__date):not(#_),
+:where(.kodza-event-schedule__sessions):not(#_),
+:where(.kodza-event-schedule__when):not(#_),
+:where(.kodza-event-schedule__meta):not(#_),
+:where(.kodza-event-schedule__summary):not(#_),
+:where(.kodza-event-schedule__date time:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-event-schedule__when time:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-event-schedule__chev svg:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-event-schedule__add svg:where(:not([class*="kodza-"]))):not(#_) {
+  transition: revert;
+  position: revert;
+}
+
+:where(.kodza-event-schedule__day):not(#_) {
+  outline: revert;
+}
+
+:where(.kodza-event-schedule__session):not(#_) {
+  background-color: revert;
+  background-image: revert;
+}
+
+:where(.kodza-event-schedule__title):not(#_) {
+  position: revert;
+}
+
+:where(.kodza-event-schedule__toggle):not(#_) {
+  outline: revert;
+  transition: revert;
+  position: revert;
+}
+
+:where(.kodza-event-schedule__add):not(#_) {
+  outline: revert;
+  position: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-event-schedule__bar:not(#_),
+.kodza-event-schedule__tabs:not(#_),
+.kodza-event-schedule__num:not(#_),
+.kodza-event-schedule__clock-place:not(#_),
+.kodza-event-schedule__sep:not(#_),
+.kodza-event-schedule__clock-time:not(#_),
+.kodza-event-schedule__sr:not(#_),
+.kodza-event-schedule__line:not(#_),
+.kodza-event-schedule__cell:not(#_),
+.kodza-event-schedule__glyph:not(#_),
+.kodza-event-schedule__days:not(#_),
+.kodza-event-schedule__list:not(#_),
+.kodza-event-schedule__rail:not(#_),
+.kodza-event-schedule__elapsed:not(#_),
+.kodza-event-schedule__dot:not(#_),
+.kodza-event-schedule__head:not(#_),
+.kodza-event-schedule__main:not(#_),
+.kodza-event-schedule__room:not(#_),
+.kodza-event-schedule__pulse:not(#_),
+.kodza-event-schedule__badge-text:not(#_),
+.kodza-event-schedule__chev:not(#_),
+.kodza-event-schedule__detail:not(#_),
+.kodza-event-schedule__detail-inner:not(#_),
+.kodza-event-schedule__detail-body:not(#_),
+.kodza-event-schedule__add-label:not(#_),
+.kodza-event-schedule__speaker:not(#_),
+.kodza-event-schedule__announce:not(#_),
+.kodza-event-schedule__tab span:where(:not([class*="kodza-"])):not(#_),
+.kodza-event-schedule__ghost span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-event-schedule__tab:not(#_),
+.kodza-event-schedule__add:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-event-schedule__clock:not(#_),
+.kodza-event-schedule__meta:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-event-schedule__day:not(#_) {
+  box-sizing: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+.kodza-event-schedule__date:not(#_),
+.kodza-event-schedule__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-event-schedule__sessions:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-event-schedule__session:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-event-schedule__when:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-event-schedule__toggle:not(#_) {
+  border-radius: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-event-schedule__summary:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-event-schedule__date time:where(:not([class*="kodza-"])):not(#_),
+.kodza-event-schedule__when time:where(:not([class*="kodza-"])):not(#_),
+.kodza-event-schedule__chev svg:where(:not([class*="kodza-"])):not(#_),
+.kodza-event-schedule__add svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-event-schedule__date:not(#_):where(:not([hidden])),
+.kodza-event-schedule__when:not(#_):where(:not([hidden])),
+.kodza-event-schedule__title:not(#_):where(:not([hidden])),
+.kodza-event-schedule__toggle:not(#_):where(:not([hidden])),
+.kodza-event-schedule__meta:not(#_):where(:not([hidden])),
+.kodza-event-schedule__summary:not(#_):where(:not([hidden])),
+.kodza-event-schedule__date time:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-event-schedule__when time:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-event-schedule__add svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-event-schedule__date:not(#_):where([hidden]),
+.kodza-event-schedule__when:not(#_):where([hidden]),
+.kodza-event-schedule__title:not(#_):where([hidden]),
+.kodza-event-schedule__toggle:not(#_):where([hidden]),
+.kodza-event-schedule__meta:not(#_):where([hidden]),
+.kodza-event-schedule__summary:not(#_):where([hidden]),
+.kodza-event-schedule__date time:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-event-schedule__when time:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-event-schedule__add svg:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-event-schedule__rail:not(#_)::before,
+.kodza-event-schedule__toggle:not(#_)::after,
+.kodza-event-schedule__speaker:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-event-schedule.is-live .kodza-event-schedule__indicator:not(#_),
+.kodza-event-schedule.is-live .kodza-event-schedule__mirror:not(#_) {
+  transition: clip-path calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-event-schedule-ease);
+}
+
+.kodza-event-schedule__tab:not(#_) {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 16px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+}
+
+.kodza-event-schedule__tab:not(#_) {
+  position: relative;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-event-schedule-muted);
+  cursor: pointer;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-event-schedule__tab[aria-selected="true"]:not(#_) {
+  color: var(--kz-event-schedule-fg);
+}
+
+@media (hover: hover) {
+  .kodza-event-schedule__tab:hover:not(#_) {
+    color: var(--kz-event-schedule-fg);
+  }
+}
+
+.kodza-event-schedule__tab:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-event-schedule-fg);
+  outline-offset: -2px;
+}
+
+.kodza-event-schedule__clock:not(#_) {
+  display: inline-flex;
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-event-schedule-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  color: var(--kz-event-schedule-muted);
+}
+
+.kodza-event-schedule .is-leaving:not(#_) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.kodza-event-schedule__day:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-event-schedule__day.is-going:not(#_) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.kodza-event-schedule__date:not(#_) {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--kz-event-schedule-fg);
+}
+
+.kodza-event-schedule.has-tabs .kodza-event-schedule__date:not(#_) {
+  position: absolute;
+  margin: -1px;
+}
+
+.kodza-event-schedule__sessions:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-event-schedule__list > .kodza-event-schedule__sessions:not(#_) {
+  padding-left: var(--kz-event-schedule-rail);
+}
+
+.kodza-event-schedule.is-live .kodza-event-schedule__elapsed:not(#_),
+.kodza-event-schedule.is-live .kodza-event-schedule__now:not(#_) {
+  transition: transform calc(0.8s * var(--kz-motion-scale, 1)) var(--kz-event-schedule-ease);
+}
+
+.kodza-event-schedule.is-tracking .kodza-event-schedule__elapsed:not(#_),
+.kodza-event-schedule.is-tracking .kodza-event-schedule__now:not(#_) {
+  transition: none;
+}
+
+.kodza-event-schedule.is-instant *:not(#_) {
+  transition: none;
+}
+
+.kodza-event-schedule__session:not(#_) {
+  position: relative;
+  display: grid;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 18px 12px;
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-event-schedule__list .kodza-event-schedule__session:not(#_) {
+  display: block;
+  padding: 0;
+}
+
+.kodza-event-schedule__session.is-live:not(#_) {
+  background: var(--kz-event-schedule-hover);
+}
+
+@media (hover: hover) {
+  .kodza-event-schedule__session.is-expandable:hover:not(#_) {
+    background: var(--kz-event-schedule-hover);
+  }
+}
+
+.kodza-event-schedule__when:not(#_) {
+  margin: 0;
+  font-family: var(--kz-event-schedule-mono);
+  font-size: 13px;
+  line-height: 23px;
+  color: var(--kz-event-schedule-muted);
+}
+
+.kodza-event-schedule__title:not(#_) {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--kz-event-schedule-fg);
+  transition: color calc(0.4s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-event-schedule__session.is-past .kodza-event-schedule__title:not(#_) {
+  color: var(--kz-event-schedule-muted);
+}
+
+.kodza-event-schedule__toggle:not(#_) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kodza-event-schedule__toggle:not(#_)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: calc(12px * var(--kz-radius-scale, 1));
+}
+
+.kodza-event-schedule__toggle:focus-visible:not(#_) {
+  outline: none;
+}
+
+.kodza-event-schedule__toggle:focus-visible:not(#_)::after {
+  outline: 2px solid var(--kz-event-schedule-fg);
+  outline-offset: -2px;
+}
+
+.kodza-event-schedule__meta:not(#_) {
+  margin: 4px 0 0;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.45);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  color: var(--kz-event-schedule-muted);
+}
+
+.kodza-event-schedule__status[data-state="live"] .kodza-event-schedule__pulse:not(#_) {
+  animation: kodza-event-schedule-pulse calc(1.6s * var(--kz-motion-scale, 1)) ease-in-out infinite;
+}
+
+.kodza-event-schedule__chev svg:not(#_) {
+  display: block;
+}
+
+.kodza-event-schedule__session.is-open .kodza-event-schedule__detail-body:not(#_) {
+  transition-delay: calc(0.08s * var(--kz-motion-scale, 1));
+}
+
+.kodza-event-schedule__summary:not(#_) {
+  max-width: 60ch;
+  margin: 6px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--kz-event-schedule-muted);
+}
+
+.kodza-event-schedule__detail .kodza-event-schedule__summary:not(#_) {
+  margin: 0 0 14px;
+}
+
+.kodza-event-schedule__add:not(#_) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 16px 0 14px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-event-schedule-soft);
+  color: var(--kz-event-schedule-fg);
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 14px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-event-schedule__add:hover:not(#_) {
+    background: var(--kz-event-schedule-border);
+  }
+}
+
+.kodza-event-schedule__add:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-event-schedule-fg);
+  outline-offset: 2px;
+}
+
+@container kodza-event-schedule (max-width: 599px) {
+  .kodza-event-schedule__tab:not(#_) {
+    gap: 6px;
+    padding: 0 12px;
+  }
+}
+
+@container kodza-event-schedule (max-width: 599px) {
+  .kodza-event-schedule__list .kodza-event-schedule__session:not(#_) {
+    padding: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-event-schedule *:not(#_),
+  .kodza-event-schedule *:not(#_)::before,
+  .kodza-event-schedule *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+}

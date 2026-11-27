@@ -1,0 +1,785 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — File Tree
+   A project's files from a plain nested list (the WordPress List block works): folders that fold
+   with their height, 1 px guides down each level, a small ink icon per kind of file, marks for
+   what is new, edited or removed, and a pale note where a file needs one. With the script, the
+   path of the file you point at or choose rolls into the bar on top, only the part that changes,
+   and copies in a click; the tree answers the keyboard like a file explorer. Without the script,
+   the nested list stays, guides included. Everything is tuned with the --kz-file-tree-*
+   variables. */
+
+/* Fills its column at zero weight: a theme that sizes its content blocks keeps the last word */
+:where(.kodza-file-tree) {
+  width: 100%;
+}
+
+.kodza-file-tree {
+  --kz-file-tree-bg: var(--kz-color-paper, #ffffff);
+  --kz-file-tree-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-file-tree-muted: color-mix(in srgb, var(--kz-file-tree-fg) 62%, transparent); /* notes, slashes, removed files */
+  --kz-file-tree-border: color-mix(in srgb, var(--kz-file-tree-fg) 10%, transparent);
+  --kz-file-tree-guide: color-mix(in srgb, var(--kz-file-tree-fg) 14%, transparent); /* the lines down each level */
+  --kz-file-tree-soft: color-mix(in srgb, var(--kz-file-tree-fg) 6%, transparent); /* the row under the pointer */
+  --kz-file-tree-ink: var(--kz-color-accent, var(--kz-file-tree-fg)); /* the chosen row */
+  --kz-file-tree-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-file-tree-row: 32px; /* the height of a row */
+  --kz-file-tree-indent: 20px; /* one level deeper */
+  --kz-file-tree-height: none; /* past it the tree scrolls, the path bar stays (480px…) */
+  --kz-file-tree-mono: var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-file-tree-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: clip;
+  border: 1px solid var(--kz-file-tree-border);
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-file-tree-bg);
+  color: var(--kz-file-tree-fg);
+  container: kodza-file-tree / inline-size;
+}
+
+/* The bar on top: the path that rolls, and the button that copies it */
+.kodza-file-tree__bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  min-height: 52px;
+  padding: 8px 8px 8px 18px;
+  border-bottom: 1px solid var(--kz-file-tree-border);
+}
+
+.kodza-file-tree__path {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--kz-file-tree-mono);
+  font-size: 13px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+/* A path wider than the bar shows its end, the file, and fades at the start */
+.kodza-file-tree__path.is-long {
+  justify-content: flex-end;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 40px);
+  mask-image: linear-gradient(to right, transparent, #000 40px);
+}
+
+.kodza-file-tree__head {
+  color: var(--kz-file-tree-muted);
+}
+
+/* The part that changes: the old one rises out of the same cell while the new one comes in */
+.kodza-file-tree__tail {
+  display: inline-grid;
+  overflow-x: visible;
+  overflow-y: clip;
+}
+
+.kodza-file-tree__tail > span {
+  grid-area: 1 / 1;
+}
+
+.kodza-file-tree__sep {
+  color: var(--kz-file-tree-muted);
+}
+
+.kodza-file-tree__last {
+  font-weight: 600;
+}
+
+.kodza-file-tree__copy {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 14px 0 12px;
+  border: 1px solid var(--kz-file-tree-border);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: transparent;
+  color: inherit;
+  font-family: var(--kz-font-label, var(--kz-file-tree-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease, border-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-file-tree__copy svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Copy and Copied share one cell, so the button keeps its width; the word rolls */
+.kodza-file-tree__words {
+  display: inline-grid;
+  overflow: clip;
+}
+
+.kodza-file-tree__words > span {
+  grid-area: 1 / 1;
+  transition: transform calc(0.4s * var(--kz-motion-scale, 1)) var(--kz-file-tree-ease);
+}
+
+.kodza-file-tree__words > span + span {
+  transform: translateY(110%);
+}
+
+.kodza-file-tree__copy.is-copied .kodza-file-tree__words > span:first-child {
+  transform: translateY(-110%);
+}
+
+.kodza-file-tree__copy.is-copied .kodza-file-tree__words > span + span {
+  transform: none;
+}
+
+.kodza-file-tree__copy .kodza-file-tree__done {
+  display: none;
+}
+
+.kodza-file-tree__copy.is-copied .kodza-file-tree__done {
+  display: block;
+}
+
+.kodza-file-tree__copy.is-copied .kodza-file-tree__clip {
+  display: none;
+}
+
+@media (hover: hover) {
+  .kodza-file-tree__copy:hover {
+    border-color: transparent;
+    background: var(--kz-file-tree-soft);
+  }
+}
+
+.kodza-file-tree__copy:focus-visible {
+  outline: 2px solid var(--kz-file-tree-fg);
+  outline-offset: 2px;
+}
+
+/* Copied, said to screen readers */
+.kodza-file-tree__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The tree itself, the same with or without the script */
+.kodza-file-tree__list {
+  box-sizing: border-box;
+  max-height: var(--kz-file-tree-height);
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+  list-style: none;
+  font-family: var(--kz-file-tree-mono);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.kodza-file-tree__list ul {
+  position: relative;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 0 0 var(--kz-file-tree-indent);
+  list-style: none;
+  font-family: inherit;
+}
+
+/* The guide: under the folder's chevron, from its first child to its last */
+.kodza-file-tree__list ul::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 6px;
+  left: 14px;
+  width: 1px;
+  background: var(--kz-file-tree-guide);
+}
+
+.kodza-file-tree__list li {
+  margin: 0;
+  padding: 0;
+}
+
+/* Without the script: each name on its own row */
+.kodza-file-tree:not(.is-ready) .kodza-file-tree__list li {
+  padding-left: 10px;
+  line-height: var(--kz-file-tree-row);
+}
+
+.kodza-file-tree__list em {
+  margin-left: 10px;
+  color: var(--kz-file-tree-muted);
+  font-style: normal;
+}
+
+/* The rows the script builds */
+.kodza-file-tree__item {
+  outline: none;
+}
+
+.kodza-file-tree__row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  min-height: var(--kz-file-tree-row);
+  padding: 6px 10px 6px 8px;
+  border-radius: calc(8px * var(--kz-radius-scale, 1));
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color calc(0.18s * var(--kz-motion-scale, 1)) ease, color calc(0.18s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-file-tree__row:hover {
+    background: var(--kz-file-tree-soft);
+  }
+}
+
+.kodza-file-tree__item:focus-visible > .kodza-file-tree__row {
+  box-shadow: inset 0 0 0 2px var(--kz-file-tree-fg);
+}
+
+.kodza-file-tree__item[aria-selected="true"] > .kodza-file-tree__row {
+  background: var(--kz-file-tree-ink);
+  color: var(--kz-file-tree-on-ink);
+}
+
+.kodza-file-tree__item[aria-selected="true"]:focus-visible > .kodza-file-tree__row {
+  box-shadow: 0 0 0 2px var(--kz-file-tree-bg), 0 0 0 4px var(--kz-file-tree-ink);
+}
+
+/* A folder's chevron; a file keeps the same room, so the icons line up */
+.kodza-file-tree__chev {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin-right: -2px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.62;
+  transform: rotate(0deg);
+  transition: transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-file-tree-ease);
+}
+
+.kodza-file-tree__item[aria-expanded="true"] > .kodza-file-tree__row .kodza-file-tree__chev {
+  transform: rotate(90deg);
+}
+
+.kodza-file-tree__gap {
+  flex: none;
+  width: 10px;
+}
+
+.kodza-file-tree__icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kodza-file-tree__name {
+  flex: none;
+  white-space: nowrap;
+}
+
+.kodza-file-tree__item[aria-expanded] > .kodza-file-tree__row .kodza-file-tree__name {
+  font-weight: 500;
+}
+
+.kodza-file-tree__item.is-removed > .kodza-file-tree__row .kodza-file-tree__name {
+  color: var(--kz-file-tree-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.kodza-file-tree__item.is-removed[aria-selected="true"] > .kodza-file-tree__row .kodza-file-tree__name {
+  color: inherit;
+}
+
+.kodza-file-tree__row > .kodza-file-tree__note {
+  min-width: 0;
+  margin-left: 4px;
+  overflow: hidden;
+  color: var(--kz-file-tree-muted);
+  font-family: var(--kz-font-label, var(--kz-file-tree-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kodza-file-tree__item[aria-selected="true"] > .kodza-file-tree__row > .kodza-file-tree__note,
+.kodza-file-tree__item[aria-selected="true"] > .kodza-file-tree__row > .kodza-file-tree__mark {
+  color: color-mix(in srgb, var(--kz-file-tree-on-ink) 72%, transparent);
+}
+
+/* The mark: a sign and a word, so it reads without colour */
+.kodza-file-tree__mark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  padding-left: 12px;
+  color: var(--kz-file-tree-muted);
+  font-family: var(--kz-font-label, var(--kz-file-tree-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+}
+
+.kodza-file-tree__sign {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border-radius: calc(4px * var(--kz-radius-scale, 1));
+  font-family: var(--kz-file-tree-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.kodza-file-tree__mark.is-new .kodza-file-tree__sign {
+  background: var(--kz-file-tree-ink);
+  color: var(--kz-file-tree-on-ink);
+}
+
+.kodza-file-tree__mark.is-edit .kodza-file-tree__sign {
+  border: 1px solid currentColor;
+}
+
+.kodza-file-tree__mark.is-removed .kodza-file-tree__sign {
+  border: 1px dashed currentColor;
+}
+
+.kodza-file-tree__item[aria-selected="true"] > .kodza-file-tree__row .kodza-file-tree__mark.is-new .kodza-file-tree__sign {
+  background: var(--kz-file-tree-on-ink);
+  color: var(--kz-file-tree-ink);
+}
+
+/* A folder that folds: its height moves in the script; closed, it is gone for every reader */
+.kodza-file-tree__list ul.is-moving {
+  overflow: clip;
+}
+
+.kodza-file-tree__list ul[hidden] {
+  display: none;
+}
+
+/* A narrow column: notes give way first, then marks keep their sign only */
+@container kodza-file-tree (max-width: 460px) {
+  .kodza-file-tree__row > .kodza-file-tree__note {
+    display: none;
+  }
+}
+
+@container kodza-file-tree (max-width: 340px) {
+  .kodza-file-tree__mark .kodza-file-tree__word {
+    display: none;
+  }
+
+  .kodza-file-tree__copy {
+    padding: 0 11px;
+  }
+
+  .kodza-file-tree__copy .kodza-file-tree__words {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-file-tree__copy,
+  .kodza-file-tree__words > span,
+  .kodza-file-tree__row,
+  .kodza-file-tree__chev {
+    transition: none;
+  }
+}
+
+/* Dark theme: set the variables on .kodza-file-tree inside your dark section, for example
+   --kz-file-tree-bg: #161616; --kz-file-tree-fg: #f2f2f0; (the shades follow the ink) */
+
+/* kodza-guard 990460dbac67 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-file-tree__copy):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-file-tree__item):not(#_) {
+  line-height: revert;
+}
+
+:where(.kodza-file-tree__clip):not(#_):where(:not([hidden])),
+:where(.kodza-file-tree__item ul:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-file-tree__item :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-file-tree__clip):not(#_):where([hidden]),
+:where(.kodza-file-tree__item ul:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-file-tree__item :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-file-tree__path:not(#_),
+.kodza-file-tree__head:not(#_),
+.kodza-file-tree__tail:not(#_),
+.kodza-file-tree__last:not(#_),
+.kodza-file-tree__words:not(#_),
+.kodza-file-tree__name:not(#_),
+.kodza-file-tree__gap:not(#_),
+.kodza-file-tree__note:not(#_),
+.kodza-file-tree__mark:not(#_),
+.kodza-file-tree__word:not(#_),
+.kodza-file-tree__status:not(#_),
+.kodza-file-tree__path span:where(:not([class*="kodza-"])):not(#_),
+.kodza-file-tree__tail span:where(:not([class*="kodza-"])):not(#_),
+.kodza-file-tree__words span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-file-tree__copy:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-file-tree__clip:not(#_),
+.kodza-file-tree__done:not(#_),
+.kodza-file-tree__icon:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-file-tree__list:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  color: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-file-tree__item:not(#_) {
+  border: revert;
+  border-radius: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-file-tree__chev:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  margin-top: revert;
+  margin-bottom: revert;
+  margin-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-file-tree__item ul:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-file-tree__item :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-file-tree__list:not(#_):where(:not([hidden])),
+.kodza-file-tree__item:not(#_):where(:not([hidden])),
+.kodza-file-tree__chev:not(#_):where(:not([hidden])),
+.kodza-file-tree__icon:not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-file-tree__list:not(#_):where([hidden]),
+.kodza-file-tree__item:not(#_):where([hidden]),
+.kodza-file-tree__chev:not(#_):where([hidden]),
+.kodza-file-tree__icon:not(#_):where([hidden]) {
+  display: none;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-file-tree__copy:not(#_) {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 14px 0 12px;
+  border: 1px solid var(--kz-file-tree-border);
+  border-radius: var(--kz-radius-pill, 999px);
+  background: transparent;
+  color: inherit;
+  font-family: var(--kz-font-label, var(--kz-file-tree-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease, border-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-file-tree__copy .kodza-file-tree__done:not(#_) {
+  display: none;
+}
+
+.kodza-file-tree__copy.is-copied .kodza-file-tree__done:not(#_) {
+  display: block;
+}
+
+.kodza-file-tree__copy.is-copied .kodza-file-tree__clip:not(#_) {
+  display: none;
+}
+
+@media (hover: hover) {
+  .kodza-file-tree__copy:hover:not(#_) {
+    border-color: transparent;
+    background: var(--kz-file-tree-soft);
+  }
+}
+
+.kodza-file-tree__copy:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-file-tree-fg);
+  outline-offset: 2px;
+}
+
+.kodza-file-tree__list:not(#_) {
+  box-sizing: border-box;
+  max-height: var(--kz-file-tree-height);
+  margin: 0;
+  padding: 10px;
+  list-style: none;
+  font-family: var(--kz-file-tree-mono);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.kodza-file-tree__list ul:not(#_) {
+  position: relative;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 0 0 var(--kz-file-tree-indent);
+  list-style: none;
+  font-family: inherit;
+}
+
+.kodza-file-tree__list li:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-file-tree:not(.is-ready) .kodza-file-tree__list li:not(#_) {
+  padding-left: 10px;
+  line-height: var(--kz-file-tree-row);
+}
+
+.kodza-file-tree__item:not(#_) {
+  outline: none;
+}
+
+.kodza-file-tree__chev:not(#_) {
+  margin-right: -2px;
+  transition: transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-file-tree-ease);
+}
+
+.kodza-file-tree__list ul[hidden]:not(#_) {
+  display: none;
+}
+
+@container kodza-file-tree (max-width: 340px) {
+  .kodza-file-tree__copy:not(#_) {
+    padding: 0 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-file-tree__copy:not(#_) {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-file-tree__chev:not(#_) {
+    transition: none;
+  }
+}

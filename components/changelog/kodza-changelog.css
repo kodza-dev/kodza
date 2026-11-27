@@ -1,0 +1,1158 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Changelog
+   A list of releases: the version and the date on the left (they stay in view while the notes
+   scroll by), the title, a few words and the notes on the right, each note tagged New, Improved
+   or Fixed (the tag reads from its shape, not a colour). With the script: a filter by type whose
+   ink pill slides between the types, the entries that stay gliding into place; a line at the
+   last release you saw, with a dot on the ones that came after; each version a link that copies
+   itself. Without the script, the list simply shows. Everything is tuned with the
+   --kz-changelog-* variables. */
+
+/* Fills its column at zero weight: a theme that sizes its content blocks keeps the last word */
+:where(.kodza-changelog) {
+  width: 100%;
+}
+
+.kodza-changelog {
+  --kz-changelog-bg: var(--kz-color-paper, #ffffff); /* the filter bar */
+  --kz-changelog-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-changelog-muted: color-mix(in srgb, var(--kz-changelog-fg) 62%, transparent);
+  --kz-changelog-border: color-mix(in srgb, var(--kz-changelog-fg) 12%, transparent);
+  --kz-changelog-soft: color-mix(in srgb, var(--kz-changelog-fg) 7%, transparent); /* the Fixed tag */
+  --kz-changelog-outline: color-mix(in srgb, var(--kz-changelog-fg) 28%, transparent); /* the Improved tag */
+  --kz-changelog-ink: var(--kz-color-accent, var(--kz-changelog-fg)); /* the New tag, the pill, the last-visit line */
+  --kz-changelog-on-ink: var(--kz-color-on-accent, var(--kz-color-paper, #ffffff));
+  --kz-changelog-side: 200px; /* the column of versions */
+  --kz-changelog-gap: 40px; /* between the versions and the notes */
+  --kz-changelog-space: 40px; /* above and below each release */
+  --kz-changelog-top: 24px; /* where the version stops while you scroll: under a sticky header, its height */
+  --kz-changelog-tag: 84px; /* the column of tags */
+  --kz-changelog-mono: var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-changelog-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: block;
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  container: kodza-changelog / inline-size;
+  color: var(--kz-changelog-fg);
+}
+
+.kodza-changelog.is-moving {
+  overflow-y: clip; /* not hidden: the versions stay sticky while the list changes height */
+}
+
+.kodza-changelog__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 24px;
+  margin: 0 0 16px;
+}
+
+/* The pills: one ink pill cut to the chosen type, and a copy of the labels cut the same, in the
+   pill's own colour */
+.kodza-changelog__pills {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+  padding: 4px;
+  overflow-x: auto;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-changelog-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-changelog-border);
+  scrollbar-width: none;
+}
+
+.kodza-changelog__indicator,
+.kodza-changelog__mirror {
+  position: absolute;
+  inset: 0 auto 0 0;
+  box-sizing: border-box;
+  width: var(--kz-ind-w, 100%); /* the whole row, set by the script: it scrolls in a narrow column */
+  border-radius: var(--kz-radius-pill, 999px);
+  clip-path: inset(4px var(--kz-ind-r, 100%) 4px var(--kz-ind-l, 0) round var(--kz-radius-pill, 999px));
+  pointer-events: none;
+}
+
+.kodza-changelog__indicator {
+  background: var(--kz-changelog-ink);
+}
+
+.kodza-changelog__mirror {
+  display: flex;
+  padding: 4px;
+  color: var(--kz-changelog-on-ink);
+}
+
+.kodza-changelog.is-live .kodza-changelog__indicator,
+.kodza-changelog.is-live .kodza-changelog__mirror {
+  transition: clip-path calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease);
+}
+
+.kodza-changelog__pill,
+.kodza-changelog__ghost {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 16px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+}
+
+.kodza-changelog__pill {
+  position: relative;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-changelog-muted);
+  cursor: pointer;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-changelog__pill[aria-pressed="true"] {
+  color: var(--kz-changelog-fg);
+}
+
+@media (hover: hover) {
+  .kodza-changelog__pill:hover {
+    color: var(--kz-changelog-fg);
+  }
+}
+
+.kodza-changelog__pill:focus-visible {
+  outline: 2px solid var(--kz-changelog-fg);
+  outline-offset: -2px;
+}
+
+.kodza-changelog__num {
+  font-family: var(--kz-changelog-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.62;
+}
+
+/* "2 new since your last visit" */
+.kodza-changelog__since {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-changelog-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  color: var(--kz-changelog-muted);
+}
+
+.kodza-changelog__dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kz-changelog-ink);
+}
+
+/* The live region: read out, not shown */
+.kodza-changelog__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kodza-changelog__entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--kz-changelog-side) minmax(0, 1fr);
+  gap: 0 var(--kz-changelog-gap);
+  box-sizing: border-box;
+  margin: 0;
+  padding: var(--kz-changelog-space) 0;
+  scroll-margin-top: var(--kz-changelog-top);
+}
+
+.kodza-changelog__entry[hidden] {
+  display: none;
+}
+
+.kodza-changelog__entry::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--kz-changelog-border);
+  transform-origin: left center;
+}
+
+.kodza-changelog__side {
+  position: sticky;
+  top: var(--kz-changelog-top);
+  display: grid;
+  align-content: start;
+  align-self: start;
+  justify-items: start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kodza-changelog__version {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-changelog-mono));
+  font-size: 15px;
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  color: var(--kz-changelog-fg);
+}
+
+/* A release that came after your last visit: the dot of the bar, by its version, in the colour
+   of the link (ink, or paper once it is the release the address points to) */
+.kodza-changelog__link .kodza-changelog__dot {
+  background: currentColor;
+}
+
+.kodza-changelog__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  margin: 0 -10px;
+  padding: 0 10px;
+  overflow: hidden;
+  border-radius: var(--kz-radius-pill, 999px);
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  isolation: isolate;
+  transition:
+    background-color calc(0.3s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+/* The hover pill unrolls from the version's side and rolls back the same way: no fade */
+.kodza-changelog__link::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--kz-changelog-soft);
+  clip-path: inset(0 100% 0 0 round var(--kz-radius-pill, 999px));
+  transition: clip-path calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease);
+}
+
+.kodza-changelog__link:focus-visible {
+  outline: 2px solid var(--kz-changelog-fg);
+  outline-offset: 2px;
+}
+
+.kodza-changelog__link svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.7;
+  clip-path: inset(0 100% 0 0);
+  transform: translateX(-10px);
+  transition:
+    clip-path calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease),
+    transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease);
+}
+
+.kodza-changelog__link:focus-visible::before {
+  clip-path: inset(0 0 0 0 round var(--kz-radius-pill, 999px));
+}
+
+.kodza-changelog__link:focus-visible svg {
+  clip-path: inset(0);
+  transform: none;
+}
+
+@media (hover: hover) {
+  .kodza-changelog__link:hover::before {
+    clip-path: inset(0 0 0 0 round var(--kz-radius-pill, 999px));
+  }
+
+  .kodza-changelog__link:hover svg {
+    clip-path: inset(0);
+    transform: none;
+  }
+}
+
+/* The release the address points to: its version in the ink pill */
+.kodza-changelog__entry.is-target .kodza-changelog__link {
+  background: var(--kz-changelog-ink);
+  color: var(--kz-changelog-on-ink);
+}
+
+.kodza-changelog__entry.is-target .kodza-changelog__link::before {
+  visibility: hidden;
+}
+
+.kodza-changelog__stamp {
+  display: grid;
+  overflow: hidden;
+}
+
+.kodza-changelog__stamp > * {
+  grid-area: 1 / 1;
+}
+
+.kodza-changelog__date,
+.kodza-changelog__copied {
+  display: block;
+  font-family: var(--kz-font-label, var(--kz-changelog-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  color: var(--kz-changelog-muted);
+}
+
+.kodza-changelog__copied {
+  color: var(--kz-changelog-fg);
+}
+
+/* "Link copied" rolls in where the date was, the date rolls back once it is read */
+.kodza-changelog__stamp .kodza-changelog__date,
+.kodza-changelog__copied {
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease);
+}
+
+.kodza-changelog__copied {
+  transform: translateY(110%);
+}
+
+.kodza-changelog__stamp.is-copied .kodza-changelog__date {
+  transform: translateY(-110%);
+}
+
+.kodza-changelog__stamp.is-copied .kodza-changelog__copied {
+  transform: none;
+}
+
+.kodza-changelog__body {
+  min-width: 0;
+}
+
+.kodza-changelog__title {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(24px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.25;
+  letter-spacing: var(--kz-font-display-tracking, -0.025em);
+  text-transform: var(--kz-font-display-case, none);
+  text-wrap: balance;
+  color: var(--kz-changelog-fg);
+}
+
+.kodza-changelog__text {
+  max-width: 62ch;
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  text-wrap: pretty;
+  color: var(--kz-changelog-muted);
+}
+
+.kodza-changelog__notes {
+  display: grid;
+  gap: 12px;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-changelog__notes > li {
+  position: relative;
+  min-height: 24px;
+  margin: 0;
+  padding: 0 0 0 calc(var(--kz-changelog-tag) + 14px);
+  font-size: 15px;
+  line-height: 1.6;
+  text-wrap: pretty;
+  color: var(--kz-changelog-fg);
+}
+
+.kodza-changelog__notes > li[hidden] {
+  display: none;
+}
+
+.kodza-changelog__notes > li::before,
+.kodza-changelog__notes > li::marker {
+  content: none;
+}
+
+/* The tag sits in its column, centred on the first line of its note */
+.kodza-changelog__type {
+  position: absolute;
+  top: calc(0.8em - 11px);
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  max-width: var(--kz-changelog-tag);
+  height: 22px;
+  padding: 0 9px;
+  overflow: hidden;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-changelog-soft);
+  font-family: var(--kz-font-label, var(--kz-changelog-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  color: var(--kz-changelog-fg);
+}
+
+.kodza-changelog__notes > li[data-type="new"] > .kodza-changelog__type {
+  background: var(--kz-changelog-ink);
+  color: var(--kz-changelog-on-ink);
+}
+
+.kodza-changelog__notes > li[data-type="improved"] > .kodza-changelog__type {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--kz-changelog-outline);
+}
+
+/* The line at your last visit, drawn in ink over the rule of the first release you had seen: the
+   releases above it came after */
+.kodza-changelog__seen {
+  position: relative;
+  z-index: 1;
+  height: 0;
+  margin: 0;
+}
+
+.kodza-changelog__seen[hidden] {
+  display: none;
+}
+
+.kodza-changelog__seen-line {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--kz-changelog-ink);
+  transform-origin: left center;
+}
+
+.kodza-changelog__seen-label {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  font-family: var(--kz-font-label, var(--kz-changelog-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+  color: var(--kz-changelog-fg);
+}
+
+/* The way in, once per release, as it comes into view: its rule draws, its version rises from
+   behind a mask, its date follows. The notes are never hidden. */
+.kodza-changelog__rise {
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  margin: -4px 0;
+  padding: 4px 0;
+}
+
+.kodza-changelog__rise > * {
+  transition: transform calc(0.7s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease) calc(0.12s * var(--kz-motion-scale, 1));
+}
+
+.kodza-changelog.is-ready .kodza-changelog__entry::before,
+.kodza-changelog.is-ready .kodza-changelog__seen-line {
+  transition: transform calc(0.9s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-changelog.is-ready .kodza-changelog__stamp,
+.kodza-changelog.is-ready .kodza-changelog__seen-label {
+  transition:
+    opacity calc(0.5s * var(--kz-motion-scale, 1)) ease calc(0.28s * var(--kz-motion-scale, 1)),
+    transform calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease) calc(0.28s * var(--kz-motion-scale, 1));
+}
+
+.kodza-changelog.is-ready .kodza-changelog__entry:not(.is-in)::before,
+.kodza-changelog.is-ready .kodza-changelog__seen:not(.is-in) .kodza-changelog__seen-line {
+  transform: scaleX(0);
+}
+
+.kodza-changelog.is-ready .kodza-changelog__entry:not(.is-in) .kodza-changelog__rise > * {
+  transform: translateY(calc(100% + 6px)); /* clear of the mask's 4px of air */
+}
+
+.kodza-changelog.is-ready .kodza-changelog__link .kodza-changelog__dot {
+  transition: transform calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease) calc(0.5s * var(--kz-motion-scale, 1));
+}
+
+.kodza-changelog.is-ready .kodza-changelog__entry:not(.is-in) .kodza-changelog__link .kodza-changelog__dot {
+  transform: scale(0);
+}
+
+.kodza-changelog.is-ready .kodza-changelog__entry:not(.is-in) .kodza-changelog__stamp,
+.kodza-changelog.is-ready .kodza-changelog__seen:not(.is-in) .kodza-changelog__seen-label {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.kodza-changelog.is-instant :is(.kodza-changelog__seen-line, .kodza-changelog__seen-label, .kodza-changelog__rise > *, .kodza-changelog__stamp, .kodza-changelog__link .kodza-changelog__dot),
+.kodza-changelog.is-instant .kodza-changelog__entry::before {
+  transition: none;
+}
+
+/* In a narrow column (a phone, a sidebar): the version and the date on one line above the notes */
+@container kodza-changelog (max-width: 639px) {
+  .kodza-changelog__entry {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 28px 0;
+  }
+
+  .kodza-changelog__side {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    margin-bottom: 14px;
+  }
+
+  /* Four short pills still fit a phone; longer labels scroll sideways */
+  .kodza-changelog__pill,
+  .kodza-changelog__ghost {
+    gap: 6px;
+    padding: 0 12px;
+  }
+
+  .kodza-changelog__title {
+    font-size: calc(21px * var(--kz-font-display-scale, 1));
+  }
+
+  .kodza-changelog__notes > li {
+    padding-left: calc(var(--kz-changelog-tag) + 8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-changelog.is-live .kodza-changelog__indicator,
+  .kodza-changelog.is-live .kodza-changelog__mirror,
+  .kodza-changelog__pill,
+  .kodza-changelog__link,
+  .kodza-changelog__link::before,
+  .kodza-changelog__link svg,
+  .kodza-changelog__stamp .kodza-changelog__date,
+  .kodza-changelog__copied {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Theming example — on a dark background:
+.dark-section .kodza-changelog {
+  --kz-changelog-bg: #161616;
+  --kz-changelog-fg: #f2f2f0;
+  --kz-changelog-muted: rgba(242, 242, 240, 0.62);
+  --kz-changelog-border: rgba(255, 255, 255, 0.12);
+  --kz-changelog-soft: rgba(255, 255, 255, 0.08);
+  --kz-changelog-outline: rgba(255, 255, 255, 0.3);
+  --kz-changelog-ink: #f2f2f0;
+  --kz-changelog-on-ink: #0a0a0a;
+}
+*/
+
+/* kodza-guard a13d153e791e — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-changelog__pill):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-changelog__since):not(#_),
+:where(.kodza-changelog__entry):not(#_),
+:where(.kodza-changelog__version):not(#_),
+:where(.kodza-changelog__title):not(#_),
+:where(.kodza-changelog__text):not(#_),
+:where(.kodza-changelog__notes):not(#_),
+:where(.kodza-changelog__notes li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-changelog__notes :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-changelog__link):not(#_) {
+  outline: revert;
+  background-color: revert;
+  background-image: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-changelog__notes li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-changelog__notes :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+:where(.kodza-changelog__notes li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-changelog__notes :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_):where([hidden]) {
+  display: none;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-changelog__bar:not(#_),
+.kodza-changelog__pills:not(#_),
+.kodza-changelog__num:not(#_),
+.kodza-changelog__dot:not(#_),
+.kodza-changelog__side:not(#_),
+.kodza-changelog__rise:not(#_),
+.kodza-changelog__stamp:not(#_),
+.kodza-changelog__copied:not(#_),
+.kodza-changelog__body:not(#_),
+.kodza-changelog__seen:not(#_),
+.kodza-changelog__seen-label:not(#_),
+.kodza-changelog__seen-line:not(#_),
+.kodza-changelog__status:not(#_),
+.kodza-changelog__pill span:where(:not([class*="kodza-"])):not(#_),
+.kodza-changelog__ghost span:where(:not([class*="kodza-"])):not(#_),
+.kodza-changelog__since span:where(:not([class*="kodza-"])):not(#_),
+.kodza-changelog__rise span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-changelog__pill:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-changelog__since:not(#_),
+.kodza-changelog__title:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-changelog__entry:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-changelog__version:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-changelog__link:not(#_) {
+  border: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-changelog__date:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-changelog__text:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-changelog__notes:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-changelog__link svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-changelog__notes li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-changelog__notes :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-changelog__title:not(#_):where(:not([hidden])),
+.kodza-changelog__text:not(#_):where(:not([hidden])),
+.kodza-changelog__link svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-changelog__title:not(#_):where([hidden]),
+.kodza-changelog__text:not(#_):where([hidden]),
+.kodza-changelog__link svg:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-changelog__entry:not(#_)::before,
+.kodza-changelog__link:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-changelog.is-live .kodza-changelog__indicator:not(#_),
+.kodza-changelog.is-live .kodza-changelog__mirror:not(#_) {
+  transition: clip-path calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease);
+}
+
+.kodza-changelog__pill:not(#_) {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 16px;
+  font-family: var(--kz-font-label, inherit);
+  font-size: var(--kz-font-label-size, 15px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+}
+
+.kodza-changelog__pill:not(#_) {
+  position: relative;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-changelog-muted);
+  cursor: pointer;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-changelog__pill[aria-pressed="true"]:not(#_) {
+  color: var(--kz-changelog-fg);
+}
+
+@media (hover: hover) {
+  .kodza-changelog__pill:hover:not(#_) {
+    color: var(--kz-changelog-fg);
+  }
+}
+
+.kodza-changelog__pill:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-changelog-fg);
+  outline-offset: -2px;
+}
+
+.kodza-changelog__since:not(#_) {
+  display: inline-flex;
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-changelog-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  color: var(--kz-changelog-muted);
+}
+
+.kodza-changelog__entry:not(#_) {
+  position: relative;
+  display: grid;
+  box-sizing: border-box;
+  margin: 0;
+  padding: var(--kz-changelog-space) 0;
+}
+
+.kodza-changelog__entry[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-changelog__version:not(#_) {
+  display: flex;
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-changelog-mono));
+  font-size: 15px;
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  color: var(--kz-changelog-fg);
+}
+
+.kodza-changelog__link:not(#_) {
+  position: relative;
+  display: inline-flex;
+  margin: 0 -10px;
+  padding: 0 10px;
+  border-radius: var(--kz-radius-pill, 999px);
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  transition: background-color calc(0.3s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.3s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-changelog__link:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-changelog-fg);
+  outline-offset: 2px;
+}
+
+.kodza-changelog__link svg:not(#_) {
+  transition: clip-path calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease),
+    transform calc(0.35s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease);
+}
+
+.kodza-changelog__entry.is-target .kodza-changelog__link:not(#_) {
+  background: var(--kz-changelog-ink);
+  color: var(--kz-changelog-on-ink);
+}
+
+.kodza-changelog__date:not(#_) {
+  display: block;
+  font-family: var(--kz-font-label, var(--kz-changelog-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  color: var(--kz-changelog-muted);
+}
+
+.kodza-changelog__stamp .kodza-changelog__date:not(#_) {
+  transition: transform calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease);
+}
+
+.kodza-changelog__title:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(24px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.25;
+  letter-spacing: var(--kz-font-display-tracking, -0.025em);
+  text-transform: var(--kz-font-display-case, none);
+  color: var(--kz-changelog-fg);
+}
+
+.kodza-changelog__text:not(#_) {
+  max-width: 62ch;
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--kz-changelog-muted);
+}
+
+.kodza-changelog__notes:not(#_) {
+  display: grid;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-changelog__notes > li:not(#_) {
+  position: relative;
+  margin: 0;
+  padding: 0 0 0 calc(var(--kz-changelog-tag) + 14px);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--kz-changelog-fg);
+}
+
+.kodza-changelog__notes > li[hidden]:not(#_) {
+  display: none;
+}
+
+.kodza-changelog.is-ready .kodza-changelog__seen-line:not(#_) {
+  transition: transform calc(0.9s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-changelog.is-ready .kodza-changelog__stamp:not(#_),
+.kodza-changelog.is-ready .kodza-changelog__seen-label:not(#_) {
+  transition: opacity calc(0.5s * var(--kz-motion-scale, 1)) ease calc(0.28s * var(--kz-motion-scale, 1)),
+    transform calc(0.6s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease) calc(0.28s * var(--kz-motion-scale, 1));
+}
+
+.kodza-changelog.is-ready .kodza-changelog__link .kodza-changelog__dot:not(#_) {
+  transition: transform calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-changelog-ease) calc(0.5s * var(--kz-motion-scale, 1));
+}
+
+.kodza-changelog.is-instant :is(.kodza-changelog__seen-line, .kodza-changelog__seen-label, .kodza-changelog__rise > *, .kodza-changelog__stamp, .kodza-changelog__link .kodza-changelog__dot):not(#_) {
+  transition: none;
+}
+
+@container kodza-changelog (max-width: 639px) {
+  .kodza-changelog__entry:not(#_) {
+    padding: 28px 0;
+  }
+}
+
+@container kodza-changelog (max-width: 639px) {
+  .kodza-changelog__pill:not(#_) {
+    gap: 6px;
+    padding: 0 12px;
+  }
+}
+
+@container kodza-changelog (max-width: 639px) {
+  .kodza-changelog__title:not(#_) {
+    font-size: calc(21px * var(--kz-font-display-scale, 1));
+  }
+}
+
+@container kodza-changelog (max-width: 639px) {
+  .kodza-changelog__notes > li:not(#_) {
+    padding-left: calc(var(--kz-changelog-tag) + 8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-changelog.is-live .kodza-changelog__indicator:not(#_),
+  .kodza-changelog.is-live .kodza-changelog__mirror:not(#_),
+  .kodza-changelog__link:not(#_),
+  .kodza-changelog__link svg:not(#_),
+  .kodza-changelog__stamp .kodza-changelog__date:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-changelog__pill:not(#_) {
+    transition-duration: 0.01ms !important;
+  }
+}

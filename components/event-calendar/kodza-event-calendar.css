@@ -1,0 +1,1809 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Event Calendar
+   A month drawn from a list of events: one ink dot per event under its day (three at most, then
+   "+2"). The chosen day sits on an ink mark that glides from day to day, and its events roll in
+   beside the grid, line after line, from behind their own mask. The arrows slide the months by
+   one; the Month / List switch slides over to the upcoming events, grouped by month. Without the
+   script, the list simply shows. Everything is tuned with the --kz-event-calendar-* variables. */
+.kodza-event-calendar {
+  --kz-event-calendar-bg: var(--kz-color-paper, #ffffff);
+  --kz-event-calendar-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-event-calendar-muted: color-mix(in srgb, var(--kz-event-calendar-fg) 60%, transparent);
+  --kz-event-calendar-border: color-mix(in srgb, var(--kz-event-calendar-fg) 10%, transparent);
+  --kz-event-calendar-soft: color-mix(in srgb, var(--kz-event-calendar-fg) 6%, transparent); /* a day or an arrow, hovered */
+  --kz-event-calendar-ink: var(--kz-color-accent, var(--kz-event-calendar-fg)); /* the dots, the chosen day, today's ring */
+  --kz-event-calendar-on-ink: var(--kz-color-on-accent, var(--kz-event-calendar-bg)); /* on the chosen day */
+  --kz-event-calendar-cell: 46px; /* the height of a day */
+  --kz-event-calendar-gap: 32px; /* between two months, and between the month and its list */
+  --kz-event-calendar-pad: 28px;
+  --kz-event-calendar-time: 104px; /* the time column of the day's list */
+  --kz-event-calendar-mono: var(--kz-font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  --kz-event-calendar-stagger: 18ms; /* the delay from one dot to the next */
+  --kz-event-calendar-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  gap: 22px;
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: var(--kz-event-calendar-pad);
+  border-radius: calc(16px * var(--kz-radius-scale, 1));
+  background: var(--kz-event-calendar-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-event-calendar-border);
+  color: var(--kz-event-calendar-fg);
+}
+
+.kodza-event-calendar.is-narrow {
+  --kz-event-calendar-pad: 20px;
+  --kz-event-calendar-cell: 44px;
+  --kz-event-calendar-time: 92px;
+}
+
+.kodza-event-calendar.is-ready > .kodza-event-calendar__events {
+  display: none;
+}
+
+/* Without the script: the list as written */
+.kodza-event-calendar__events {
+  display: grid;
+  gap: 14px;
+}
+
+.kodza-event-calendar__event {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.kodza-event-calendar__event time {
+  font-family: var(--kz-event-calendar-mono);
+  font-size: 12px;
+  color: var(--kz-event-calendar-muted);
+}
+
+.kodza-event-calendar__name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.kodza-event-calendar__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 20px;
+  min-width: 0;
+}
+
+.kodza-event-calendar__heading {
+  display: grid;
+  flex: 1 1 auto;
+  gap: 6px;
+  min-width: 0;
+}
+
+.kodza-event-calendar__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.kodza-event-calendar__status,
+.kodza-event-calendar__weekday,
+.kodza-event-calendar__count,
+.kodza-event-calendar__time,
+.kodza-event-calendar__group-title,
+.kodza-event-calendar__wd,
+.kodza-event-calendar__meta {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-event-calendar-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  font-variant-numeric: tabular-nums;
+  color: var(--kz-event-calendar-muted);
+}
+
+.kodza-event-calendar__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kodza-event-calendar__status::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-event-calendar-ink);
+}
+
+/* Month / List: an ink pill, and over it a copy of the labels in its colour, both cut to the
+   chosen view so the label turns exactly at the pill's edges */
+.kodza-event-calendar__switch {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  padding: 3px;
+  margin: -4px -4px 0 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-event-calendar-bg);
+  box-shadow: inset 0 0 0 1px var(--kz-event-calendar-border);
+}
+
+.kodza-event-calendar__indicator,
+.kodza-event-calendar__mirror {
+  position: absolute;
+  inset: 0 auto 0 0;
+  box-sizing: border-box;
+  width: var(--kz-event-calendar-sw, 100%);
+  border-radius: var(--kz-radius-pill, 999px);
+  clip-path: inset(3px var(--kz-event-calendar-sr, 100%) 3px var(--kz-event-calendar-sl, 0) round var(--kz-radius-pill, 999px));
+  pointer-events: none;
+}
+
+.kodza-event-calendar__indicator {
+  background: var(--kz-event-calendar-ink);
+}
+
+.kodza-event-calendar__mirror {
+  display: flex;
+  padding: 3px;
+  color: var(--kz-event-calendar-on-ink);
+}
+
+.kodza-event-calendar__switch.is-live .kodza-event-calendar__indicator,
+.kodza-event-calendar__switch.is-live .kodza-event-calendar__mirror {
+  transition: clip-path calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-event-calendar-ease);
+}
+
+.kodza-event-calendar__tab,
+.kodza-event-calendar__ghost {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  box-sizing: border-box;
+  height: 30px;
+  margin: 0;
+  padding: 0 13px;
+  font-family: var(--kz-font-label, var(--kz-event-calendar-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+}
+
+.kodza-event-calendar__tab {
+  position: relative;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-event-calendar-muted);
+  cursor: pointer;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-event-calendar__tab[aria-selected="true"] {
+  color: var(--kz-event-calendar-fg);
+}
+
+@media (hover: hover) {
+  .kodza-event-calendar__tab:hover {
+    color: var(--kz-event-calendar-fg);
+  }
+}
+
+.kodza-event-calendar__tab:focus-visible {
+  outline: 2px solid var(--kz-event-calendar-fg);
+  outline-offset: -2px;
+}
+
+/* The views share one box: the month gives its height, the list scrolls inside it */
+.kodza-event-calendar__views {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+
+.kodza-event-calendar__views.is-switching {
+  overflow: hidden;
+}
+
+.kodza-event-calendar__view {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+.kodza-event-calendar__view.is-hidden {
+  visibility: hidden;
+}
+
+.kodza-event-calendar__view--month {
+  display: grid;
+  gap: 20px;
+}
+
+.kodza-event-calendar.is-wide .kodza-event-calendar__view--month {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: var(--kz-event-calendar-gap);
+}
+
+.kodza-event-calendar__calendar {
+  position: relative;
+  min-width: 0;
+}
+
+.kodza-event-calendar__nav {
+  position: absolute;
+  top: -7px;
+  right: -6px;
+  display: flex;
+  gap: 2px;
+}
+
+.kodza-event-calendar__arrow {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-event-calendar__arrow:hover {
+    background: var(--kz-event-calendar-soft);
+  }
+
+  .kodza-event-calendar__arrow[aria-disabled="true"]:hover {
+    background: none;
+  }
+}
+
+.kodza-event-calendar__arrow[aria-disabled="true"] {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.kodza-event-calendar__arrow:focus-visible {
+  outline: 2px solid var(--kz-event-calendar-fg);
+  outline-offset: -2px;
+}
+
+.kodza-event-calendar__arrow svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* The months: the stage clips, the track slides by one month and its gap */
+.kodza-event-calendar__stage {
+  overflow: hidden;
+  min-width: 0;
+}
+
+.kodza-event-calendar__track {
+  display: flex;
+  gap: var(--kz-event-calendar-gap);
+}
+
+.kodza-event-calendar__month {
+  position: relative;
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+.kodza-event-calendar__grid {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  background: none;
+}
+
+.kodza-event-calendar__caption {
+  margin: 0 0 10px;
+  padding: 0;
+  caption-side: top;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: inherit;
+}
+
+.kodza-event-calendar__weekday {
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: center;
+  font-size: var(--kz-font-label-size, 11px);
+  vertical-align: middle;
+}
+
+.kodza-event-calendar__cell,
+.kodza-event-calendar__blank {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.kodza-event-calendar__blank {
+  height: var(--kz-event-calendar-cell);
+}
+
+.kodza-event-calendar__cell {
+  padding: 2px;
+}
+
+.kodza-event-calendar__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(var(--kz-event-calendar-cell) - 4px);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-event-calendar__day:hover {
+    background: var(--kz-event-calendar-soft);
+  }
+}
+
+.kodza-event-calendar__day:focus-visible {
+  outline: 2px solid var(--kz-event-calendar-fg);
+  outline-offset: -2px;
+}
+
+.kodza-event-calendar__day.is-today {
+  box-shadow: inset 0 0 0 1.5px var(--kz-event-calendar-ink);
+  font-weight: 600;
+}
+
+.kodza-event-calendar__day.is-past .kodza-event-calendar__num {
+  color: var(--kz-event-calendar-muted);
+}
+
+.kodza-event-calendar__dots {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 5px;
+}
+
+.kodza-event-calendar__dot,
+.kodza-event-calendar__more {
+  transform: scale(0);
+  transition: transform calc(0.32s * var(--kz-motion-scale, 1)) var(--kz-event-calendar-ease);
+  transition-delay: calc(var(--kz-event-calendar-at, 0) * var(--kz-event-calendar-stagger) * var(--kz-motion-scale, 1));
+}
+
+.kodza-event-calendar__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-event-calendar-ink);
+}
+
+.kodza-event-calendar__more {
+  margin-left: 1px;
+  font-family: var(--kz-event-calendar-mono);
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.kodza-event-calendar__day.is-past .kodza-event-calendar__dots {
+  opacity: 0.45;
+}
+
+.kodza-event-calendar__month.is-drawn :is(.kodza-event-calendar__dot, .kodza-event-calendar__more) {
+  transform: none;
+}
+
+.kodza-event-calendar__month.is-instant :is(.kodza-event-calendar__dot, .kodza-event-calendar__more) {
+  transition: none;
+}
+
+/* The chosen day: the mark under the grid and the copy over it, cut to the same box */
+.kodza-event-calendar__mark,
+.kodza-event-calendar__copy {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(var(--kz-event-calendar-t, 50%) var(--kz-event-calendar-r, 50%) var(--kz-event-calendar-b, 50%) var(--kz-event-calendar-l, 50%) round calc(10px * var(--kz-radius-scale, 1)));
+  pointer-events: none;
+}
+
+.kodza-event-calendar__mark {
+  background: var(--kz-event-calendar-ink);
+}
+
+.kodza-event-calendar__copy {
+  z-index: 1;
+  color: var(--kz-event-calendar-on-ink);
+}
+
+.kodza-event-calendar__month.is-gliding :is(.kodza-event-calendar__mark, .kodza-event-calendar__copy) {
+  transition: clip-path calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-event-calendar-ease);
+}
+
+.kodza-event-calendar__copy .kodza-event-calendar__day {
+  box-shadow: none;
+  background: none;
+}
+
+.kodza-event-calendar__copy .kodza-event-calendar__day .kodza-event-calendar__num {
+  color: inherit;
+}
+
+.kodza-event-calendar__copy .kodza-event-calendar__dot {
+  background: currentColor;
+}
+
+.kodza-event-calendar__copy .kodza-event-calendar__day .kodza-event-calendar__dots {
+  opacity: 1;
+}
+
+/* The day's list: beside the month on a wide card, under it on a phone */
+.kodza-event-calendar__agenda {
+  position: relative;
+  min-width: 0;
+  padding-top: 20px;
+  box-shadow: inset 0 1px 0 var(--kz-event-calendar-border);
+}
+
+.kodza-event-calendar.is-wide .kodza-event-calendar__agenda {
+  padding-top: 0;
+  box-shadow: inset 1px 0 0 var(--kz-event-calendar-border);
+}
+
+.kodza-event-calendar__stack {
+  position: relative;
+  min-width: 0;
+}
+
+.kodza-event-calendar.is-wide .kodza-event-calendar__stack {
+  position: absolute;
+  inset: 0 0 0 var(--kz-event-calendar-gap);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.kodza-event-calendar__stack.is-swapping {
+  overflow: hidden;
+}
+
+.kodza-event-calendar__page.is-leaving {
+  position: absolute;
+  inset: 0 0 auto 0;
+}
+
+.kodza-event-calendar__page.is-moving {
+  pointer-events: none;
+}
+
+.kodza-event-calendar__line {
+  overflow: hidden;
+}
+
+.kodza-event-calendar__line--head .kodza-event-calendar__in {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+.kodza-event-calendar__date {
+  margin: 0;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.kodza-event-calendar__count {
+  flex: none;
+}
+
+.kodza-event-calendar__rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-event-calendar__row {
+  margin: 0;
+  padding: 0;
+  box-shadow: inset 0 1px 0 var(--kz-event-calendar-border);
+}
+
+.kodza-event-calendar__row .kodza-event-calendar__in {
+  display: grid;
+  grid-template-columns: var(--kz-event-calendar-time) minmax(0, 1fr);
+  column-gap: 12px;
+  row-gap: 3px;
+  padding: 13px 0;
+}
+
+.kodza-event-calendar__time {
+  grid-row: span 2;
+  padding-top: 2px;
+}
+
+.kodza-event-calendar__what {
+  margin: 0;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+
+.kodza-event-calendar__what a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-event-calendar__what a:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+.kodza-event-calendar__what a:focus-visible {
+  outline: 2px solid var(--kz-event-calendar-fg);
+  outline-offset: 2px;
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+}
+
+.kodza-event-calendar__place {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--kz-event-calendar-muted);
+}
+
+.kodza-event-calendar__row.is-gone .kodza-event-calendar__in,
+.kodza-event-calendar__item.is-gone {
+  opacity: 0.5;
+}
+
+.kodza-event-calendar__empty {
+  margin: 0;
+  padding: 14px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--kz-event-calendar-muted);
+}
+
+.kodza-event-calendar__line .kodza-event-calendar__empty {
+  box-shadow: inset 0 1px 0 var(--kz-event-calendar-border);
+}
+
+/* The upcoming events, grouped by month: the month stays on top while its events scroll by */
+.kodza-event-calendar__view--list {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+}
+
+.kodza-event-calendar__group {
+  margin: 0;
+  padding-bottom: 8px;
+}
+
+.kodza-event-calendar__group:last-child {
+  padding-bottom: 36px;
+}
+
+.kodza-event-calendar__group-title {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 0 0 10px;
+  background: var(--kz-event-calendar-bg);
+  color: var(--kz-event-calendar-fg);
+}
+
+.kodza-event-calendar__items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-event-calendar__item {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 16px;
+  margin: 0;
+  padding: 13px 0;
+  box-shadow: inset 0 1px 0 var(--kz-event-calendar-border);
+}
+
+.kodza-event-calendar__when {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  margin: 0;
+}
+
+.kodza-event-calendar__big {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.kodza-event-calendar__wd {
+  font-size: var(--kz-font-label-size, 11px);
+}
+
+.kodza-event-calendar__body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.kodza-event-calendar__live,
+.kodza-event-calendar__hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-event-calendar *,
+  .kodza-event-calendar *::before,
+  .kodza-event-calendar *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* kodza-guard 2c3b74e54d57 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-event-calendar__event):not(#_),
+:where(.kodza-event-calendar__name):not(#_),
+:where(.kodza-event-calendar__place):not(#_),
+:where(.kodza-event-calendar__title):not(#_),
+:where(.kodza-event-calendar__status):not(#_),
+:where(.kodza-event-calendar__date):not(#_),
+:where(.kodza-event-calendar__count):not(#_),
+:where(.kodza-event-calendar__rows):not(#_),
+:where(.kodza-event-calendar__time):not(#_),
+:where(.kodza-event-calendar__what):not(#_),
+:where(.kodza-event-calendar__group-title):not(#_),
+:where(.kodza-event-calendar__items):not(#_),
+:where(.kodza-event-calendar__item):not(#_),
+:where(.kodza-event-calendar__when):not(#_),
+:where(.kodza-event-calendar__meta):not(#_),
+:where(.kodza-event-calendar__live):not(#_),
+:where(.kodza-event-calendar__event time:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-event-calendar__name a:where(:not([class*="kodza-"]))):not(#_),
+:where(.kodza-event-calendar__arrow svg:where(:not([class*="kodza-"]))):not(#_) {
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-event-calendar__tab):not(#_),
+:where(.kodza-event-calendar__arrow):not(#_) {
+  outline: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-event-calendar__grid):not(#_),
+:where(.kodza-event-calendar__caption):not(#_),
+:where(.kodza-event-calendar__weekday):not(#_),
+:where(.kodza-event-calendar__blank):not(#_),
+:where(.kodza-event-calendar__cell):not(#_),
+:where(.kodza-event-calendar__grid thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-event-calendar__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-event-calendar__grid tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-event-calendar__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_),
+:where(.kodza-event-calendar__grid tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-event-calendar__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *))):not(#_) {
+  transition: revert;
+}
+
+:where(.kodza-event-calendar__day):not(#_) {
+  outline: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-event-calendar__line):not(#_) {
+  margin: revert;
+  padding: revert;
+  box-shadow: revert;
+  transition-duration: revert;
+  transition-delay: revert;
+}
+
+:where(.kodza-event-calendar__what a:where(:not([class*="kodza-"]))):not(#_) {
+  border-radius: revert;
+  outline: revert;
+  outline-offset: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-event-calendar__events:not(#_),
+.kodza-event-calendar__head:not(#_),
+.kodza-event-calendar__heading:not(#_),
+.kodza-event-calendar__switch:not(#_),
+.kodza-event-calendar__views:not(#_),
+.kodza-event-calendar__view:not(#_),
+.kodza-event-calendar__calendar:not(#_),
+.kodza-event-calendar__stage:not(#_),
+.kodza-event-calendar__track:not(#_),
+.kodza-event-calendar__month:not(#_),
+.kodza-event-calendar__mark:not(#_),
+.kodza-event-calendar__hidden:not(#_),
+.kodza-event-calendar__num:not(#_),
+.kodza-event-calendar__dots:not(#_),
+.kodza-event-calendar__dot:not(#_),
+.kodza-event-calendar__more:not(#_),
+.kodza-event-calendar__copy:not(#_),
+.kodza-event-calendar__nav:not(#_),
+.kodza-event-calendar__agenda:not(#_),
+.kodza-event-calendar__stack:not(#_),
+.kodza-event-calendar__page:not(#_),
+.kodza-event-calendar__in:not(#_),
+.kodza-event-calendar__group:not(#_),
+.kodza-event-calendar__big:not(#_),
+.kodza-event-calendar__wd:not(#_),
+.kodza-event-calendar__body:not(#_),
+.kodza-event-calendar__weekday span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-event-calendar__event:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-event-calendar__name:not(#_),
+.kodza-event-calendar__title:not(#_),
+.kodza-event-calendar__date:not(#_),
+.kodza-event-calendar__what:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-event-calendar__place:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-event-calendar__status:not(#_),
+.kodza-event-calendar__count:not(#_),
+.kodza-event-calendar__meta:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-event-calendar__tab:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  min-height: revert;
+}
+
+.kodza-event-calendar__grid:not(#_) {
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-event-calendar__caption:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-style: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-event-calendar__weekday:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-indent: revert;
+  text-shadow: revert;
+}
+
+.kodza-event-calendar__blank:not(#_),
+.kodza-event-calendar__cell:not(#_) {
+  margin: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-event-calendar__day:not(#_) {
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  position: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-event-calendar__arrow:not(#_) {
+  margin: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-event-calendar__line:not(#_),
+.kodza-event-calendar__item:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-event-calendar__rows:not(#_),
+.kodza-event-calendar__items:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-event-calendar__time:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  padding-right: revert;
+  padding-bottom: revert;
+  padding-left: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-event-calendar__group-title:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-event-calendar__when:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-event-calendar__live:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-event-calendar__event time:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-event-calendar__name a:where(:not([class*="kodza-"])):not(#_),
+.kodza-event-calendar__arrow svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  transition-property: revert;
+  transition-timing-function: revert;
+}
+
+.kodza-event-calendar__grid thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-event-calendar__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-event-calendar__grid tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-event-calendar__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_),
+.kodza-event-calendar__grid tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-event-calendar__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-event-calendar__what a:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-event-calendar__name:not(#_):where(:not([hidden])),
+.kodza-event-calendar__place:not(#_):where(:not([hidden])),
+.kodza-event-calendar__title:not(#_):where(:not([hidden])),
+.kodza-event-calendar__grid:not(#_):where(:not([hidden])),
+.kodza-event-calendar__caption:not(#_):where(:not([hidden])),
+.kodza-event-calendar__weekday:not(#_):where(:not([hidden])),
+.kodza-event-calendar__blank:not(#_):where(:not([hidden])),
+.kodza-event-calendar__cell:not(#_):where(:not([hidden])),
+.kodza-event-calendar__line:not(#_):where(:not([hidden])),
+.kodza-event-calendar__date:not(#_):where(:not([hidden])),
+.kodza-event-calendar__count:not(#_):where(:not([hidden])),
+.kodza-event-calendar__rows:not(#_):where(:not([hidden])),
+.kodza-event-calendar__time:not(#_):where(:not([hidden])),
+.kodza-event-calendar__what:not(#_):where(:not([hidden])),
+.kodza-event-calendar__group-title:not(#_):where(:not([hidden])),
+.kodza-event-calendar__items:not(#_):where(:not([hidden])),
+.kodza-event-calendar__meta:not(#_):where(:not([hidden])),
+.kodza-event-calendar__live:not(#_):where(:not([hidden])),
+.kodza-event-calendar__event time:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-event-calendar__name a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-event-calendar__grid thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-event-calendar__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-event-calendar__grid tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-event-calendar__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-event-calendar__grid tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-event-calendar__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where(:not([hidden])),
+.kodza-event-calendar__arrow svg:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])),
+.kodza-event-calendar__what a:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-event-calendar__name:not(#_):where([hidden]),
+.kodza-event-calendar__place:not(#_):where([hidden]),
+.kodza-event-calendar__title:not(#_):where([hidden]),
+.kodza-event-calendar__grid:not(#_):where([hidden]),
+.kodza-event-calendar__caption:not(#_):where([hidden]),
+.kodza-event-calendar__weekday:not(#_):where([hidden]),
+.kodza-event-calendar__blank:not(#_):where([hidden]),
+.kodza-event-calendar__cell:not(#_):where([hidden]),
+.kodza-event-calendar__line:not(#_):where([hidden]),
+.kodza-event-calendar__date:not(#_):where([hidden]),
+.kodza-event-calendar__count:not(#_):where([hidden]),
+.kodza-event-calendar__rows:not(#_):where([hidden]),
+.kodza-event-calendar__time:not(#_):where([hidden]),
+.kodza-event-calendar__what:not(#_):where([hidden]),
+.kodza-event-calendar__group-title:not(#_):where([hidden]),
+.kodza-event-calendar__items:not(#_):where([hidden]),
+.kodza-event-calendar__meta:not(#_):where([hidden]),
+.kodza-event-calendar__live:not(#_):where([hidden]),
+.kodza-event-calendar__event time:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-event-calendar__name a:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-event-calendar__grid thead:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-event-calendar__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-event-calendar__grid tr:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-event-calendar__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-event-calendar__grid tbody:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-event-calendar__grid :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_):where([hidden]),
+.kodza-event-calendar__arrow svg:where(:not([class*="kodza-"])):not(#_):where([hidden]),
+.kodza-event-calendar__what a:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-event-calendar__status:not(#_)::before {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-event-calendar__event:not(#_) {
+  display: grid;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.kodza-event-calendar__event time:not(#_) {
+  font-family: var(--kz-event-calendar-mono);
+  font-size: 12px;
+  color: var(--kz-event-calendar-muted);
+}
+
+.kodza-event-calendar__name:not(#_) {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.kodza-event-calendar__title:not(#_) {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.kodza-event-calendar__status:not(#_),
+.kodza-event-calendar__weekday:not(#_),
+.kodza-event-calendar__count:not(#_),
+.kodza-event-calendar__time:not(#_),
+.kodza-event-calendar__group-title:not(#_),
+.kodza-event-calendar__meta:not(#_) {
+  margin: 0;
+  font-family: var(--kz-font-label, var(--kz-event-calendar-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, inherit);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, inherit);
+  text-transform: var(--kz-font-label-case, inherit);
+  color: var(--kz-event-calendar-muted);
+}
+
+.kodza-event-calendar__status:not(#_) {
+  display: flex;
+}
+
+.kodza-event-calendar__switch.is-live .kodza-event-calendar__indicator:not(#_),
+.kodza-event-calendar__switch.is-live .kodza-event-calendar__mirror:not(#_) {
+  transition: clip-path calc(0.5s * var(--kz-motion-scale, 1)) var(--kz-event-calendar-ease);
+}
+
+.kodza-event-calendar__tab:not(#_) {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  box-sizing: border-box;
+  height: 30px;
+  margin: 0;
+  padding: 0 13px;
+  font-family: var(--kz-font-label, var(--kz-event-calendar-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, normal);
+  text-transform: var(--kz-font-label-case, none);
+  white-space: nowrap;
+}
+
+.kodza-event-calendar__tab:not(#_) {
+  position: relative;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: var(--kz-event-calendar-muted);
+  cursor: pointer;
+  transition: color calc(0.25s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-event-calendar__tab[aria-selected="true"]:not(#_) {
+  color: var(--kz-event-calendar-fg);
+}
+
+@media (hover: hover) {
+  .kodza-event-calendar__tab:hover:not(#_) {
+    color: var(--kz-event-calendar-fg);
+  }
+}
+
+.kodza-event-calendar__tab:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-event-calendar-fg);
+  outline-offset: -2px;
+}
+
+.kodza-event-calendar__arrow:not(#_) {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    opacity calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-event-calendar__arrow:hover:not(#_) {
+    background: var(--kz-event-calendar-soft);
+  }
+}
+
+@media (hover: hover) {
+  .kodza-event-calendar__arrow[aria-disabled="true"]:hover:not(#_) {
+    background: none;
+  }
+}
+
+.kodza-event-calendar__arrow[aria-disabled="true"]:not(#_) {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.kodza-event-calendar__arrow:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-event-calendar-fg);
+  outline-offset: -2px;
+}
+
+.kodza-event-calendar__grid:not(#_) {
+  margin: 0;
+  border: 0;
+  background: none;
+}
+
+.kodza-event-calendar__caption:not(#_) {
+  margin: 0 0 10px;
+  padding: 0;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: inherit;
+}
+
+.kodza-event-calendar__weekday:not(#_) {
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: center;
+  font-size: var(--kz-font-label-size, 11px);
+  vertical-align: middle;
+}
+
+.kodza-event-calendar__cell:not(#_),
+.kodza-event-calendar__blank:not(#_) {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.kodza-event-calendar__cell:not(#_) {
+  padding: 2px;
+}
+
+.kodza-event-calendar__day:not(#_) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(var(--kz-event-calendar-cell) - 4px);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: calc(10px * var(--kz-radius-scale, 1));
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-event-calendar__day:hover:not(#_) {
+    background: var(--kz-event-calendar-soft);
+  }
+}
+
+.kodza-event-calendar__day:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-event-calendar-fg);
+  outline-offset: -2px;
+}
+
+.kodza-event-calendar__day.is-today:not(#_) {
+  box-shadow: inset 0 0 0 1.5px var(--kz-event-calendar-ink);
+  font-weight: 600;
+}
+
+.kodza-event-calendar__month.is-drawn :is(.kodza-event-calendar__dot, .kodza-event-calendar__more):not(#_) {
+  transform: none;
+}
+
+.kodza-event-calendar__month.is-instant :is(.kodza-event-calendar__dot, .kodza-event-calendar__more):not(#_) {
+  transition: none;
+}
+
+.kodza-event-calendar__month.is-gliding :is(.kodza-event-calendar__mark, .kodza-event-calendar__copy):not(#_) {
+  transition: clip-path calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-event-calendar-ease);
+}
+
+.kodza-event-calendar__copy .kodza-event-calendar__day:not(#_) {
+  box-shadow: none;
+  background: none;
+}
+
+.kodza-event-calendar__date:not(#_) {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.kodza-event-calendar__rows:not(#_) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-event-calendar__row:not(#_) {
+  margin: 0;
+  padding: 0;
+  box-shadow: inset 0 1px 0 var(--kz-event-calendar-border);
+}
+
+.kodza-event-calendar__time:not(#_) {
+  padding-top: 2px;
+}
+
+.kodza-event-calendar__what:not(#_) {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.kodza-event-calendar__what a:not(#_) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+@media (hover: hover) {
+  .kodza-event-calendar__what a:hover:not(#_) {
+    text-decoration-color: currentColor;
+  }
+}
+
+.kodza-event-calendar__what a:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-event-calendar-fg);
+  outline-offset: 2px;
+  border-radius: calc(3px * var(--kz-radius-scale, 1));
+}
+
+.kodza-event-calendar__place:not(#_) {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--kz-event-calendar-muted);
+}
+
+.kodza-event-calendar__group-title:not(#_) {
+  position: sticky;
+  padding: 0 0 10px;
+  background: var(--kz-event-calendar-bg);
+  color: var(--kz-event-calendar-fg);
+}
+
+.kodza-event-calendar__items:not(#_) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kodza-event-calendar__item:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 13px 0;
+  box-shadow: inset 0 1px 0 var(--kz-event-calendar-border);
+}
+
+.kodza-event-calendar__when:not(#_) {
+  display: grid;
+  margin: 0;
+}
+
+.kodza-event-calendar__live:not(#_) {
+  position: absolute;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-event-calendar *:not(#_),
+  .kodza-event-calendar *:not(#_)::before,
+  .kodza-event-calendar *:not(#_)::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+  }
+}

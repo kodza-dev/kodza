@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 282. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 286. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-282 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+286 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -220,7 +220,7 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Data display</b> · 23</summary>
+<summary><b>Data display</b> · 27</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
@@ -229,12 +229,16 @@ Written like it's going live tomorrow. Because it probably is.
 | [Avatar](components/avatar/) | Initials or a picture in four sizes, a status told by a shape (full, ring, bar, faded), and a group that spreads when you come near, the face you point at saying its name. | [Demo](https://kodza.dev/components/avatar/) |
 | [Badge](components/badge/) | Small labels: soft, solid, live, mono and a count that rolls. Remove a tag and it shrinks away while its neighbours glide to their new place, across lines too. | [Demo](https://kodza.dev/components/badge/) |
 | [Bar Chart](components/bar-chart/) | A bar chart drawn from a real table: bars rise into view, the value rides above the bar you point at, series switch on one shared scale, and the table is one click away. | [Demo](https://kodza.dev/components/bar-chart/) |
+| [Changelog](components/changelog/) | Release notes from a plain list: filter by type with a sliding pill, a line at the last release the reader saw, and a version link that copies itself. Without the script, the list simply shows. | [Demo](https://kodza.dev/components/changelog/) |
 | [Code Block](components/code-block/) | Code to read and copy: file name, line numbers, highlighted and folded lines, a monochrome syntax in weight and light. Copy rolls to Copied and takes everything, folded lines too; a terminal copies its commands only. | [Demo](https://kodza.dev/components/code-block/) |
 | [Comparison Table](components/comparison-table/) | The table under the pricing cards: plan headers that stay on top, feature groups that fold, ticks that draw in. On a phone, a switch picks the plan and its values roll in place. | [Demo](https://kodza.dev/components/comparison-table/) |
 | [Countdown](components/event-day-counter/) | A live countdown to a date: every digit that changes falls out of its window as the next one drops in, and at zero the figures step aside for your message. Large or inline. | [Demo](https://kodza.dev/components/event-day-counter/) |
 | [Counter](components/counter-animation/) | A figure that rolls into place like an odometer when it comes into view: digits on the right spin more and land last, a zero takes a full turn. Readable without the script. | [Demo](https://kodza.dev/components/counter-animation/) |
 | [Departure Board](components/departure-board/) | The next departures from a place, worked out at its own time: the day's timetable by season and weekday, the next trip on top with a countdown that rolls every minute, gone trips faded, a line once the day is over. | [Demo](https://kodza.dev/components/departure-board/) |
 | [Donut](components/donut/) | A donut chart drawn from a real table: the parts draw one after the other in shades of ink, the total counts up in the centre, and pointing at a part rolls the centre to its value. | [Demo](https://kodza.dev/components/donut/) |
+| [Event Calendar](components/event-calendar/) | A month drawn from a list of events: a dot per event under its day, an ink mark that glides to the chosen day while its events roll in beside the grid, arrows that slide the months, and a List view of what's next. | [Demo](https://kodza.dev/components/event-calendar/) |
+| [Event Schedule](components/event-schedule/) | A conference programme from a plain list: day tabs, the venue's clock, the live session marked, a Now marker on the rail, summaries that open and save as .ics. | [Demo](https://kodza.dev/components/event-schedule/) |
+| [File Tree](components/file-tree/) | A project's files from a plain nested list: folders that fold with their height, an icon per kind of file, new, edited and removed marks, and the path you point at rolling into a bar that copies it. | [Demo](https://kodza.dev/components/file-tree/) |
 | [Filter Transitions](components/filter-transitions/) | A filterable grid: the ink pill slides to the filter, leaving cards step back, the others glide to their new place and the new ones arrive in turn. | [Demo](https://kodza.dev/components/filter-transitions/) |
 | [Heatmap](components/heatmap/) | A heatmap drawn from a real table: the cells fill in a wave, a ring glides to the cell you point at with its value in a bubble, the arrows walk the grid, and the table is one click away. | [Demo](https://kodza.dev/components/heatmap/) |
 | [Kbd](components/kbd/) | Keyboard keys with a little depth, alone, in a combo or in a list of shortcuts. Type one for real and its keys sink as you press them; the whole combo down lights its line. | [Demo](https://kodza.dev/components/kbd/) |
