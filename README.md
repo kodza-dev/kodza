@@ -53,7 +53,7 @@ Read-only: it hands out code and never touches your project. It counts which com
 
 ## Six of them
 
-Picked from the 286. Each picture runs its demo on kodza.dev, each name opens its files.
+Picked from the 290. Each picture runs its demo on kodza.dev, each name opens its files.
 
 <p>
 <a href="https://kodza.dev/components/trapdoor-menu/"><img src="https://kodza.dev/anim/trapdoor-menu/og.jpg" alt="Trapdoor Menu" width="32%"></a>
@@ -80,7 +80,7 @@ Written like it's going live tomorrow. Because it probably is.
 
 ## The components
 
-286 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
+290 of them, and counting. Open a category: each name opens its folder, each demo runs on kodza.dev. All of them in motion: the [catalogue](https://kodza.dev/components/).
 
 <details>
 <summary><b>Buttons</b> · 15</summary>
@@ -255,14 +255,18 @@ Written like it's going live tomorrow. Because it probably is.
 </details>
 
 <details>
-<summary><b>Cards</b> · 5</summary>
+<summary><b>Cards</b> · 9</summary>
 
 | Component | What it does | |
 | --- | --- | --- |
 | [Border Trace Card](components/hover-gradient-card/) | On hover a single line draws the card border from the exact point where the pointer came in. One way, both ways, or just the corners. | [Demo](https://kodza.dev/components/hover-gradient-card/) |
 | [Card](components/card/) | An editorial card, clickable as a whole through one link: the image drifts closer, the border firms up and an arrow slides in. | [Demo](https://kodza.dev/components/card/) |
 | [Expandable Card](components/expandable-card/) | A row of cards where one is always open: click another and it widens while the others step back. Stacked on small screens. | [Demo](https://kodza.dev/components/expandable-card/) |
+| [Flip Card](components/flip-card/) | A two-sided card you take by an edge: it turns over from the side under the mouse, and the face that arrives lays its lines down one by one from behind a mask. Click or hover, reversible mid-turn. | [Demo](https://kodza.dev/components/flip-card/) |
+| [Listing Card](components/listing-card/) | A rental or property card: each photo sweeps over the last one with a slight depth, under the finger too, the dots stretch to the new photo, and the heart fills with ink and says Saved. | [Demo](https://kodza.dev/components/listing-card/) |
 | [Pricing Plans](components/pricing-plans/) | Three plans in one block, the featured one inked and lifted out. Switch to yearly and only the digits that change roll to their new value. | [Demo](https://kodza.dev/components/pricing-plans/) |
+| [Profile Card](components/profile-card/) | A person you can reach: portrait, role, the time where they are rolling on the minute, whether they take calls now, real links, and Save contact writing a .vcf with the photo. Author box variant. | [Demo](https://kodza.dev/components/profile-card/) |
+| [Stack Cards](components/stack-cards/) | A pile of cards you throw: the top one leaves on the side you threw it, turned by your speed, and slides back under while the others step forward. Prev, Next, arrow keys and a rolling counter. | [Demo](https://kodza.dev/components/stack-cards/) |
 | [Sticky Cards](components/sticky-cards/) | Cards that stack as you scroll, each covered card stepping back and darkening. Plain position: sticky and a few lines of JS. No GSAP. | [Demo](https://kodza.dev/components/sticky-cards/) |
 
 </details>

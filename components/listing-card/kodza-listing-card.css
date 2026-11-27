@@ -1,0 +1,1267 @@
+/* Kodza License: free to use, client work included. Not to resell or redistribute, ported or not: https://kodza.dev/docs/#print-license */
+/* Kodza — Listing Card
+   The card of a rental or a sale: each photo sweeps over the one before, from the side you go to,
+   its picture settling as the old one is pushed back into the shade. Swipe it and the sweep follows
+   the finger; the arrows come in from the edges under the pointer, the arrow keys work on the
+   photos. The dots stretch from one photo to the next. The heart fills with ink when you save the
+   place, and "Saved" opens beside it. The whole card is one link; the photos, the arrows and the
+   heart never open it by mistake.
+   Without the script, the card is a plain link showing the first photo.
+   The words and the timings are at the top of component.js.
+   Everything is tuned with the --kz-listing-card-* variables. */
+.kodza-listing-card {
+  --kz-listing-card-fg: var(--kz-color-ink, #0a0a0a);
+  --kz-listing-card-paper: var(--kz-color-paper, #ffffff);
+  --kz-listing-card-muted: color-mix(in srgb, var(--kz-listing-card-fg) 62%, transparent);
+  --kz-listing-card-soft: color-mix(in srgb, var(--kz-listing-card-fg) 6%, transparent);
+  --kz-listing-card-ring: color-mix(in srgb, var(--kz-listing-card-fg) 12%, transparent);
+  --kz-listing-card-on-image: #ffffff; /* the dots, over the photo */
+  --kz-listing-card-veil: rgba(10, 10, 10, 0.42); /* the dots' pill */
+  --kz-listing-card-width: 360px; /* the most it takes; a grid column can make it narrower */
+  --kz-listing-card-radius: calc(16px * var(--kz-radius-scale, 1));
+  --kz-listing-card-ratio: 4 / 3;
+  --kz-listing-card-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --kz-listing-card-mono: var(--kz-font-mono, "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  max-width: var(--kz-listing-card-width);
+  margin: 0;
+  color: var(--kz-listing-card-fg);
+}
+
+.kodza-listing-card__media {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--kz-listing-card-radius);
+  background: var(--kz-listing-card-soft);
+}
+
+/* Started, the photos sit over the link: the script opens it on a plain click */
+.kodza-listing-card.is-ready .kodza-listing-card__media {
+  z-index: 2;
+}
+
+.kodza-listing-card__media:has(.kodza-listing-card__track:focus-visible) {
+  outline: 2px solid var(--kz-listing-card-fg);
+  outline-offset: 4px;
+}
+
+.kodza-listing-card__track {
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  aspect-ratio: var(--kz-listing-card-ratio);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  isolation: isolate;
+  list-style: none;
+  outline: none;
+  touch-action: pan-y;
+  overscroll-behavior-x: contain;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: scale calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-listing-card-ease);
+}
+
+.kodza-listing-card.is-ready .kodza-listing-card__track {
+  cursor: pointer;
+}
+
+.kodza-listing-card.is-swiping .kodza-listing-card__track {
+  cursor: grabbing;
+}
+
+/* The photos share one cell: the one shown, and the one sweeping over it */
+.kodza-listing-card__slide {
+  grid-area: 1 / 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.kodza-listing-card__slide + .kodza-listing-card__slide,
+.kodza-listing-card.is-ready .kodza-listing-card__slide {
+  visibility: hidden;
+}
+
+.kodza-listing-card.is-ready .kodza-listing-card__slide.is-current,
+.kodza-listing-card.is-ready .kodza-listing-card__slide.is-coming {
+  visibility: visible;
+}
+
+.kodza-listing-card.is-ready .kodza-listing-card__slide.is-coming {
+  z-index: 1;
+}
+
+.kodza-listing-card__image {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* "New", "Reserved": a word, never a colour */
+.kodza-listing-card__badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  height: 28px;
+  margin: 0;
+  padding: 0 10px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-listing-card-paper);
+  color: var(--kz-listing-card-fg);
+  font-family: var(--kz-font-label, var(--kz-listing-card-mono));
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  pointer-events: none;
+}
+
+/* The heart: the outline, and the ink cut to the same shape by the script */
+.kodza-listing-card__like {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-listing-card-paper);
+  color: var(--kz-listing-card-fg);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* "Saved": the button opens to the left, the word rises in it, then it closes */
+.kodza-listing-card__flag {
+  display: grid;
+  grid-template-columns: 0fr;
+  transition: grid-template-columns calc(0.5s * var(--kz-motion-scale, 1)) cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.kodza-listing-card__like.is-saying .kodza-listing-card__flag {
+  grid-template-columns: 1fr;
+}
+
+.kodza-listing-card__flag > span {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.kodza-listing-card__flag-word {
+  display: block;
+  padding: 0 7px 0 3px;
+  font-family: var(--kz-font-label, var(--kz-listing-card-mono));
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  white-space: nowrap;
+}
+
+.kodza-listing-card:not(.is-ready) .kodza-listing-card__like {
+  display: none;
+}
+
+.kodza-listing-card__like:focus-visible {
+  outline: 2px solid var(--kz-listing-card-paper);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--kz-listing-card-fg);
+}
+
+.kodza-listing-card__heart {
+  display: block;
+  width: 20px;
+  height: 20px;
+  overflow: hidden;
+  transition: transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-listing-card-ease);
+}
+
+.kodza-listing-card__like:active .kodza-listing-card__heart {
+  transform: scale(0.86);
+}
+
+.kodza-listing-card__shape {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.kodza-listing-card:not(.is-ready) .kodza-listing-card__ink {
+  visibility: hidden;
+}
+
+/* The level: just under the tip when empty, just over the top when saved. It rises fast and
+   settles in the lobes, and drains faster, gathering speed as it goes */
+.kodza-listing-card__level,
+.kodza-listing-card__surface,
+.kodza-listing-card__wave {
+  transform-box: view-box;
+}
+
+.kodza-listing-card__level {
+  transform: translateY(19px);
+  transition: transform calc(420ms * var(--kz-motion-scale, 1)) cubic-bezier(0.6, 0, 0.8, 0.4);
+}
+
+.kodza-listing-card__like[aria-pressed="true"] .kodza-listing-card__level {
+  transform: translateY(1px);
+  transition-duration: calc(760ms * var(--kz-motion-scale, 1));
+  transition-timing-function: cubic-bezier(0.3, 0.7, 0.3, 1);
+}
+
+.kodza-listing-card__surface {
+  transform: scaleY(0.7);
+  transform-origin: 12px 2px;
+}
+
+.kodza-listing-card__wave {
+  fill: currentColor;
+  animation: kodza-listing-card-wave calc(1.1s * var(--kz-motion-scale, 1)) linear infinite paused;
+}
+
+.kodza-listing-card__like.is-flowing .kodza-listing-card__wave {
+  animation-play-state: running;
+}
+
+@keyframes kodza-listing-card-wave {
+  to {
+    transform: translateX(24px);
+  }
+}
+
+/* The arrows: under the pointer only, gone at either end */
+.kodza-listing-card__arrow {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-listing-card-paper);
+  box-shadow: inset 0 0 0 1px var(--kz-listing-card-ring);
+  color: var(--kz-listing-card-fg);
+  font: inherit;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity calc(0.3s * var(--kz-motion-scale, 1)) ease,
+    translate calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-listing-card-ease),
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-listing-card__arrow--prev {
+  left: 12px;
+  translate: -12px 0;
+}
+
+.kodza-listing-card__arrow--next {
+  right: 12px;
+  translate: 12px 0;
+}
+
+.kodza-listing-card__arrow svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  transition: translate calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-listing-card-ease);
+}
+
+@media (hover: hover) {
+  .kodza-listing-card.is-ready:not(.is-single):hover .kodza-listing-card__arrow {
+    opacity: 1;
+    translate: 0 0;
+    pointer-events: auto;
+  }
+
+  .kodza-listing-card.is-ready:hover .kodza-listing-card__track {
+    scale: 1.03;
+  }
+
+  .kodza-listing-card__arrow:hover {
+    background: var(--kz-listing-card-fg);
+    color: var(--kz-listing-card-paper);
+  }
+
+  .kodza-listing-card__arrow--prev:hover svg {
+    translate: -2px 0;
+  }
+
+  .kodza-listing-card__arrow--next:hover svg {
+    translate: 2px 0;
+  }
+
+  .kodza-listing-card:hover .kodza-listing-card__link {
+    text-decoration-color: currentColor;
+  }
+
+  .kodza-listing-card__like:not(.is-spent):not([aria-pressed="true"]):hover .kodza-listing-card__level {
+    transform: translateY(16px);
+    transition-duration: calc(380ms * var(--kz-motion-scale, 1));
+    transition-timing-function: var(--kz-listing-card-ease);
+  }
+
+  .kodza-listing-card__like:not(.is-spent):hover .kodza-listing-card__wave {
+    animation-play-state: running;
+  }
+}
+
+/* From the keyboard, the arrows show on the photos too */
+.kodza-listing-card.is-ready:not(.is-single) .kodza-listing-card__media:has(.kodza-listing-card__track:focus-visible) .kodza-listing-card__arrow {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.kodza-listing-card.is-ready.is-first .kodza-listing-card__arrow--prev {
+  translate: -12px 0;
+}
+
+.kodza-listing-card.is-ready.is-last .kodza-listing-card__arrow--next {
+  translate: 12px 0;
+}
+
+.kodza-listing-card.is-ready.is-first .kodza-listing-card__arrow--prev,
+.kodza-listing-card.is-ready.is-last .kodza-listing-card__arrow--next {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The dots: the pill of ink stretches from one photo to the next, its front first */
+.kodza-listing-card__dots {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  display: flex;
+  gap: 5px;
+  margin: 0;
+  padding: 7px 9px;
+  translate: -50% 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-listing-card-veil);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+.kodza-listing-card__dot,
+.kodza-listing-card__pill {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--kz-radius-pill, 999px);
+}
+
+.kodza-listing-card__dot {
+  background: color-mix(in srgb, var(--kz-listing-card-on-image) 42%, transparent);
+}
+
+.kodza-listing-card__pill {
+  position: absolute;
+  top: 7px;
+  left: 0;
+  background: var(--kz-listing-card-on-image);
+}
+
+.kodza-listing-card__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.kodza-listing-card__body {
+  display: grid;
+  gap: 6px;
+  padding: 14px 2px 0;
+  container: kodza-listing-card / inline-size;
+}
+
+.kodza-listing-card__title {
+  margin: 0;
+  padding: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(16px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.3;
+  letter-spacing: var(--kz-font-display-tracking, -0.015em);
+  text-transform: var(--kz-font-display-case, inherit);
+  text-wrap: pretty;
+}
+
+.kodza-listing-card__link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+/* The whole card is the link */
+.kodza-listing-card__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--kz-listing-card-radius);
+}
+
+.kodza-listing-card__link:focus {
+  outline: none;
+}
+
+.kodza-listing-card__link:focus-visible::after {
+  outline: 2px solid var(--kz-listing-card-fg);
+  outline-offset: 6px;
+}
+
+.kodza-listing-card__place {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--kz-listing-card-muted);
+}
+
+.kodza-listing-card__facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--kz-font-label, var(--kz-listing-card-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  color: var(--kz-listing-card-muted);
+}
+
+.kodza-listing-card__facts li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-listing-card__facts li + li::before {
+  content: "";
+  flex: none;
+  width: 3px;
+  height: 3px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: currentColor;
+}
+
+/* Too narrow for one line: a dot would start the second one, so the facts go without. */
+@container kodza-listing-card (max-width: 200px) {
+  .kodza-listing-card__facts {
+    gap: 2px 12px;
+  }
+
+  .kodza-listing-card__facts li + li::before {
+    display: none;
+  }
+}
+
+.kodza-listing-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--kz-listing-card-muted);
+}
+
+.kodza-listing-card__price strong {
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(20px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  letter-spacing: var(--kz-font-display-tracking, -0.025em);
+  text-transform: var(--kz-font-display-case, inherit);
+  font-variant-numeric: tabular-nums;
+  color: var(--kz-listing-card-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-listing-card__track,
+  .kodza-listing-card__flag,
+  .kodza-listing-card__arrow,
+  .kodza-listing-card__arrow svg,
+  .kodza-listing-card__heart,
+  .kodza-listing-card__level,
+  .kodza-listing-card__link {
+    transition: none;
+  }
+
+  .kodza-listing-card__wave {
+    animation: none;
+  }
+}
+
+/* kodza-guard 580f488a9ac4 — generated by Kodza, do not edit.
+   Theme guard: keeps a site's own CSS (WordPress themes, Bootstrap, CSS resets…) off this
+   component. :not(#_) is always true and weighs as much as an id, so these lines win over
+   theme rules made of classes and tags. Customise the component through its --kz-* variables. */
+
+/* What the browser gives, where the component sets it only in some states: at the lowest weight, so its own rules below put it back */
+
+:where(.kodza-listing-card__like):not(#_) {
+  outline: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+}
+
+:where(.kodza-listing-card__link):not(#_) {
+  outline: revert;
+}
+
+/* What the browser gives, on everything the component leaves to it */
+
+.kodza-listing-card:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-listing-card__media:not(#_),
+.kodza-listing-card__flag:not(#_),
+.kodza-listing-card__flag-word:not(#_),
+.kodza-listing-card__ink:not(#_),
+.kodza-listing-card__level:not(#_),
+.kodza-listing-card__surface:not(#_),
+.kodza-listing-card__wave:not(#_),
+.kodza-listing-card__shape:not(#_),
+.kodza-listing-card__dot:not(#_),
+.kodza-listing-card__pill:not(#_),
+.kodza-listing-card__body:not(#_),
+.kodza-listing-card__flag span:where(:not([class*="kodza-"])):not(#_),
+.kodza-listing-card__price span:where(:not([class*="kodza-"])):not(#_) {
+  box-sizing: revert;
+}
+
+.kodza-listing-card__track:not(#_) {
+  border: revert;
+  border-radius: revert;
+  text-decoration: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-listing-card__slide:not(#_),
+.kodza-listing-card__facts li:where(:is(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))):not(.kodza-listing-card__facts :not(:not([class]), [class=""], [class^="is-"]:not([class*="kodza-"]):not([class*=" "]:not([class*=" is-"]))) *)):not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-listing-card__image:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-listing-card__badge:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-listing-card__like:not(#_) {
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  float: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-listing-card__heart:not(#_),
+.kodza-listing-card__arrow svg:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-listing-card__arrow:not(#_) {
+  outline: revert;
+  text-decoration: revert;
+  list-style: revert;
+  float: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+  white-space: revert;
+  min-height: revert;
+}
+
+.kodza-listing-card__status:not(#_) {
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-listing-card__dots:not(#_) {
+  border: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-listing-card__title:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  color: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-listing-card__link:not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-size: revert;
+  font-weight: revert;
+  font-style: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-listing-card__place:not(#_),
+.kodza-listing-card__price:not(#_) {
+  border: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-listing-card__facts:not(#_) {
+  border: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-listing-card__price strong:where(:not([class*="kodza-"])):not(#_) {
+  border: revert;
+  margin: revert;
+  padding: revert;
+  border-radius: revert;
+  outline: revert;
+  text-decoration: revert;
+  transition: revert;
+  list-style: revert;
+  box-sizing: revert;
+  float: revert;
+  position: revert;
+  background-color: revert;
+  background-image: revert;
+  box-shadow: revert;
+  outline-offset: revert;
+  appearance: revert;
+  max-width: revert;
+  max-height: revert;
+  font-style: revert;
+  line-height: revert;
+  text-underline-offset: revert;
+  text-align: revert;
+  text-indent: revert;
+  text-shadow: revert;
+  vertical-align: revert;
+}
+
+.kodza-listing-card__slide:not(#_):where(:not([hidden])),
+.kodza-listing-card__status:not(#_):where(:not([hidden])),
+.kodza-listing-card__title:not(#_):where(:not([hidden])),
+.kodza-listing-card__link:not(#_):where(:not([hidden])),
+.kodza-listing-card__place:not(#_):where(:not([hidden])),
+.kodza-listing-card__price strong:where(:not([class*="kodza-"])):not(#_):where(:not([hidden])) {
+  display: revert;
+}
+
+.kodza-listing-card__slide:not(#_):where([hidden]),
+.kodza-listing-card__status:not(#_):where([hidden]),
+.kodza-listing-card__title:not(#_):where([hidden]),
+.kodza-listing-card__link:not(#_):where([hidden]),
+.kodza-listing-card__place:not(#_):where([hidden]),
+.kodza-listing-card__price strong:where(:not([class*="kodza-"])):not(#_):where([hidden]) {
+  display: none;
+}
+
+.kodza-listing-card__link:not(#_)::after {
+  box-sizing: revert;
+}
+
+/* The component's own rules, one step stronger: real buttons and fields, what it sets on tags themes style (links, lists, headings, images…), and the root width (a theme may narrow it, never widen it) */
+
+.kodza-listing-card:not(#_) {
+  position: relative;
+  color: var(--kz-listing-card-fg);
+}
+
+.kodza-listing-card:not(#_) {
+  width: min(100%, var(--kz-listing-card-width));
+}
+
+.kodza-listing-card__track:not(#_) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  outline: none;
+  transition: scale calc(0.9s * var(--kz-motion-scale, 1)) var(--kz-listing-card-ease);
+}
+
+.kodza-listing-card__slide:not(#_) {
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-listing-card__image:not(#_) {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.kodza-listing-card__badge:not(#_) {
+  position: absolute;
+  display: flex;
+  margin: 0;
+  padding: 0 10px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-listing-card-paper);
+  color: var(--kz-listing-card-fg);
+  font-family: var(--kz-font-label, var(--kz-listing-card-mono));
+  font-size: var(--kz-font-label-size, 11px);
+  font-weight: var(--kz-font-label-weight, 500);
+  line-height: 1;
+  letter-spacing: var(--kz-font-label-tracking, 0.04em);
+  text-transform: var(--kz-font-label-case, uppercase);
+}
+
+.kodza-listing-card__like:not(#_) {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-listing-card-paper);
+  color: var(--kz-listing-card-fg);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kodza-listing-card:not(.is-ready) .kodza-listing-card__like:not(#_) {
+  display: none;
+}
+
+.kodza-listing-card__like:focus-visible:not(#_) {
+  outline: 2px solid var(--kz-listing-card-paper);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--kz-listing-card-fg);
+}
+
+.kodza-listing-card__heart:not(#_) {
+  display: block;
+  transition: transform calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-listing-card-ease);
+}
+
+.kodza-listing-card__arrow:not(#_) {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-listing-card-paper);
+  box-shadow: inset 0 0 0 1px var(--kz-listing-card-ring);
+  color: var(--kz-listing-card-fg);
+  font: inherit;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity calc(0.3s * var(--kz-motion-scale, 1)) ease,
+    translate calc(0.45s * var(--kz-motion-scale, 1)) var(--kz-listing-card-ease),
+    background-color calc(0.2s * var(--kz-motion-scale, 1)) ease,
+    color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-listing-card__arrow--prev:not(#_) {
+  left: 12px;
+  translate: -12px 0;
+}
+
+.kodza-listing-card__arrow--next:not(#_) {
+  right: 12px;
+  translate: 12px 0;
+}
+
+.kodza-listing-card__arrow svg:not(#_) {
+  display: block;
+  transition: translate calc(0.25s * var(--kz-motion-scale, 1)) var(--kz-listing-card-ease);
+}
+
+@media (hover: hover) {
+  .kodza-listing-card.is-ready:not(.is-single):hover .kodza-listing-card__arrow:not(#_) {
+    opacity: 1;
+    translate: 0 0;
+    pointer-events: auto;
+  }
+}
+
+@media (hover: hover) {
+  .kodza-listing-card__arrow:hover:not(#_) {
+    background: var(--kz-listing-card-fg);
+    color: var(--kz-listing-card-paper);
+  }
+}
+
+@media (hover: hover) {
+  .kodza-listing-card:hover .kodza-listing-card__link:not(#_) {
+    text-decoration-color: currentColor;
+  }
+}
+
+.kodza-listing-card.is-ready:not(.is-single) .kodza-listing-card__media:has(.kodza-listing-card__track:focus-visible) .kodza-listing-card__arrow:not(#_) {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.kodza-listing-card.is-ready.is-first .kodza-listing-card__arrow--prev:not(#_) {
+  translate: -12px 0;
+}
+
+.kodza-listing-card.is-ready.is-last .kodza-listing-card__arrow--next:not(#_) {
+  translate: 12px 0;
+}
+
+.kodza-listing-card.is-ready.is-first .kodza-listing-card__arrow--prev:not(#_),
+.kodza-listing-card.is-ready.is-last .kodza-listing-card__arrow--next:not(#_) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kodza-listing-card__dots:not(#_) {
+  position: absolute;
+  display: flex;
+  margin: 0;
+  padding: 7px 9px;
+  border-radius: var(--kz-radius-pill, 999px);
+  background: var(--kz-listing-card-veil);
+}
+
+.kodza-listing-card__status:not(#_) {
+  position: absolute;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+}
+
+.kodza-listing-card__title:not(#_) {
+  margin: 0;
+  padding: 0;
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(16px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  line-height: 1.3;
+  letter-spacing: var(--kz-font-display-tracking, -0.015em);
+  text-transform: var(--kz-font-display-case, inherit);
+}
+
+.kodza-listing-card__link:not(#_) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color calc(0.2s * var(--kz-motion-scale, 1)) ease;
+}
+
+.kodza-listing-card__link:focus:not(#_) {
+  outline: none;
+}
+
+.kodza-listing-card__place:not(#_) {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--kz-listing-card-muted);
+}
+
+.kodza-listing-card__facts:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--kz-font-label, var(--kz-listing-card-mono));
+  font-size: var(--kz-font-label-size, 12px);
+  font-weight: var(--kz-font-label-weight, 400);
+  line-height: var(--kz-font-label-leading, 1.4);
+  letter-spacing: var(--kz-font-label-tracking, 0.02em);
+  text-transform: var(--kz-font-label-case, uppercase);
+  color: var(--kz-listing-card-muted);
+}
+
+.kodza-listing-card__facts li:not(#_) {
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.kodza-listing-card__price:not(#_) {
+  display: flex;
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--kz-listing-card-muted);
+}
+
+.kodza-listing-card__price strong:not(#_) {
+  font-family: var(--kz-font-display, inherit);
+  font-size: calc(20px * var(--kz-font-display-scale, 1));
+  font-weight: var(--kz-font-display-weight, 600);
+  letter-spacing: var(--kz-font-display-tracking, -0.025em);
+  text-transform: var(--kz-font-display-case, inherit);
+  color: var(--kz-listing-card-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-listing-card__track:not(#_),
+  .kodza-listing-card__arrow svg:not(#_),
+  .kodza-listing-card__heart:not(#_),
+  .kodza-listing-card__link:not(#_) {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodza-listing-card__arrow:not(#_) {
+    transition: none;
+  }
+}
